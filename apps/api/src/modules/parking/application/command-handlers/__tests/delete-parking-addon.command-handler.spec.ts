@@ -53,5 +53,6 @@ describe('DeleteParkingAddonCommandHandler', () => {
     repository.findById.mockResolvedValue(null);
 
     await expect(handler.execute(command)).rejects.toThrow(AppError);
+    expect(repository.delete).not.toHaveBeenCalled();
   });
 });

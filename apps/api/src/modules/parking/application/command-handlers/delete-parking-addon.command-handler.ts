@@ -6,14 +6,14 @@ import { AppError } from '../../../../shared/errors';
 @CommandHandler(DeleteParkingAddonCommand)
 export class DeleteParkingAddonCommandHandler implements ICommandHandler<
   DeleteParkingAddonCommand,
-  void
+  string
 > {
   constructor(
     private readonly parkingAddonRepository: ParkingAddonRepository,
     private readonly eventPublisher: EventPublisher,
   ) {}
 
-  async execute(command: DeleteParkingAddonCommand): Promise<void> {
+  async execute(command: DeleteParkingAddonCommand): Promise<string> {
     const { id } = command;
 
     const parkingAddon = await this.parkingAddonRepository.findById(id);
@@ -30,5 +30,6 @@ export class DeleteParkingAddonCommandHandler implements ICommandHandler<
 
     await this.parkingAddonRepository.delete(id);
     parkingAddon.commit();
+    return parkingAddon.getId().value;
   }
 }

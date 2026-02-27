@@ -18,9 +18,7 @@ describe('ParkingAddon', () => {
     const events = addon.getUncommittedEvents();
     expect(events).toHaveLength(1);
     expect(events[0]).toBeInstanceOf(ParkingAddonCreatedEvent);
-    expect((events[0] as ParkingAddonCreatedEvent).id).toBe(
-      addon.getId().value,
-    );
+    expect(events[0]['id']).toBe(addon.getId().value);
   });
 
   it('should update parking addon and apply updated event', () => {
@@ -35,7 +33,7 @@ describe('ParkingAddon', () => {
     const events = addon.getUncommittedEvents();
     expect(events).toHaveLength(1);
     expect(events[0]).toBeInstanceOf(ParkingAddonUpdatedEvent);
-    expect((events[0] as ParkingAddonUpdatedEvent).name).toBe('New Name');
+    expect(events[0]['name']).toBe('New Name');
   });
 
   it('should apply deleted event when deleted', () => {
@@ -47,8 +45,26 @@ describe('ParkingAddon', () => {
     const events = addon.getUncommittedEvents();
     expect(events).toHaveLength(1);
     expect(events[0]).toBeInstanceOf(ParkingAddonDeletedEvent);
-    expect((events[0] as ParkingAddonDeletedEvent).id).toBe(
-      addon.getId().value,
-    );
+    expect(events[0]['id']).toBe(addon.getId().value);
+  });
+
+  describe('validation', () => {
+    it('should throw error when price is negative in create', () => {
+      expect(() => {
+        ParkingAddon.create('PA1', 'Addon 1', -100);
+      }).toThrow();
+    });
+
+    it('should throw error when price is negative in update', () => {
+      const addon = ParkingAddon.create('PA1', 'Addon 1', 100);
+      expect(() => {
+        addon.update('Updated Name', -50);
+      }).toThrow();
+    });
+
+    it('should create addon when price is zero', () => {
+      const addon = ParkingAddon.create('PA1', 'Addon 1', 0);
+      expect(addon.getPrice().value).toBe(0);
+    });
   });
 });

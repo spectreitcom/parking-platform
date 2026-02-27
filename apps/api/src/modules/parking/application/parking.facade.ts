@@ -32,8 +32,8 @@ export class ParkingFacade {
     );
   }
 
-  async createParkingAddon(name: string, code: string, price: number) {
-    const command = new CreateParkingAddonCommand(name, code, price);
+  async createParkingAddon(code: string, name: string, price: number) {
+    const command = new CreateParkingAddonCommand(code, name, price);
     return await this.commandBus.execute<CreateParkingAddonCommand, string>(
       command,
     );

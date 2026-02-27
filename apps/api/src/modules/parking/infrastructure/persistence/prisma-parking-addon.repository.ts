@@ -50,6 +50,25 @@ export class PrismaParkingAddonRepository implements ParkingAddonRepository {
     );
   }
 
+  async findByCode(code: string, tx?: PrismaTx): Promise<ParkingAddon | null> {
+    const prisma = tx || this.prismaService;
+
+    const record = await prisma.parkingAddon.findUnique({
+      where: { code },
+    });
+
+    if (!record) {
+      return null;
+    }
+
+    return new ParkingAddon(
+      ParkingAddonId.fromString(record.id),
+      ParkingAddonCode.fromString(record.code),
+      ParkingAddonName.fromString(record.name),
+      Money.fromNumber(record.price),
+    );
+  }
+
   async delete(id: string, tx?: PrismaTx): Promise<void> {
     const prisma = tx || this.prismaService;
 

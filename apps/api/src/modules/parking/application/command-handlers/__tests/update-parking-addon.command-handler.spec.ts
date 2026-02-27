@@ -63,5 +63,6 @@ describe('UpdateParkingAddonCommandHandler', () => {
     repository.findById.mockResolvedValue(null);
 
     await expect(handler.execute(command)).rejects.toThrow(AppError);
+    expect(repository.save).not.toHaveBeenCalled();
   });
 });

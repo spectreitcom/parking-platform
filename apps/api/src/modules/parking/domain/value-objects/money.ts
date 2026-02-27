@@ -1,7 +1,8 @@
-import { IsInt, validateSync } from 'class-validator';
+import { IsInt, Min, validateSync } from 'class-validator';
 
 export class Money {
   @IsInt()
+  @Min(0)
   private readonly _value: number;
 
   private constructor(value: number) {

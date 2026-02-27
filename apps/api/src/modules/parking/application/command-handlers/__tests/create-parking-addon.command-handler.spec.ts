@@ -11,7 +11,6 @@ describe('CreateParkingAddonCommandHandler', () => {
   let handler: CreateParkingAddonCommandHandler;
   let repository: jest.Mocked<ParkingAddonRepository>;
   let publisher: jest.Mocked<EventPublisher>;
-  let prisma: jest.Mocked<PrismaService>;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -21,6 +20,7 @@ describe('CreateParkingAddonCommandHandler', () => {
           provide: ParkingAddonRepository,
           useValue: {
             save: jest.fn(),
+            findByCode: jest.fn(),
           },
         },
         {
@@ -45,20 +45,17 @@ describe('CreateParkingAddonCommandHandler', () => {
     );
     repository = module.get(ParkingAddonRepository);
     publisher = module.get(EventPublisher);
-    prisma = module.get(PrismaService);
   });
 
   /* eslint-disable @typescript-eslint/unbound-method */
   it('should create and save a new parking addon', async () => {
     const command = new CreateParkingAddonCommand('PA1', 'Premium', 1000);
-    (prisma.parkingAddon.findUnique as jest.Mock).mockResolvedValue(null);
+    repository.findByCode.mockResolvedValue(null);
 
     const result = await handler.execute(command);
 
     expect(result).toBeDefined();
-    expect(prisma.parkingAddon.findUnique).toHaveBeenCalledWith({
-      where: { code: 'PA1' },
-    });
+    expect(repository.findByCode).toHaveBeenCalledWith('PA1');
     expect(repository.save).toHaveBeenCalledWith(expect.any(ParkingAddon));
     expect(publisher.mergeObjectContext).toHaveBeenCalled();
   });
@@ -66,9 +63,7 @@ describe('CreateParkingAddonCommandHandler', () => {
   /* eslint-disable @typescript-eslint/unbound-method */
   it('should throw error if addon with code already exists', async () => {
     const command = new CreateParkingAddonCommand('PA1', 'Premium', 1000);
-    (prisma.parkingAddon.findUnique as jest.Mock).mockResolvedValue({
-      id: 'some-id',
-    });
+    repository.findByCode.mockResolvedValue({} as ParkingAddon);
 
     await expect(handler.execute(command)).rejects.toThrow(AppError);
     expect(repository.save).not.toHaveBeenCalled();

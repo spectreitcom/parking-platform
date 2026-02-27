@@ -37,4 +37,14 @@ describe('Money', () => {
     expect(m1.equals(m2)).toBe(true);
     expect(m1.equals(m3)).toBe(false);
   });
+
+  it('should throw error if negative', () => {
+    expect(() => Money.fromNumber(-100)).toThrow('Invalid Money');
+  });
+
+  it('should throw error if subtraction results in negative', () => {
+    const m1 = Money.fromNumber(100);
+    const m2 = Money.fromNumber(200);
+    expect(() => m1.subtract(m2)).toThrow('Invalid Money');
+  });
 });

@@ -1,7 +1,6 @@
 import { CommandHandler, EventPublisher, ICommandHandler } from '@nestjs/cqrs';
 import { CreateParkingAddonCommand } from '../commands/create-parking-addon.command';
 import { ParkingAddonRepository } from '../ports/parking-addon.repository';
-import { PrismaService } from '../../../../shared/prisma/prisma.service';
 import { AppError } from '../../../../shared/errors';
 import { ParkingAddon } from '../../domain/parking-addon';
 
@@ -13,17 +12,12 @@ export class CreateParkingAddonCommandHandler implements ICommandHandler<
   constructor(
     private readonly parkingAddonRepository: ParkingAddonRepository,
     private readonly eventPublisher: EventPublisher,
-    private readonly prismaService: PrismaService,
   ) {}
 
   async execute(command: CreateParkingAddonCommand): Promise<string> {
     const { code, name, price } = command;
 
-    const record = await this.prismaService.parkingAddon.findUnique({
-      where: {
-        code,
-      },
-    });
+    const record = await this.parkingAddonRepository.findByCode(code);
 
     if (record) {
       throw new AppError(
