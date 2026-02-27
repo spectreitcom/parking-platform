@@ -47,19 +47,20 @@ describe('DeleteParkingTypeCommandHandler', () => {
     const result = await handler.execute(command);
 
     expect(result).toBe(id);
-    expect(jest.spyOn(repository, 'findById')).toHaveBeenCalledWith(id);
-    expect(jest.spyOn(publisher, 'mergeObjectContext')).toHaveBeenCalledWith(
-      parkingType,
-    );
-    expect(jest.spyOn(repository, 'delete')).toHaveBeenCalledWith(id);
+    /* eslint-disable @typescript-eslint/unbound-method */
+    expect(repository.findById).toHaveBeenCalledWith(id);
+    expect(publisher.mergeObjectContext).toHaveBeenCalledWith(parkingType);
+    expect(repository.delete).toHaveBeenCalledWith(id);
+    /* eslint-enable @typescript-eslint/unbound-method */
   });
 
   it('should throw AppError if parking type not found', async () => {
     repository.findById.mockResolvedValue(null);
     const command = new DeleteParkingTypeCommand('non-existent');
 
-    await expect(handler.execute(command)).rejects.toThrow(AppError);
-    await expect(handler.execute(command)).rejects.toMatchObject({
+    const exec = handler.execute(command);
+    await expect(exec).rejects.toThrow(AppError);
+    await expect(exec).rejects.toMatchObject({
       code: 'ENTITY_NOT_FOUND',
     });
   });

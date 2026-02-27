@@ -5,11 +5,11 @@ import { PrismaTx } from './types';
 
 @Injectable()
 export class PrismaTransactionRunner implements TransactionRunner {
-  constructor(private readonly prismService: PrismaService) {}
+  constructor(private readonly prismaService: PrismaService) {}
 
   async runInTransaction<T>(
     callback: (prisma: PrismaTx) => Promise<T>,
   ): Promise<T> {
-    return this.prismService.$transaction(callback);
+    return this.prismaService.$transaction(callback);
   }
 }

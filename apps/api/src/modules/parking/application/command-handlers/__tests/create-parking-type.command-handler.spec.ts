@@ -43,12 +43,12 @@ describe('CreateParkingTypeCommandHandler', () => {
 
     expect(result).toBeDefined();
     expect(typeof result).toBe('string');
-    expect(jest.spyOn(publisher, 'mergeObjectContext')).toHaveBeenCalledWith(
+    /* eslint-disable @typescript-eslint/unbound-method */
+    expect(publisher.mergeObjectContext).toHaveBeenCalledWith(
       expect.any(ParkingType),
     );
-    expect(jest.spyOn(repository, 'save')).toHaveBeenCalledWith(
-      expect.any(ParkingType),
-    );
+    expect(repository.save).toHaveBeenCalledWith(expect.any(ParkingType));
+    /* eslint-enable @typescript-eslint/unbound-method */
     const savedParkingType = repository.save.mock.calls[0][0];
     expect(savedParkingType.getName().value).toBe('Standard');
   });

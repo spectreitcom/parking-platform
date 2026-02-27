@@ -47,20 +47,22 @@ describe('UpdateParkingTypeCommandHandler', () => {
     const result = await handler.execute(command);
 
     expect(result).toBe(id);
-    expect(jest.spyOn(repository, 'findById')).toHaveBeenCalledWith(id);
-    expect(jest.spyOn(publisher, 'mergeObjectContext')).toHaveBeenCalledWith(
-      parkingType,
-    );
+    /* eslint-disable @typescript-eslint/unbound-method */
+    expect(repository.findById).toHaveBeenCalledWith(id);
+    expect(publisher.mergeObjectContext).toHaveBeenCalledWith(parkingType);
     expect(parkingType.getName().value).toBe('Premium');
-    expect(jest.spyOn(repository, 'save')).toHaveBeenCalledWith(parkingType);
+    expect(repository.save).toHaveBeenCalledWith(parkingType);
+    /* eslint-enable @typescript-eslint/unbound-method */
   });
 
   it('should throw AppError if parking type not found', async () => {
     repository.findById.mockResolvedValue(null);
     const command = new UpdateParkingTypeCommand('non-existent', 'Premium');
 
-    await expect(handler.execute(command)).rejects.toThrow(AppError);
-    await expect(handler.execute(command)).rejects.toMatchObject({
+    const exec = handler.execute(command);
+
+    await expect(exec).rejects.toThrow(AppError);
+    await expect(exec).rejects.toMatchObject({
       code: 'ENTITY_NOT_FOUND',
     });
   });

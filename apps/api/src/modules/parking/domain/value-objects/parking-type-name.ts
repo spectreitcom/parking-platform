@@ -6,7 +6,7 @@ export class ParkingTypeName {
   private readonly _value: string;
 
   private constructor(value: string) {
-    this._value = value;
+    this._value = value.trim().replace(/\s+/g, ' ');
     this.validate();
   }
 
