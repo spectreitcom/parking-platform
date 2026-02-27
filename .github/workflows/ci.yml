@@ -22,7 +22,7 @@ jobs:
         run: npm ci
 
       - name: Generate prisma client
-        run: npm run prisma:generate
+        run: cd apps/api && npm run prisma:generate
 
       - name: Check types
         run: npm run check-types
