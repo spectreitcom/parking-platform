@@ -15,8 +15,8 @@
     "@commitlint/config-conventional": "^20.4.2",
     "husky": "^9.1.7",
     "prettier": "^3.8.1",
-    "prisma": "^7.4.1",
-    "turbo": "^2.8.11",
+    "prisma": "^7.4.2",
+    "turbo": "^2.8.12",
     "typescript": "5.9.3"
   },
   "engines": {
@@ -26,5 +26,6 @@
   "workspaces": [
     "apps/*",
     "packages/*"
-  ]
+  ],
+  "dependencies": {}
 }
