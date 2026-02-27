@@ -1,0 +1,79 @@
+import { AggregateRoot } from '@nestjs/cqrs';
+import { ParkingAddonId } from './value-objects/parking-addon-id';
+import { ParkingAddonName } from './value-objects/parking-addon-name';
+import { ParkingAddonCode } from './value-objects/parking-addon-code';
+import { ParkingAddonCreatedEvent } from './events/parking-addon-created.event';
+import { Money } from './value-objects/money';
+import { ParkingAddonUpdatedEvent } from './events/parking-addon-updated.event';
+import { ParkingAddonDeletedEvent } from './events/parking-addon-deleted.event';
+
+export class ParkingAddon extends AggregateRoot {
+  private readonly id: ParkingAddonId;
+  private readonly code: ParkingAddonCode;
+  private name: ParkingAddonName;
+  private price: Money;
+
+  constructor(
+    id: ParkingAddonId,
+    code: ParkingAddonCode,
+    name: ParkingAddonName,
+    price: Money,
+  ) {
+    super();
+    this.id = id;
+    this.code = code;
+    this.name = name;
+    this.price = price;
+  }
+
+  static create(code: string, name: string, price: number) {
+    const id = ParkingAddonId.create();
+    const _code = ParkingAddonCode.fromString(code);
+    const _name = ParkingAddonName.fromString(name);
+    const _price = Money.fromNumber(price);
+    const parkingAddon = new ParkingAddon(id, _code, _name, _price);
+    parkingAddon.apply(
+      new ParkingAddonCreatedEvent(
+        id.value,
+        _code.value,
+        _name.value,
+        _price.value,
+      ),
+    );
+    return parkingAddon;
+  }
+
+  update(name: string, price: number) {
+    this.name = ParkingAddonName.fromString(name);
+    this.price = Money.fromNumber(price);
+
+    this.apply(
+      new ParkingAddonUpdatedEvent(
+        this.id.value,
+        this.code.value,
+        this.name.value,
+        this.price.value,
+      ),
+    );
+  }
+
+  delete() {
+    this.apply(new ParkingAddonDeletedEvent(this.id.value));
+  }
+
+  getId() {
+    return this.id;
+  }
+
+  getCode() {
+    return this.code;
+  }
+
+  getName() {
+    return this.name;
+  }
+
+  getPrice() {
+    return this.price;
+  }
+}
