@@ -15,4 +15,13 @@ model ParkingType {
   updatedAt DateTime @updatedAt
 }
 
+model ParkingAddon {
+  id        String   @id @default(uuid()) @db.Uuid
+  code      String   @unique @db.VarChar(60)
+  name      String   @db.VarChar(255)
+  price     Int      @default(0) // In grosze
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
 // -----------------------------
