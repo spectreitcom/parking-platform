@@ -70,4 +70,16 @@ describe('DeletePlaceTypeCommandHandler', () => {
       code: 'ENTITY_NOT_FOUND',
     });
   });
+
+  it('should throw AppError if version is invalid', async () => {
+    const placeType = PlaceType.create('Standard');
+    repository.findById.mockResolvedValue(placeType);
+    const command = new DeletePlaceTypeCommand(placeType.getId().value, -1);
+
+    const exec = handler.execute(command);
+    await expect(exec).rejects.toThrow(AppError);
+    await expect(exec).rejects.toMatchObject({
+      code: 'VALIDATION_ERROR',
+    });
+  });
 });

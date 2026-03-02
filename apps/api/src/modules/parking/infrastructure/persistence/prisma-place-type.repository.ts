@@ -22,6 +22,10 @@ export class PrismaPlaceTypeRepository implements PlaceTypeRepository {
     });
 
     if (!record) {
+      if (currentVersion > 1) {
+        throw new ConcurrencyError('PlaceType', id);
+      }
+
       await prisma.placeType.create({
         data: {
           id: placeType.getId().value,

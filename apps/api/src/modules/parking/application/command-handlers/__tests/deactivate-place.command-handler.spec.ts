@@ -71,4 +71,26 @@ describe('DeactivatePlaceCommandHandler', () => {
 
     await expect(handler.execute(command)).rejects.toThrow(AppError);
   });
+
+  it('should throw AppError if version is invalid', async () => {
+    const id = randomUUID();
+    const place = Place.create(
+      'Place 1',
+      { latitude: 52.0, longitude: 21.0 },
+      'Address 1',
+      true,
+      randomUUID(),
+    );
+    repository.findById.mockResolvedValue(place);
+
+    const command = new DeactivatePlaceCommand(id, -1);
+
+    try {
+      await handler.execute(command);
+      fail('Should have thrown an error');
+    } catch (error) {
+      expect(error).toBeInstanceOf(AppError);
+      expect((error as AppError).code).toBe('VALIDATION_ERROR');
+    }
+  });
 });

@@ -23,7 +23,14 @@ export class PrismaParkingAddonRepository implements ParkingAddonRepository {
       where: { id },
     });
 
+    // If record does not exist and version > 1, it means the aggregate existed before
+    // and was likely deleted concurrently -> do not recreate, throw concurrency error
     if (!record) {
+      if (currentVersion > 1) {
+        throw new ConcurrencyError('ParkingAddon', id);
+      }
+
+      // Only allow create when we're on the first version (new aggregate)
       await prisma.parkingAddon.create({
         data: {
           id: parkingAddon.getId().value,

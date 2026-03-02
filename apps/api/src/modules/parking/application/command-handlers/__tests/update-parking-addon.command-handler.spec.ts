@@ -67,4 +67,24 @@ describe('UpdateParkingAddonCommandHandler', () => {
     await expect(handler.execute(command)).rejects.toThrow(AppError);
     expect(repository.save).not.toHaveBeenCalled();
   });
+
+  it('should throw AppError if version is invalid', async () => {
+    const addon = ParkingAddon.create('PA1', 'Old Name', 1000);
+    const command = new UpdateParkingAddonCommand(
+      addon.getId().value,
+      'New Name',
+      2000,
+      -1,
+    );
+    repository.findById.mockResolvedValue(addon);
+
+    try {
+      await handler.execute(command);
+      fail('Should have thrown an error');
+    } catch (error) {
+      expect(error).toBeInstanceOf(AppError);
+      expect((error as AppError).code).toBe('VALIDATION_ERROR');
+    }
+    expect(repository.save).not.toHaveBeenCalled();
+  });
 });
