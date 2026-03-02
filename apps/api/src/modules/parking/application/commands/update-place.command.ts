@@ -8,5 +8,6 @@ export class UpdatePlaceCommand implements ICommand {
     public readonly longitude: number,
     public readonly placeTypeId: string,
     public readonly address: string,
+    public readonly version: number,
   ) {}
 }

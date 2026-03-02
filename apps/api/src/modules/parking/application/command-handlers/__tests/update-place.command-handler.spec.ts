@@ -55,11 +55,10 @@ describe('UpdatePlaceCommandHandler', () => {
       22.0,
       randomUUID(),
       'New Address',
+      place.getVersion().value,
     );
 
-    const result = await handler.execute(command);
-
-    expect(result).toBeDefined();
+    await handler.execute(command);
     /* eslint-disable @typescript-eslint/unbound-method */
     expect(repository.findById).toHaveBeenCalledWith(id);
     expect(publisher.mergeObjectContext).toHaveBeenCalledWith(place);
@@ -82,6 +81,7 @@ describe('UpdatePlaceCommandHandler', () => {
       22.0,
       randomUUID(),
       'New Address',
+      1,
     );
 
     await expect(handler.execute(command)).rejects.toThrow(AppError);

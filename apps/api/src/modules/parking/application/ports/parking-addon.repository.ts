@@ -8,5 +8,5 @@ export abstract class ParkingAddonRepository {
     code: string,
     tx?: PrismaTx,
   ): Promise<ParkingAddon | null>;
-  abstract delete(id: string, tx?: PrismaTx): Promise<void>;
+  abstract delete(id: string, version: number, tx?: PrismaTx): Promise<void>;
 }

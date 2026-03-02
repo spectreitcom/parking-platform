@@ -6,7 +6,8 @@ export type AppErrorCode =
   | 'ALREADY_EXISTS'
   | 'WRONG_CREDENTIALS'
   | 'UNAUTHORIZED'
-  | 'SIMPLE_ERROR';
+  | 'SIMPLE_ERROR'
+  | 'CONCURRENCY';
 
 export const codeToStatus: Record<AppErrorCode, number> = {
   ENTITY_NOT_FOUND: HttpStatus.NOT_FOUND,
@@ -15,6 +16,7 @@ export const codeToStatus: Record<AppErrorCode, number> = {
   WRONG_CREDENTIALS: HttpStatus.UNAUTHORIZED,
   UNAUTHORIZED: HttpStatus.UNAUTHORIZED,
   SIMPLE_ERROR: HttpStatus.BAD_REQUEST,
+  CONCURRENCY: HttpStatus.CONFLICT,
 };
 
 export class AppError extends Error {
@@ -23,5 +25,11 @@ export class AppError extends Error {
     message?: string,
   ) {
     super(message);
+  }
+}
+
+export class ConcurrencyError extends Error {
+  constructor(entityName: string, id: string) {
+    super(`${entityName} with id ${id} has been modified by another process`);
   }
 }

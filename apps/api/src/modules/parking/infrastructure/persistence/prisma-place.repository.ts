@@ -8,6 +8,8 @@ import { PlaceName } from '../../domain/value-objects/place-name';
 import { Coords } from '../../domain/value-objects/coords';
 import { Address } from '../../domain/value-objects/address';
 import { PlaceTypeId } from '../../domain/value-objects/place-type-id';
+import { AggregateVersion } from '../../../../shared/value-objects/aggregate-version';
+import { ConcurrencyError } from '../../../../shared/errors';
 
 @Injectable()
 export class PrismaPlaceRepository implements PlaceRepository {
@@ -15,29 +17,53 @@ export class PrismaPlaceRepository implements PlaceRepository {
 
   async save(place: Place, tx?: PrismaTx): Promise<void> {
     const prisma = tx ?? this.prismaService;
+    const id = place.getId().value;
+    const currentVersion = place.getVersion().value;
 
-    await prisma.place.upsert({
-      where: {
-        id: place.getId().value,
-      },
-      create: {
-        id: place.getId().value,
-        name: place.getName().value,
-        latitude: place.getCoords().latitude,
-        longitude: place.getCoords().longitude,
-        active: place.isActive(),
-        address: place.getAddress().value,
-        placeTypeId: place.getPlaceTypeId().value,
-      },
-      update: {
-        name: place.getName().value,
-        latitude: place.getCoords().latitude,
-        longitude: place.getCoords().longitude,
-        active: place.isActive(),
-        address: place.getAddress().value,
-        placeTypeId: place.getPlaceTypeId().value,
-      },
+    const record = await prisma.place.findUnique({
+      where: { id },
     });
+
+    if (!record) {
+      await prisma.place.create({
+        data: {
+          id: place.getId().value,
+          name: place.getName().value,
+          latitude: place.getCoords().latitude,
+          longitude: place.getCoords().longitude,
+          active: place.isActive(),
+          address: place.getAddress().value,
+          placeTypeId: place.getPlaceTypeId().value,
+          version: 1,
+        },
+      });
+      return;
+    }
+
+    try {
+      await prisma.place.update({
+        where: {
+          id,
+          version: currentVersion,
+        },
+        data: {
+          name: place.getName().value,
+          latitude: place.getCoords().latitude,
+          longitude: place.getCoords().longitude,
+          active: place.isActive(),
+          address: place.getAddress().value,
+          placeTypeId: place.getPlaceTypeId().value,
+          version: {
+            increment: 1,
+          },
+        },
+      });
+    } catch (error) {
+      if (error instanceof Error && 'code' in error && error.code === 'P2025') {
+        throw new ConcurrencyError('Place', id);
+      }
+      throw error;
+    }
   }
 
   async findById(id: string, tx?: PrismaTx): Promise<Place | null> {
@@ -60,6 +86,7 @@ export class PrismaPlaceRepository implements PlaceRepository {
       Address.fromString(record.address),
       record.active,
       PlaceTypeId.fromString(record.placeTypeId),
+      AggregateVersion.fromNumber(record.version),
     );
   }
 }

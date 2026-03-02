@@ -5,6 +5,8 @@ import { PrismaTx } from 'src/shared/prisma/types';
 import { PlaceType } from '../../domain/place-type';
 import { PlaceTypeId } from '../../domain/value-objects/place-type-id';
 import { PlaceTypeName } from '../../domain/value-objects/place-type-name';
+import { AggregateVersion } from '../../../../shared/value-objects/aggregate-version';
+import { ConcurrencyError } from '../../../../shared/errors';
 
 @Injectable()
 export class PrismaPlaceTypeRepository implements PlaceTypeRepository {
@@ -12,19 +14,43 @@ export class PrismaPlaceTypeRepository implements PlaceTypeRepository {
 
   async save(placeType: PlaceType, tx?: PrismaTx): Promise<void> {
     const prisma = tx ?? this.prismaService;
+    const id = placeType.getId().value;
+    const currentVersion = placeType.getVersion().value;
 
-    await prisma.placeType.upsert({
-      where: {
-        id: placeType.getId().value,
-      },
-      create: {
-        id: placeType.getId().value,
-        name: placeType.getName().value,
-      },
-      update: {
-        name: placeType.getName().value,
-      },
+    const record = await prisma.placeType.findUnique({
+      where: { id },
     });
+
+    if (!record) {
+      await prisma.placeType.create({
+        data: {
+          id: placeType.getId().value,
+          name: placeType.getName().value,
+          version: 1,
+        },
+      });
+      return;
+    }
+
+    try {
+      await prisma.placeType.update({
+        where: {
+          id,
+          version: currentVersion,
+        },
+        data: {
+          name: placeType.getName().value,
+          version: {
+            increment: 1,
+          },
+        },
+      });
+    } catch (error) {
+      if (error instanceof Error && 'code' in error && error.code === 'P2025') {
+        throw new ConcurrencyError('PlaceType', id);
+      }
+      throw error;
+    }
   }
 
   async findById(id: string, tx?: PrismaTx): Promise<PlaceType | null> {
@@ -43,16 +69,25 @@ export class PrismaPlaceTypeRepository implements PlaceTypeRepository {
     return new PlaceType(
       PlaceTypeId.fromString(record.id),
       PlaceTypeName.fromString(record.name),
+      AggregateVersion.fromNumber(record.version),
     );
   }
 
-  async delete(id: string, tx?: PrismaTx): Promise<void> {
+  async delete(id: string, version: number, tx?: PrismaTx): Promise<void> {
     const prisma = tx ?? this.prismaService;
 
-    await prisma.placeType.delete({
-      where: {
-        id,
-      },
-    });
+    try {
+      await prisma.placeType.delete({
+        where: {
+          id,
+          version,
+        },
+      });
+    } catch (error) {
+      if (error instanceof Error && 'code' in error && error.code === 'P2025') {
+        throw new ConcurrencyError('PlaceType', id);
+      }
+      throw error;
+    }
   }
 }

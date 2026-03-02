@@ -50,7 +50,7 @@ describe('ActivatePlaceCommandHandler', () => {
     );
     repository.findById.mockResolvedValue(place);
 
-    const command = new ActivatePlaceCommand(id);
+    const command = new ActivatePlaceCommand(id, place.getVersion().value);
 
     const result = await handler.execute(command);
 
@@ -67,7 +67,7 @@ describe('ActivatePlaceCommandHandler', () => {
     const id = randomUUID();
     repository.findById.mockResolvedValue(null);
 
-    const command = new ActivatePlaceCommand(id);
+    const command = new ActivatePlaceCommand(id, 1);
 
     await expect(handler.execute(command)).rejects.toThrow(AppError);
   });

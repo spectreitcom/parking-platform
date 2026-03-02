@@ -43,6 +43,7 @@ describe('UpdateParkingAddonCommandHandler', () => {
       addon.getId().value,
       'New Name',
       2000,
+      addon.getVersion().value,
     );
     repository.findById.mockResolvedValue(addon);
 
@@ -59,6 +60,7 @@ describe('UpdateParkingAddonCommandHandler', () => {
       'non-existent',
       'New Name',
       2000,
+      1,
     );
     repository.findById.mockResolvedValue(null);
 

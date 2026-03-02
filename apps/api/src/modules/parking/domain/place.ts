@@ -8,6 +8,7 @@ import { PlaceCreatedEvent } from './events/place-created.event';
 import { PlaceActivatedEvent } from './events/place-activated.event';
 import { PlaceDeactivatedEvent } from './events/place-deactivated.event';
 import { PlaceUpdatedEvent } from './events/place-updated.event';
+import { AggregateVersion } from '../../../shared/value-objects/aggregate-version';
 
 export class Place extends AggregateRoot {
   private readonly id: PlaceId;
@@ -16,6 +17,7 @@ export class Place extends AggregateRoot {
   private address: Address;
   private active: boolean;
   private placeTypeId: PlaceTypeId;
+  private readonly version: AggregateVersion;
 
   constructor(
     id: PlaceId,
@@ -24,6 +26,7 @@ export class Place extends AggregateRoot {
     address: Address,
     active: boolean,
     placeTypeId: PlaceTypeId,
+    version: AggregateVersion,
   ) {
     super();
     this.id = id;
@@ -32,6 +35,7 @@ export class Place extends AggregateRoot {
     this.address = address;
     this.active = active;
     this.placeTypeId = placeTypeId;
+    this.version = version;
   }
 
   static create(
@@ -48,6 +52,7 @@ export class Place extends AggregateRoot {
       Address.fromString(address),
       active,
       PlaceTypeId.fromString(placeTypeId),
+      AggregateVersion.one(),
     );
 
     place.apply(
@@ -130,5 +135,9 @@ export class Place extends AggregateRoot {
 
   getPlaceTypeId() {
     return this.placeTypeId;
+  }
+
+  getVersion() {
+    return this.version;
   }
 }

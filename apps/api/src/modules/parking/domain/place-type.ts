@@ -4,21 +4,24 @@ import { PlaceTypeName } from './value-objects/place-type-name';
 import { PlaceTypeCreatedEvent } from './events/place-type-created.event';
 import { PlaceTypeUpdatedEvent } from './events/place-type-updated.event';
 import { PlaceTypeDeletedEvent } from './events/place-type-deleted.event';
+import { AggregateVersion } from '../../../shared/value-objects/aggregate-version';
 
 export class PlaceType extends AggregateRoot {
   private readonly id: PlaceTypeId;
   private name: PlaceTypeName;
+  private readonly version: AggregateVersion;
 
-  constructor(id: PlaceTypeId, name: PlaceTypeName) {
+  constructor(id: PlaceTypeId, name: PlaceTypeName, version: AggregateVersion) {
     super();
     this.id = id;
     this.name = name;
+    this.version = version;
   }
 
   static create(name: string) {
     const id = PlaceTypeId.create();
     const _name = PlaceTypeName.fromString(name);
-    const placeType = new PlaceType(id, _name);
+    const placeType = new PlaceType(id, _name, AggregateVersion.one());
     placeType.apply(new PlaceTypeCreatedEvent(id.value, _name.value));
     return placeType;
   }
@@ -38,5 +41,9 @@ export class PlaceType extends AggregateRoot {
 
   getName() {
     return this.name;
+  }
+
+  getVersion() {
+    return this.version;
   }
 }
