@@ -50,6 +50,8 @@ model OutboxMessage {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  deduplicationKey String? @unique
+
   @@index([status, nextRetryAt])
   @@index([boundedContext])
   @@index([aggregateType, aggregateId])

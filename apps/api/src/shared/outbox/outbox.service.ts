@@ -1,6 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Prisma, OutboxStatus } from '@prisma/client';
 import { EventBus } from '@nestjs/cqrs';
+import { createHash } from 'node:crypto';
 import { PrismaService } from '../prisma/prisma.service';
 import {
   EmitOptions,
@@ -11,7 +12,9 @@ import {
 import { PrismaTx } from '../prisma/types';
 
 const DEFAULT_BATCH = 50;
+const MAX_BATCH_SIZE = 500;
 const MAX_RETRIES = 5;
+const LEASE_DURATION_MS = 5 * 60 * 1000; // 5 minutes
 
 @Injectable()
 export class OutboxService {
@@ -27,38 +30,73 @@ export class OutboxService {
     options: EnqueueOptions = {},
     tx: PrismaTx,
   ): Promise<{ id: string; alreadyQueued: boolean }> {
-    if (options.deduplicate) {
-      const exists = await this.isEnqueued(
-        {
-          type: event.type,
-          boundedContext: event.boundedContext ?? undefined,
-          aggregateType: event.aggregateType ?? undefined,
-          aggregateId: event.aggregateId ?? undefined,
-          payload: event.payload as Prisma.InputJsonValue,
-        },
-        tx,
-      );
+    const deduplicationKey = options.deduplicate
+      ? this.generateDeduplicationKey(event)
+      : null;
 
+    if (deduplicationKey) {
+      const exists = await this.isEnqueuedByKey(deduplicationKey, tx);
       if (exists) {
         return { id: exists.id, alreadyQueued: true };
       }
     }
 
-    const created = await tx.outboxMessage.create({
-      data: {
-        type: event.type,
-        boundedContext: event.boundedContext ?? null,
-        aggregateType: event.aggregateType ?? null,
-        aggregateId: event.aggregateId ?? null,
-        payload: event.payload as Prisma.InputJsonValue,
-        headers: (event.headers ?? null) as Prisma.InputJsonValue,
-        status: OutboxStatus.PENDING,
-        attemptCount: 0,
-      },
+    try {
+      const created = await tx.outboxMessage.create({
+        data: {
+          type: event.type,
+          boundedContext: event.boundedContext ?? null,
+          aggregateType: event.aggregateType ?? null,
+          aggregateId: event.aggregateId ?? null,
+          payload: event.payload as Prisma.InputJsonValue,
+          headers: (event.headers ?? null) as Prisma.InputJsonValue,
+          status: OutboxStatus.PENDING,
+          attemptCount: 0,
+          deduplicationKey,
+        },
+        select: { id: true },
+      });
+
+      return { id: created.id, alreadyQueued: false };
+    } catch (error) {
+      if (
+        deduplicationKey &&
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === 'P2002'
+      ) {
+        const exists = await this.isEnqueuedByKey(deduplicationKey, tx);
+        if (exists) {
+          return { id: exists.id, alreadyQueued: true };
+        }
+      }
+      throw error;
+    }
+  }
+
+  private generateDeduplicationKey(event: IntegrationEvent): string {
+    const payloadString = JSON.stringify(event.payload);
+    const fingerprint = createHash('sha256')
+      .update(payloadString)
+      .digest('hex');
+
+    return [
+      event.type,
+      event.boundedContext ?? '',
+      event.aggregateType ?? '',
+      event.aggregateId ?? '',
+      fingerprint,
+    ].join(':');
+  }
+
+  async isEnqueuedByKey(
+    deduplicationKey: string,
+    tx?: PrismaTx,
+  ): Promise<{ id: string } | null> {
+    const prisma = tx ?? this.prisma;
+    return prisma.outboxMessage.findUnique({
+      where: { deduplicationKey },
       select: { id: true },
     });
-
-    return { id: created.id, alreadyQueued: false };
   }
 
   async isEnqueued(
@@ -71,45 +109,43 @@ export class OutboxService {
     },
     tx?: PrismaTx,
   ): Promise<{ id: string } | null> {
-    const prisma = tx ?? this.prisma;
-    const { type, boundedContext, aggregateType, aggregateId, payload } =
-      criteria;
-
-    const msg = await prisma.outboxMessage.findFirst({
-      where: {
-        type,
-        ...(boundedContext ? { boundedContext } : {}),
-        ...(aggregateType ? { aggregateType } : {}),
-        ...(aggregateId ? { aggregateId } : {}),
-        ...(payload !== undefined
-          ? {
-              payload: {
-                equals: payload,
-              } as Prisma.JsonFilter<'OutboxMessage'>,
-            }
-          : {}),
-        status: { in: [OutboxStatus.PENDING, OutboxStatus.PROCESSING] },
-      },
-      select: { id: true },
-    });
-
-    return msg ?? null;
+    const event = new IntegrationEvent(
+      criteria.type,
+      criteria.payload,
+      criteria.boundedContext,
+      criteria.aggregateType,
+      criteria.aggregateId,
+    );
+    const key = this.generateDeduplicationKey(event);
+    return this.isEnqueuedByKey(key, tx);
   }
 
   async emitPending(options: EmitOptions = {}): Promise<void> {
-    const batch = options.maxBatchSize ?? DEFAULT_BATCH;
+    let batchCandidate = options.maxBatchSize ?? DEFAULT_BATCH;
+    if (!Number.isInteger(batchCandidate) || batchCandidate < 1) {
+      batchCandidate = 1;
+    }
+    if (batchCandidate > MAX_BATCH_SIZE) {
+      batchCandidate = MAX_BATCH_SIZE;
+    }
+    const batch = batchCandidate;
     const now = new Date();
+    const staleCutoff = new Date(now.getTime() - LEASE_DURATION_MS);
 
     const messages = await this.prisma.$queryRaw<
       Prisma.OutboxMessageGetPayload<Record<string, never>>[]
     >(
       Prisma.sql`
         UPDATE "OutboxMessage"
-        SET status = ${OutboxStatus.PROCESSING}::"OutboxStatus"
+        SET status = ${OutboxStatus.PROCESSING}::"OutboxStatus",
+            "updatedAt" = ${now}
         WHERE id IN (
           SELECT id
           FROM "OutboxMessage"
-          WHERE status IN (${OutboxStatus.PENDING}::"OutboxStatus", ${OutboxStatus.FAILED}::"OutboxStatus")
+          WHERE (
+            status IN (${OutboxStatus.PENDING}::"OutboxStatus", ${OutboxStatus.FAILED}::"OutboxStatus")
+            OR (status = ${OutboxStatus.PROCESSING}::"OutboxStatus" AND "updatedAt" <= ${staleCutoff})
+          )
             AND ("nextRetryAt" IS NULL OR "nextRetryAt" <= ${now})
           ORDER BY "createdAt" ASC
           LIMIT ${batch}
