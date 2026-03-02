@@ -1,7 +1,7 @@
 import { IsUUID, validateSync } from 'class-validator';
 import { randomUUID } from 'node:crypto';
 
-export class ParkingTypeId {
+export class PlaceTypeId {
   @IsUUID()
   private readonly _value: string;
 
@@ -13,23 +13,23 @@ export class ParkingTypeId {
   private validate() {
     const errors = validateSync(this);
     if (errors.length > 0) {
-      throw new Error(`Invalid ParkingTypeId`);
+      throw new Error(`Invalid PlaceTypeId`);
     }
   }
 
   static create() {
-    return new ParkingTypeId(randomUUID());
+    return new PlaceTypeId(randomUUID());
   }
 
   static fromString(value: string) {
-    return new ParkingTypeId(value);
+    return new PlaceTypeId(value);
   }
 
   get value() {
     return this._value;
   }
 
-  equals(other: ParkingTypeId) {
+  equals(other: PlaceTypeId) {
     return this._value === other._value;
   }
 }

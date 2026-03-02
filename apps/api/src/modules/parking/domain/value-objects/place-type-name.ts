@@ -1,6 +1,6 @@
 import { IsNotEmpty, MaxLength, validateSync } from 'class-validator';
 
-export class ParkingTypeName {
+export class PlaceTypeName {
   @IsNotEmpty()
   @MaxLength(60)
   private readonly _value: string;
@@ -13,7 +13,7 @@ export class ParkingTypeName {
   private validate() {
     const errors = validateSync(this);
     if (errors.length > 0) {
-      throw new Error(`Invalid ParkingTypeName`);
+      throw new Error(`Invalid PlaceTypeName`);
     }
   }
 
@@ -22,10 +22,10 @@ export class ParkingTypeName {
   }
 
   static fromString(value: string) {
-    return new ParkingTypeName(value);
+    return new PlaceTypeName(value);
   }
 
-  equals(other: ParkingTypeName) {
+  equals(other: PlaceTypeName) {
     return this._value === other._value;
   }
 }

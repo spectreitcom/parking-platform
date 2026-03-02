@@ -1,5 +1,5 @@
 import { ICommand } from '@nestjs/cqrs';
 
-export class DeleteParkingTypeCommand implements ICommand {
+export class DeletePlaceTypeCommand implements ICommand {
   constructor(public readonly id: string) {}
 }

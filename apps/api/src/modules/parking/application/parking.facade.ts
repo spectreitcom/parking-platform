@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { CommandBus } from '@nestjs/cqrs';
-import { CreateParkingTypeCommand } from './commands/create-parking-type.command';
-import { UpdateParkingTypeCommand } from './commands/update-parking-type.command';
-import { DeleteParkingTypeCommand } from './commands/delete-parking-type.command';
+import { CreatePlaceTypeCommand } from './commands/create-place-type.command';
+import { UpdatePlaceTypeCommand } from './commands/update-place-type.command';
+import { DeletePlaceTypeCommand } from './commands/delete-place-type.command';
 import { CreateParkingAddonCommand } from './commands/create-parking-addon.command';
 import { UpdateParkingAddonCommand } from './commands/update-parking-addon.command';
 import { DeleteParkingAddonCommand } from './commands/delete-parking-addon.command';
@@ -11,23 +11,23 @@ import { DeleteParkingAddonCommand } from './commands/delete-parking-addon.comma
 export class ParkingFacade {
   constructor(private readonly commandBus: CommandBus) {}
 
-  async createParkingType(name: string) {
-    const command = new CreateParkingTypeCommand(name);
-    return await this.commandBus.execute<CreateParkingTypeCommand, string>(
+  async createPlaceType(name: string) {
+    const command = new CreatePlaceTypeCommand(name);
+    return await this.commandBus.execute<CreatePlaceTypeCommand, string>(
       command,
     );
   }
 
-  async updateParkingType(id: string, name: string) {
-    const command = new UpdateParkingTypeCommand(id, name);
-    return await this.commandBus.execute<UpdateParkingTypeCommand, string>(
+  async updatePlaceType(id: string, name: string) {
+    const command = new UpdatePlaceTypeCommand(id, name);
+    return await this.commandBus.execute<UpdatePlaceTypeCommand, string>(
       command,
     );
   }
 
-  async deleteParkingType(id: string) {
-    const command = new DeleteParkingTypeCommand(id);
-    return await this.commandBus.execute<DeleteParkingTypeCommand, string>(
+  async deletePlaceType(id: string) {
+    const command = new DeletePlaceTypeCommand(id);
+    return await this.commandBus.execute<DeletePlaceTypeCommand, string>(
       command,
     );
   }
