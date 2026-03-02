@@ -8,6 +8,5 @@ export class ParkingAddonDeletedEventHandler implements IEventHandler<ParkingAdd
 
   handle(event: ParkingAddonDeletedEvent) {
     this.logger.log(`Parking addon deleted: ${event.id}`);
-    // tutaj logika, która z aktualizuje read modele
   }
 }

@@ -7,7 +7,6 @@ export class PlaceTypeDeletedEventHandler implements IEventHandler<PlaceTypeDele
   private readonly logger = new Logger(PlaceTypeDeletedEventHandler.name);
 
   handle(event: PlaceTypeDeletedEvent) {
-    this.logger.log(`PlaceTypeDeletedEvent: ${JSON.stringify(event)}`);
-    // tutaj powinien być kod aktualizujący read modele
+    this.logger.log(`Place type deleted: ${event.id}`);
   }
 }
