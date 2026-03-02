@@ -6,6 +6,10 @@ import { DeletePlaceTypeCommand } from './commands/delete-place-type.command';
 import { CreateParkingAddonCommand } from './commands/create-parking-addon.command';
 import { UpdateParkingAddonCommand } from './commands/update-parking-addon.command';
 import { DeleteParkingAddonCommand } from './commands/delete-parking-addon.command';
+import { CreatePlaceCommand } from './commands/create-place.command';
+import { UpdatePlaceCommand } from './commands/update-place.command';
+import { ActivatePlaceCommand } from './commands/activate-place.command';
+import { DeactivatePlaceCommand } from './commands/deactivate-place.command';
 
 @Injectable()
 export class ParkingFacade {
@@ -49,6 +53,56 @@ export class ParkingFacade {
   async updateParkingAddon(id: string, name: string, price: number) {
     const command = new UpdateParkingAddonCommand(id, name, price);
     return await this.commandBus.execute<UpdateParkingAddonCommand, string>(
+      command,
+    );
+  }
+
+  async createPlace(
+    name: string,
+    latitude: number,
+    longitude: number,
+    placeTypeId: string,
+    active: boolean,
+    address: string,
+  ) {
+    const command = new CreatePlaceCommand(
+      name,
+      latitude,
+      longitude,
+      placeTypeId,
+      active,
+      address,
+    );
+    return await this.commandBus.execute<CreatePlaceCommand, string>(command);
+  }
+
+  async updatePlace(
+    id: string,
+    name: string,
+    latitude: number,
+    longitude: number,
+    placeTypeId: string,
+    address: string,
+  ) {
+    const command = new UpdatePlaceCommand(
+      id,
+      name,
+      latitude,
+      longitude,
+      placeTypeId,
+      address,
+    );
+    return await this.commandBus.execute<UpdatePlaceCommand, string>(command);
+  }
+
+  async activatePlace(id: string) {
+    const command = new ActivatePlaceCommand(id);
+    return await this.commandBus.execute<ActivatePlaceCommand, string>(command);
+  }
+
+  async deactivatePlace(id: string) {
+    const command = new DeactivatePlaceCommand(id);
+    return await this.commandBus.execute<DeactivatePlaceCommand, string>(
       command,
     );
   }

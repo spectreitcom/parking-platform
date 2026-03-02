@@ -13,6 +13,7 @@ model PlaceType {
   name      String   @unique @db.VarChar(60)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  places    Place[]
 }
 
 model ParkingAddon {
@@ -20,6 +21,21 @@ model ParkingAddon {
   code      String   @unique @db.VarChar(60)
   name      String   @db.VarChar(255)
   price     Int      @default(0) // In grosze
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Place {
+  id        String  @id @default(uuid()) @db.Uuid
+  name      String  @unique @db.VarChar(255)
+  longitude Decimal @db.Decimal(10, 7)
+  latitude  Decimal @db.Decimal(10, 7)
+  active    Boolean @default(true)
+  address   String  @db.VarChar(255)
+
+  placeTypeId String    @db.Uuid
+  placeType   PlaceType @relation(fields: [placeTypeId], references: [id])
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
