@@ -1,5 +1,5 @@
 import { IEvent } from '@nestjs/cqrs';
 
-export class ParkingTypeDeletedEvent implements IEvent {
+export class PlaceTypeDeletedEvent implements IEvent {
   constructor(public readonly id: string) {}
 }

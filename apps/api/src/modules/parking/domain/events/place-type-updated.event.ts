@@ -1,4 +1,4 @@
-export class ParkingTypeUpdatedEvent {
+export class PlaceTypeUpdatedEvent {
   constructor(
     public readonly id: string,
     public readonly name: string,

@@ -1,7 +1,7 @@
-import { ParkingTypeDeletedEventHandler } from './parking-type-deleted.event-handler';
+import { PlaceTypeDeletedEventHandler } from './place-type-deleted.event-handler';
 import { ParkingAddonDeletedEventHandler } from './parking-addon-deleted.event-handler';
 
 export const eventHandlers = [
-  ParkingTypeDeletedEventHandler,
+  PlaceTypeDeletedEventHandler,
   ParkingAddonDeletedEventHandler,
 ];

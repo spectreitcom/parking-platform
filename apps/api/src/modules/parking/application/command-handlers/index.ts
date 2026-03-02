@@ -1,14 +1,14 @@
-import { CreateParkingTypeCommandHandler } from './create-parking-type.command-handler';
-import { UpdateParkingTypeCommandHandler } from './update-parking-type.command-handler';
-import { DeleteParkingTypeCommandHandler } from './delete-parking-type.command-handler';
+import { CreatePlaceTypeCommandHandler } from './create-place-type-command-handler';
+import { UpdatePlaceTypeCommandHandler } from './update-place-type-command-handler';
+import { DeletePlaceTypeCommandHandler } from './delete-place-type-command-handler';
 import { CreateParkingAddonCommandHandler } from './create-parking-addon.command-handler';
 import { UpdateParkingAddonCommandHandler } from './update-parking-addon.command-handler';
 import { DeleteParkingAddonCommandHandler } from './delete-parking-addon.command-handler';
 
 export const commandHandlers = [
-  CreateParkingTypeCommandHandler,
-  UpdateParkingTypeCommandHandler,
-  DeleteParkingTypeCommandHandler,
+  CreatePlaceTypeCommandHandler,
+  UpdatePlaceTypeCommandHandler,
+  DeletePlaceTypeCommandHandler,
   CreateParkingAddonCommandHandler,
   UpdateParkingAddonCommandHandler,
   DeleteParkingAddonCommandHandler,
