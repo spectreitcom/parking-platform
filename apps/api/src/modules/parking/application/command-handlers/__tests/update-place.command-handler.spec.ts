@@ -55,11 +55,10 @@ describe('UpdatePlaceCommandHandler', () => {
       22.0,
       randomUUID(),
       'New Address',
+      place.getVersion().value,
     );
 
-    const result = await handler.execute(command);
-
-    expect(result).toBeDefined();
+    await handler.execute(command);
     /* eslint-disable @typescript-eslint/unbound-method */
     expect(repository.findById).toHaveBeenCalledWith(id);
     expect(publisher.mergeObjectContext).toHaveBeenCalledWith(place);
@@ -82,8 +81,39 @@ describe('UpdatePlaceCommandHandler', () => {
       22.0,
       randomUUID(),
       'New Address',
+      1,
     );
 
     await expect(handler.execute(command)).rejects.toThrow(AppError);
+  });
+
+  it('should throw AppError if version is invalid', async () => {
+    const id = randomUUID();
+    const place = Place.create(
+      'Name',
+      { latitude: 52.0, longitude: 21.0 },
+      'Address',
+      true,
+      randomUUID(),
+    );
+    repository.findById.mockResolvedValue(place);
+
+    const command = new UpdatePlaceCommand(
+      id,
+      'New Name',
+      53.0,
+      22.0,
+      randomUUID(),
+      'New Address',
+      -1, // Invalid version
+    );
+
+    try {
+      await handler.execute(command);
+      fail('Should have thrown an error');
+    } catch (error) {
+      expect(error).toBeInstanceOf(AppError);
+      expect((error as AppError).code).toBe('VALIDATION_ERROR');
+    }
   });
 });

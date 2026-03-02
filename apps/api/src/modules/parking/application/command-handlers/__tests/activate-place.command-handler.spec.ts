@@ -50,7 +50,7 @@ describe('ActivatePlaceCommandHandler', () => {
     );
     repository.findById.mockResolvedValue(place);
 
-    const command = new ActivatePlaceCommand(id);
+    const command = new ActivatePlaceCommand(id, place.getVersion().value);
 
     const result = await handler.execute(command);
 
@@ -67,8 +67,30 @@ describe('ActivatePlaceCommandHandler', () => {
     const id = randomUUID();
     repository.findById.mockResolvedValue(null);
 
-    const command = new ActivatePlaceCommand(id);
+    const command = new ActivatePlaceCommand(id, 1);
 
     await expect(handler.execute(command)).rejects.toThrow(AppError);
+  });
+
+  it('should throw AppError if version is invalid', async () => {
+    const id = randomUUID();
+    const place = Place.create(
+      'Place 1',
+      { latitude: 52.0, longitude: 21.0 },
+      'Address 1',
+      false,
+      randomUUID(),
+    );
+    repository.findById.mockResolvedValue(place);
+
+    const command = new ActivatePlaceCommand(id, -1);
+
+    try {
+      await handler.execute(command);
+      fail('Should have thrown an error');
+    } catch (error) {
+      expect(error).toBeInstanceOf(AppError);
+      expect((error as AppError).code).toBe('VALIDATION_ERROR');
+    }
   });
 });

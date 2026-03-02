@@ -42,7 +42,10 @@ describe('DeletePlaceTypeCommandHandler', () => {
     const placeType = PlaceType.create('Standard');
     const id = placeType.getId().value;
     repository.findById.mockResolvedValue(placeType);
-    const command = new DeletePlaceTypeCommand(id);
+    const command = new DeletePlaceTypeCommand(
+      id,
+      placeType.getVersion().value,
+    );
 
     const result = await handler.execute(command);
 
@@ -50,18 +53,33 @@ describe('DeletePlaceTypeCommandHandler', () => {
     /* eslint-disable @typescript-eslint/unbound-method */
     expect(repository.findById).toHaveBeenCalledWith(id);
     expect(publisher.mergeObjectContext).toHaveBeenCalledWith(placeType);
-    expect(repository.delete).toHaveBeenCalledWith(id);
+    expect(repository.delete).toHaveBeenCalledWith(
+      id,
+      placeType.getVersion().value,
+    );
     /* eslint-enable @typescript-eslint/unbound-method */
   });
 
   it('should throw AppError if place type not found', async () => {
     repository.findById.mockResolvedValue(null);
-    const command = new DeletePlaceTypeCommand('non-existent');
+    const command = new DeletePlaceTypeCommand('non-existent', 1);
 
     const exec = handler.execute(command);
     await expect(exec).rejects.toThrow(AppError);
     await expect(exec).rejects.toMatchObject({
       code: 'ENTITY_NOT_FOUND',
+    });
+  });
+
+  it('should throw AppError if version is invalid', async () => {
+    const placeType = PlaceType.create('Standard');
+    repository.findById.mockResolvedValue(placeType);
+    const command = new DeletePlaceTypeCommand(placeType.getId().value, -1);
+
+    const exec = handler.execute(command);
+    await expect(exec).rejects.toThrow(AppError);
+    await expect(exec).rejects.toMatchObject({
+      code: 'VALIDATION_ERROR',
     });
   });
 });

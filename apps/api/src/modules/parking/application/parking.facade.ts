@@ -22,15 +22,15 @@ export class ParkingFacade {
     );
   }
 
-  async updatePlaceType(id: string, name: string) {
-    const command = new UpdatePlaceTypeCommand(id, name);
+  async updatePlaceType(id: string, name: string, version: number) {
+    const command = new UpdatePlaceTypeCommand(id, name, version);
     return await this.commandBus.execute<UpdatePlaceTypeCommand, string>(
       command,
     );
   }
 
-  async deletePlaceType(id: string) {
-    const command = new DeletePlaceTypeCommand(id);
+  async deletePlaceType(id: string, version: number) {
+    const command = new DeletePlaceTypeCommand(id, version);
     return await this.commandBus.execute<DeletePlaceTypeCommand, string>(
       command,
     );
@@ -43,15 +43,20 @@ export class ParkingFacade {
     );
   }
 
-  async deleteParkingAddon(id: string) {
-    const command = new DeleteParkingAddonCommand(id);
+  async deleteParkingAddon(id: string, version: number) {
+    const command = new DeleteParkingAddonCommand(id, version);
     return await this.commandBus.execute<DeleteParkingAddonCommand, string>(
       command,
     );
   }
 
-  async updateParkingAddon(id: string, name: string, price: number) {
-    const command = new UpdateParkingAddonCommand(id, name, price);
+  async updateParkingAddon(
+    id: string,
+    name: string,
+    price: number,
+    version: number,
+  ) {
+    const command = new UpdateParkingAddonCommand(id, name, price, version);
     return await this.commandBus.execute<UpdateParkingAddonCommand, string>(
       command,
     );
@@ -83,6 +88,7 @@ export class ParkingFacade {
     longitude: number,
     placeTypeId: string,
     address: string,
+    version: number,
   ) {
     const command = new UpdatePlaceCommand(
       id,
@@ -91,17 +97,18 @@ export class ParkingFacade {
       longitude,
       placeTypeId,
       address,
+      version,
     );
     return await this.commandBus.execute<UpdatePlaceCommand, string>(command);
   }
 
-  async activatePlace(id: string) {
-    const command = new ActivatePlaceCommand(id);
+  async activatePlace(id: string, version: number) {
+    const command = new ActivatePlaceCommand(id, version);
     return await this.commandBus.execute<ActivatePlaceCommand, string>(command);
   }
 
-  async deactivatePlace(id: string) {
-    const command = new DeactivatePlaceCommand(id);
+  async deactivatePlace(id: string, version: number) {
+    const command = new DeactivatePlaceCommand(id, version);
     return await this.commandBus.execute<DeactivatePlaceCommand, string>(
       command,
     );

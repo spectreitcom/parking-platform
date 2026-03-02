@@ -7,6 +7,8 @@ import { ParkingAddonId } from '../../domain/value-objects/parking-addon-id';
 import { ParkingAddonCode } from '../../domain/value-objects/parking-addon-code';
 import { ParkingAddonName } from '../../domain/value-objects/parking-addon-name';
 import { Money } from '../../domain/value-objects/money';
+import { AggregateVersion } from '../../../../shared/value-objects/aggregate-version';
+import { ConcurrencyError } from '../../../../shared/errors';
 
 @Injectable()
 export class PrismaParkingAddonRepository implements ParkingAddonRepository {
@@ -14,21 +16,54 @@ export class PrismaParkingAddonRepository implements ParkingAddonRepository {
 
   async save(parkingAddon: ParkingAddon, tx?: PrismaTx): Promise<void> {
     const prisma = tx || this.prismaService;
+    const id = parkingAddon.getId().value;
+    const currentVersion = parkingAddon.getVersion().value;
 
-    await prisma.parkingAddon.upsert({
-      where: { id: parkingAddon.getId().value },
-      update: {
-        code: parkingAddon.getCode().value,
-        name: parkingAddon.getName().value,
-        price: parkingAddon.getPrice().value,
-      },
-      create: {
-        id: parkingAddon.getId().value,
-        code: parkingAddon.getCode().value,
-        name: parkingAddon.getName().value,
-        price: parkingAddon.getPrice().value,
-      },
+    const record = await prisma.parkingAddon.findUnique({
+      where: { id },
     });
+
+    // If record does not exist and version > 1, it means the aggregate existed before
+    // and was likely deleted concurrently -> do not recreate, throw concurrency error
+    if (!record) {
+      if (currentVersion > 1) {
+        throw new ConcurrencyError('ParkingAddon', id);
+      }
+
+      // Only allow create when we're on the first version (new aggregate)
+      await prisma.parkingAddon.create({
+        data: {
+          id: parkingAddon.getId().value,
+          code: parkingAddon.getCode().value,
+          name: parkingAddon.getName().value,
+          price: parkingAddon.getPrice().value,
+          version: 1,
+        },
+      });
+      return;
+    }
+
+    try {
+      await prisma.parkingAddon.update({
+        where: {
+          id,
+          version: currentVersion,
+        },
+        data: {
+          code: parkingAddon.getCode().value,
+          name: parkingAddon.getName().value,
+          price: parkingAddon.getPrice().value,
+          version: {
+            increment: 1,
+          },
+        },
+      });
+    } catch (error) {
+      if (error instanceof Error && 'code' in error && error.code === 'P2025') {
+        throw new ConcurrencyError('ParkingAddon', id);
+      }
+      throw error;
+    }
   }
 
   async findById(id: string, tx?: PrismaTx): Promise<ParkingAddon | null> {
@@ -47,6 +82,7 @@ export class PrismaParkingAddonRepository implements ParkingAddonRepository {
       ParkingAddonCode.fromString(record.code),
       ParkingAddonName.fromString(record.name),
       Money.fromNumber(record.price),
+      AggregateVersion.fromNumber(record.version),
     );
   }
 
@@ -66,14 +102,25 @@ export class PrismaParkingAddonRepository implements ParkingAddonRepository {
       ParkingAddonCode.fromString(record.code),
       ParkingAddonName.fromString(record.name),
       Money.fromNumber(record.price),
+      AggregateVersion.fromNumber(record.version),
     );
   }
 
-  async delete(id: string, tx?: PrismaTx): Promise<void> {
+  async delete(id: string, version: number, tx?: PrismaTx): Promise<void> {
     const prisma = tx || this.prismaService;
 
-    await prisma.parkingAddon.delete({
-      where: { id },
-    });
+    try {
+      await prisma.parkingAddon.delete({
+        where: {
+          id,
+          version,
+        },
+      });
+    } catch (error) {
+      if (error instanceof Error && 'code' in error && error.code === 'P2025') {
+        throw new ConcurrencyError('ParkingAddon', id);
+      }
+      throw error;
+    }
   }
 }

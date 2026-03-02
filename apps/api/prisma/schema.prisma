@@ -13,6 +13,7 @@ model PlaceType {
   name      String   @unique @db.VarChar(60)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  version   Int      @default(0) @db.Integer
   places    Place[]
 }
 
@@ -23,6 +24,7 @@ model ParkingAddon {
   price     Int      @default(0) // In grosze
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  version   Int      @default(0) @db.Integer
 }
 
 model Place {
@@ -38,6 +40,8 @@ model Place {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  version Int @default(0) @db.Integer
 }
 
 // -----------------------------

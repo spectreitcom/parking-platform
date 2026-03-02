@@ -42,7 +42,11 @@ describe('UpdatePlaceTypeCommandHandler', () => {
     const placeType = PlaceType.create('Standard');
     const id = placeType.getId().value;
     repository.findById.mockResolvedValue(placeType);
-    const command = new UpdatePlaceTypeCommand(id, 'Premium');
+    const command = new UpdatePlaceTypeCommand(
+      id,
+      'Premium',
+      placeType.getVersion().value,
+    );
 
     const result = await handler.execute(command);
 
@@ -57,7 +61,7 @@ describe('UpdatePlaceTypeCommandHandler', () => {
 
   it('should throw AppError if place type not found', async () => {
     repository.findById.mockResolvedValue(null);
-    const command = new UpdatePlaceTypeCommand('non-existent', 'Premium');
+    const command = new UpdatePlaceTypeCommand('non-existent', 'Premium', 1);
 
     const exec = handler.execute(command);
 

@@ -39,20 +39,41 @@ describe('DeleteParkingAddonCommandHandler', () => {
   /* eslint-disable @typescript-eslint/unbound-method */
   it('should delete an existing parking addon', async () => {
     const addon = ParkingAddon.create('PA1', 'Premium', 1000);
-    const command = new DeleteParkingAddonCommand(addon.getId().value);
+    const command = new DeleteParkingAddonCommand(
+      addon.getId().value,
+      addon.getVersion().value,
+    );
     repository.findById.mockResolvedValue(addon);
 
     await handler.execute(command);
 
     expect(repository.findById).toHaveBeenCalledWith(addon.getId().value);
-    expect(repository.delete).toHaveBeenCalledWith(addon.getId().value);
+    expect(repository.delete).toHaveBeenCalledWith(
+      addon.getId().value,
+      addon.getVersion().value,
+    );
   });
 
   it('should throw error if addon not found', async () => {
-    const command = new DeleteParkingAddonCommand('non-existent');
+    const command = new DeleteParkingAddonCommand('non-existent', 1);
     repository.findById.mockResolvedValue(null);
 
     await expect(handler.execute(command)).rejects.toThrow(AppError);
+    expect(repository.delete).not.toHaveBeenCalled();
+  });
+
+  it('should throw AppError if version is invalid', async () => {
+    const addon = ParkingAddon.create('PA1', 'Premium', 1000);
+    const command = new DeleteParkingAddonCommand(addon.getId().value, -1);
+    repository.findById.mockResolvedValue(addon);
+
+    try {
+      await handler.execute(command);
+      fail('Should have thrown an error');
+    } catch (error) {
+      expect(error).toBeInstanceOf(AppError);
+      expect((error as AppError).code).toBe('VALIDATION_ERROR');
+    }
     expect(repository.delete).not.toHaveBeenCalled();
   });
 });

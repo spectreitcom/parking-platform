@@ -2,6 +2,7 @@ import { CommandHandler, EventPublisher, ICommandHandler } from '@nestjs/cqrs';
 import { UpdatePlaceTypeCommand } from '../commands/update-place-type.command';
 import { PlaceTypeRepository } from '../ports/place-type.repository';
 import { AppError } from '../../../../shared/errors';
+import { AggregateVersion } from '../../../../shared/value-objects/aggregate-version';
 
 @CommandHandler(UpdatePlaceTypeCommand)
 export class UpdatePlaceTypeCommandHandler implements ICommandHandler<
@@ -14,7 +15,7 @@ export class UpdatePlaceTypeCommandHandler implements ICommandHandler<
   ) {}
 
   async execute(command: UpdatePlaceTypeCommand): Promise<string> {
-    const { id, name } = command;
+    const { id, name, version } = command;
 
     const placeType = await this.placeTypeRepository.findById(id);
 
@@ -22,6 +23,23 @@ export class UpdatePlaceTypeCommandHandler implements ICommandHandler<
       throw new AppError(
         'ENTITY_NOT_FOUND',
         `Place type with id ${id} not found`,
+      );
+    }
+
+    let _version: AggregateVersion;
+    try {
+      _version = AggregateVersion.fromNumber(version);
+    } catch (error) {
+      throw new AppError(
+        'VALIDATION_ERROR',
+        `Invalid version: ${version}. ${error instanceof Error ? error.message : ''}`,
+      );
+    }
+
+    if (!placeType.getVersion().equals(_version)) {
+      throw new AppError(
+        'CONCURRENCY',
+        `Place type with id ${id} has been modified by another process`,
       );
     }
 
