@@ -6,6 +6,61 @@ datasource db {
   provider = "postgresql"
 }
 
+// Outbox
+
+enum OutboxStatus {
+  PENDING
+  PROCESSING
+  SENT
+  FAILED
+  DEAD_LETTER
+}
+
+model OutboxMessage {
+  id String @id @default(uuid())
+
+  /// Nazwa zdarzenia / typu wiadomości, np. "order.created"
+  type String
+
+  /// Opcjonalnie: nazwa bounded contextu / modułu
+  boundedContext String?
+
+  /// Typ agregatu, np. "Order", "User"
+  aggregateType String?
+
+  /// Id agregatu (np. UUID jako string)
+  aggregateId String?
+
+  /// Treść eventu - payload domenowy/integracyjny
+  payload Json
+
+  /// Nagłówki pomocnicze (traceId, correlationId, userId, itp.)
+  headers Json?
+
+  status OutboxStatus @default(PENDING)
+
+  /// Ile razy próbowaliśmy wysłać tę wiadomość
+  attemptCount Int @default(0)
+
+  /// Kiedy ponowić próbę (dla backoffu)
+  nextRetryAt DateTime?
+
+  processedAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  deduplicationKey String? @unique
+
+  @@index([status, nextRetryAt])
+  @@index([boundedContext])
+  @@index([aggregateType, aggregateId])
+  @@index([createdAt])
+  @@index([updatedAt])
+}
+
+// -----------------------------
+
 // Parking Bounded Context
 
 model PlaceType {
