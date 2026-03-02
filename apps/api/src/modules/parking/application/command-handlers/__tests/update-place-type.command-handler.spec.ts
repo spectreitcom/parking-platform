@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { EventPublisher } from '@nestjs/cqrs';
-import { UpdatePlaceTypeCommandHandler } from '../update-place-type-command.handler';
+import { UpdatePlaceTypeCommandHandler } from '../update-place-type-command-handler';
 import { UpdatePlaceTypeCommand } from '../../commands/update-place-type.command';
 import { PlaceTypeRepository } from '../../ports/place-type.repository';
 import { PlaceType } from '../../../domain/place-type';
