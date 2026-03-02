@@ -13,6 +13,7 @@ enum OutboxStatus {
   PROCESSING
   SENT
   FAILED
+  DEAD_LETTER
 }
 
 model OutboxMessage {
@@ -53,6 +54,7 @@ model OutboxMessage {
   @@index([boundedContext])
   @@index([aggregateType, aggregateId])
   @@index([createdAt])
+  @@index([updatedAt])
 }
 
 // -----------------------------

@@ -11,6 +11,7 @@ import {
 import { PrismaTx } from '../prisma/types';
 
 const DEFAULT_BATCH = 50;
+const MAX_RETRIES = 5;
 
 @Injectable()
 export class OutboxService {
@@ -99,14 +100,24 @@ export class OutboxService {
     const batch = options.maxBatchSize ?? DEFAULT_BATCH;
     const now = new Date();
 
-    const messages = await this.prisma.outboxMessage.findMany({
-      where: {
-        status: { in: [OutboxStatus.PENDING, OutboxStatus.FAILED] },
-        OR: [{ nextRetryAt: null }, { nextRetryAt: { lte: now } }],
-      },
-      orderBy: { createdAt: 'asc' },
-      take: batch,
-    });
+    const messages = await this.prisma.$queryRaw<
+      Prisma.OutboxMessageGetPayload<Record<string, never>>[]
+    >(
+      Prisma.sql`
+        UPDATE "OutboxMessage"
+        SET status = ${OutboxStatus.PROCESSING}::"OutboxStatus"
+        WHERE id IN (
+          SELECT id
+          FROM "OutboxMessage"
+          WHERE status IN (${OutboxStatus.PENDING}::"OutboxStatus", ${OutboxStatus.FAILED}::"OutboxStatus")
+            AND ("nextRetryAt" IS NULL OR "nextRetryAt" <= ${now})
+          ORDER BY "createdAt" ASC
+          LIMIT ${batch}
+          FOR UPDATE SKIP LOCKED
+        )
+        RETURNING *;
+      `,
+    );
 
     if (messages.length > 0) {
       this.logger.debug(
@@ -116,12 +127,6 @@ export class OutboxService {
 
     for (const msg of messages) {
       try {
-        // oznacz jako PROCESSING (best-effort, bez blokad)
-        await this.prisma.outboxMessage.update({
-          where: { id: msg.id },
-          data: { status: OutboxStatus.PROCESSING },
-        });
-
         const event = new IntegrationEvent(
           msg.type,
           msg.payload as unknown,
@@ -141,19 +146,37 @@ export class OutboxService {
             nextRetryAt: null,
           },
         });
-      } catch (err) {
+      } catch (error) {
+        const err = error as Error;
         this.logger.error(
-          `Emit failed for outbox message ${msg.id}: ${(err as Error).message}`,
+          `Emit failed for outbox message ${msg.id} (type: ${msg.type}): ${err.message}`,
         );
-        const next = this.calculateBackoff(msg.attemptCount ?? 0);
-        await this.prisma.outboxMessage.update({
-          where: { id: msg.id },
-          data: {
-            status: OutboxStatus.FAILED,
-            attemptCount: (msg.attemptCount ?? 0) + 1,
-            nextRetryAt: next,
-          },
-        });
+
+        const newAttempt = (msg.attemptCount ?? 0) + 1;
+
+        if (newAttempt >= MAX_RETRIES) {
+          this.logger.warn(
+            `Message ${msg.id} reached max retries (${MAX_RETRIES}). Moving to DEAD_LETTER.`,
+          );
+          await this.prisma.outboxMessage.update({
+            where: { id: msg.id },
+            data: {
+              status: OutboxStatus.DEAD_LETTER,
+              attemptCount: newAttempt,
+              nextRetryAt: null,
+            },
+          });
+        } else {
+          const next = this.calculateBackoff(msg.attemptCount ?? 0);
+          await this.prisma.outboxMessage.update({
+            where: { id: msg.id },
+            data: {
+              status: OutboxStatus.FAILED,
+              attemptCount: newAttempt,
+              nextRetryAt: next,
+            },
+          });
+        }
       }
     }
   }
@@ -162,7 +185,7 @@ export class OutboxService {
     const threshold = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
     const res = await this.prisma.outboxMessage.deleteMany({
       where: {
-        status: { in: [OutboxStatus.SENT, OutboxStatus.FAILED] },
+        status: OutboxStatus.SENT,
         updatedAt: { lt: threshold },
       },
     });

@@ -10,7 +10,14 @@ export class OutboxScheduler {
 
   @Cron(CronExpression.EVERY_5_SECONDS)
   async handleEmit() {
-    await this.outboxService.emitPending();
+    try {
+      await this.outboxService.emitPending();
+    } catch (err) {
+      this.logger.error(
+        `Error in outbox emit cron: ${(err as Error).message}`,
+        (err as Error).stack,
+      );
+    }
   }
 
   @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
