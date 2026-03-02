@@ -14,8 +14,7 @@ export class UpdatePlaceCommandHandler implements ICommandHandler<
   ) {}
 
   async execute(command: UpdatePlaceCommand): Promise<string> {
-    const { id, name, latitude, longitude, placeTypeId, active, address } =
-      command;
+    const { id, name, latitude, longitude, placeTypeId, address } = command;
 
     const place = await this.placeRepository.findById(id);
 
@@ -24,7 +23,7 @@ export class UpdatePlaceCommandHandler implements ICommandHandler<
     }
 
     this.eventPublisher.mergeObjectContext(place);
-    place.update(name, { latitude, longitude }, address, active, placeTypeId);
+    place.update(name, { latitude, longitude }, address, placeTypeId);
 
     await this.placeRepository.save(place);
     place.commit();

@@ -82,7 +82,6 @@ export class ParkingFacade {
     latitude: number,
     longitude: number,
     placeTypeId: string,
-    active: boolean,
     address: string,
   ) {
     const command = new UpdatePlaceCommand(
@@ -91,7 +90,6 @@ export class ParkingFacade {
       latitude,
       longitude,
       placeTypeId,
-      active,
       address,
     );
     return await this.commandBus.execute<UpdatePlaceCommand, string>(command);
@@ -99,11 +97,13 @@ export class ParkingFacade {
 
   async activatePlace(id: string) {
     const command = new ActivatePlaceCommand(id);
-    return await this.commandBus.execute<ActivatePlaceCommand, void>(command);
+    return await this.commandBus.execute<ActivatePlaceCommand, string>(command);
   }
 
   async deactivatePlace(id: string) {
     const command = new DeactivatePlaceCommand(id);
-    return await this.commandBus.execute<DeactivatePlaceCommand, void>(command);
+    return await this.commandBus.execute<DeactivatePlaceCommand, string>(
+      command,
+    );
   }
 }

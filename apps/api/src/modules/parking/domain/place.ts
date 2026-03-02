@@ -66,11 +66,17 @@ export class Place extends AggregateRoot {
   }
 
   deactivate() {
+    if (!this.active) {
+      return;
+    }
     this.active = false;
     this.apply(new PlaceDeactivatedEvent(this.id.value));
   }
 
   activate() {
+    if (this.active) {
+      return;
+    }
     this.active = true;
     this.apply(new PlaceActivatedEvent(this.id.value));
   }
@@ -79,7 +85,6 @@ export class Place extends AggregateRoot {
     name: string,
     coordsObject: { longitude: number; latitude: number },
     address: string,
-    active: boolean,
     placeTypeId: string,
   ) {
     this.name = PlaceName.fromString(name);
@@ -88,7 +93,6 @@ export class Place extends AggregateRoot {
       coordsObject.longitude,
     );
     this.address = Address.fromString(address);
-    this.active = active;
     this.placeTypeId = PlaceTypeId.fromString(placeTypeId);
 
     this.apply(
