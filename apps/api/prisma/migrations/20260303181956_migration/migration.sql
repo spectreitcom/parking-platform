@@ -1,0 +1,5 @@
+-- AlterTable
+ALTER TABLE "Parking" ALTER COLUMN "assetIds" SET DEFAULT ARRAY[]::UUID[],
+ALTER COLUMN "parkingFeatureIds" SET DEFAULT ARRAY[]::UUID[],
+ALTER COLUMN "statue" DROP NOT NULL,
+ALTER COLUMN "description" DROP NOT NULL;

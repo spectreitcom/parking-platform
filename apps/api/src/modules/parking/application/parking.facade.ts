@@ -13,6 +13,10 @@ import { DeactivatePlaceCommand } from './commands/deactivate-place.command';
 import { CreateParkingFeatureCommand } from './commands/create-parking-feature.command';
 import { UpdateParkingFeatureCommand } from './commands/update-parking-feature.command';
 import { DeleteParkingFeatureCommand } from './commands/delete-parking-feature.command';
+import { CreateParkingCommand } from './commands/create-parking.command';
+import { UpdateParkingCommand } from './commands/update-parking.command';
+import { ActivateParkingCommand } from './commands/activate-parking.command';
+import { DeactivateParkingCommand } from './commands/deactivate-parking.command';
 
 @Injectable()
 export class ParkingFacade {
@@ -139,6 +143,68 @@ export class ParkingFacade {
   async deleteParkingFeature(id: string, version: number) {
     const command = new DeleteParkingFeatureCommand(id, version);
     return await this.commandBus.execute<DeleteParkingFeatureCommand, string>(
+      command,
+    );
+  }
+
+  async createParking(
+    ownerId: string,
+    name: string,
+    address: string,
+    longitude: number,
+    latitude: number,
+    placeId: string,
+  ) {
+    const command = new CreateParkingCommand(
+      ownerId,
+      name,
+      address,
+      longitude,
+      latitude,
+      placeId,
+    );
+    return await this.commandBus.execute<CreateParkingCommand, string>(command);
+  }
+
+  async updateParking(
+    id: string,
+    name: string,
+    address: string,
+    longitude: number,
+    latitude: number,
+    assetIds: string[],
+    parkingFeatureIds: string[],
+    parkingAddonIds: string[],
+    description: string,
+    statute: string,
+    version: number,
+  ) {
+    const command = new UpdateParkingCommand(
+      id,
+      name,
+      address,
+      longitude,
+      latitude,
+      assetIds,
+      parkingFeatureIds,
+      parkingAddonIds,
+      description,
+      statute,
+      version,
+    );
+    return await this.commandBus.execute<UpdateParkingCommand, string>(command);
+  }
+
+  async activateParking(id: string, version: number) {
+    const command = new ActivateParkingCommand(id, version);
+    return await this.commandBus.execute<ActivateParkingCommand, string>(
+      command,
+    );
+  }
+
+  async deactivateParking(id: string, version: number) {
+    const command = new DeactivateParkingCommand(id, version);
+    return await this.commandBus.execute<DeactivateParkingCommand, string>(
       command,
     );
   }
