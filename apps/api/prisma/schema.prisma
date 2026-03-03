@@ -99,4 +99,15 @@ model Place {
   version Int @default(0) @db.Integer
 }
 
+model ParkingFeature {
+  id     String   @id @default(uuid()) @db.Uuid
+  levels String[] @db.VarChar(60)
+  name   String   @unique @db.VarChar(255)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  version Int @default(0) @db.Integer
+}
+
 // -----------------------------

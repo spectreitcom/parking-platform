@@ -1,4 +1,5 @@
 import { IsUUID, validateSync } from 'class-validator';
+import { AppError } from '../../../../shared/errors';
 import { randomUUID } from 'node:crypto';
 
 export class PlaceId {
@@ -13,7 +14,7 @@ export class PlaceId {
   private validate() {
     const errors = validateSync(this);
     if (errors.length > 0) {
-      throw new Error(`Invalid PlaceId`);
+      throw new AppError('VALIDATION_ERROR', `Invalid PlaceId`);
     }
   }
 

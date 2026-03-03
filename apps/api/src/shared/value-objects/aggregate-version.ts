@@ -1,4 +1,5 @@
 import { IsInt, Min, validateSync } from 'class-validator';
+import { AppError } from '../errors';
 
 export class AggregateVersion {
   @IsInt()
@@ -13,7 +14,7 @@ export class AggregateVersion {
   private validate() {
     const errors = validateSync(this);
     if (errors.length > 0) {
-      throw new Error('Invalid aggregate version');
+      throw new AppError('VALIDATION_ERROR', 'Invalid aggregate version');
     }
   }
 

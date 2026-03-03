@@ -1,4 +1,5 @@
 import { IsInt, Min, validateSync } from 'class-validator';
+import { AppError } from '../../../../shared/errors';
 
 export class Money {
   @IsInt()
@@ -13,7 +14,7 @@ export class Money {
   private validate() {
     const errors = validateSync(this);
     if (errors.length > 0) {
-      throw new Error(`Invalid Money`);
+      throw new AppError('VALIDATION_ERROR', `Invalid Money`);
     }
   }
 

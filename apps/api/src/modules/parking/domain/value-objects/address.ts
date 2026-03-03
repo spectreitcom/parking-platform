@@ -1,4 +1,5 @@
 import { IsNotEmpty, MaxLength, validateSync } from 'class-validator';
+import { AppError } from '../../../../shared/errors';
 
 export class Address {
   @IsNotEmpty()
@@ -13,7 +14,7 @@ export class Address {
   private validate() {
     const errors = validateSync(this);
     if (errors.length > 0) {
-      throw new Error(`Invalid Address`);
+      throw new AppError('VALIDATION_ERROR', `Invalid Address`);
     }
   }
 
