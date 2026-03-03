@@ -38,7 +38,11 @@ export class ParkingFeature extends AggregateRoot {
     );
 
     parkingFeature.apply(
-      new ParkingFeatureCreatedEvent(id.value, name, levels),
+      new ParkingFeatureCreatedEvent(
+        id.value,
+        _name.value,
+        _levels.map((level) => level.value),
+      ),
     );
 
     return parkingFeature;
