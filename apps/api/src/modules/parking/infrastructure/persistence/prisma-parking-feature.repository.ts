@@ -31,14 +31,25 @@ export class PrismaParkingFeatureRepository implements ParkingFeatureRepository 
         throw new ConcurrencyError('ParkingFeature', id);
       }
 
-      await prisma.parkingFeature.create({
-        data: {
-          id,
-          name: parkingFeature.getName().value,
-          levels: parkingFeature.getLevels().map((level) => level.value),
-          version: 1,
-        },
-      });
+      try {
+        await prisma.parkingFeature.create({
+          data: {
+            id,
+            name: parkingFeature.getName().value,
+            levels: parkingFeature.getLevels().map((level) => level.value),
+            version: 1,
+          },
+        });
+      } catch (error) {
+        if (
+          error instanceof Error &&
+          'code' in error &&
+          (error.code === 'P2002' || error.code === 'P2025')
+        ) {
+          throw new ConcurrencyError('ParkingFeature', id);
+        }
+        throw error;
+      }
       return;
     }
 
@@ -62,7 +73,11 @@ export class PrismaParkingFeatureRepository implements ParkingFeatureRepository 
         },
       });
     } catch (error) {
-      if (error instanceof Error && 'code' in error && error.code === 'P2025') {
+      if (
+        error instanceof Error &&
+        'code' in error &&
+        (error.code === 'P2002' || error.code === 'P2025')
+      ) {
         throw new ConcurrencyError('ParkingFeature', id);
       }
       throw error;
