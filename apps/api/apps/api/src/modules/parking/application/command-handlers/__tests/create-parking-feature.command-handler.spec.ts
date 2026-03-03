@@ -1,7 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { EventPublisher } from '@nestjs/cqrs';
 import { CreateParkingFeatureCommandHandler } from '../create-parking-feature.command-handler';
-import { CreateParkingFeatureCommand } from '../../commands/create-place-type.command';
 import { ParkingFeatureRepository } from '../../ports/parking-feature.repository';
 import { ParkingFeature } from '../../../domain/parking-feature';
 import { PARKING_LEVEL, PARKING_SPOT_LEVEL } from '../../../domain/constants';
