@@ -16,13 +16,13 @@ export class ParkingFeature extends AggregateRoot {
   constructor(
     id: ParkingFeatureId,
     name: ParkingFeatureName,
-    levels: ParkingFeatureLevel[],
+    levels: readonly ParkingFeatureLevel[],
     version: AggregateVersion,
   ) {
     super();
     this.id = id;
     this.name = name;
-    this.levels = levels;
+    this.levels = [...levels];
     this.version = version;
   }
 
