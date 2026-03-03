@@ -24,15 +24,7 @@ export class UpdatePlaceCommandHandler implements ICommandHandler<
       throw new AppError('ENTITY_NOT_FOUND', `Place with id ${id} not found`);
     }
 
-    let _version: AggregateVersion;
-    try {
-      _version = AggregateVersion.fromNumber(version);
-    } catch (error) {
-      throw new AppError(
-        'VALIDATION_ERROR',
-        `Invalid version: ${version}. ${error instanceof Error ? error.message : ''}`,
-      );
-    }
+    const _version = AggregateVersion.fromNumber(version);
 
     if (!place.getVersion().equals(_version)) {
       throw new AppError(

@@ -26,15 +26,7 @@ export class DeleteParkingAddonCommandHandler implements ICommandHandler<
       );
     }
 
-    let _version: AggregateVersion;
-    try {
-      _version = AggregateVersion.fromNumber(version);
-    } catch (error) {
-      throw new AppError(
-        'VALIDATION_ERROR',
-        `Invalid version: ${version}. ${error instanceof Error ? error.message : ''}`,
-      );
-    }
+    const _version = AggregateVersion.fromNumber(version);
 
     if (!parkingAddon.getVersion().equals(_version)) {
       throw new AppError(
