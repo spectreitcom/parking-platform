@@ -1,0 +1,2 @@
+export const PARKING_LEVEL = 'PARKING';
+export const PARKING_SPOT_LEVEL = 'PARKING_SPOT';

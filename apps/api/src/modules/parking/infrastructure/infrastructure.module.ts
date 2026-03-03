@@ -6,6 +6,8 @@ import { ParkingAddonRepository } from '../application/ports/parking-addon.repos
 import { PrismaParkingAddonRepository } from './persistence/prisma-parking-addon.repository';
 import { PlaceRepository } from '../application/ports/place.repository';
 import { PrismaPlaceRepository } from './persistence/prisma-place.repository';
+import { ParkingFeatureRepository } from '../application/ports/parking-feature.repository';
+import { PrismaParkingFeatureRepository } from './persistence/prisma-parking-feature.repository';
 
 @Module({
   imports: [PrismaModule],
@@ -22,7 +24,16 @@ import { PrismaPlaceRepository } from './persistence/prisma-place.repository';
       provide: PlaceRepository,
       useClass: PrismaPlaceRepository,
     },
+    {
+      provide: ParkingFeatureRepository,
+      useClass: PrismaParkingFeatureRepository,
+    },
   ],
-  exports: [PlaceTypeRepository, ParkingAddonRepository, PlaceRepository],
+  exports: [
+    PlaceTypeRepository,
+    ParkingAddonRepository,
+    PlaceRepository,
+    ParkingFeatureRepository,
+  ],
 })
 export class InfrastructureModule {}

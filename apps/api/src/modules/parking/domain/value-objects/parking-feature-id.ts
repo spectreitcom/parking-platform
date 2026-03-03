@@ -1,8 +1,8 @@
-import { randomUUID } from 'node:crypto';
 import { IsUUID, validateSync } from 'class-validator';
 import { AppError } from '../../../../shared/errors';
+import { randomUUID } from 'node:crypto';
 
-export class ParkingAddonId {
+export class ParkingFeatureId {
   @IsUUID()
   private readonly _value: string;
 
@@ -14,23 +14,23 @@ export class ParkingAddonId {
   private validate() {
     const errors = validateSync(this);
     if (errors.length > 0) {
-      throw new AppError('VALIDATION_ERROR', `Invalid ParkingAddonId`);
+      throw new AppError('VALIDATION_ERROR', `Invalid ParkingFeatureId`);
     }
   }
 
   static create() {
-    return new ParkingAddonId(randomUUID());
+    return new ParkingFeatureId(randomUUID());
   }
 
   static fromString(value: string) {
-    return new ParkingAddonId(value);
+    return new ParkingFeatureId(value);
   }
 
-  get value() {
+  get value(): string {
     return this._value;
   }
 
-  equals(other: ParkingAddonId) {
+  equals(other: ParkingFeatureId) {
     return this._value === other._value;
   }
 }

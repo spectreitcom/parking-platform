@@ -1,4 +1,5 @@
 import { IsNotEmpty, MaxLength, validateSync } from 'class-validator';
+import { AppError } from '../../../../shared/errors';
 
 export class PlaceTypeName {
   @IsNotEmpty()
@@ -13,7 +14,7 @@ export class PlaceTypeName {
   private validate() {
     const errors = validateSync(this);
     if (errors.length > 0) {
-      throw new Error(`Invalid PlaceTypeName`);
+      throw new AppError('VALIDATION_ERROR', `Invalid PlaceTypeName`);
     }
   }
 

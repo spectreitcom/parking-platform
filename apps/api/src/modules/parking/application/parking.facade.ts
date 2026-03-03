@@ -10,6 +10,9 @@ import { CreatePlaceCommand } from './commands/create-place.command';
 import { UpdatePlaceCommand } from './commands/update-place.command';
 import { ActivatePlaceCommand } from './commands/activate-place.command';
 import { DeactivatePlaceCommand } from './commands/deactivate-place.command';
+import { CreateParkingFeatureCommand } from './commands/create-parking-feature.command';
+import { UpdateParkingFeatureCommand } from './commands/update-parking-feature.command';
+import { DeleteParkingFeatureCommand } from './commands/delete-parking-feature.command';
 
 @Injectable()
 export class ParkingFacade {
@@ -110,6 +113,32 @@ export class ParkingFacade {
   async deactivatePlace(id: string, version: number) {
     const command = new DeactivatePlaceCommand(id, version);
     return await this.commandBus.execute<DeactivatePlaceCommand, string>(
+      command,
+    );
+  }
+
+  async createParkingFeature(name: string, levels: string[]) {
+    const command = new CreateParkingFeatureCommand(name, levels);
+    return await this.commandBus.execute<CreateParkingFeatureCommand, string>(
+      command,
+    );
+  }
+
+  async updateParkingFeature(
+    id: string,
+    name: string,
+    levels: string[],
+    version: number,
+  ) {
+    const command = new UpdateParkingFeatureCommand(id, name, levels, version);
+    return await this.commandBus.execute<UpdateParkingFeatureCommand, string>(
+      command,
+    );
+  }
+
+  async deleteParkingFeature(id: string, version: number) {
+    const command = new DeleteParkingFeatureCommand(id, version);
+    return await this.commandBus.execute<DeleteParkingFeatureCommand, string>(
       command,
     );
   }

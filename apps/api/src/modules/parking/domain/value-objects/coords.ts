@@ -4,6 +4,7 @@ import {
   IsLatitude,
   IsLongitude,
 } from 'class-validator';
+import { AppError } from '../../../../shared/errors';
 
 export class Coords {
   @IsNumber()
@@ -23,7 +24,7 @@ export class Coords {
   private validate() {
     const errors = validateSync(this);
     if (errors.length > 0) {
-      throw new Error(`Invalid Coords`);
+      throw new AppError('VALIDATION_ERROR', `Invalid Coords`);
     }
   }
 
