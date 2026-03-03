@@ -11,6 +11,10 @@ import { DeactivatePlaceCommandHandler } from './deactivate-place.command-handle
 import { CreateParkingFeatureCommandHandler } from './create-parking-feature.command-handler';
 import { UpdateParkingFeatureCommandHandler } from './update-parking-feature.command-handler';
 import { DeleteParkingFeatureCommandHandler } from './delete-parking-feature.command-handler';
+import { CreateParkingCommandHandler } from './create-parking.command-handler';
+import { UpdateParkingCommandHandler } from './update-parking.command-handler';
+import { ActivateParkingCommandHandler } from './activate-parking.command-handler';
+import { DeactivateParkingCommandHandler } from './deactivate-parking.command-handler';
 
 export const commandHandlers = [
   CreatePlaceTypeCommandHandler,
@@ -26,4 +30,8 @@ export const commandHandlers = [
   CreateParkingFeatureCommandHandler,
   UpdateParkingFeatureCommandHandler,
   DeleteParkingFeatureCommandHandler,
+  CreateParkingCommandHandler,
+  UpdateParkingCommandHandler,
+  ActivateParkingCommandHandler,
+  DeactivateParkingCommandHandler,
 ];
