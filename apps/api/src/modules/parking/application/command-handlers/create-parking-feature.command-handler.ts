@@ -20,7 +20,7 @@ export class CreateParkingFeatureCommandHandler implements ICommandHandler<
       ParkingFeature.create(name, levels),
     );
 
-    await this.parkingFeatureRepository.save(parkingFeature);
+    await this.parkingFeatureRepository.save(parkingFeature, { isNew: true });
     parkingFeature.commit();
 
     return parkingFeature.getId().value;

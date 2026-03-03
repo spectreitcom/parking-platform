@@ -13,8 +13,12 @@ import { ConcurrencyError } from '../../../../shared/errors';
 export class PrismaParkingFeatureRepository implements ParkingFeatureRepository {
   constructor(private readonly prismaService: PrismaService) {}
 
-  async save(parkingFeature: ParkingFeature, tx?: PrismaTx): Promise<void> {
-    const prisma = tx || this.prismaService;
+  async save(
+    parkingFeature: ParkingFeature,
+    options?: { isNew?: boolean; tx?: PrismaTx },
+  ): Promise<void> {
+    const prisma = options?.tx || this.prismaService;
+    const isNew = options?.isNew ?? false;
     const id = parkingFeature.getId().value;
     const currentVersion = parkingFeature.getVersion().value;
 
@@ -23,7 +27,7 @@ export class PrismaParkingFeatureRepository implements ParkingFeatureRepository 
     });
 
     if (!record) {
-      if (currentVersion > 1) {
+      if (!isNew) {
         throw new ConcurrencyError('ParkingFeature', id);
       }
 
@@ -36,6 +40,11 @@ export class PrismaParkingFeatureRepository implements ParkingFeatureRepository 
         },
       });
       return;
+    }
+
+    if (isNew) {
+      // Trying to create an entity that already exists
+      throw new ConcurrencyError('ParkingFeature', id);
     }
 
     try {

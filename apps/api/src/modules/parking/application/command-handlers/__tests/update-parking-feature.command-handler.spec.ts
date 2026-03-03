@@ -58,7 +58,9 @@ describe('UpdateParkingFeatureCommandHandler', () => {
 
     expect(result).toBe(id);
     expect(repository.findById).toHaveBeenCalledWith(id);
-    expect(repository.save).toHaveBeenCalledWith(parkingFeature);
+    expect(repository.save).toHaveBeenCalledWith(parkingFeature, {
+      isNew: false,
+    });
     expect(parkingFeature.getName().value).toBe('New Name');
     expect(parkingFeature.getLevels().length).toBe(2);
     expect(publisher.mergeObjectContext).toHaveBeenCalled();

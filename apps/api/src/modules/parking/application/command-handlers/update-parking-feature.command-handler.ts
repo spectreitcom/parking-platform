@@ -38,7 +38,7 @@ export class UpdateParkingFeatureCommandHandler implements ICommandHandler<
     this.eventPublisher.mergeObjectContext(parkingFeature);
     parkingFeature.update(name, levels);
 
-    await this.parkingFeatureRepository.save(parkingFeature);
+    await this.parkingFeatureRepository.save(parkingFeature, { isNew: false });
     parkingFeature.commit();
 
     return parkingFeature.getId().value;

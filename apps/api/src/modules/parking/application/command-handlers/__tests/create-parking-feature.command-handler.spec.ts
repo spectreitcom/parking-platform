@@ -48,7 +48,9 @@ describe('CreateParkingFeatureCommandHandler', () => {
 
     expect(result).toBeDefined();
     expect(typeof result).toBe('string');
-    expect(repository.save).toHaveBeenCalledWith(expect.any(ParkingFeature));
+    expect(repository.save).toHaveBeenCalledWith(expect.any(ParkingFeature), {
+      isNew: true,
+    });
     expect(publisher.mergeObjectContext).toHaveBeenCalled();
   });
 });
