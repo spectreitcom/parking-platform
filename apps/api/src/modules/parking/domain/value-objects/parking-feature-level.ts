@@ -36,6 +36,12 @@ export class ParkingFeatureLevel {
   }
 
   static fromArray(_values: string[]) {
+    if (_values.length === 0) {
+      throw new AppError(
+        'VALIDATION_ERROR',
+        'ParkingFeatureLevel must contain at least one level',
+      );
+    }
     return _values.map((value) => new ParkingFeatureLevel(value));
   }
 

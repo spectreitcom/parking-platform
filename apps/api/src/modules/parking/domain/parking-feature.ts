@@ -69,7 +69,7 @@ export class ParkingFeature extends AggregateRoot {
   }
 
   getLevels() {
-    return this.levels;
+    return [...this.levels];
   }
 
   getVersion() {
