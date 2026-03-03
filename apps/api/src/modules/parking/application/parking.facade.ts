@@ -172,12 +172,11 @@ export class ParkingFacade {
     address: string,
     longitude: number,
     latitude: number,
-    placeId: string,
     assetIds: string[],
     parkingFeatureIds: string[],
     parkingAddonIds: string[],
     description: string,
-    statue: string,
+    statute: string,
     version: number,
   ) {
     const command = new UpdateParkingCommand(
@@ -186,12 +185,11 @@ export class ParkingFacade {
       address,
       longitude,
       latitude,
-      placeId,
       assetIds,
       parkingFeatureIds,
       parkingAddonIds,
       description,
-      statue,
+      statute,
       version,
     );
     return await this.commandBus.execute<UpdateParkingCommand, string>(command);

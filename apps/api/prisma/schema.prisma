@@ -121,7 +121,7 @@ model Parking {
   longitude Decimal @db.Decimal(10, 7)
   latitude  Decimal @db.Decimal(10, 7)
 
-  statue      String? @db.Text
+  statute     String? @db.Text
   description String? @db.Text
   ownerId     String  @db.Uuid
 

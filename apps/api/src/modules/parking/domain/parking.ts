@@ -23,7 +23,7 @@ export class Parking extends AggregateRoot {
   private address: Address;
   private coords: Coords;
   private assetIds: AssetId[];
-  private statue?: string;
+  private statute?: string;
   private parkingFeatureIds: ParkingFeatureId[];
   private readonly version: AggregateVersion;
   private parkingAddonIds: ParkingAddonId[];
@@ -42,7 +42,7 @@ export class Parking extends AggregateRoot {
     placeId: PlaceId,
     version: AggregateVersion,
     description?: string,
-    statue?: string,
+    statute?: string,
   ) {
     super();
     this.id = id;
@@ -53,7 +53,7 @@ export class Parking extends AggregateRoot {
     this.address = address;
     this.coords = coords;
     this.assetIds = [...assetIds];
-    this.statue = statue;
+    this.statute = statute;
     this.parkingFeatureIds = [...parkingFeatureIds];
     this.parkingAddonIds = [...parkingAddonIds];
     this.placeId = placeId;
@@ -66,15 +66,16 @@ export class Parking extends AggregateRoot {
     address: string,
     coords: { longitude: number; latitude: number },
     placeId: string,
+    id?: string,
   ) {
-    const id = ParkingId.create();
+    const _id = id ? ParkingId.fromString(id) : ParkingId.create();
     const _ownerId = OwnerId.fromString(ownerId);
     const _name = ParkingName.fromString(name);
     const _address = Address.fromString(address);
     const _coords = Coords.fromNumbers(coords.latitude, coords.longitude);
     const _placeId = PlaceId.fromString(placeId);
     const parking = new Parking(
-      id,
+      _id,
       _ownerId,
       _name,
       true,
@@ -85,11 +86,13 @@ export class Parking extends AggregateRoot {
       [],
       _placeId,
       AggregateVersion.one(),
+      '',
+      '',
     );
 
     parking.apply(
       new ParkingCreatedEvent(
-        id.value,
+        _id.value,
         _ownerId.value,
         _placeId.value,
         _name.value,
@@ -98,8 +101,10 @@ export class Parking extends AggregateRoot {
         _coords.longitude,
         [],
         [],
-        false,
+        parking.active,
         [],
+        '',
+        '',
       ),
     );
 
@@ -114,7 +119,7 @@ export class Parking extends AggregateRoot {
     parkingFeatureIds: readonly string[],
     parkingAddonIds: readonly string[],
     description?: string,
-    statue?: string,
+    statute?: string,
   ) {
     this.name = ParkingName.fromString(name);
     this.address = Address.fromString(address);
@@ -127,7 +132,7 @@ export class Parking extends AggregateRoot {
       ParkingAddonId.fromString(id),
     );
     this.description = description;
-    this.statue = statue;
+    this.statute = statute;
 
     this.apply(
       new ParkingUpdatedEvent(
@@ -142,6 +147,8 @@ export class Parking extends AggregateRoot {
         this.parkingAddonIds.map((id) => id.value),
         this.active,
         this.assetIds.map((id) => id.value),
+        this.description ?? '',
+        this.statute ?? '',
       ),
     );
   }
@@ -190,8 +197,8 @@ export class Parking extends AggregateRoot {
     return [...this.assetIds];
   }
 
-  getStatue() {
-    return this.statue;
+  getStatute() {
+    return this.statute;
   }
 
   getParkingFeatureIds() {

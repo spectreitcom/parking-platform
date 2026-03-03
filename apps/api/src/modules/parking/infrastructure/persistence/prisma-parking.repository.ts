@@ -47,7 +47,7 @@ export class PrismaParkingRepository implements ParkingRepository {
           longitude: parking.getCoords().longitude,
           ownerId: parking.getOwnerId().value,
           placeId: parking.getPlaceId().value,
-          statue: parking.getStatue(),
+          statute: parking.getStatute(),
           assetIds: parking.getAssetIds().map((id) => id.value),
           version: 1,
           parkingFeatures: {
@@ -76,7 +76,7 @@ export class PrismaParkingRepository implements ParkingRepository {
           longitude: parking.getCoords().longitude,
           ownerId: parking.getOwnerId().value,
           placeId: parking.getPlaceId().value,
-          statue: parking.getStatue(),
+          statute: parking.getStatute(),
           assetIds: parking.getAssetIds().map((id) => id.value),
           version: {
             increment: 1,
@@ -125,7 +125,7 @@ export class PrismaParkingRepository implements ParkingRepository {
       PlaceId.fromString(record.placeId),
       AggregateVersion.fromNumber(record.version),
       record.description ?? undefined,
-      record.statue ?? undefined,
+      record.statute ?? undefined,
     );
   }
 }

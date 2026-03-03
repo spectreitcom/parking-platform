@@ -13,5 +13,7 @@ export class ParkingCreatedEvent implements IEvent {
     public readonly parkingAddonIds: string[],
     public readonly active: boolean,
     public readonly assetIds: string[],
+    public readonly description: string,
+    public readonly statute: string,
   ) {}
 }

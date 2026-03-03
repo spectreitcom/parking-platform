@@ -47,6 +47,7 @@ describe('UpdateParkingCommandHandler', () => {
       'Old Address',
       { longitude: 21.0122, latitude: 52.2297 },
       randomUUID(),
+      parkingId,
     );
     repository.findById.mockResolvedValue(parking);
 
@@ -56,12 +57,11 @@ describe('UpdateParkingCommandHandler', () => {
       'New Address',
       22.0122,
       53.2297,
-      randomUUID(),
       [randomUUID()],
       [randomUUID()],
       [randomUUID()],
       'New Description',
-      'New Statue',
+      'New Statute',
       1,
     );
 
@@ -73,7 +73,7 @@ describe('UpdateParkingCommandHandler', () => {
     expect(parking.getCoords().longitude).toBe(command.longitude);
     expect(parking.getCoords().latitude).toBe(command.latitude);
     expect(parking.getDescription()).toBe(command.description);
-    expect(parking.getStatue()).toBe(command.statue);
+    expect(parking.getStatute()).toBe(command.statute);
     expect(parking.getAssetIds().map((id) => id.value)).toEqual(
       command.assetIds,
     );
@@ -100,7 +100,6 @@ describe('UpdateParkingCommandHandler', () => {
       'Address',
       21.0122,
       52.2297,
-      randomUUID(),
       [],
       [],
       [],
@@ -118,22 +117,23 @@ describe('UpdateParkingCommandHandler', () => {
   });
 
   it('should throw CONCURRENCY if versions do not match', async () => {
+    const parkingId = randomUUID();
     const parking = Parking.create(
       randomUUID(),
       'Name',
       'Address',
       { longitude: 21.0122, latitude: 52.2297 },
       randomUUID(),
+      parkingId,
     );
     repository.findById.mockResolvedValue(parking);
 
     const command = new UpdateParkingCommand(
-      parking.getId().value,
+      parkingId,
       'Name',
       'Address',
       21.0122,
       52.2297,
-      randomUUID(),
       [],
       [],
       [],

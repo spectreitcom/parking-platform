@@ -30,6 +30,23 @@ describe('Parking', () => {
     const events = parking.getUncommittedEvents();
     expect(events).toHaveLength(1);
     expect(events[0]).toBeInstanceOf(ParkingCreatedEvent);
+    expect(events[0]).toEqual(
+      new ParkingCreatedEvent(
+        parking.getId().value,
+        ownerId,
+        placeId,
+        name,
+        address,
+        coords.latitude,
+        coords.longitude,
+        [],
+        [],
+        true,
+        [],
+        '',
+        '',
+      ),
+    );
   });
 
   it('should update parking data', () => {
@@ -66,10 +83,27 @@ describe('Parking', () => {
       addonIds,
     );
     expect(parking.getDescription()).toBe(description);
-    expect(parking.getStatue()).toBe(statue);
+    expect(parking.getStatute()).toBe(statue);
 
     const events = parking.getUncommittedEvents();
     expect(events[1]).toBeInstanceOf(ParkingUpdatedEvent);
+    expect(events[1]).toEqual(
+      new ParkingUpdatedEvent(
+        parking.getId().value,
+        ownerId,
+        placeId,
+        newName,
+        newAddress,
+        newCoords.latitude,
+        newCoords.longitude,
+        featureIds,
+        addonIds,
+        true,
+        assetIds,
+        description,
+        statue,
+      ),
+    );
   });
 
   it('should deactivate and activate parking', () => {
@@ -89,6 +123,20 @@ describe('Parking', () => {
     const events = parking.getUncommittedEvents();
     expect(events.some((e) => e instanceof ParkingDeactivatedEvent)).toBe(true);
     expect(events.some((e) => e instanceof ParkingActivatedEvent)).toBe(true);
+
+    const deactivationEvent = events.find(
+      (e) => e instanceof ParkingDeactivatedEvent,
+    );
+    const activationEvent = events.find(
+      (e) => e instanceof ParkingActivatedEvent,
+    );
+
+    expect(deactivationEvent).toEqual(
+      new ParkingDeactivatedEvent(parking.getId().value),
+    );
+    expect(activationEvent).toEqual(
+      new ParkingActivatedEvent(parking.getId().value),
+    );
   });
 
   it('should not emit event if deactivating already inactive parking', () => {

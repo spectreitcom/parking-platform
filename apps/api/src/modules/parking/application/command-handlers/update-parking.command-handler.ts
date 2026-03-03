@@ -25,7 +25,7 @@ export class UpdateParkingCommandHandler implements ICommandHandler<
       parkingFeatureIds,
       parkingAddonIds,
       description,
-      statue,
+      statute,
       version,
     } = command;
 
@@ -53,7 +53,7 @@ export class UpdateParkingCommandHandler implements ICommandHandler<
       parkingFeatureIds,
       parkingAddonIds,
       description,
-      statue,
+      statute,
     );
 
     await this.parkingRepository.save(parking);
