@@ -30,7 +30,7 @@ export class CreateParkingAddonCommandHandler implements ICommandHandler<
       ParkingAddon.create(code, name, price),
     );
 
-    await this.parkingAddonRepository.save(parkingAddon);
+    await this.parkingAddonRepository.save(parkingAddon, { isNew: true });
     parkingAddon.commit();
 
     return parkingAddon.getId().value;

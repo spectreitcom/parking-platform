@@ -20,7 +20,7 @@ export class CreatePlaceCommandHandler implements ICommandHandler<
       Place.create(name, { latitude, longitude }, address, active, placeTypeId),
     );
 
-    await this.placeRepository.save(place);
+    await this.placeRepository.save(place, { isNew: true });
     place.commit();
 
     return place.getId().value;

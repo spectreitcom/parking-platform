@@ -20,7 +20,7 @@ export class CreatePlaceTypeCommandHandler implements ICommandHandler<
       PlaceType.create(name),
     );
 
-    await this.placeTypeRepository.save(placeType);
+    await this.placeTypeRepository.save(placeType, { isNew: true });
     placeType.commit();
 
     return placeType.getId().value;

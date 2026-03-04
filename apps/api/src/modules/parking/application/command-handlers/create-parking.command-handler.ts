@@ -20,7 +20,7 @@ export class CreateParkingCommandHandler implements ICommandHandler<
       Parking.create(ownerId, name, address, { longitude, latitude }, placeId),
     );
 
-    await this.parkingRepository.save(parking);
+    await this.parkingRepository.save(parking, { isNew: true });
     parking.commit();
 
     return parking.getId().value;

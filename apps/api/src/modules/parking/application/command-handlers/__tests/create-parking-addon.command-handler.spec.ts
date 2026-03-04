@@ -56,7 +56,10 @@ describe('CreateParkingAddonCommandHandler', () => {
 
     expect(result).toBeDefined();
     expect(repository.findByCode).toHaveBeenCalledWith('PA1');
-    expect(repository.save).toHaveBeenCalledWith(expect.any(ParkingAddon));
+    expect(repository.save).toHaveBeenCalledWith(
+      expect.any(ParkingAddon),
+      expect.objectContaining({ isNew: true }),
+    );
     expect(publisher.mergeObjectContext).toHaveBeenCalled();
   });
 

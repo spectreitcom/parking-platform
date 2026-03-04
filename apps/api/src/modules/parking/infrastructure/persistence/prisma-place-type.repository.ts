@@ -12,17 +12,21 @@ import { ConcurrencyError } from '../../../../shared/errors';
 export class PrismaPlaceTypeRepository implements PlaceTypeRepository {
   constructor(private readonly prismaService: PrismaService) {}
 
-  async save(placeType: PlaceType, tx?: PrismaTx): Promise<void> {
-    const prisma = tx ?? this.prismaService;
+  async save(
+    placeType: PlaceType,
+    options?: { isNew?: boolean; tx?: PrismaTx },
+  ): Promise<void> {
+    const prisma = options?.tx ?? this.prismaService;
     const id = placeType.getId().value;
     const currentVersion = placeType.getVersion().value;
+    const isNew = options?.isNew ?? false;
 
     const record = await prisma.placeType.findUnique({
       where: { id },
     });
 
     if (!record) {
-      if (currentVersion > 1) {
+      if (isNew) {
         throw new ConcurrencyError('PlaceType', id);
       }
 

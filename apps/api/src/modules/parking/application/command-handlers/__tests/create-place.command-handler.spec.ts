@@ -53,7 +53,10 @@ describe('CreatePlaceCommandHandler', () => {
     expect(publisher.mergeObjectContext).toHaveBeenCalledWith(
       expect.any(Place),
     );
-    expect(repository.save).toHaveBeenCalledWith(expect.any(Place));
+    expect(repository.save).toHaveBeenCalledWith(
+      expect.any(Place),
+      expect.objectContaining({ isNew: true }),
+    );
     /* eslint-enable @typescript-eslint/unbound-method */
     const savedPlace = repository.save.mock.calls[0][0];
     expect(savedPlace.getName().value).toBe(command.name);

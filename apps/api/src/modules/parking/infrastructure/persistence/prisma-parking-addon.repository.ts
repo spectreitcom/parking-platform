@@ -14,23 +14,24 @@ import { ConcurrencyError } from '../../../../shared/errors';
 export class PrismaParkingAddonRepository implements ParkingAddonRepository {
   constructor(private readonly prismaService: PrismaService) {}
 
-  async save(parkingAddon: ParkingAddon, tx?: PrismaTx): Promise<void> {
-    const prisma = tx || this.prismaService;
+  async save(
+    parkingAddon: ParkingAddon,
+    options?: { isNew?: boolean; tx?: PrismaTx },
+  ): Promise<void> {
+    const prisma = options?.tx || this.prismaService;
     const id = parkingAddon.getId().value;
     const currentVersion = parkingAddon.getVersion().value;
+    const isNew = options?.isNew ?? false;
 
     const record = await prisma.parkingAddon.findUnique({
       where: { id },
     });
 
-    // If record does not exist and version > 1, it means the aggregate existed before
-    // and was likely deleted concurrently -> do not recreate, throw concurrency error
     if (!record) {
-      if (currentVersion > 1) {
+      if (!isNew) {
         throw new ConcurrencyError('ParkingAddon', id);
       }
 
-      // Only allow create when we're on the first version (new aggregate)
       await prisma.parkingAddon.create({
         data: {
           id: parkingAddon.getId().value,
