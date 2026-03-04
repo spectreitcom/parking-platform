@@ -17,6 +17,10 @@ import { CreateParkingCommand } from './commands/create-parking.command';
 import { UpdateParkingCommand } from './commands/update-parking.command';
 import { ActivateParkingCommand } from './commands/activate-parking.command';
 import { DeactivateParkingCommand } from './commands/deactivate-parking.command';
+import { CreateParkingSpotCommand } from './commands/create-parking-spot.command';
+import { UpdateParkingSpotCommand } from './commands/update-parking-spot.command';
+import { ActivateParkingSpotCommand } from './commands/activate-parking-spot.command';
+import { DeactivateParkingSpotCommand } from './commands/deactivate-parking-spot.command';
 
 @Injectable()
 export class ParkingFacade {
@@ -205,6 +209,52 @@ export class ParkingFacade {
   async deactivateParking(id: string, version: number) {
     const command = new DeactivateParkingCommand(id, version);
     return await this.commandBus.execute<DeactivateParkingCommand, string>(
+      command,
+    );
+  }
+
+  async createParkingSpot(
+    parkingId: string,
+    price: number,
+    parkingSpotFeatureIds: string[],
+  ) {
+    const command = new CreateParkingSpotCommand(
+      parkingId,
+      price,
+      parkingSpotFeatureIds,
+    );
+    return await this.commandBus.execute<CreateParkingSpotCommand, string>(
+      command,
+    );
+  }
+
+  async updateParkingSpot(
+    id: string,
+    price: number,
+    parkingSpotFeatureIds: string[],
+    version: number,
+  ) {
+    const command = new UpdateParkingSpotCommand(
+      id,
+      price,
+      parkingSpotFeatureIds,
+      version,
+    );
+    return await this.commandBus.execute<UpdateParkingSpotCommand, string>(
+      command,
+    );
+  }
+
+  async activateParkingSpot(id: string, version: number) {
+    const command = new ActivateParkingSpotCommand(id, version);
+    return await this.commandBus.execute<ActivateParkingSpotCommand, string>(
+      command,
+    );
+  }
+
+  async deactivateParkingSpot(id: string, version: number) {
+    const command = new DeactivateParkingSpotCommand(id, version);
+    return await this.commandBus.execute<DeactivateParkingSpotCommand, string>(
       command,
     );
   }
