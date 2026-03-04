@@ -217,11 +217,13 @@ export class ParkingFacade {
     parkingId: string,
     price: number,
     parkingSpotFeatureIds: string[],
+    parkingOwnerId: string,
   ) {
     const command = new CreateParkingSpotCommand(
       parkingId,
       price,
       parkingSpotFeatureIds,
+      parkingOwnerId,
     );
     return await this.commandBus.execute<CreateParkingSpotCommand, string>(
       command,
@@ -233,27 +235,41 @@ export class ParkingFacade {
     price: number,
     parkingSpotFeatureIds: string[],
     version: number,
+    parkingOwnerId: string,
   ) {
     const command = new UpdateParkingSpotCommand(
       id,
       price,
       parkingSpotFeatureIds,
       version,
+      parkingOwnerId,
     );
     return await this.commandBus.execute<UpdateParkingSpotCommand, string>(
       command,
     );
   }
 
-  async activateParkingSpot(id: string, version: number) {
-    const command = new ActivateParkingSpotCommand(id, version);
+  async activateParkingSpot(
+    id: string,
+    version: number,
+    parkingOwnerId: string,
+  ) {
+    const command = new ActivateParkingSpotCommand(id, version, parkingOwnerId);
     return await this.commandBus.execute<ActivateParkingSpotCommand, string>(
       command,
     );
   }
 
-  async deactivateParkingSpot(id: string, version: number) {
-    const command = new DeactivateParkingSpotCommand(id, version);
+  async deactivateParkingSpot(
+    id: string,
+    version: number,
+    parkingOwnerId: string,
+  ) {
+    const command = new DeactivateParkingSpotCommand(
+      id,
+      version,
+      parkingOwnerId,
+    );
     return await this.commandBus.execute<DeactivateParkingSpotCommand, string>(
       command,
     );

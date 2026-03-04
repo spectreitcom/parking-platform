@@ -3,12 +3,16 @@ import { EventPublisher } from '@nestjs/cqrs';
 import { CreateParkingSpotCommandHandler } from '../create-parking-spot.command-handler';
 import { CreateParkingSpotCommand } from '../../commands/create-parking-spot.command';
 import { ParkingSpotRepository } from '../../ports/parking-spot.repository';
+import { ParkingRepository } from '../../ports/parking.repository';
 import { ParkingSpot } from '../../../domain/parking-spot';
+import { Parking } from '../../../domain/parking';
+import { OwnerId } from '../../../domain/value-objects/owner-id';
 import { randomUUID } from 'node:crypto';
 
 describe('CreateParkingSpotCommandHandler', () => {
   let handler: CreateParkingSpotCommandHandler;
   let repository: jest.Mocked<ParkingSpotRepository>;
+  let parkingRepository: jest.Mocked<ParkingRepository>;
   let publisher: jest.Mocked<EventPublisher>;
 
   beforeEach(async () => {
@@ -19,6 +23,12 @@ describe('CreateParkingSpotCommandHandler', () => {
           provide: ParkingSpotRepository,
           useValue: {
             save: jest.fn(),
+          },
+        },
+        {
+          provide: ParkingRepository,
+          useValue: {
+            findById: jest.fn(),
           },
         },
         {
@@ -34,14 +44,26 @@ describe('CreateParkingSpotCommandHandler', () => {
       CreateParkingSpotCommandHandler,
     );
     repository = module.get(ParkingSpotRepository);
+    parkingRepository = module.get(ParkingRepository);
     publisher = module.get(EventPublisher);
   });
 
   it('should create and save a new parking spot', async () => {
-    const command = new CreateParkingSpotCommand(randomUUID(), 50, [
-      randomUUID(),
-      randomUUID(),
-    ]);
+    const parkingId = randomUUID();
+    const ownerIdStr = randomUUID();
+    const command = new CreateParkingSpotCommand(
+      parkingId,
+      50,
+      [randomUUID(), randomUUID()],
+      ownerIdStr,
+    );
+
+    const ownerId = OwnerId.fromString(ownerIdStr);
+    const parking = {
+      getOwnerId: () => ownerId,
+    } as Parking;
+
+    parkingRepository.findById.mockResolvedValue(parking);
 
     const result = await handler.execute(command);
 

@@ -3,13 +3,17 @@ import { EventPublisher } from '@nestjs/cqrs';
 import { UpdateParkingSpotCommandHandler } from '../update-parking-spot.command-handler';
 import { UpdateParkingSpotCommand } from '../../commands/update-parking-spot.command';
 import { ParkingSpotRepository } from '../../ports/parking-spot.repository';
+import { ParkingRepository } from '../../ports/parking.repository';
 import { ParkingSpot } from '../../../domain/parking-spot';
+import { Parking } from '../../../domain/parking';
+import { OwnerId } from '../../../domain/value-objects/owner-id';
 import { randomUUID } from 'node:crypto';
 import { AppError } from '../../../../../shared/errors';
 
 describe('UpdateParkingSpotCommandHandler', () => {
   let handler: UpdateParkingSpotCommandHandler;
   let repository: jest.Mocked<ParkingSpotRepository>;
+  let parkingRepository: jest.Mocked<ParkingRepository>;
   let publisher: jest.Mocked<EventPublisher>;
 
   beforeEach(async () => {
@@ -21,6 +25,12 @@ describe('UpdateParkingSpotCommandHandler', () => {
           useValue: {
             findById: jest.fn(),
             save: jest.fn(),
+          },
+        },
+        {
+          provide: ParkingRepository,
+          useValue: {
+            findById: jest.fn(),
           },
         },
         {
@@ -36,19 +46,28 @@ describe('UpdateParkingSpotCommandHandler', () => {
       UpdateParkingSpotCommandHandler,
     );
     repository = module.get(ParkingSpotRepository);
+    parkingRepository = module.get(ParkingRepository);
     publisher = module.get(EventPublisher);
   });
 
   it('should update and save an existing parking spot', async () => {
     const id = randomUUID();
+    const ownerIdStr = randomUUID();
     const parkingSpot = ParkingSpot.create(randomUUID(), 10, []);
     repository.findById.mockResolvedValue(parkingSpot);
+
+    const ownerId = OwnerId.fromString(ownerIdStr);
+    const parking = {
+      getOwnerId: () => ownerId,
+    } as Parking;
+    parkingRepository.findById.mockResolvedValue(parking);
 
     const command = new UpdateParkingSpotCommand(
       id,
       20,
       [randomUUID()],
       parkingSpot.getVersion().value,
+      ownerIdStr,
     );
 
     const result = await handler.execute(command);
@@ -69,17 +88,24 @@ describe('UpdateParkingSpotCommandHandler', () => {
     const id = randomUUID();
     repository.findById.mockResolvedValue(null);
 
-    const command = new UpdateParkingSpotCommand(id, 20, [], 1);
+    const command = new UpdateParkingSpotCommand(id, 20, [], 1, randomUUID());
 
     await expect(handler.execute(command)).rejects.toThrow(AppError);
   });
 
   it('should throw AppError if version is invalid', async () => {
     const id = randomUUID();
+    const ownerIdStr = randomUUID();
     const parkingSpot = ParkingSpot.create(randomUUID(), 10, []);
     repository.findById.mockResolvedValue(parkingSpot);
 
-    const command = new UpdateParkingSpotCommand(id, 20, [], -1);
+    const ownerId = OwnerId.fromString(ownerIdStr);
+    const parking = {
+      getOwnerId: () => ownerId,
+    } as Parking;
+    parkingRepository.findById.mockResolvedValue(parking);
+
+    const command = new UpdateParkingSpotCommand(id, 20, [], -1, ownerIdStr);
 
     await expect(handler.execute(command)).rejects.toMatchObject({
       code: 'VALIDATION_ERROR',
