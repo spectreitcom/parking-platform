@@ -7,7 +7,8 @@ export type AppErrorCode =
   | 'WRONG_CREDENTIALS'
   | 'UNAUTHORIZED'
   | 'SIMPLE_ERROR'
-  | 'CONCURRENCY';
+  | 'CONCURRENCY'
+  | 'FORBIDDEN_OPERATION';
 
 export const codeToStatus: Record<AppErrorCode, number> = {
   ENTITY_NOT_FOUND: HttpStatus.NOT_FOUND,
@@ -17,6 +18,7 @@ export const codeToStatus: Record<AppErrorCode, number> = {
   UNAUTHORIZED: HttpStatus.UNAUTHORIZED,
   SIMPLE_ERROR: HttpStatus.BAD_REQUEST,
   CONCURRENCY: HttpStatus.CONFLICT,
+  FORBIDDEN_OPERATION: HttpStatus.FORBIDDEN,
 };
 
 export class AppError extends Error {

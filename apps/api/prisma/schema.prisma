@@ -112,7 +112,8 @@ model ParkingFeature {
 
   version Int @default(0) @db.Integer
 
-  parkings Parking[]
+  parkings     Parking[]
+  parkingSpots ParkingSpot[]
 }
 
 model Parking {
@@ -135,6 +136,24 @@ model Parking {
 
   active  Boolean @default(false)
   address String  @db.VarChar(255)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  version Int @default(0) @db.Integer
+
+  parkingSpots ParkingSpot[]
+}
+
+model ParkingSpot {
+  id     String  @id @default(uuid()) @db.Uuid
+  price  Int
+  active Boolean @default(true)
+
+  parkingId String  @db.Uuid
+  parking   Parking @relation(fields: [parkingId], references: [id], onDelete: Cascade)
+
+  parkingSpotFeatures ParkingFeature[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
