@@ -46,6 +46,10 @@ export class PrismaPlaceRepository implements PlaceRepository {
       return;
     }
 
+    if (isNew) {
+      throw new ConcurrencyError('Place', id);
+    }
+
     try {
       await prisma.place.update({
         where: {

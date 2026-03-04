@@ -45,6 +45,10 @@ export class PrismaParkingAddonRepository implements ParkingAddonRepository {
       return;
     }
 
+    if (isNew) {
+      throw new ConcurrencyError('ParkingAddon', id);
+    }
+
     try {
       await prisma.parkingAddon.update({
         where: {
