@@ -14,17 +14,21 @@ import { ConcurrencyError } from '../../../../shared/errors';
 export class PrismaParkingSpotRepository implements ParkingSpotRepository {
   constructor(private readonly prismaService: PrismaService) {}
 
-  async save(parkingSpot: ParkingSpot, tx?: PrismaTx): Promise<void> {
-    const prisma = tx || this.prismaService;
+  async save(
+    parkingSpot: ParkingSpot,
+    options?: { isNew?: boolean; tx?: PrismaTx },
+  ): Promise<void> {
+    const prisma = options?.tx || this.prismaService;
     const id = parkingSpot.getId().value;
     const currentVersion = parkingSpot.getVersion().value;
+    const isNew = options?.isNew ?? false;
 
     const record = await prisma.parkingSpot.findUnique({
       where: { id },
     });
 
     if (!record) {
-      if (currentVersion > 1) {
+      if (!isNew) {
         throw new ConcurrencyError('ParkingSpot', id);
       }
 

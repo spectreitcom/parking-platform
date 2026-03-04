@@ -1,7 +1,7 @@
 import { CommandHandler, EventPublisher, ICommandHandler } from '@nestjs/cqrs';
 import { UpdateParkingSpotCommand } from '../commands/update-parking-spot.command';
 import { ParkingSpotRepository } from '../ports/parking-spot.repository';
-import { AppError } from '../../../../shared/errors';
+import { AppError, ConcurrencyError } from '../../../../shared/errors';
 import { AggregateVersion } from '../../../../shared/value-objects/aggregate-version';
 import { ParkingRepository } from '../ports/parking.repository';
 import { OwnerId } from '../../domain/value-objects/owner-id';
@@ -62,8 +62,18 @@ export class UpdateParkingSpotCommandHandler implements ICommandHandler<
     this.eventPublisher.mergeObjectContext(parkingSpot);
     parkingSpot.update(price, parkingSpotFeatureIds);
 
-    await this.parkingSpotRepository.save(parkingSpot);
-    parkingSpot.commit();
+    try {
+      await this.parkingSpotRepository.save(parkingSpot);
+      parkingSpot.commit();
+    } catch (e) {
+      if (e instanceof ConcurrencyError) {
+        throw new AppError(
+          'CONCURRENCY',
+          `Parking spot with id ${id} has been modified by another process`,
+        );
+      }
+      throw e;
+    }
 
     return parkingSpot.getId().value;
   }

@@ -73,7 +73,9 @@ describe('CreateParkingSpotCommandHandler', () => {
     expect(publisher.mergeObjectContext).toHaveBeenCalledWith(
       expect.any(ParkingSpot),
     );
-    expect(repository.save).toHaveBeenCalledWith(expect.any(ParkingSpot));
+    expect(repository.save).toHaveBeenCalledWith(expect.any(ParkingSpot), {
+      isNew: true,
+    });
     /* eslint-enable @typescript-eslint/unbound-method */
     const savedSpot = repository.save.mock.calls[0][0];
     expect(savedSpot.getParkingId().value).toBe(command.parkingId);
