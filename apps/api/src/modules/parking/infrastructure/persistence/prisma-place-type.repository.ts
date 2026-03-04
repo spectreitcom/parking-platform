@@ -7,22 +7,27 @@ import { PlaceTypeId } from '../../domain/value-objects/place-type-id';
 import { PlaceTypeName } from '../../domain/value-objects/place-type-name';
 import { AggregateVersion } from '../../../../shared/value-objects/aggregate-version';
 import { ConcurrencyError } from '../../../../shared/errors';
+import { RepositorySaveOptions } from '../../../../shared/types';
 
 @Injectable()
 export class PrismaPlaceTypeRepository implements PlaceTypeRepository {
   constructor(private readonly prismaService: PrismaService) {}
 
-  async save(placeType: PlaceType, tx?: PrismaTx): Promise<void> {
-    const prisma = tx ?? this.prismaService;
+  async save(
+    placeType: PlaceType,
+    options?: RepositorySaveOptions,
+  ): Promise<void> {
+    const prisma = options?.tx ?? this.prismaService;
     const id = placeType.getId().value;
     const currentVersion = placeType.getVersion().value;
+    const isNew = options?.isNew ?? false;
 
     const record = await prisma.placeType.findUnique({
       where: { id },
     });
 
     if (!record) {
-      if (currentVersion > 1) {
+      if (!isNew) {
         throw new ConcurrencyError('PlaceType', id);
       }
 

@@ -8,6 +8,7 @@ import { ParkingFeatureName } from '../../domain/value-objects/parking-feature-n
 import { ParkingFeatureLevel } from '../../domain/value-objects/parking-feature-level';
 import { AggregateVersion } from '../../../../shared/value-objects/aggregate-version';
 import { ConcurrencyError } from '../../../../shared/errors';
+import { RepositorySaveOptions } from '../../../../shared/types';
 
 @Injectable()
 export class PrismaParkingFeatureRepository implements ParkingFeatureRepository {
@@ -15,7 +16,7 @@ export class PrismaParkingFeatureRepository implements ParkingFeatureRepository 
 
   async save(
     parkingFeature: ParkingFeature,
-    options?: { isNew?: boolean; tx?: PrismaTx },
+    options?: RepositorySaveOptions,
   ): Promise<void> {
     const prisma = options?.tx || this.prismaService;
     const isNew = options?.isNew ?? false;

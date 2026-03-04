@@ -14,15 +14,17 @@ import { ParkingAddonId } from '../../domain/value-objects/parking-addon-id';
 import { PlaceId } from '../../domain/value-objects/place-id';
 import { AggregateVersion } from '../../../../shared/value-objects/aggregate-version';
 import { ConcurrencyError } from '../../../../shared/errors';
+import { RepositorySaveOptions } from '../../../../shared/types';
 
 @Injectable()
 export class PrismaParkingRepository implements ParkingRepository {
   constructor(private readonly prismaService: PrismaService) {}
 
-  async save(parking: Parking, tx?: PrismaTx): Promise<void> {
-    const prisma = tx ?? this.prismaService;
+  async save(parking: Parking, options?: RepositorySaveOptions): Promise<void> {
+    const prisma = options?.tx ?? this.prismaService;
     const id = parking.getId().value;
     const currentVersion = parking.getVersion().value;
+    const isNew = options?.isNew ?? false;
 
     const record = await prisma.parking.findUnique({
       where: { id },
@@ -36,6 +38,10 @@ export class PrismaParkingRepository implements ParkingRepository {
       .map((id) => ({ id: id.value }));
 
     if (!record) {
+      if (!isNew) {
+        throw new ConcurrencyError('Parking', id);
+      }
+
       await prisma.parking.create({
         data: {
           id,

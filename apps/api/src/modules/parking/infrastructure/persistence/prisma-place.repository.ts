@@ -10,21 +10,27 @@ import { Address } from '../../domain/value-objects/address';
 import { PlaceTypeId } from '../../domain/value-objects/place-type-id';
 import { AggregateVersion } from '../../../../shared/value-objects/aggregate-version';
 import { ConcurrencyError } from '../../../../shared/errors';
+import { RepositorySaveOptions } from '../../../../shared/types';
 
 @Injectable()
 export class PrismaPlaceRepository implements PlaceRepository {
   constructor(private readonly prismaService: PrismaService) {}
 
-  async save(place: Place, tx?: PrismaTx): Promise<void> {
-    const prisma = tx ?? this.prismaService;
+  async save(place: Place, options?: RepositorySaveOptions): Promise<void> {
+    const prisma = options?.tx ?? this.prismaService;
     const id = place.getId().value;
     const currentVersion = place.getVersion().value;
+    const isNew = options?.isNew ?? false;
 
     const record = await prisma.place.findUnique({
       where: { id },
     });
 
     if (!record) {
+      if (!isNew) {
+        throw new ConcurrencyError('Place', id);
+      }
+
       await prisma.place.create({
         data: {
           id: place.getId().value,
@@ -38,6 +44,10 @@ export class PrismaPlaceRepository implements PlaceRepository {
         },
       });
       return;
+    }
+
+    if (isNew) {
+      throw new ConcurrencyError('Place', id);
     }
 
     try {
