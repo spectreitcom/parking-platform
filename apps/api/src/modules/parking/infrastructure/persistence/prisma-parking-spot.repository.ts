@@ -9,6 +9,7 @@ import { Money } from '../../domain/value-objects/money';
 import { ParkingFeatureId } from '../../domain/value-objects/parking-feature-id';
 import { AggregateVersion } from '../../../../shared/value-objects/aggregate-version';
 import { ConcurrencyError } from '../../../../shared/errors';
+import { RepositorySaveOptions } from '../../../../shared/types';
 
 @Injectable()
 export class PrismaParkingSpotRepository implements ParkingSpotRepository {
@@ -16,7 +17,7 @@ export class PrismaParkingSpotRepository implements ParkingSpotRepository {
 
   async save(
     parkingSpot: ParkingSpot,
-    options?: { isNew?: boolean; tx?: PrismaTx },
+    options?: RepositorySaveOptions,
   ): Promise<void> {
     const prisma = options?.tx || this.prismaService;
     const id = parkingSpot.getId().value;

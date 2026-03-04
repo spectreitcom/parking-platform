@@ -9,6 +9,7 @@ import { ParkingAddonName } from '../../domain/value-objects/parking-addon-name'
 import { Money } from '../../domain/value-objects/money';
 import { AggregateVersion } from '../../../../shared/value-objects/aggregate-version';
 import { ConcurrencyError } from '../../../../shared/errors';
+import { RepositorySaveOptions } from '../../../../shared/types';
 
 @Injectable()
 export class PrismaParkingAddonRepository implements ParkingAddonRepository {
@@ -16,7 +17,7 @@ export class PrismaParkingAddonRepository implements ParkingAddonRepository {
 
   async save(
     parkingAddon: ParkingAddon,
-    options?: { isNew?: boolean; tx?: PrismaTx },
+    options?: RepositorySaveOptions,
   ): Promise<void> {
     const prisma = options?.tx || this.prismaService;
     const id = parkingAddon.getId().value;

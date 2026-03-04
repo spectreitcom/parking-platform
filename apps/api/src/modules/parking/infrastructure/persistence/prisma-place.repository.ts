@@ -10,15 +10,13 @@ import { Address } from '../../domain/value-objects/address';
 import { PlaceTypeId } from '../../domain/value-objects/place-type-id';
 import { AggregateVersion } from '../../../../shared/value-objects/aggregate-version';
 import { ConcurrencyError } from '../../../../shared/errors';
+import { RepositorySaveOptions } from '../../../../shared/types';
 
 @Injectable()
 export class PrismaPlaceRepository implements PlaceRepository {
   constructor(private readonly prismaService: PrismaService) {}
 
-  async save(
-    place: Place,
-    options?: { isNew?: boolean; tx?: PrismaTx },
-  ): Promise<void> {
+  async save(place: Place, options?: RepositorySaveOptions): Promise<void> {
     const prisma = options?.tx ?? this.prismaService;
     const id = place.getId().value;
     const currentVersion = place.getVersion().value;

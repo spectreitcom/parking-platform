@@ -1,10 +1,11 @@
 import { ParkingAddon } from '../../domain/parking-addon';
 import { PrismaTx } from '../../../../shared/prisma/types';
+import { RepositorySaveOptions } from '../../../../shared/types';
 
 export abstract class ParkingAddonRepository {
   abstract save(
     parkingAddon: ParkingAddon,
-    options?: { isNew?: boolean; tx?: PrismaTx },
+    options?: RepositorySaveOptions,
   ): Promise<void>;
   abstract findById(id: string, tx?: PrismaTx): Promise<ParkingAddon | null>;
   abstract findByCode(

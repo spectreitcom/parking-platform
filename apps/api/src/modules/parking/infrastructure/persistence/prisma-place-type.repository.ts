@@ -7,6 +7,7 @@ import { PlaceTypeId } from '../../domain/value-objects/place-type-id';
 import { PlaceTypeName } from '../../domain/value-objects/place-type-name';
 import { AggregateVersion } from '../../../../shared/value-objects/aggregate-version';
 import { ConcurrencyError } from '../../../../shared/errors';
+import { RepositorySaveOptions } from '../../../../shared/types';
 
 @Injectable()
 export class PrismaPlaceTypeRepository implements PlaceTypeRepository {
@@ -14,7 +15,7 @@ export class PrismaPlaceTypeRepository implements PlaceTypeRepository {
 
   async save(
     placeType: PlaceType,
-    options?: { isNew?: boolean; tx?: PrismaTx },
+    options?: RepositorySaveOptions,
   ): Promise<void> {
     const prisma = options?.tx ?? this.prismaService;
     const id = placeType.getId().value;
@@ -26,7 +27,7 @@ export class PrismaPlaceTypeRepository implements PlaceTypeRepository {
     });
 
     if (!record) {
-      if (isNew) {
+      if (!isNew) {
         throw new ConcurrencyError('PlaceType', id);
       }
 
