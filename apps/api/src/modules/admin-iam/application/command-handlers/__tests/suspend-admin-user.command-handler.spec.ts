@@ -10,7 +10,7 @@ import { AdminStatus } from '../../../domain/value-objects/admin-status';
 import { AggregateVersion } from '../../../../../shared/value-objects/aggregate-version';
 import { AppError } from '../../../../../shared/errors';
 
-describe('DeactivateAdminUserCommandHandler', () => {
+describe('SuspendAdminUserCommandHandler', () => {
   let handler: SuspendAdminUserCommandHandler;
   let adminUserRepository: jest.Mocked<AdminUserRepository>;
   let eventPublisher: jest.Mocked<EventPublisher>;
@@ -30,7 +30,7 @@ describe('DeactivateAdminUserCommandHandler', () => {
     );
   });
 
-  it('should deactivate (suspense) admin user successfully', async () => {
+  it('should suspend admin user successfully', async () => {
     // Given
     const adminUserId = '4979e954-5e18-4794-b295-d85c8e3b2e50';
     const version = 1;
