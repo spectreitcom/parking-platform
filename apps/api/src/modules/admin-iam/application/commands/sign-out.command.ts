@@ -1,5 +1,5 @@
 import { ICommand } from '@nestjs/cqrs';
 
-export class SingOutCommand implements ICommand {
+export class SignOutCommand implements ICommand {
   constructor(public readonly adminUserId: string) {}
 }

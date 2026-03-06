@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { CommandBus } from '@nestjs/cqrs';
 import { SignInCommand } from './commands/sign-in.command';
 import { SignInCommandResponse } from './command-handlers/sign-in.command-handler';
-import { SingOutCommand } from './commands/sing-out.command';
+import { SignOutCommand } from './commands/sign-out.command';
 
 @Injectable()
 export class AdminIamFacade {
@@ -15,9 +15,9 @@ export class AdminIamFacade {
     );
   }
 
-  async singOut(adminUserId: string) {
-    return await this.commandBus.execute<SingOutCommand, void>(
-      new SingOutCommand(adminUserId),
+  async signOut(adminUserId: string) {
+    return await this.commandBus.execute<SignOutCommand, void>(
+      new SignOutCommand(adminUserId),
     );
   }
 }

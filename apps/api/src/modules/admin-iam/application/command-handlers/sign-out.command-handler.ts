@@ -1,15 +1,15 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { SingOutCommand } from '../commands/sing-out.command';
+import { SignOutCommand } from '../commands/sign-out.command';
 import { RefreshTokenStorage } from '../ports/refresh-token.storage';
 
-@CommandHandler(SingOutCommand)
-export class SingOutCommandHandler implements ICommandHandler<
-  SingOutCommand,
+@CommandHandler(SignOutCommand)
+export class SignOutCommandHandler implements ICommandHandler<
+  SignOutCommand,
   void
 > {
   constructor(private readonly refreshTokenStorage: RefreshTokenStorage) {}
 
-  async execute(command: SingOutCommand): Promise<void> {
+  async execute(command: SignOutCommand): Promise<void> {
     const { adminUserId } = command;
     await this.refreshTokenStorage.invalidate(adminUserId);
   }

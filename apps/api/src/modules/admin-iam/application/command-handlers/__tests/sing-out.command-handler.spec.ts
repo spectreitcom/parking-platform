@@ -1,9 +1,9 @@
-import { SingOutCommandHandler } from '../sing-out.command-handler';
+import { SignOutCommandHandler } from '../sign-out.command-handler';
 import { RefreshTokenStorage } from '../../ports/refresh-token.storage';
-import { SingOutCommand } from '../../commands/sing-out.command';
+import { SignOutCommand } from '../../commands/sign-out.command';
 
 describe('SingOutCommandHandler', () => {
-  let handler: SingOutCommandHandler;
+  let handler: SignOutCommandHandler;
   let refreshTokenStorage: jest.Mocked<RefreshTokenStorage>;
 
   beforeEach(() => {
@@ -12,13 +12,13 @@ describe('SingOutCommandHandler', () => {
       invalidate: jest.fn(),
     } as any;
 
-    handler = new SingOutCommandHandler(refreshTokenStorage);
+    handler = new SignOutCommandHandler(refreshTokenStorage);
   });
 
   it('should invalidate refresh token successfully', async () => {
     // Given
     const adminUserId = '4979e954-5e18-4794-b295-d85c8e3b2e50';
-    const command = new SingOutCommand(adminUserId);
+    const command = new SignOutCommand(adminUserId);
     refreshTokenStorage.invalidate.mockResolvedValue();
 
     // When
