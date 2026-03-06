@@ -3,7 +3,7 @@ import { AppError } from '../../../../shared/errors';
 
 export class AdminDisplayName {
   @IsString()
-  @MaxLength(1201)
+  @MaxLength(120)
   private readonly _value: string;
 
   private constructor(value: string) {

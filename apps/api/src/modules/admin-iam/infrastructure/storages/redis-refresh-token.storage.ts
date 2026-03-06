@@ -10,7 +10,11 @@ export class RedisRefreshTokenStorage
   private readonly client: Redis;
 
   constructor(configService: ConfigService) {
-    this.client = new Redis(configService.get<string>('REDIS_URL')!);
+    const redisUrl = configService.get<string>('REDIS_URL');
+    if (!redisUrl) {
+      throw new Error('REDIS_URL is not defined in the environment variables');
+    }
+    this.client = new Redis(redisUrl);
   }
 
   async insert(adminUserId: string, tokenId: string): Promise<void> {

@@ -8,7 +8,7 @@ describe('AdminDisplayName', () => {
   });
 
   it('should throw error for too long display name', () => {
-    const longName = 'a'.repeat(1202);
+    const longName = 'a'.repeat(123);
     expect(() => AdminDisplayName.fromString(longName)).toThrow(
       'Invalid AdminDisplayName',
     );

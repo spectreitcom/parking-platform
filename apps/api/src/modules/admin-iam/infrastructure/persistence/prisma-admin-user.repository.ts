@@ -53,7 +53,7 @@ export class PrismaAdminUserRepository implements AdminUserRepository {
 
     try {
       await prisma.adminUser.update({
-        where: { id },
+        where: { id, version: adminUser.getVersion().value },
         data: {
           version: {
             increment: 1,
