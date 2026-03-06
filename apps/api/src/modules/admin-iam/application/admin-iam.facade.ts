@@ -17,7 +17,7 @@ export class AdminIamFacade {
 
   async singOut(adminUserId: string) {
     return await this.commandBus.execute<SingOutCommand, void>(
-      new SignInCommand(adminUserId),
+      new SingOutCommand(adminUserId),
     );
   }
 }
