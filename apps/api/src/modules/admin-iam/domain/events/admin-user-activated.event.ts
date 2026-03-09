@@ -1,5 +1,8 @@
 import { IEvent } from '@nestjs/cqrs';
 
 export class AdminUserActivatedEvent implements IEvent {
-  constructor(public readonly id: string) {}
+  constructor(
+    public readonly id: string,
+    public readonly updatedAt: Date,
+  ) {}
 }

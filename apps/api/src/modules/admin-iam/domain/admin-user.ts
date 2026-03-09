@@ -19,6 +19,8 @@ export class AdminUser extends AggregateRoot {
   private status: AdminStatus;
   private readonly version: AggregateVersion;
   private passwordHash?: string;
+  private readonly createdAt: Date;
+  private updatedAt: Date;
 
   constructor(
     id: AdminId,
@@ -27,6 +29,8 @@ export class AdminUser extends AggregateRoot {
     displayName: AdminDisplayName,
     status: AdminStatus,
     version: AggregateVersion,
+    createdAt: Date,
+    updatedAt: Date,
     passwordHash?: string,
   ) {
     super();
@@ -37,6 +41,8 @@ export class AdminUser extends AggregateRoot {
     this.status = status;
     this.version = version;
     this.passwordHash = passwordHash;
+    this.createdAt = createdAt;
+    this.updatedAt = updatedAt;
   }
 
   static create(email: string, displayName: string, isSuperAdmin = false) {
@@ -44,6 +50,7 @@ export class AdminUser extends AggregateRoot {
     const _email = Email.fromString(email);
     const _displayName = AdminDisplayName.fromString(displayName);
     const _status = AdminStatus.created();
+    const _createdAt = new Date();
 
     const adminUser = new AdminUser(
       id,
@@ -52,6 +59,8 @@ export class AdminUser extends AggregateRoot {
       _displayName,
       _status,
       AggregateVersion.one(),
+      _createdAt,
+      _createdAt,
     );
 
     adminUser.apply(
@@ -61,6 +70,8 @@ export class AdminUser extends AggregateRoot {
         isSuperAdmin,
         _displayName.value,
         _status.value,
+        _createdAt,
+        _createdAt,
       ),
     );
 
@@ -76,6 +87,8 @@ export class AdminUser extends AggregateRoot {
     const _email = Email.fromString(email);
     const _displayName = AdminDisplayName.fromString(displayName);
     const _status = AdminStatus.active();
+    const _createdAt = new Date();
+
     const adminUser = new AdminUser(
       id,
       _email,
@@ -83,6 +96,8 @@ export class AdminUser extends AggregateRoot {
       _displayName,
       _status,
       AggregateVersion.one(),
+      _createdAt,
+      _createdAt,
       passwordHash,
     );
     adminUser.apply(
@@ -92,6 +107,8 @@ export class AdminUser extends AggregateRoot {
         true,
         _displayName.value,
         _status.value,
+        _createdAt,
+        _createdAt,
       ),
     );
     return adminUser;
@@ -99,6 +116,8 @@ export class AdminUser extends AggregateRoot {
 
   update(displayName: string) {
     this.displayName = AdminDisplayName.fromString(displayName);
+    this.updatedAt = new Date();
+
     this.apply(
       new AdminUserUpdatedEvent(
         this.id.value,
@@ -106,28 +125,35 @@ export class AdminUser extends AggregateRoot {
         this.isSuperAdmin,
         this.displayName.value,
         this.status.value,
+        this.updatedAt,
       ),
     );
   }
 
   suspense() {
     this.status = AdminStatus.suspended();
-    this.apply(new AdminUserSuspendedEvent(this.id.value));
+    this.updatedAt = new Date();
+    this.apply(new AdminUserSuspendedEvent(this.id.value, this.updatedAt));
   }
 
   activate() {
     this.status = AdminStatus.active();
-    this.apply(new AdminUserActivatedEvent(this.id.value));
+    this.updatedAt = new Date();
+    this.apply(new AdminUserActivatedEvent(this.id.value, this.updatedAt));
   }
 
   invite() {
     this.status = AdminStatus.invited();
-    this.apply(new AdminUserInvitedEvent(this.id.value));
+    this.updatedAt = new Date();
+    this.apply(new AdminUserInvitedEvent(this.id.value, this.updatedAt));
   }
 
   changePassword(newHash: string) {
     this.passwordHash = newHash;
-    this.apply(new AdminUserPasswordChangedEvent(this.id.value));
+    this.updatedAt = new Date();
+    this.apply(
+      new AdminUserPasswordChangedEvent(this.id.value, this.updatedAt),
+    );
   }
 
   getId() {
@@ -156,5 +182,13 @@ export class AdminUser extends AggregateRoot {
 
   getPasswordHash() {
     return this.passwordHash;
+  }
+
+  getCreatedAt() {
+    return this.createdAt;
+  }
+
+  getUpdatedAt() {
+    return this.updatedAt;
   }
 }

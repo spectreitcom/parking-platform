@@ -1,3 +1,5 @@
+import { Test, TestingModule } from '@nestjs/testing';
+import { randomUUID } from 'node:crypto';
 import { SignInCommandHandler } from '../sign-in.command-handler';
 import { AdminUserRepository } from '../../ports/admin-user.repository';
 import { AccessTokenService } from '../../ports/access-token.service';
@@ -19,66 +21,94 @@ describe('SignInCommandHandler', () => {
   let refreshTokenService: jest.Mocked<RefreshTokenService>;
   let refreshTokenStorage: jest.Mocked<RefreshTokenStorage>;
 
-  beforeEach(() => {
+  beforeEach(async () => {
     adminUserRepository = {
       findById: jest.fn(),
-      save: jest.fn(),
     } as any;
+
     accessTokenService = {
       createToken: jest.fn(),
     } as any;
+
     refreshTokenService = {
       createToken: jest.fn(),
     } as any;
+
     refreshTokenStorage = {
       insert: jest.fn(),
-      invalidate: jest.fn(),
     } as any;
 
-    handler = new SignInCommandHandler(
-      adminUserRepository,
-      accessTokenService,
-      refreshTokenService,
-      refreshTokenStorage,
-    );
+    const module: TestingModule = await Test.createTestingModule({
+      providers: [
+        SignInCommandHandler,
+        {
+          provide: AdminUserRepository,
+          useValue: adminUserRepository,
+        },
+        {
+          provide: AccessTokenService,
+          useValue: accessTokenService,
+        },
+        {
+          provide: RefreshTokenService,
+          useValue: refreshTokenService,
+        },
+        {
+          provide: RefreshTokenStorage,
+          useValue: refreshTokenStorage,
+        },
+      ],
+    }).compile();
+
+    handler = module.get<SignInCommandHandler>(SignInCommandHandler);
   });
 
-  it('should sign in successfully when admin user is active', async () => {
+  it('should sign in successfully', async () => {
     // Given
-    const adminUserId = '4979e954-5e18-4794-b295-d85c8e3b2e50';
+    const adminUserId = randomUUID();
     const command = new SignInCommand(adminUserId);
+    const accessToken = 'access-token';
+    const refreshToken = 'refresh-token';
+
     const adminUser = new AdminUser(
       AdminId.fromString(adminUserId),
-      Email.fromString('admin@example.com'),
-      true,
-      AdminDisplayName.fromString('Admin User'),
+      Email.fromString('test@example.com'),
+      false,
+      AdminDisplayName.fromString('Test User'),
       AdminStatus.active(),
       AggregateVersion.one(),
+      new Date(),
+      new Date(),
     );
 
     adminUserRepository.findById.mockResolvedValue(adminUser);
-    accessTokenService.createToken.mockReturnValue('access-token');
-    refreshTokenService.createToken.mockReturnValue('refresh-token');
+    accessTokenService.createToken.mockReturnValue(accessToken);
+    refreshTokenService.createToken.mockReturnValue(refreshToken);
+    refreshTokenStorage.insert.mockResolvedValue();
 
     // When
     const result = await handler.execute(command);
 
     // Then
-    expect(result).toEqual({
-      accessToken: 'access-token',
-      refreshToken: 'refresh-token',
-    });
     expect(adminUserRepository.findById).toHaveBeenCalledWith(adminUserId);
     expect(accessTokenService.createToken).toHaveBeenCalledWith(adminUserId);
+    expect(refreshTokenService.createToken).toHaveBeenCalledWith(
+      adminUserId,
+      expect.any(String),
+    );
     expect(refreshTokenStorage.insert).toHaveBeenCalledWith(
       adminUserId,
       expect.any(String),
     );
+    expect(result).toEqual({
+      accessToken,
+      refreshToken,
+    });
   });
 
-  it('should throw AppError when admin user is not found', async () => {
+  it('should throw error if admin user not found', async () => {
     // Given
-    const adminUserId = '4979e954-5e18-4794-b295-d85c8e3b2e50';
+    const adminUserId = randomUUID();
     const command = new SignInCommand(adminUserId);
     adminUserRepository.findById.mockResolvedValue(null);
 
@@ -88,17 +118,20 @@ describe('SignInCommandHandler', () => {
     );
   });
 
-  it('should throw AppError when admin user is not active', async () => {
+  it('should throw error if admin user is not active', async () => {
     // Given
-    const adminUserId = '4979e954-5e18-4794-b295-d85c8e3b2e50';
+    const adminUserId = randomUUID();
     const command = new SignInCommand(adminUserId);
+
     const adminUser = new AdminUser(
       AdminId.fromString(adminUserId),
-      Email.fromString('admin@example.com'),
-      true,
-      AdminDisplayName.fromString('Admin User'),
+      Email.fromString('test@example.com'),
+      false,
+      AdminDisplayName.fromString('Test User'),
       AdminStatus.suspended(),
       AggregateVersion.one(),
+      new Date(),
+      new Date(),
     );
 
     adminUserRepository.findById.mockResolvedValue(adminUser);
