@@ -20,13 +20,22 @@ export class AdminUserCreatedEventHandler implements IEventHandler<AdminUserCrea
       createdAt,
       updatedAt,
     } = event;
-    await this.prismaService.adminUserRead.create({
-      data: {
+    await this.prismaService.adminUserRead.upsert({
+      where: { adminUserId: id },
+      update: {
         isSuperAdmin,
         status,
         email,
         displayName,
+        createdAt,
+        updatedAt,
+      },
+      create: {
         adminUserId: id,
+        isSuperAdmin,
+        status,
+        email,
+        displayName,
         createdAt,
         updatedAt,
       },
