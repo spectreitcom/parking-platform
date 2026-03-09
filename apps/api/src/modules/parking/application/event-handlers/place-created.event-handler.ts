@@ -18,7 +18,10 @@ export class PlaceCreatedEventHandler implements IEventHandler<PlaceCreatedEvent
       where: { id: placeTypeId },
     });
 
-    if (!placeType) return;
+    if (!placeType) {
+      this.logger.error(`Place type not found: ${placeTypeId}`);
+      throw new Error(`Place type not found: ${placeTypeId}`);
+    }
 
     await this.prismaService.placeRead.upsert({
       where: { placeId: id },

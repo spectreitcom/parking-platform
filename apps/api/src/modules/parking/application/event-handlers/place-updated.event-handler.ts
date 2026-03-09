@@ -18,18 +18,27 @@ export class PlaceUpdatedEventHandler implements IEventHandler<PlaceUpdatedEvent
       where: { id: placeTypeId },
     });
 
-    if (!placeType) return;
+    if (!placeType) {
+      this.logger.error(`Place type not found: ${placeTypeId}`);
+      throw new Error(`Place type not found: ${placeTypeId}`);
+    }
 
-    await this.prismaService.placeRead.update({
+    const data = {
+      name,
+      active,
+      address,
+      placeTypeId,
+      latitude,
+      longitude,
+      placeTypeName: placeType.name,
+    };
+
+    await this.prismaService.placeRead.upsert({
       where: { placeId: id },
-      data: {
-        name,
-        active,
-        address,
-        placeTypeId,
-        latitude,
-        longitude,
-        placeTypeName: placeType.name,
+      update: data,
+      create: {
+        placeId: id,
+        ...data,
       },
     });
   }
