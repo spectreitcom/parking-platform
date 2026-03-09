@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { CommandBus } from '@nestjs/cqrs';
+import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { CreatePlaceTypeCommand } from './commands/create-place-type.command';
 import { UpdatePlaceTypeCommand } from './commands/update-place-type.command';
 import { DeletePlaceTypeCommand } from './commands/delete-place-type.command';
@@ -21,10 +21,16 @@ import { CreateParkingSpotCommand } from './commands/create-parking-spot.command
 import { UpdateParkingSpotCommand } from './commands/update-parking-spot.command';
 import { ActivateParkingSpotCommand } from './commands/activate-parking-spot.command';
 import { DeactivateParkingSpotCommand } from './commands/deactivate-parking-spot.command';
+import { GetPlacesListForAdminQuery } from './queries/get-places-list-for-admin.query';
+import { PlaceListForAdminItemReadModel } from './query-handlers/read-models/place-list-for-admin-item.read-model';
+import { GetPlacesListForAdminTotalQuery } from './queries/get-places-list-for-admin-total.query';
 
 @Injectable()
 export class ParkingFacade {
-  constructor(private readonly commandBus: CommandBus) {}
+  constructor(
+    private readonly commandBus: CommandBus,
+    private readonly queryBus: QueryBus,
+  ) {}
 
   async createPlaceType(name: string) {
     const command = new CreatePlaceTypeCommand(name);
@@ -272,6 +278,20 @@ export class ParkingFacade {
     );
     return await this.commandBus.execute<DeactivateParkingSpotCommand, string>(
       command,
+    );
+  }
+
+  async getPlacesListForAdmin(page: number, limit: number, search?: string) {
+    const query = new GetPlacesListForAdminQuery(page, limit, search);
+    return await this.queryBus.execute<
+      GetPlacesListForAdminQuery,
+      PlaceListForAdminItemReadModel[]
+    >(query);
+  }
+
+  async getPlacesListForAdminTotal(search?: string) {
+    return await this.queryBus.execute<GetPlacesListForAdminTotalQuery, number>(
+      new GetPlacesListForAdminTotalQuery(search),
     );
   }
 }
