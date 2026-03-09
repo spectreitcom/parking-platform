@@ -102,6 +102,20 @@ model Place {
   parkings Parking[]
 }
 
+model PlaceRead {
+  id            String  @id @default(uuid()) @db.Uuid
+  placeId       String  @unique @db.Uuid
+  name          String  @unique @db.VarChar(255)
+  longitude     Decimal @db.Decimal(10, 7)
+  latitude      Decimal @db.Decimal(10, 7)
+  active        Boolean
+  address       String  @db.VarChar(255)
+  placeTypeId   String  @db.Uuid
+  placeTypeName String  @db.VarChar(60)
+
+  @@index([name, longitude, latitude, address, placeTypeId])
+}
+
 model ParkingFeature {
   id     String   @id @default(uuid()) @db.Uuid
   levels String[] @db.VarChar(60)
