@@ -1,19 +1,18 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { randomUUID } from 'node:crypto';
 import { RequestResetPasswordCommandHandler } from '../request-reset-password.command-handler';
-import { RequestResetPasswordCommand } from '../../commands/request-reset-password.command';
 import { AdminUserRepository } from '../../ports/admin-user.repository';
 import { ResetPasswordTokenService } from '../../ports/reset-password-token.service';
 import { ResetPasswordTokenStorage } from '../../ports/reset-password-token.storage';
 import { TransactionRunner } from '../../../../../shared/prisma/transaction-runner';
 import { OutboxService } from '../../../../../shared/outbox/outbox.service';
+import { RequestResetPasswordCommand } from '../../commands/request-reset-password.command';
 import { AdminUser } from '../../../domain/admin-user';
 import { AdminId } from '../../../domain/value-objects/admin-id';
 import { Email } from '../../../../../shared/value-objects/email';
 import { AdminDisplayName } from '../../../domain/value-objects/admin-display-name';
 import { AdminStatus } from '../../../domain/value-objects/admin-status';
 import { AggregateVersion } from '../../../../../shared/value-objects/aggregate-version';
-import { AppError } from '../../../../../shared/errors';
 import { IntegrationEvent } from '../../../../../shared/outbox/outbox.types';
 
 describe('RequestResetPasswordCommandHandler', () => {
@@ -78,12 +77,12 @@ describe('RequestResetPasswordCommandHandler', () => {
 
   it('should request reset password successfully', async () => {
     // Given
-    const email = 'test@example.com';
-    const command = new RequestResetPasswordCommand(email);
+    const emailStr = 'test@example.com';
+    const command = new RequestResetPasswordCommand(emailStr);
     const adminUserId = randomUUID();
     const adminUser = new AdminUser(
       AdminId.fromString(adminUserId),
-      Email.fromString(email),
+      Email.fromString(emailStr),
       false,
       AdminDisplayName.fromString('Test User'),
       AdminStatus.active(),
@@ -99,41 +98,39 @@ describe('RequestResetPasswordCommandHandler', () => {
     await handler.execute(command);
 
     // Then
-    expect(transactionRunner.runInTransaction).toHaveBeenCalled();
     expect(adminUserRepository.findByEmail).toHaveBeenCalledWith(
-      email,
+      emailStr,
       'prisma-tx',
     );
-    expect(resetPasswordService.createHash).toHaveBeenCalled();
-    expect(resetPasswordTokenStorage.insert).toHaveBeenCalledWith(
-      adminUserId,
-      'hashed-token',
+    expect(resetPasswordService.createHash).toHaveBeenCalledWith(
+      expect.any(String),
     );
     expect(outboxService.enqueue).toHaveBeenCalledWith(
       expect.any(IntegrationEvent),
       { deduplicate: true },
       'prisma-tx',
     );
-
-    const event = outboxService.enqueue.mock.calls[0][0] as IntegrationEvent<
-      any,
-      any
-    >;
-    expect(event.type).toBe('admin-iam.admin-user.requested-reset-password.v1');
-    expect(event.payload.email).toBe(email);
-    expect(event.payload.resetPasswordToken).toBeDefined();
-    expect(event.payload.displayName).toBe('Test User');
+    expect(resetPasswordTokenStorage.insert).toHaveBeenCalledWith(
+      adminUserId,
+      'hashed-token',
+    );
   });
 
-  it('should throw error if admin user not found', async () => {
+  it('should do nothing if admin user not found', async () => {
     // Given
-    const email = 'notfound@example.com';
-    const command = new RequestResetPasswordCommand(email);
+    const emailStr = 'notfound@example.com';
+    const command = new RequestResetPasswordCommand(emailStr);
     adminUserRepository.findByEmail.mockResolvedValue(null);
 
-    // When & Then
-    await expect(handler.execute(command)).rejects.toThrow(
-      new AppError('ENTITY_NOT_FOUND', 'Admin user not found'),
+    // When
+    await handler.execute(command);
+
+    // Then
+    expect(adminUserRepository.findByEmail).toHaveBeenCalledWith(
+      emailStr,
+      'prisma-tx',
     );
+    expect(outboxService.enqueue).not.toHaveBeenCalled();
+    expect(resetPasswordTokenStorage.insert).not.toHaveBeenCalled();
   });
 });

@@ -1,7 +1,6 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { RequestResetPasswordCommand } from '../commands/request-reset-password.command';
 import { AdminUserRepository } from '../ports/admin-user.repository';
-import { AppError } from '../../../../shared/errors';
 import { ResetPasswordTokenService } from '../ports/reset-password-token.service';
 import { ResetPasswordTokenStorage } from '../ports/reset-password-token.storage';
 import { randomUUID } from 'node:crypto';
@@ -35,19 +34,12 @@ export class RequestResetPasswordCommandHandler implements ICommandHandler<
         prisma,
       );
 
-      if (!adminUser) {
-        throw new AppError('ENTITY_NOT_FOUND', 'Admin user not found');
-      }
+      if (!adminUser) return;
 
       const resetPasswordToken = randomUUID();
 
       const resetPasswordTokenHash =
         this.resetPasswordService.createHash(resetPasswordToken);
-
-      await this.resetPasswordTokenStorage.insert(
-        adminUser.getId().value,
-        resetPasswordTokenHash,
-      );
 
       const event = new IntegrationEvent<
         AdminIamRequestedResetPasswordV1Payload,
@@ -64,6 +56,11 @@ export class RequestResetPasswordCommandHandler implements ICommandHandler<
         adminUser.getId().value,
       );
       await this.outboxService.enqueue(event, { deduplicate: true }, prisma);
+
+      await this.resetPasswordTokenStorage.insert(
+        adminUser.getId().value,
+        resetPasswordTokenHash,
+      );
     });
   }
 }

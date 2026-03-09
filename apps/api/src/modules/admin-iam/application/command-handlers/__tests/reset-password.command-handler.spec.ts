@@ -2,11 +2,11 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { EventPublisher } from '@nestjs/cqrs';
 import { randomUUID } from 'node:crypto';
 import { ResetPasswordCommandHandler } from '../reset-password.command-handler';
-import { ResetPasswordCommand } from '../../commands/reset-password.command';
 import { AdminUserRepository } from '../../ports/admin-user.repository';
 import { ResetPasswordTokenService } from '../../ports/reset-password-token.service';
 import { ResetPasswordTokenStorage } from '../../ports/reset-password-token.storage';
 import { PasswordService } from '../../ports/password.service';
+import { ResetPasswordCommand } from '../../commands/reset-password.command';
 import { AdminUser } from '../../../domain/admin-user';
 import { AdminId } from '../../../domain/value-objects/admin-id';
 import { Email } from '../../../../../shared/value-objects/email';
@@ -39,6 +39,7 @@ describe('ResetPasswordCommandHandler', () => {
 
     resetPasswordTokenStorage = {
       validate: jest.fn(),
+      invalidate: jest.fn(),
     } as any;
 
     passwordService = {
@@ -79,11 +80,14 @@ describe('ResetPasswordCommandHandler', () => {
   it('should reset password successfully', async () => {
     // Given
     const token = 'valid-token';
-    const newPassword = 'new-password';
+    const newPassword = 'NewPassword123!';
     const command = new ResetPasswordCommand(token, newPassword);
-    const userId = randomUUID();
+    const adminUserId = randomUUID();
+    const tokenHash = 'hashed-token';
+    const newPasswordHash = 'hashed-new-password';
+
     const adminUser = new AdminUser(
-      AdminId.fromString(userId),
+      AdminId.fromString(adminUserId),
       Email.fromString('test@example.com'),
       false,
       AdminDisplayName.fromString('Test User'),
@@ -91,15 +95,13 @@ describe('ResetPasswordCommandHandler', () => {
       AggregateVersion.one(),
       new Date(),
       new Date(),
-      'old-hash',
     );
 
-    resetPasswordTokenService.createHash.mockReturnValue('hashed-token');
-    resetPasswordTokenStorage.validate.mockResolvedValue(userId);
+    resetPasswordTokenService.createHash.mockReturnValue(tokenHash);
+    resetPasswordTokenStorage.validate.mockResolvedValue(adminUserId);
     adminUserRepository.findById.mockResolvedValue(adminUser);
-    passwordService.create.mockResolvedValue('new-hash');
+    passwordService.create.mockResolvedValue(newPasswordHash);
 
-    const adminUserSpy = jest.spyOn(adminUser, 'changePassword');
     const commitSpy = jest.spyOn(adminUser, 'commit');
 
     // When
@@ -107,35 +109,43 @@ describe('ResetPasswordCommandHandler', () => {
 
     // Then
     expect(resetPasswordTokenService.createHash).toHaveBeenCalledWith(token);
-    expect(resetPasswordTokenStorage.validate).toHaveBeenCalledWith(
-      'hashed-token',
+    expect(resetPasswordTokenStorage.validate).toHaveBeenCalledWith(tokenHash);
+    expect(adminUserRepository.findById).toHaveBeenCalledWith(adminUserId);
+    expect(resetPasswordTokenStorage.invalidate).toHaveBeenCalledWith(
+      tokenHash,
     );
-    expect(adminUserRepository.findById).toHaveBeenCalledWith(userId);
     expect(eventPublisher.mergeObjectContext).toHaveBeenCalledWith(adminUser);
     expect(passwordService.create).toHaveBeenCalledWith(newPassword);
-    expect(adminUserSpy).toHaveBeenCalledWith('new-hash');
     expect(adminUserRepository.save).toHaveBeenCalledWith(adminUser);
+    expect(adminUser.getPasswordHash()).toBe(newPasswordHash);
     expect(commitSpy).toHaveBeenCalled();
   });
 
   it('should throw error if token is invalid', async () => {
     // Given
-    const command = new ResetPasswordCommand('invalid-token', 'password');
-    resetPasswordTokenService.createHash.mockReturnValue('hashed-token');
+    const token = 'invalid-token';
+    const command = new ResetPasswordCommand(token, 'password');
+    const tokenHash = 'hashed-token';
+
+    resetPasswordTokenService.createHash.mockReturnValue(tokenHash);
     resetPasswordTokenStorage.validate.mockResolvedValue(false);
 
     // When & Then
     await expect(handler.execute(command)).rejects.toThrow(
       new AppError('VALIDATION_ERROR', 'Invalid reset password token'),
     );
+    expect(adminUserRepository.findById).not.toHaveBeenCalled();
   });
 
   it('should throw error if user not found', async () => {
     // Given
-    const userId = randomUUID();
-    const command = new ResetPasswordCommand('valid-token', 'password');
-    resetPasswordTokenService.createHash.mockReturnValue('hashed-token');
-    resetPasswordTokenStorage.validate.mockResolvedValue(userId);
+    const token = 'valid-token';
+    const command = new ResetPasswordCommand(token, 'password');
+    const adminUserId = randomUUID();
+    const tokenHash = 'hashed-token';
+
+    resetPasswordTokenService.createHash.mockReturnValue(tokenHash);
+    resetPasswordTokenStorage.validate.mockResolvedValue(adminUserId);
     adminUserRepository.findById.mockResolvedValue(null);
 
     // When & Then

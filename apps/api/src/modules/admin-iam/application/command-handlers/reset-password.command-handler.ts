@@ -39,6 +39,8 @@ export class ResetPasswordCommandHandler implements ICommandHandler<
       throw new AppError('ENTITY_NOT_FOUND', 'Admin user not found');
     }
 
+    await this.resetPasswordTokenStorage.invalidate(resetPasswordTokenHash);
+
     this.eventPublisher.mergeObjectContext(adminUser);
 
     const passwordHash = await this.passwordService.create(password);
