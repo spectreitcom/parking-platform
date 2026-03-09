@@ -7,5 +7,6 @@ export abstract class AdminUserRepository {
     adminUser: AdminUser,
     options?: RepositorySaveOptions,
   ): Promise<void>;
+  abstract findByEmail(email: string, tx?: PrismaTx): Promise<AdminUser | null>;
   abstract findById(id: string, tx?: PrismaTx): Promise<AdminUser | null>;
 }

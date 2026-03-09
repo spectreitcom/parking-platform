@@ -18,6 +18,7 @@ describe('AdminUser', () => {
     expect(adminUser.getDisplayName().value).toBe(displayName);
     expect(adminUser.getIsSuperAdmin()).toBe(true);
     expect(adminUser.getStatus().value).toBe('CREATED');
+    expect(adminUser.getVersion().value).toBe(1);
 
     const events = adminUser.getUncommittedEvents();
     expect(events).toHaveLength(1);
@@ -29,6 +30,42 @@ describe('AdminUser', () => {
         true,
         displayName,
         'CREATED',
+      ),
+    );
+  });
+
+  it('should create an admin user aggregate with default super admin status (false)', () => {
+    const adminUser = AdminUser.create(email, displayName);
+
+    expect(adminUser.getIsSuperAdmin()).toBe(false);
+  });
+
+  it('should create a super admin user aggregate', () => {
+    const passwordHash = 'hash123';
+    const adminUser = AdminUser.createSuperAdmin(
+      email,
+      displayName,
+      passwordHash,
+    );
+
+    expect(adminUser.getId()).toBeDefined();
+    expect(adminUser.getEmail().value).toBe(email);
+    expect(adminUser.getDisplayName().value).toBe(displayName);
+    expect(adminUser.getIsSuperAdmin()).toBe(true);
+    expect(adminUser.getStatus().value).toBe('ACTIVE');
+    expect(adminUser.getPasswordHash()).toBe(passwordHash);
+    expect(adminUser.getVersion().value).toBe(1);
+
+    const events = adminUser.getUncommittedEvents();
+    expect(events).toHaveLength(1);
+    expect(events[0]).toBeInstanceOf(AdminUserCreatedEvent);
+    expect(events[0]).toEqual(
+      new AdminUserCreatedEvent(
+        adminUser.getId().value,
+        email,
+        true,
+        displayName,
+        'ACTIVE',
       ),
     );
   });

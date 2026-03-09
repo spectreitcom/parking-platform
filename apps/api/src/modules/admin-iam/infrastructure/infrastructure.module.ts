@@ -12,6 +12,8 @@ import { RefreshTokenStorage } from '../application/ports/refresh-token.storage'
 import { RedisRefreshTokenStorage } from './storages/redis-refresh-token.storage';
 import { AdminStatusMapperService } from '../application/ports/admin-status-mapper.service';
 import { AppAdminStatusMapperService } from './services/app-admin-status-mapper.service';
+import { PasswordService } from '../application/ports/password.service';
+import { Argon2PasswordService } from './services/argon-2-password.service';
 
 @Module({
   imports: [
@@ -47,6 +49,10 @@ import { AppAdminStatusMapperService } from './services/app-admin-status-mapper.
       provide: AdminStatusMapperService,
       useClass: AppAdminStatusMapperService,
     },
+    {
+      provide: PasswordService,
+      useClass: Argon2PasswordService,
+    },
   ],
   exports: [
     AdminUserRepository,
@@ -54,6 +60,7 @@ import { AppAdminStatusMapperService } from './services/app-admin-status-mapper.
     RefreshTokenService,
     RefreshTokenStorage,
     AdminStatusMapperService,
+    PasswordService,
   ],
 })
 export class InfrastructureModule {}
