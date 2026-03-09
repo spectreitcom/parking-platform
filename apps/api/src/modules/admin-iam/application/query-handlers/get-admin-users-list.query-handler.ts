@@ -1,6 +1,6 @@
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { GetAdminUsersListQuery } from '../queries/get-admin-users-list.query';
-import { AdminUsersListItemReadModel } from '../queries/read-models/admin-users-list-item.read-model';
+import { AdminUsersListItemReadModel } from './read-models/admin-users-list-item.read-model';
 import { PrismaService } from '../../../../shared/prisma/prisma.service';
 import { AdminStatusMapperService } from '../ports/admin-status-mapper.service';
 import { Prisma } from '@prisma/client';

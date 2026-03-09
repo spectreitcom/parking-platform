@@ -6,7 +6,7 @@ import { SignOutCommand } from './commands/sign-out.command';
 import { ActivateAdminUserCommand } from './commands/activate-admin-user.command';
 import { SuspendAdminUserCommand } from './commands/suspend-admin-user.command';
 import { GetAdminUsersListQuery } from './queries/get-admin-users-list.query';
-import { AdminUsersListItemReadModel } from './queries/read-models/admin-users-list-item.read-model';
+import { AdminUsersListItemReadModel } from './query-handlers/read-models/admin-users-list-item.read-model';
 import { GetAdminUsersTotalQuery } from './queries/get-admin-users-total.query';
 
 @Injectable()
