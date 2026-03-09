@@ -8,6 +8,9 @@ import { SuspendAdminUserCommand } from './commands/suspend-admin-user.command';
 import { GetAdminUsersListQuery } from './queries/get-admin-users-list.query';
 import { AdminUsersListItemReadModel } from './query-handlers/read-models/admin-users-list-item.read-model';
 import { GetAdminUsersTotalQuery } from './queries/get-admin-users-total.query';
+import { RequestResetPasswordCommand } from './commands/request-reset-password.command';
+import { ResetPasswordCommand } from './commands/reset-password.command';
+import { ValidateResetPasswordTokenQuery } from './queries/validate-reset-password-token.query';
 
 @Injectable()
 export class AdminIamFacade {
@@ -52,5 +55,24 @@ export class AdminIamFacade {
   async getAdminUsersTotal(search?: string) {
     const query = new GetAdminUsersTotalQuery(search);
     return await this.queryBus.execute<GetAdminUsersTotalQuery, number>(query);
+  }
+
+  async requestResetPassword(email: string) {
+    return await this.commandBus.execute<RequestResetPasswordCommand, void>(
+      new RequestResetPasswordCommand(email),
+    );
+  }
+
+  async resetPassword(resetPasswordToken: string, password: string) {
+    return await this.commandBus.execute<ResetPasswordCommand, void>(
+      new ResetPasswordCommand(resetPasswordToken, password),
+    );
+  }
+
+  async validateResetPasswordToken(resetPasswordToken: string) {
+    return await this.queryBus.execute<
+      ValidateResetPasswordTokenQuery,
+      boolean
+    >(new ValidateResetPasswordTokenQuery(resetPasswordToken));
   }
 }

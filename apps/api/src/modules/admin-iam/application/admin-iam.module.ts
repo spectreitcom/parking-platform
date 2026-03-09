@@ -6,9 +6,10 @@ import { eventHandlers } from './event-handlers';
 import { AdminIamFacade } from './admin-iam.facade';
 import { queryHandlers } from './query-handlers';
 import { PrismaModule } from '../../../shared/prisma/prisma.module';
+import { OutboxModule } from '../../../shared/outbox/outbox.module';
 
 @Module({
-  imports: [InfrastructureModule, PrismaModule],
+  imports: [InfrastructureModule, PrismaModule, OutboxModule],
   providers: [
     ...commandHandlers,
     ...cliCommands,
