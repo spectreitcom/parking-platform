@@ -43,12 +43,15 @@ export class GetAdminUsersListQueryHandler implements IQueryHandler<
       where: getAdminUsersListQueryWhere(search),
       skip: (page - 1) * limit,
       take: limit,
+      orderBy: {
+        createdAt: 'desc',
+      },
     });
 
     return records.map(
       (record) =>
         new AdminUsersListItemReadModel(
-          record.id,
+          record.adminUserId,
           record.email,
           record.displayName,
           this.adminStatusMapperService.toText(record.status),

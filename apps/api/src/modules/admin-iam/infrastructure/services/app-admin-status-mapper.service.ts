@@ -17,6 +17,10 @@ const ADMIN_STATUS_MAP: Record<string, string> = {
 @Injectable()
 export class AppAdminStatusMapperService implements AdminStatusMapperService {
   toText(status: string): string {
-    return ADMIN_STATUS_MAP[status];
+    const statusText = ADMIN_STATUS_MAP[status];
+    if (!statusText) {
+      throw new Error(`Invalid admin status: ${status}`);
+    }
+    return statusText;
   }
 }
