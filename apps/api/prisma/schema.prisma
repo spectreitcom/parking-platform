@@ -179,4 +179,19 @@ model AdminUser {
   version Int @default(0) @db.Integer
 }
 
+model AdminUserRead {
+  id           String   @id @default(uuid()) @db.Uuid
+  adminUserId  String   @unique @db.Uuid
+  email        String   @unique @db.VarChar(255)
+  isSuperAdmin Boolean
+  displayName  String   @db.VarChar(120)
+  status       String
+  createdAt    DateTime
+  updatedAt    DateTime
+
+  @@index([email])
+  @@index([displayName])
+  @@index([status])
+}
+
 // -----------------------------

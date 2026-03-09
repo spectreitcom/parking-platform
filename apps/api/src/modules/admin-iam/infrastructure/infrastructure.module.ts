@@ -10,6 +10,8 @@ import { RefreshTokenService } from '../application/ports/refresh-token.service'
 import { JwtRefreshTokenService } from './tokens/jwt-refresh-token.service';
 import { RefreshTokenStorage } from '../application/ports/refresh-token.storage';
 import { RedisRefreshTokenStorage } from './storages/redis-refresh-token.storage';
+import { AdminStatusMapperService } from '../application/ports/admin-status-mapper.service';
+import { AppAdminStatusMapperService } from './services/app-admin-status-mapper.service';
 
 @Module({
   imports: [
@@ -41,12 +43,17 @@ import { RedisRefreshTokenStorage } from './storages/redis-refresh-token.storage
       provide: RefreshTokenStorage,
       useClass: RedisRefreshTokenStorage,
     },
+    {
+      provide: AdminStatusMapperService,
+      useClass: AppAdminStatusMapperService,
+    },
   ],
   exports: [
     AdminUserRepository,
     AccessTokenService,
     RefreshTokenService,
     RefreshTokenStorage,
+    AdminStatusMapperService,
   ],
 })
 export class InfrastructureModule {}
