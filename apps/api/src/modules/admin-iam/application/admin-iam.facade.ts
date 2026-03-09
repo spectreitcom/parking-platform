@@ -7,6 +7,7 @@ import { ActivateAdminUserCommand } from './commands/activate-admin-user.command
 import { SuspendAdminUserCommand } from './commands/suspend-admin-user.command';
 import { GetAdminUsersListQuery } from './queries/get-admin-users-list.query';
 import { AdminUsersListItemReadModel } from './queries/read-models/admin-users-list-item.read-model';
+import { GetAdminUsersTotalQuery } from './queries/get-admin-users-total.query';
 
 @Injectable()
 export class AdminIamFacade {
@@ -42,9 +43,14 @@ export class AdminIamFacade {
 
   async getAdminUsersList(page: number, limit: number, search?: string) {
     const query = new GetAdminUsersListQuery(page, limit, search);
-    return await this.commandBus.execute<
+    return await this.queryBus.execute<
       GetAdminUsersListQuery,
       AdminUsersListItemReadModel[]
     >(query);
+  }
+
+  async getAdminUsersTotal(search?: string) {
+    const query = new GetAdminUsersTotalQuery(search);
+    return await this.queryBus.execute<GetAdminUsersTotalQuery, number>(query);
   }
 }
