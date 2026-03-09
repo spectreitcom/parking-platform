@@ -4,6 +4,7 @@ import { AdminUserRepository } from '../../ports/admin-user.repository';
 import { AdminUser } from '../../../domain/admin-user';
 import { Email } from '../../../../../shared/value-objects/email';
 import { AdminDisplayName } from '../../../domain/value-objects/admin-display-name';
+import { Logger } from '@nestjs/common';
 
 interface Options {
   email: string;
@@ -13,6 +14,8 @@ interface Options {
 
 @Command({ name: 'generate-super-admin', description: 'Generate super admin' })
 export class GenerateSuperAdminCliCommand extends CommandRunner {
+  private readonly logger = new Logger(GenerateSuperAdminCliCommand.name);
+
   constructor(
     private readonly passwordService: PasswordService,
     private readonly adminUserRepository: AdminUserRepository,
@@ -26,14 +29,14 @@ export class GenerateSuperAdminCliCommand extends CommandRunner {
     const displayName = options?.displayName;
 
     if (!email || !password || !displayName) {
-      console.error('Email, password and display name are required');
-      return;
+      this.logger.error('Email, password and display name are required');
+      process.exit(1);
     }
 
     const existingAdmin = await this.adminUserRepository.findByEmail(email);
     if (existingAdmin) {
-      console.error(`Admin with email ${email} already exists`);
-      return;
+      this.logger.error(`Admin with email ${email} already exists`);
+      process.exit(1);
     }
 
     const passwordHash = await this.passwordService.create(password);
@@ -45,7 +48,7 @@ export class GenerateSuperAdminCliCommand extends CommandRunner {
 
     await this.adminUserRepository.save(superAdmin, { isNew: true });
 
-    console.log(`Super admin ${email} generated successfully`);
+    this.logger.log(`Super admin ${email} generated successfully`);
   }
 
   @Option({
@@ -53,8 +56,13 @@ export class GenerateSuperAdminCliCommand extends CommandRunner {
     description: 'Admin email',
   })
   parseEmail(val: string): string {
-    const _email = Email.fromString(val);
-    return _email.value;
+    try {
+      const _email = Email.fromString(val);
+      return _email.value;
+    } catch {
+      this.logger.error(`Invalid email format: ${val}`);
+      process.exit(1);
+    }
   }
 
   @Option({
@@ -70,7 +78,12 @@ export class GenerateSuperAdminCliCommand extends CommandRunner {
     description: 'Admin display name',
   })
   parseDisplayName(val: string): string {
-    const _displayName = AdminDisplayName.fromString(val);
-    return _displayName.value;
+    try {
+      const _displayName = AdminDisplayName.fromString(val);
+      return _displayName.value;
+    } catch {
+      this.logger.error(`Invalid display name format: ${val}`);
+      process.exit(1);
+    }
   }
 }
