@@ -41,6 +41,7 @@ export class PrismaAdminUserRepository implements AdminUserRepository {
           email: adminUser.getEmail().value,
           displayName: adminUser.getDisplayName().value,
           status: adminUser.getStatus().value,
+          passwordHash: adminUser.getPasswordHash(),
         },
       });
 
@@ -71,6 +72,28 @@ export class PrismaAdminUserRepository implements AdminUserRepository {
       }
       throw error;
     }
+  }
+
+  async findByEmail(email: string, tx?: PrismaTx): Promise<AdminUser | null> {
+    const prisma = tx ?? this.prismaService;
+
+    const record = await prisma.adminUser.findUnique({
+      where: { email },
+    });
+
+    if (!record) {
+      return null;
+    }
+
+    return new AdminUser(
+      AdminId.fromString(record.id),
+      Email.fromString(record.email),
+      record.isSuperAdmin,
+      AdminDisplayName.fromString(record.displayName),
+      AdminStatus.fromString(record.status),
+      AggregateVersion.fromNumber(record.version),
+      record.passwordHash ?? undefined,
+    );
   }
 
   async findById(id: string, tx?: PrismaTx): Promise<AdminUser | null> {

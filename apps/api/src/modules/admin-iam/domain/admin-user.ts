@@ -67,6 +67,36 @@ export class AdminUser extends AggregateRoot {
     return adminUser;
   }
 
+  static createSuperAdmin(
+    email: string,
+    displayName: string,
+    passwordHash: string,
+  ) {
+    const id = AdminId.create();
+    const _email = Email.fromString(email);
+    const _displayName = AdminDisplayName.fromString(displayName);
+    const _status = AdminStatus.active();
+    const adminUser = new AdminUser(
+      id,
+      _email,
+      true,
+      _displayName,
+      _status,
+      AggregateVersion.one(),
+      passwordHash,
+    );
+    adminUser.apply(
+      new AdminUserCreatedEvent(
+        id.value,
+        _email.value,
+        true,
+        _displayName.value,
+        _status.value,
+      ),
+    );
+    return adminUser;
+  }
+
   update(displayName: string) {
     this.displayName = AdminDisplayName.fromString(displayName);
     this.apply(
