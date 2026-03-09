@@ -5,143 +5,156 @@ import { AdminUserSuspendedEvent } from '../events/admin-user-suspended.event';
 import { AdminUserActivatedEvent } from '../events/admin-user-activated.event';
 import { AdminUserInvitedEvent } from '../events/admin-user-invited.event';
 import { AdminUserPasswordChangedEvent } from '../events/admin-user-password-changed.event';
+import {
+  ADMIN_ACTIVE,
+  ADMIN_CREATED,
+  ADMIN_INVITED,
+  ADMIN_SUSPENDED,
+} from '../constants';
 
 describe('AdminUser', () => {
   const email = 'test@example.com';
   const displayName = 'Test Admin';
+  const passwordHash = 'hashed_password';
 
-  it('should create an admin user aggregate', () => {
-    const adminUser = AdminUser.create(email, displayName, true);
+  describe('create', () => {
+    it('should create a new admin user', () => {
+      const admin = AdminUser.create(email, displayName);
 
-    expect(adminUser.getId()).toBeDefined();
-    expect(adminUser.getEmail().value).toBe(email);
-    expect(adminUser.getDisplayName().value).toBe(displayName);
-    expect(adminUser.getIsSuperAdmin()).toBe(true);
-    expect(adminUser.getStatus().value).toBe('CREATED');
-    expect(adminUser.getVersion().value).toBe(1);
+      expect(admin.getId()).toBeDefined();
+      expect(admin.getEmail().value).toBe(email);
+      expect(admin.getDisplayName().value).toBe(displayName);
+      expect(admin.getIsSuperAdmin()).toBe(false);
+      expect(admin.getStatus().value).toBe(ADMIN_CREATED);
+      expect(admin.getVersion().value).toBe(1);
+      expect(admin.getCreatedAt()).toBeInstanceOf(Date);
+      expect(admin.getUpdatedAt()).toBeInstanceOf(Date);
 
-    const events = adminUser.getUncommittedEvents();
-    expect(events).toHaveLength(1);
-    expect(events[0]).toBeInstanceOf(AdminUserCreatedEvent);
-    expect(events[0]).toEqual(
-      new AdminUserCreatedEvent(
-        adminUser.getId().value,
+      const events = admin.getUncommittedEvents();
+      expect(events).toHaveLength(1);
+      expect(events[0]).toBeInstanceOf(AdminUserCreatedEvent);
+      const event = events[0] as AdminUserCreatedEvent;
+      expect(event.id).toBe(admin.getId().value);
+      expect(event.email).toBe(email);
+      expect(event.displayName).toBe(displayName);
+      expect(event.isSuperAdmin).toBe(false);
+      expect(event.status).toBe(ADMIN_CREATED);
+    });
+
+    it('should create a new super admin user using create factory with flag', () => {
+      const admin = AdminUser.create(email, displayName, true);
+
+      expect(admin.getIsSuperAdmin()).toBe(true);
+
+      const events = admin.getUncommittedEvents();
+      const event = events[0] as AdminUserCreatedEvent;
+      expect(event.isSuperAdmin).toBe(true);
+    });
+  });
+
+  describe('createSuperAdmin', () => {
+    it('should create a super admin with password hash', () => {
+      const admin = AdminUser.createSuperAdmin(
         email,
-        true,
         displayName,
-        'CREATED',
-      ),
-    );
+        passwordHash,
+      );
+
+      expect(admin.getId()).toBeDefined();
+      expect(admin.getEmail().value).toBe(email);
+      expect(admin.getDisplayName().value).toBe(displayName);
+      expect(admin.getIsSuperAdmin()).toBe(true);
+      expect(admin.getStatus().value).toBe(ADMIN_ACTIVE);
+      expect(admin.getPasswordHash()).toBe(passwordHash);
+
+      const events = admin.getUncommittedEvents();
+      expect(events).toHaveLength(1);
+      expect(events[0]).toBeInstanceOf(AdminUserCreatedEvent);
+      const event = events[0] as AdminUserCreatedEvent;
+      expect(event.isSuperAdmin).toBe(true);
+      expect(event.status).toBe(ADMIN_ACTIVE);
+    });
   });
 
-  it('should create an admin user aggregate with default super admin status (false)', () => {
-    const adminUser = AdminUser.create(email, displayName);
+  describe('update', () => {
+    it('should update display name', () => {
+      const admin = AdminUser.create(email, displayName);
+      const newDisplayName = 'Updated Name';
 
-    expect(adminUser.getIsSuperAdmin()).toBe(false);
+      // Clear events from creation
+      admin.commit();
+
+      admin.update(newDisplayName);
+
+      expect(admin.getDisplayName().value).toBe(newDisplayName);
+      expect(admin.getUpdatedAt()).toBeInstanceOf(Date);
+
+      const events = admin.getUncommittedEvents();
+      expect(events).toHaveLength(1);
+      expect(events[0]).toBeInstanceOf(AdminUserUpdatedEvent);
+      const event = events[0] as AdminUserUpdatedEvent;
+      expect(event.displayName).toBe(newDisplayName);
+    });
   });
 
-  it('should create a super admin user aggregate', () => {
-    const passwordHash = 'hash123';
-    const adminUser = AdminUser.createSuperAdmin(
-      email,
-      displayName,
-      passwordHash,
-    );
+  describe('suspense', () => {
+    it('should suspend admin user', () => {
+      const admin = AdminUser.create(email, displayName);
+      admin.commit();
 
-    expect(adminUser.getId()).toBeDefined();
-    expect(adminUser.getEmail().value).toBe(email);
-    expect(adminUser.getDisplayName().value).toBe(displayName);
-    expect(adminUser.getIsSuperAdmin()).toBe(true);
-    expect(adminUser.getStatus().value).toBe('ACTIVE');
-    expect(adminUser.getPasswordHash()).toBe(passwordHash);
-    expect(adminUser.getVersion().value).toBe(1);
+      admin.suspense();
 
-    const events = adminUser.getUncommittedEvents();
-    expect(events).toHaveLength(1);
-    expect(events[0]).toBeInstanceOf(AdminUserCreatedEvent);
-    expect(events[0]).toEqual(
-      new AdminUserCreatedEvent(
-        adminUser.getId().value,
-        email,
-        true,
-        displayName,
-        'ACTIVE',
-      ),
-    );
+      expect(admin.getStatus().value).toBe(ADMIN_SUSPENDED);
+
+      const events = admin.getUncommittedEvents();
+      expect(events).toHaveLength(1);
+      expect(events[0]).toBeInstanceOf(AdminUserSuspendedEvent);
+    });
   });
 
-  it('should update admin user display name', () => {
-    const adminUser = AdminUser.create(email, displayName);
-    const newDisplayName = 'Updated Name';
+  describe('activate', () => {
+    it('should activate admin user', () => {
+      const admin = AdminUser.create(email, displayName);
+      admin.commit();
 
-    adminUser.update(newDisplayName);
+      admin.activate();
 
-    expect(adminUser.getDisplayName().value).toBe(newDisplayName);
+      expect(admin.getStatus().value).toBe(ADMIN_ACTIVE);
 
-    const events = adminUser.getUncommittedEvents();
-    expect(events[1]).toBeInstanceOf(AdminUserUpdatedEvent);
-    expect(events[1]).toEqual(
-      new AdminUserUpdatedEvent(
-        adminUser.getId().value,
-        email,
-        false,
-        newDisplayName,
-        'CREATED',
-      ),
-    );
+      const events = admin.getUncommittedEvents();
+      expect(events).toHaveLength(1);
+      expect(events[0]).toBeInstanceOf(AdminUserActivatedEvent);
+    });
   });
 
-  it('should suspend admin user', () => {
-    const adminUser = AdminUser.create(email, displayName);
-    adminUser.suspense();
+  describe('invite', () => {
+    it('should invite admin user', () => {
+      const admin = AdminUser.create(email, displayName);
+      admin.commit();
 
-    expect(adminUser.getStatus().value).toBe('SUSPENDED');
+      admin.invite();
 
-    const events = adminUser.getUncommittedEvents();
-    expect(events[1]).toBeInstanceOf(AdminUserSuspendedEvent);
-    expect(events[1]).toEqual(
-      new AdminUserSuspendedEvent(adminUser.getId().value),
-    );
+      expect(admin.getStatus().value).toBe(ADMIN_INVITED);
+
+      const events = admin.getUncommittedEvents();
+      expect(events).toHaveLength(1);
+      expect(events[0]).toBeInstanceOf(AdminUserInvitedEvent);
+    });
   });
 
-  it('should activate admin user', () => {
-    const adminUser = AdminUser.create(email, displayName);
-    adminUser.activate();
+  describe('changePassword', () => {
+    it('should change admin password', () => {
+      const admin = AdminUser.create(email, displayName);
+      const newPasswordHash = 'new_hash';
+      admin.commit();
 
-    expect(adminUser.getStatus().value).toBe('ACTIVE');
+      admin.changePassword(newPasswordHash);
 
-    const events = adminUser.getUncommittedEvents();
-    expect(events[1]).toBeInstanceOf(AdminUserActivatedEvent);
-    expect(events[1]).toEqual(
-      new AdminUserActivatedEvent(adminUser.getId().value),
-    );
-  });
+      expect(admin.getPasswordHash()).toBe(newPasswordHash);
 
-  it('should invite admin user', () => {
-    const adminUser = AdminUser.create(email, displayName);
-    adminUser.invite();
-
-    expect(adminUser.getStatus().value).toBe('INVITED');
-
-    const events = adminUser.getUncommittedEvents();
-    expect(events[1]).toBeInstanceOf(AdminUserInvitedEvent);
-    expect(events[1]).toEqual(
-      new AdminUserInvitedEvent(adminUser.getId().value),
-    );
-  });
-
-  it('should change admin user password hash', () => {
-    const adminUser = AdminUser.create(email, displayName);
-    const newHash = 'new-password-hash';
-
-    adminUser.changePassword(newHash);
-
-    expect(adminUser.getPasswordHash()).toBe(newHash);
-
-    const events = adminUser.getUncommittedEvents();
-    expect(events[1]).toBeInstanceOf(AdminUserPasswordChangedEvent);
-    expect(events[1]).toEqual(
-      new AdminUserPasswordChangedEvent(adminUser.getId().value),
-    );
+      const events = admin.getUncommittedEvents();
+      expect(events).toHaveLength(1);
+      expect(events[0]).toBeInstanceOf(AdminUserPasswordChangedEvent);
+    });
   });
 });

@@ -7,5 +7,6 @@ export class AdminUserUpdatedEvent implements IEvent {
     public readonly isSuperAdmin: boolean,
     public readonly displayName: string,
     public readonly status: string,
+    public readonly updatedAt: Date,
   ) {}
 }

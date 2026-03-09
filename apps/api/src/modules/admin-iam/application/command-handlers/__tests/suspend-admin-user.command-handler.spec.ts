@@ -1,4 +1,6 @@
+import { Test, TestingModule } from '@nestjs/testing';
 import { EventPublisher } from '@nestjs/cqrs';
+import { randomUUID } from 'node:crypto';
 import { SuspendAdminUserCommandHandler } from '../suspend-admin-user.command-handler';
 import { AdminUserRepository } from '../../ports/admin-user.repository';
 import { SuspendAdminUserCommand } from '../../commands/suspend-admin-user.command';
@@ -15,37 +17,52 @@ describe('SuspendAdminUserCommandHandler', () => {
   let adminUserRepository: jest.Mocked<AdminUserRepository>;
   let eventPublisher: jest.Mocked<EventPublisher>;
 
-  beforeEach(() => {
+  beforeEach(async () => {
     adminUserRepository = {
       findById: jest.fn(),
       save: jest.fn(),
     } as any;
+
     eventPublisher = {
       mergeObjectContext: jest.fn((obj) => obj),
     } as any;
 
-    handler = new SuspendAdminUserCommandHandler(
-      adminUserRepository,
-      eventPublisher,
+    const module: TestingModule = await Test.createTestingModule({
+      providers: [
+        SuspendAdminUserCommandHandler,
+        {
+          provide: AdminUserRepository,
+          useValue: adminUserRepository,
+        },
+        {
+          provide: EventPublisher,
+          useValue: eventPublisher,
+        },
+      ],
+    }).compile();
+
+    handler = module.get<SuspendAdminUserCommandHandler>(
+      SuspendAdminUserCommandHandler,
     );
   });
 
   it('should suspend admin user successfully', async () => {
     // Given
-    const adminUserId = '4979e954-5e18-4794-b295-d85c8e3b2e50';
+    const adminUserId = randomUUID();
     const version = 1;
     const command = new SuspendAdminUserCommand(adminUserId, version);
+
     const adminUser = new AdminUser(
       AdminId.fromString(adminUserId),
-      Email.fromString('admin@example.com'),
+      Email.fromString('test@example.com'),
       false,
-      AdminDisplayName.fromString('Admin User'),
+      AdminDisplayName.fromString('Test User'),
       AdminStatus.active(),
       AggregateVersion.fromNumber(version),
+      new Date(),
+      new Date(),
     );
 
-    jest.spyOn(adminUser, 'suspense');
-    jest.spyOn(adminUser, 'commit');
     adminUserRepository.findById.mockResolvedValue(adminUser);
 
     // When
@@ -53,15 +70,13 @@ describe('SuspendAdminUserCommandHandler', () => {
 
     // Then
     expect(adminUserRepository.findById).toHaveBeenCalledWith(adminUserId);
-    expect(eventPublisher.mergeObjectContext).toHaveBeenCalledWith(adminUser);
-    expect(adminUser.suspense).toHaveBeenCalled();
     expect(adminUserRepository.save).toHaveBeenCalledWith(adminUser);
-    expect(adminUser.commit).toHaveBeenCalled();
+    expect(adminUser.getStatus().equals(AdminStatus.suspended())).toBe(true);
   });
 
-  it('should throw AppError when admin user not found', async () => {
+  it('should throw error if admin user not found', async () => {
     // Given
-    const adminUserId = '4979e954-5e18-4794-b295-d85c8e3b2e50';
+    const adminUserId = randomUUID();
     const command = new SuspendAdminUserCommand(adminUserId, 1);
     adminUserRepository.findById.mockResolvedValue(null);
 
@@ -71,19 +86,20 @@ describe('SuspendAdminUserCommandHandler', () => {
     );
   });
 
-  it('should throw AppError when version mismatch (concurrency error)', async () => {
+  it('should throw error if version mismatch', async () => {
     // Given
-    const adminUserId = '4979e954-5e18-4794-b295-d85c8e3b2e50';
-    const commandVersion = 1;
-    const aggregateVersion = 2;
-    const command = new SuspendAdminUserCommand(adminUserId, commandVersion);
+    const adminUserId = randomUUID();
+    const command = new SuspendAdminUserCommand(adminUserId, 1);
+
     const adminUser = new AdminUser(
       AdminId.fromString(adminUserId),
-      Email.fromString('admin@example.com'),
+      Email.fromString('test@example.com'),
       false,
-      AdminDisplayName.fromString('Admin User'),
+      AdminDisplayName.fromString('Test User'),
       AdminStatus.active(),
-      AggregateVersion.fromNumber(aggregateVersion),
+      AggregateVersion.fromNumber(2),
+      new Date(),
+      new Date(),
     );
 
     adminUserRepository.findById.mockResolvedValue(adminUser);

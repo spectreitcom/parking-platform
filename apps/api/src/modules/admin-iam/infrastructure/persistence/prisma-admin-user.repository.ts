@@ -42,6 +42,8 @@ export class PrismaAdminUserRepository implements AdminUserRepository {
           displayName: adminUser.getDisplayName().value,
           status: adminUser.getStatus().value,
           passwordHash: adminUser.getPasswordHash(),
+          createdAt: adminUser.getCreatedAt(),
+          updatedAt: adminUser.getUpdatedAt(),
         },
       });
 
@@ -64,6 +66,7 @@ export class PrismaAdminUserRepository implements AdminUserRepository {
           displayName: adminUser.getDisplayName().value,
           status: adminUser.getStatus().value,
           passwordHash: adminUser.getPasswordHash(),
+          updatedAt: adminUser.getUpdatedAt(),
         },
       });
     } catch (error) {
@@ -92,6 +95,8 @@ export class PrismaAdminUserRepository implements AdminUserRepository {
       AdminDisplayName.fromString(record.displayName),
       AdminStatus.fromString(record.status),
       AggregateVersion.fromNumber(record.version),
+      record.createdAt,
+      record.updatedAt,
       record.passwordHash ?? undefined,
     );
   }
@@ -114,6 +119,8 @@ export class PrismaAdminUserRepository implements AdminUserRepository {
       AdminDisplayName.fromString(record.displayName),
       AdminStatus.fromString(record.status),
       AggregateVersion.fromNumber(record.version),
+      record.createdAt,
+      record.updatedAt,
       record.passwordHash ?? undefined,
     );
   }
