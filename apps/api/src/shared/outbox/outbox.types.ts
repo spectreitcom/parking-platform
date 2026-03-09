@@ -1,6 +1,6 @@
 import { IEvent } from '@nestjs/cqrs';
 
-export type IntegrationEventType = string;
+// export type IntegrationEventType = string;
 
 export type IntegrationEventHeaders = {
   traceId?: string;
@@ -11,9 +11,12 @@ export type IntegrationEventHeaders = {
   [key: string]: unknown;
 };
 
-export class IntegrationEvent<TPayload = unknown> implements IEvent {
+export class IntegrationEvent<
+  TPayload = unknown,
+  TEventType extends string = string,
+> implements IEvent {
   constructor(
-    public readonly type: IntegrationEventType,
+    public readonly type: TEventType,
     public readonly payload: TPayload,
     public readonly boundedContext?: string | null,
     public readonly aggregateType?: string | null,
