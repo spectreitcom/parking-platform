@@ -175,9 +175,32 @@ model ParkingSpot {
   version Int @default(0) @db.Integer
 }
 
+model ParkingOrganization {
+  id             String @id @default(uuid()) @db.Uuid
+  organizationId String @unique @db.Uuid
+  name           String @db.VarChar(255)
+  address        String @db.VarChar(255)
+}
+
+model ParkingListForAdminRead {
+  id                 String  @id @default(uuid()) @db.Uuid
+  parkingId          String  @db.Uuid
+  organizationId     String  @db.Uuid
+  placeId            String  @db.Uuid
+  parkingName        String  @db.VarChar(255)
+  parkingAddress     String  @db.VarChar(255)
+  placeName          String  @db.VarChar(255)
+  parkingActive      Boolean
+  parkingSpotsNumber Int     @default(0)
+  organizationName   String  @db.VarChar(255)
+
+  @@unique([parkingId, organizationId])
+  @@index([parkingName, organizationName, placeName])
+}
+
 // -----------------------------
 
-// Parking Bounded Context
+// Admin Iam Bounded Context
 
 model AdminUser {
   id           String  @id @default(uuid()) @db.Uuid

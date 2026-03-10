@@ -15,6 +15,10 @@ import { ParkingSpotCreatedEventHandler } from './parking-spot-created.event-han
 import { ParkingSpotUpdatedEventHandler } from './parking-spot-updated.event-handler';
 import { ParkingSpotActivatedEventHandler } from './parking-spot-activated.event-handler';
 import { ParkingSpotDeactivatedEventHandler } from './parking-spot-deactivated.event-handler';
+import { ParkingCreatedEventHandler } from './parking-created.event-handler';
+import { ParkingUpdatedEventHandler } from './parking-updated.event-handler';
+import { ParkingActivatedEventHandler } from './parking-activated.event-handler';
+import { ParkingDeactivatedEventHandler } from './parking-deactivated.event-handler';
 
 export const eventHandlers = [
   PlaceTypeDeletedEventHandler,
@@ -34,4 +38,8 @@ export const eventHandlers = [
   ParkingSpotUpdatedEventHandler,
   ParkingSpotActivatedEventHandler,
   ParkingSpotDeactivatedEventHandler,
+  ParkingCreatedEventHandler,
+  ParkingUpdatedEventHandler,
+  ParkingActivatedEventHandler,
+  ParkingDeactivatedEventHandler,
 ];
