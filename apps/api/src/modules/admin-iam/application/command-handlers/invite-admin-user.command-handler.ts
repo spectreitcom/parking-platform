@@ -50,6 +50,8 @@ export class InviteAdminUserCommandHandler implements ICommandHandler<
         tx: prisma,
       });
 
+      adminUser.commit();
+
       const resetPasswordToken = randomUUID();
 
       const resetPasswordTokenHash =
