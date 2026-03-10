@@ -14,10 +14,17 @@ export class CreateParkingCommandHandler implements ICommandHandler<
   ) {}
 
   async execute(command: CreateParkingCommand): Promise<string> {
-    const { ownerId, name, address, longitude, latitude, placeId } = command;
+    const { organizationId, name, address, longitude, latitude, placeId } =
+      command;
 
     const parking = this.eventPublisher.mergeObjectContext(
-      Parking.create(ownerId, name, address, { longitude, latitude }, placeId),
+      Parking.create(
+        organizationId,
+        name,
+        address,
+        { longitude, latitude },
+        placeId,
+      ),
     );
 
     await this.parkingRepository.save(parking, { isNew: true });

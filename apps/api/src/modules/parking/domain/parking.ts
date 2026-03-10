@@ -6,7 +6,7 @@ import { Coords } from './value-objects/coords';
 import { AssetId } from './value-objects/asset-id';
 import { ParkingFeatureId } from './value-objects/parking-feature-id';
 import { AggregateVersion } from '../../../shared/value-objects/aggregate-version';
-import { OwnerId } from './value-objects/owner-id';
+import { OrganizationId } from './value-objects/organization-id';
 import { ParkingAddonId } from './value-objects/parking-addon-id';
 import { ParkingCreatedEvent } from './events/parking-created.event';
 import { PlaceId } from './value-objects/place-id';
@@ -16,7 +16,7 @@ import { ParkingDeactivatedEvent } from './events/parking-deactivated.event';
 
 export class Parking extends AggregateRoot {
   private readonly id: ParkingId;
-  private readonly ownerId: OwnerId;
+  private readonly organizationId: OrganizationId;
   private name: ParkingName;
   private description?: string;
   private active: boolean;
@@ -31,7 +31,7 @@ export class Parking extends AggregateRoot {
 
   constructor(
     id: ParkingId,
-    ownerId: OwnerId,
+    organizationId: OrganizationId,
     name: ParkingName,
     active: boolean,
     address: Address,
@@ -46,7 +46,7 @@ export class Parking extends AggregateRoot {
   ) {
     super();
     this.id = id;
-    this.ownerId = ownerId;
+    this.organizationId = organizationId;
     this.name = name;
     this.description = description;
     this.active = active;
@@ -61,7 +61,7 @@ export class Parking extends AggregateRoot {
   }
 
   static create(
-    ownerId: string,
+    organizationId: string,
     name: string,
     address: string,
     coords: { longitude: number; latitude: number },
@@ -69,14 +69,14 @@ export class Parking extends AggregateRoot {
     id?: string,
   ) {
     const _id = id ? ParkingId.fromString(id) : ParkingId.create();
-    const _ownerId = OwnerId.fromString(ownerId);
+    const _organizationId = OrganizationId.fromString(organizationId);
     const _name = ParkingName.fromString(name);
     const _address = Address.fromString(address);
     const _coords = Coords.fromNumbers(coords.latitude, coords.longitude);
     const _placeId = PlaceId.fromString(placeId);
     const parking = new Parking(
       _id,
-      _ownerId,
+      _organizationId,
       _name,
       true,
       _address,
@@ -93,7 +93,7 @@ export class Parking extends AggregateRoot {
     parking.apply(
       new ParkingCreatedEvent(
         _id.value,
-        _ownerId.value,
+        _organizationId.value,
         _placeId.value,
         _name.value,
         _address.value,
@@ -137,7 +137,7 @@ export class Parking extends AggregateRoot {
     this.apply(
       new ParkingUpdatedEvent(
         this.id.value,
-        this.ownerId.value,
+        this.organizationId.value,
         this.placeId.value,
         this.name.value,
         this.address.value,
@@ -209,8 +209,8 @@ export class Parking extends AggregateRoot {
     return this.version;
   }
 
-  getOwnerId() {
-    return this.ownerId;
+  getOrganizationId() {
+    return this.organizationId;
   }
 
   getParkingAddonIds() {

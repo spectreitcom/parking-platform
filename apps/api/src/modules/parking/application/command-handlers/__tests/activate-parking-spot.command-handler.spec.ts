@@ -6,13 +6,12 @@ import { ParkingSpotRepository } from '../../ports/parking-spot.repository';
 import { ParkingRepository } from '../../ports/parking.repository';
 import { ParkingSpot } from '../../../domain/parking-spot';
 import { Parking } from '../../../domain/parking';
-import { OwnerId } from '../../../domain/value-objects/owner-id';
 import { randomUUID } from 'node:crypto';
 import { AppError } from '../../../../../shared/errors';
 
 describe('ActivateParkingSpotCommandHandler', () => {
   let handler: ActivateParkingSpotCommandHandler;
-  let repository: jest.Mocked<ParkingSpotRepository>;
+  let parkingSpotRepository: jest.Mocked<ParkingSpotRepository>;
   let parkingRepository: jest.Mocked<ParkingRepository>;
   let publisher: jest.Mocked<EventPublisher>;
 
@@ -45,48 +44,109 @@ describe('ActivateParkingSpotCommandHandler', () => {
     handler = module.get<ActivateParkingSpotCommandHandler>(
       ActivateParkingSpotCommandHandler,
     );
-    repository = module.get(ParkingSpotRepository);
+    parkingSpotRepository = module.get(ParkingSpotRepository);
     parkingRepository = module.get(ParkingRepository);
     publisher = module.get(EventPublisher);
   });
 
-  it('should activate and save an existing parking spot', async () => {
-    const id = randomUUID();
-    const ownerIdStr = randomUUID();
-    const parkingSpot = ParkingSpot.create(randomUUID(), 10, []);
-    // Ensure it's deactivated first
-    parkingSpot.deactivate();
-    repository.findById.mockResolvedValue(parkingSpot);
+  it('should activate a parking spot', async () => {
+    const organizationId = randomUUID();
+    const parking = Parking.create(
+      organizationId,
+      'Test Parking',
+      'Address',
+      { latitude: 52, longitude: 21 },
+      randomUUID(),
+    );
+    const parkingSpot = ParkingSpot.create(parking.getId().value, 10000, []);
 
-    const ownerId = OwnerId.fromString(ownerIdStr);
-    const parking = {
-      getOwnerId: () => ownerId,
-    } as Parking;
+    parkingSpotRepository.findById.mockResolvedValue(parkingSpot);
     parkingRepository.findById.mockResolvedValue(parking);
 
     const command = new ActivateParkingSpotCommand(
-      id,
+      parkingSpot.getId().value,
       parkingSpot.getVersion().value,
-      ownerIdStr,
+      organizationId,
     );
 
     const result = await handler.execute(command);
 
-    expect(result).toBeDefined();
-    /* eslint-disable @typescript-eslint/unbound-method */
-    expect(repository.findById).toHaveBeenCalledWith(id);
-    expect(publisher.mergeObjectContext).toHaveBeenCalledWith(parkingSpot);
-    expect(repository.save).toHaveBeenCalledWith(parkingSpot);
-    /* eslint-enable @typescript-eslint/unbound-method */
+    expect(result).toBe(parkingSpot.getId().value);
     expect(parkingSpot.isActive()).toBe(true);
+    /* eslint-disable @typescript-eslint/unbound-method */
+    expect(parkingSpotRepository.save).toHaveBeenCalledWith(parkingSpot);
+    /* eslint-enable @typescript-eslint/unbound-method */
   });
 
-  it('should throw error if parking spot not found', async () => {
-    const id = randomUUID();
-    repository.findById.mockResolvedValue(null);
+  it('should throw ENTITY_NOT_FOUND if parking spot does not exist', async () => {
+    parkingSpotRepository.findById.mockResolvedValue(null);
 
-    const command = new ActivateParkingSpotCommand(id, 1, randomUUID());
+    const command = new ActivateParkingSpotCommand(
+      randomUUID(),
+      1,
+      randomUUID(),
+    );
 
-    await expect(handler.execute(command)).rejects.toThrow(AppError);
+    await expect(handler.execute(command)).rejects.toThrow(
+      new AppError(
+        'ENTITY_NOT_FOUND',
+        `Parking spot with id ${command.id} not found`,
+      ),
+    );
+  });
+
+  it('should throw FORBIDDEN_OPERATION if not the owner', async () => {
+    const parking = Parking.create(
+      randomUUID(),
+      'Test Parking',
+      'Address',
+      { latitude: 52, longitude: 21 },
+      randomUUID(),
+    );
+    const parkingSpot = ParkingSpot.create(parking.getId().value, 10000, []);
+
+    parkingSpotRepository.findById.mockResolvedValue(parkingSpot);
+    parkingRepository.findById.mockResolvedValue(parking);
+
+    const command = new ActivateParkingSpotCommand(
+      parkingSpot.getId().value,
+      parkingSpot.getVersion().value,
+      randomUUID(), // Different owner
+    );
+
+    await expect(handler.execute(command)).rejects.toThrow(
+      new AppError(
+        'FORBIDDEN_OPERATION',
+        `You are not the owner of this parking`,
+      ),
+    );
+  });
+
+  it('should throw CONCURRENCY if versions do not match', async () => {
+    const organizationId = randomUUID();
+    const parking = Parking.create(
+      organizationId,
+      'Test Parking',
+      'Address',
+      { latitude: 52, longitude: 21 },
+      randomUUID(),
+    );
+    const parkingSpot = ParkingSpot.create(parking.getId().value, 10000, []);
+
+    parkingSpotRepository.findById.mockResolvedValue(parkingSpot);
+    parkingRepository.findById.mockResolvedValue(parking);
+
+    const command = new ActivateParkingSpotCommand(
+      parkingSpot.getId().value,
+      10, // Wrong version
+      organizationId,
+    );
+
+    await expect(handler.execute(command)).rejects.toThrow(
+      new AppError(
+        'CONCURRENCY',
+        `Parking spot with id ${command.id} has been modified by another process`,
+      ),
+    );
   });
 });

@@ -4,7 +4,7 @@ import { ParkingSpotRepository } from '../ports/parking-spot.repository';
 import { AppError } from '../../../../shared/errors';
 import { AggregateVersion } from '../../../../shared/value-objects/aggregate-version';
 import { ParkingRepository } from '../ports/parking.repository';
-import { OwnerId } from '../../domain/value-objects/owner-id';
+import { OrganizationId } from '../../domain/value-objects/organization-id';
 
 @CommandHandler(ActivateParkingSpotCommand)
 export class ActivateParkingSpotCommandHandler implements ICommandHandler<
@@ -18,7 +18,7 @@ export class ActivateParkingSpotCommandHandler implements ICommandHandler<
   ) {}
 
   async execute(command: ActivateParkingSpotCommand): Promise<string> {
-    const { id, version, parkingOwnerId } = command;
+    const { id, version, organizationId } = command;
 
     const parkingSpot = await this.parkingSpotRepository.findById(id);
 
@@ -40,9 +40,9 @@ export class ActivateParkingSpotCommandHandler implements ICommandHandler<
       );
     }
 
-    const _parkingOwnerId = OwnerId.fromString(parkingOwnerId);
+    const _organizationId = OrganizationId.fromString(organizationId);
 
-    if (!parking.getOwnerId().equals(_parkingOwnerId)) {
+    if (!parking.getOrganizationId().equals(_organizationId)) {
       throw new AppError(
         'FORBIDDEN_OPERATION',
         `You are not the owner of this parking`,

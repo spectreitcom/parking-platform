@@ -2,7 +2,7 @@ import { CommandHandler, EventPublisher, ICommandHandler } from '@nestjs/cqrs';
 import { CreateParkingSpotCommand } from '../commands/create-parking-spot.command';
 import { ParkingSpotRepository } from '../ports/parking-spot.repository';
 import { ParkingSpot } from '../../domain/parking-spot';
-import { OwnerId } from '../../domain/value-objects/owner-id';
+import { OrganizationId } from '../../domain/value-objects/organization-id';
 import { AppError } from '../../../../shared/errors';
 import { ParkingRepository } from '../ports/parking.repository';
 
@@ -18,7 +18,7 @@ export class CreateParkingSpotCommandHandler implements ICommandHandler<
   ) {}
 
   async execute(command: CreateParkingSpotCommand): Promise<string> {
-    const { parkingId, price, parkingSpotFeatureIds, parkingOwnerId } = command;
+    const { parkingId, price, parkingSpotFeatureIds, organizationId } = command;
 
     const parking = await this.parkingRepository.findById(parkingId);
 
@@ -29,9 +29,9 @@ export class CreateParkingSpotCommandHandler implements ICommandHandler<
       );
     }
 
-    const _parkingOwnerId = OwnerId.fromString(parkingOwnerId);
+    const _organizationId = OrganizationId.fromString(organizationId);
 
-    if (!parking.getOwnerId().equals(_parkingOwnerId)) {
+    if (!parking.getOrganizationId().equals(_organizationId)) {
       throw new AppError(
         'FORBIDDEN_OPERATION',
         `You are not the owner of this parking`,

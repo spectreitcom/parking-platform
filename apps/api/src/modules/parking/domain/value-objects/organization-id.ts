@@ -2,7 +2,7 @@ import { IsUUID, validateSync } from 'class-validator';
 import { AppError } from '../../../../shared/errors';
 import { randomUUID } from 'node:crypto';
 
-export class OwnerId {
+export class OrganizationId {
   @IsUUID()
   private readonly _value: string;
 
@@ -14,23 +14,23 @@ export class OwnerId {
   private validate() {
     const errors = validateSync(this);
     if (errors.length > 0) {
-      throw new AppError('VALIDATION_ERROR', `Invalid OwnerId`);
+      throw new AppError('VALIDATION_ERROR', `Invalid OrganizationId`);
     }
   }
 
   static create() {
-    return new OwnerId(randomUUID());
+    return new OrganizationId(randomUUID());
   }
 
   static fromString(value: string) {
-    return new OwnerId(value);
+    return new OrganizationId(value);
   }
 
   get value(): string {
     return this._value;
   }
 
-  equals(other: OwnerId) {
+  equals(other: OrganizationId) {
     return this._value === other._value;
   }
 }

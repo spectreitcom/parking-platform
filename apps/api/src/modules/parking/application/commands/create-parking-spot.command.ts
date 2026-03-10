@@ -5,6 +5,6 @@ export class CreateParkingSpotCommand implements ICommand {
     public readonly parkingId: string,
     public readonly price: number,
     public readonly parkingSpotFeatureIds: string[],
-    public readonly parkingOwnerId: string,
+    public readonly organizationId: string,
   ) {}
 }
