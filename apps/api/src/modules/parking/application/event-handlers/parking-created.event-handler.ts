@@ -11,16 +11,19 @@ export class ParkingCreatedEventHandler implements IEventHandler<ParkingCreatedE
 
   async handle(event: ParkingCreatedEvent) {
     this.logger.log(`Parking created: ${event.id}`);
-    const { id: parkingId, organizationId, placeId } = event;
+    const {
+      id: parkingId,
+      organizationId,
+      placeId,
+      name,
+      address,
+      active,
+    } = event;
 
     const organizationRecord =
       await this.prismaService.parkingOrganization.findUnique({
         where: { organizationId },
       });
-
-    const parkingRecord = await this.prismaService.parking.findUnique({
-      where: { id: parkingId },
-    });
 
     const placeRecord = await this.prismaService.place.findUnique({
       where: { id: placeId },
@@ -31,10 +34,10 @@ export class ParkingCreatedEventHandler implements IEventHandler<ParkingCreatedE
         parkingId,
         organizationId,
         placeId,
-        parkingName: parkingRecord?.name ?? '',
-        parkingAddress: parkingRecord?.address ?? '',
+        parkingName: name,
+        parkingAddress: address,
         placeName: placeRecord?.name ?? '',
-        parkingActive: parkingRecord?.active ?? false,
+        parkingActive: active,
         parkingSpotsNumber: 0,
         organizationName: organizationRecord?.name ?? '',
       },
