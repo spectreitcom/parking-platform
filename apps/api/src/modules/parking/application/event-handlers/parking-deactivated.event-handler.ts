@@ -13,9 +13,9 @@ export class ParkingDeactivatedEventHandler implements IEventHandler<ParkingDeac
     this.logger.log(`Parking deactivated: ${event.id}`);
     const { id } = event;
 
-    await this.prismaService.parkingListForAdminRead.update({
+    await this.prismaService.parkingListForAdminRead.updateMany({
       where: {
-        id,
+        parkingId: id,
       },
       data: {
         parkingActive: false,

@@ -45,7 +45,7 @@ export class DeactivateParkingSpotCommandHandler implements ICommandHandler<
     if (!parking.getOrganizationId().equals(_organizationId)) {
       throw new AppError(
         'FORBIDDEN_OPERATION',
-        `You are not the owner of this parking`,
+        `You are not authorized for this organization`,
       );
     }
 

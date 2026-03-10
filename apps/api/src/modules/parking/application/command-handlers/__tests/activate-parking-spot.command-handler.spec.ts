@@ -95,7 +95,7 @@ describe('ActivateParkingSpotCommandHandler', () => {
     );
   });
 
-  it('should throw FORBIDDEN_OPERATION if not the owner', async () => {
+  it('should throw FORBIDDEN_OPERATION if not authorized for this organization', async () => {
     const parking = Parking.create(
       randomUUID(),
       'Test Parking',
@@ -117,7 +117,7 @@ describe('ActivateParkingSpotCommandHandler', () => {
     await expect(handler.execute(command)).rejects.toThrow(
       new AppError(
         'FORBIDDEN_OPERATION',
-        `You are not the owner of this parking`,
+        `You are not authorized for this organization`,
       ),
     );
   });

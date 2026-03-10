@@ -14,9 +14,9 @@ export class ParkingUpdatedEventHandler implements IEventHandler<ParkingUpdatedE
 
     const { name, address, id } = event;
 
-    await this.prismaService.parkingListForAdminRead.update({
+    await this.prismaService.parkingListForAdminRead.updateMany({
       where: {
-        id,
+        parkingId: id,
       },
       data: {
         parkingName: name,

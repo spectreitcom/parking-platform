@@ -50,7 +50,6 @@ describe('CreateParkingSpotCommandHandler', () => {
 
   it('should create a parking spot', async () => {
     const organizationId = randomUUID();
-    const parkingId = randomUUID();
     const parking = Parking.create(
       organizationId,
       'Test Parking',
@@ -61,7 +60,7 @@ describe('CreateParkingSpotCommandHandler', () => {
     parkingRepository.findById.mockResolvedValue(parking);
 
     const command = new CreateParkingSpotCommand(
-      parkingId,
+      parking.getId().value,
       10000,
       [],
       organizationId,
@@ -97,7 +96,7 @@ describe('CreateParkingSpotCommandHandler', () => {
     );
   });
 
-  it('should throw FORBIDDEN_OPERATION if not the owner', async () => {
+  it('should throw FORBIDDEN_OPERATION if not authorized for this organization', async () => {
     const organizationId = randomUUID();
     const parking = Parking.create(
       randomUUID(), // Different owner
@@ -118,7 +117,7 @@ describe('CreateParkingSpotCommandHandler', () => {
     await expect(handler.execute(command)).rejects.toThrow(
       new AppError(
         'FORBIDDEN_OPERATION',
-        `You are not the owner of this parking`,
+        `You are not authorized for this organization`,
       ),
     );
   });

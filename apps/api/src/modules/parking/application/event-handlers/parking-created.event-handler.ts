@@ -18,37 +18,25 @@ export class ParkingCreatedEventHandler implements IEventHandler<ParkingCreatedE
         where: { organizationId },
       });
 
-    if (!organizationRecord) {
-      throw new Error(`Organization with ID ${organizationId} not found`);
-    }
-
     const parkingRecord = await this.prismaService.parking.findUnique({
       where: { id: parkingId },
     });
 
-    if (!parkingRecord) {
-      throw new Error(`Parking with ID ${parkingId} not found`);
-    }
-
     const placeRecord = await this.prismaService.place.findUnique({
       where: { id: placeId },
     });
-
-    if (!placeRecord) {
-      throw new Error(`Place with ID ${placeId} not found`);
-    }
 
     await this.prismaService.parkingListForAdminRead.create({
       data: {
         parkingId,
         organizationId,
         placeId,
-        parkingName: parkingRecord.name,
-        parkingAddress: parkingRecord.address,
-        placeName: placeRecord.name,
-        parkingActive: parkingRecord.active,
+        parkingName: parkingRecord?.name ?? '',
+        parkingAddress: parkingRecord?.address ?? '',
+        placeName: placeRecord?.name ?? '',
+        parkingActive: parkingRecord?.active ?? false,
         parkingSpotsNumber: 0,
-        organizationName: organizationRecord.name,
+        organizationName: organizationRecord?.name ?? '',
       },
     });
   }

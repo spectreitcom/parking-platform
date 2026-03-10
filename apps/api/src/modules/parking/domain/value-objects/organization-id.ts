@@ -7,7 +7,7 @@ export class OrganizationId {
   private readonly _value: string;
 
   private constructor(value: string) {
-    this._value = value;
+    this._value = value.toLowerCase();
     this.validate();
   }
 

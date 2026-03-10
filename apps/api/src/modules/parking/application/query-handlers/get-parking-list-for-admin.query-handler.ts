@@ -45,6 +45,9 @@ export class GetParkingListForAdminQueryHandler implements IQueryHandler<
       where: getParkingListForAdminQueryWhere(search),
       skip: (page - 1) * limit,
       take: limit,
+      orderBy: {
+        parkingId: 'asc',
+      },
     });
 
     return records.map(

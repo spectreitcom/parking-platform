@@ -28,4 +28,17 @@ describe('OrganizationId', () => {
     expect(id1.equals(id2)).toBe(true);
     expect(id1.equals(id3)).toBe(false);
   });
+
+  it('should treat mixed-case UUIDs as equal', () => {
+    const uuid = randomUUID();
+    const upperUuid = uuid.toUpperCase();
+    const lowerUuid = uuid.toLowerCase();
+
+    const id1 = OrganizationId.fromString(upperUuid);
+    const id2 = OrganizationId.fromString(lowerUuid);
+
+    expect(id1.equals(id2)).toBe(true);
+    expect(id1.value).toBe(lowerUuid);
+    expect(id2.value).toBe(lowerUuid);
+  });
 });
