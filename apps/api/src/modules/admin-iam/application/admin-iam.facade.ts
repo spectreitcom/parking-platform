@@ -12,6 +12,7 @@ import { RequestResetPasswordCommand } from './commands/request-reset-password.c
 import { ResetPasswordCommand } from './commands/reset-password.command';
 import { ValidateResetPasswordTokenQuery } from './queries/validate-reset-password-token.query';
 import { InviteAdminUserCommand } from './commands/invite-admin-user.command';
+import { GenerateResetPasswordTokenCommand } from './commands/generate-reset-password-token.command';
 
 @Injectable()
 export class AdminIamFacade {
@@ -82,5 +83,13 @@ export class AdminIamFacade {
     return await this.commandBus.execute<InviteAdminUserCommand, string>(
       command,
     );
+  }
+
+  async generateResetPasswordToken(adminUserId: string) {
+    const command = new GenerateResetPasswordTokenCommand(adminUserId);
+    return await this.commandBus.execute<
+      GenerateResetPasswordTokenCommand,
+      string
+    >(command);
   }
 }
