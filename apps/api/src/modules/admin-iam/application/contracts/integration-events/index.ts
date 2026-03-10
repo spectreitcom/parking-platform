@@ -11,4 +11,5 @@ export type AdminIamRequestedResetPasswordV1Payload = {
 export type AdminIamAdminUserInvitedV1Payload = {
   email: string;
   displayName: string;
+  resetPasswordToken: string;
 };

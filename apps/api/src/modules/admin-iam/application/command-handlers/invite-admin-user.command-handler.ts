@@ -10,6 +10,9 @@ import {
   AdminIamAdminUserInvitedV1Payload,
   AdminIamIntegrationEventTypes,
 } from '../contracts/integration-events';
+import { ResetPasswordTokenService } from '../ports/reset-password-token.service';
+import { ResetPasswordTokenStorage } from '../ports/reset-password-token.storage';
+import { randomUUID } from 'node:crypto';
 
 @CommandHandler(InviteAdminUserCommand)
 export class InviteAdminUserCommandHandler implements ICommandHandler<
@@ -21,6 +24,8 @@ export class InviteAdminUserCommandHandler implements ICommandHandler<
     private readonly eventPublisher: EventPublisher,
     private readonly outboxService: OutboxService,
     private readonly transactionRunner: TransactionRunner,
+    private readonly resetPasswordService: ResetPasswordTokenService,
+    private readonly resetPasswordTokenStorage: ResetPasswordTokenStorage,
   ) {}
 
   async execute(command: InviteAdminUserCommand): Promise<string> {
@@ -45,6 +50,11 @@ export class InviteAdminUserCommandHandler implements ICommandHandler<
         tx: prisma,
       });
 
+      const resetPasswordToken = randomUUID();
+
+      const resetPasswordTokenHash =
+        this.resetPasswordService.createHash(resetPasswordToken);
+
       const event = new IntegrationEvent<
         AdminIamAdminUserInvitedV1Payload,
         AdminIamIntegrationEventTypes
@@ -53,6 +63,7 @@ export class InviteAdminUserCommandHandler implements ICommandHandler<
         {
           email: adminUser.getEmail().value,
           displayName: adminUser.getDisplayName().value,
+          resetPasswordToken,
         },
         'admin-iam',
         'AdminUser',
@@ -60,6 +71,11 @@ export class InviteAdminUserCommandHandler implements ICommandHandler<
       );
 
       await this.outboxService.enqueue(event, { deduplicate: true }, prisma);
+
+      await this.resetPasswordTokenStorage.insert(
+        adminUser.getId().value,
+        resetPasswordTokenHash,
+      );
 
       return adminUser.getId().value;
     });
