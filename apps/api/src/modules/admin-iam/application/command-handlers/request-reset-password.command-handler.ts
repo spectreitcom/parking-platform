@@ -52,7 +52,7 @@ export class RequestResetPasswordCommandHandler implements ICommandHandler<
           displayName: adminUser.getDisplayName().value,
         },
         'admin-iam',
-        'admin-user',
+        'AdminUser',
         adminUser.getId().value,
       );
       await this.outboxService.enqueue(event, { deduplicate: true }, prisma);
