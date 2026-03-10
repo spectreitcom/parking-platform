@@ -7,7 +7,6 @@ import { ParkingRepository } from '../../ports/parking.repository';
 import { ParkingSpot } from '../../../domain/parking-spot';
 import { Parking } from '../../../domain/parking';
 import { randomUUID } from 'node:crypto';
-import { AppError } from '../../../../../shared/errors';
 
 describe('UpdateParkingSpotCommandHandler', () => {
   let handler: UpdateParkingSpotCommandHandler;
