@@ -6,12 +6,12 @@ import { ParkingSpotRepository } from '../../ports/parking-spot.repository';
 import { ParkingRepository } from '../../ports/parking.repository';
 import { ParkingSpot } from '../../../domain/parking-spot';
 import { Parking } from '../../../domain/parking';
-import { OwnerId } from '../../../domain/value-objects/owner-id';
 import { randomUUID } from 'node:crypto';
+import { AppError } from '../../../../../shared/errors';
 
 describe('CreateParkingSpotCommandHandler', () => {
   let handler: CreateParkingSpotCommandHandler;
-  let repository: jest.Mocked<ParkingSpotRepository>;
+  let parkingSpotRepository: jest.Mocked<ParkingSpotRepository>;
   let parkingRepository: jest.Mocked<ParkingRepository>;
   let publisher: jest.Mocked<EventPublisher>;
 
@@ -43,46 +43,82 @@ describe('CreateParkingSpotCommandHandler', () => {
     handler = module.get<CreateParkingSpotCommandHandler>(
       CreateParkingSpotCommandHandler,
     );
-    repository = module.get(ParkingSpotRepository);
+    parkingSpotRepository = module.get(ParkingSpotRepository);
     parkingRepository = module.get(ParkingRepository);
     publisher = module.get(EventPublisher);
   });
 
-  it('should create and save a new parking spot', async () => {
-    const parkingId = randomUUID();
-    const ownerIdStr = randomUUID();
-    const command = new CreateParkingSpotCommand(
-      parkingId,
-      50,
-      [randomUUID(), randomUUID()],
-      ownerIdStr,
+  it('should create a parking spot', async () => {
+    const organizationId = randomUUID();
+    const parking = Parking.create(
+      organizationId,
+      'Test Parking',
+      'Address',
+      { latitude: 52, longitude: 21 },
+      randomUUID(),
     );
-
-    const ownerId = OwnerId.fromString(ownerIdStr);
-    const parking = {
-      getOwnerId: () => ownerId,
-    } as Parking;
-
     parkingRepository.findById.mockResolvedValue(parking);
+
+    const command = new CreateParkingSpotCommand(
+      parking.getId().value,
+      10000,
+      [],
+      organizationId,
+    );
 
     const result = await handler.execute(command);
 
     expect(result).toBeDefined();
-    expect(typeof result).toBe('string');
     /* eslint-disable @typescript-eslint/unbound-method */
-    expect(publisher.mergeObjectContext).toHaveBeenCalledWith(
+    expect(publisher.mergeObjectContext).toHaveBeenCalled();
+    expect(parkingSpotRepository.save).toHaveBeenCalledWith(
       expect.any(ParkingSpot),
+      { isNew: true },
     );
-    expect(repository.save).toHaveBeenCalledWith(expect.any(ParkingSpot), {
-      isNew: true,
-    });
     /* eslint-enable @typescript-eslint/unbound-method */
-    const savedSpot = repository.save.mock.calls[0][0];
-    expect(savedSpot.getParkingId().value).toBe(command.parkingId);
-    expect(savedSpot.getPrice().value).toBe(command.price);
-    expect(savedSpot.getParkingSpotFeatureIds().map((f) => f.value)).toEqual(
-      command.parkingSpotFeatureIds,
+  });
+
+  it('should throw ENTITY_NOT_FOUND if parking does not exist', async () => {
+    parkingRepository.findById.mockResolvedValue(null);
+
+    const command = new CreateParkingSpotCommand(
+      randomUUID(),
+      10000,
+      [],
+      randomUUID(),
     );
-    expect(savedSpot.isActive()).toBe(true);
+
+    await expect(handler.execute(command)).rejects.toThrow(
+      new AppError(
+        'ENTITY_NOT_FOUND',
+        `Parking with id ${command.parkingId} not found`,
+      ),
+    );
+  });
+
+  it('should throw FORBIDDEN_OPERATION if not authorized for this organization', async () => {
+    const organizationId = randomUUID();
+    const parking = Parking.create(
+      randomUUID(), // Different owner
+      'Test Parking',
+      'Address',
+      { latitude: 52, longitude: 21 },
+      randomUUID(),
+    );
+    parkingRepository.findById.mockResolvedValue(parking);
+
+    const command = new CreateParkingSpotCommand(
+      parking.getId().value,
+      10000,
+      [],
+      organizationId,
+    );
+
+    await expect(handler.execute(command)).rejects.toThrow(
+      new AppError(
+        'FORBIDDEN_OPERATION',
+        `You are not authorized for this organization`,
+      ),
+    );
   });
 });

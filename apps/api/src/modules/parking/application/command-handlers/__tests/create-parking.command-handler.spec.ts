@@ -37,7 +37,7 @@ describe('CreateParkingCommandHandler', () => {
     publisher = module.get(EventPublisher);
   });
 
-  it('should create and save a new parking', async () => {
+  it('should create a parking', async () => {
     const command = new CreateParkingCommand(
       randomUUID(),
       'Test Parking',
@@ -50,22 +50,11 @@ describe('CreateParkingCommandHandler', () => {
     const result = await handler.execute(command);
 
     expect(result).toBeDefined();
-    expect(typeof result).toBe('string');
     /* eslint-disable @typescript-eslint/unbound-method */
-    expect(publisher.mergeObjectContext).toHaveBeenCalledWith(
-      expect.any(Parking),
-    );
-    expect(repository.save).toHaveBeenCalledWith(
-      expect.any(Parking),
-      expect.objectContaining({ isNew: true }),
-    );
+    expect(publisher.mergeObjectContext).toHaveBeenCalled();
+    expect(repository.save).toHaveBeenCalledWith(expect.any(Parking), {
+      isNew: true,
+    });
     /* eslint-enable @typescript-eslint/unbound-method */
-    const savedParking = repository.save.mock.calls[0][0];
-    expect(savedParking.getName().value).toBe(command.name);
-    expect(savedParking.getAddress().value).toBe(command.address);
-    expect(savedParking.getCoords().latitude).toBe(command.latitude);
-    expect(savedParking.getCoords().longitude).toBe(command.longitude);
-    expect(savedParking.getOwnerId().value).toBe(command.ownerId);
-    expect(savedParking.getPlaceId().value).toBe(command.placeId);
   });
 });

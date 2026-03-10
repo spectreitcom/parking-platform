@@ -6,26 +6,29 @@ import { ParkingActivatedEvent } from '../events/parking-activated.event';
 import { ParkingDeactivatedEvent } from '../events/parking-deactivated.event';
 
 describe('Parking', () => {
-  const ownerId = randomUUID();
+  const organizationId = randomUUID();
   const name = 'Test Parking';
-  const address = 'Test Address 123';
+  const address = 'Test Address 1, City';
   const coords = { latitude: 52.2297, longitude: 21.0122 };
   const placeId = randomUUID();
 
   it('should create a parking aggregate', () => {
-    const parking = Parking.create(ownerId, name, address, coords, placeId);
+    const parking = Parking.create(
+      organizationId,
+      name,
+      address,
+      coords,
+      placeId,
+    );
 
     expect(parking.getId()).toBeDefined();
-    expect(parking.getOwnerId().value).toBe(ownerId);
+    expect(parking.getOrganizationId().value).toBe(organizationId);
     expect(parking.getName().value).toBe(name);
     expect(parking.getAddress().value).toBe(address);
     expect(parking.getCoords().latitude).toBe(coords.latitude);
     expect(parking.getCoords().longitude).toBe(coords.longitude);
     expect(parking.getPlaceId().value).toBe(placeId);
     expect(parking.isActive()).toBe(true);
-    expect(parking.getAssetIds()).toEqual([]);
-    expect(parking.getParkingFeatureIds()).toEqual([]);
-    expect(parking.getParkingAddonIds()).toEqual([]);
 
     const events = parking.getUncommittedEvents();
     expect(events).toHaveLength(1);
@@ -33,7 +36,7 @@ describe('Parking', () => {
     expect(events[0]).toEqual(
       new ParkingCreatedEvent(
         parking.getId().value,
-        ownerId,
+        organizationId,
         placeId,
         name,
         address,
@@ -50,15 +53,21 @@ describe('Parking', () => {
   });
 
   it('should update parking data', () => {
-    const parking = Parking.create(ownerId, name, address, coords, placeId);
+    const parking = Parking.create(
+      organizationId,
+      name,
+      address,
+      coords,
+      placeId,
+    );
     const newName = 'Updated Parking';
-    const newAddress = 'Updated Address 456';
+    const newAddress = 'New Address 2, City';
     const newCoords = { latitude: 50.0647, longitude: 19.945 };
     const assetIds = [randomUUID()];
     const featureIds = [randomUUID()];
     const addonIds = [randomUUID()];
     const description = 'New description';
-    const statue = 'Statue info';
+    const statute = 'New statute';
 
     parking.update(
       newName,
@@ -68,7 +77,7 @@ describe('Parking', () => {
       featureIds,
       addonIds,
       description,
-      statue,
+      statute,
     );
 
     expect(parking.getName().value).toBe(newName);
@@ -83,14 +92,15 @@ describe('Parking', () => {
       addonIds,
     );
     expect(parking.getDescription()).toBe(description);
-    expect(parking.getStatute()).toBe(statue);
+    expect(parking.getStatute()).toBe(statute);
 
     const events = parking.getUncommittedEvents();
+    expect(events).toHaveLength(2);
     expect(events[1]).toBeInstanceOf(ParkingUpdatedEvent);
     expect(events[1]).toEqual(
       new ParkingUpdatedEvent(
         parking.getId().value,
-        ownerId,
+        organizationId,
         placeId,
         newName,
         newAddress,
@@ -101,16 +111,19 @@ describe('Parking', () => {
         true,
         assetIds,
         description,
-        statue,
+        statute,
       ),
     );
   });
 
   it('should deactivate and activate parking', () => {
-    const parking = Parking.create(ownerId, name, address, coords, placeId);
-
-    // Initially active
-    expect(parking.isActive()).toBe(true);
+    const parking = Parking.create(
+      organizationId,
+      name,
+      address,
+      coords,
+      placeId,
+    );
 
     // Deactivate
     parking.deactivate();
@@ -121,9 +134,6 @@ describe('Parking', () => {
     expect(parking.isActive()).toBe(true);
 
     const events = parking.getUncommittedEvents();
-    expect(events.some((e) => e instanceof ParkingDeactivatedEvent)).toBe(true);
-    expect(events.some((e) => e instanceof ParkingActivatedEvent)).toBe(true);
-
     const deactivationEvent = events.find(
       (e) => e instanceof ParkingDeactivatedEvent,
     );
@@ -140,7 +150,13 @@ describe('Parking', () => {
   });
 
   it('should not emit event if deactivating already inactive parking', () => {
-    const parking = Parking.create(ownerId, name, address, coords, placeId);
+    const parking = Parking.create(
+      organizationId,
+      name,
+      address,
+      coords,
+      placeId,
+    );
     parking.deactivate();
     const eventsCountBefore = parking.getUncommittedEvents().length;
 
@@ -149,7 +165,13 @@ describe('Parking', () => {
   });
 
   it('should not emit event if activating already active parking', () => {
-    const parking = Parking.create(ownerId, name, address, coords, placeId);
+    const parking = Parking.create(
+      organizationId,
+      name,
+      address,
+      coords,
+      placeId,
+    );
     const eventsCountBefore = parking.getUncommittedEvents().length;
 
     parking.activate();

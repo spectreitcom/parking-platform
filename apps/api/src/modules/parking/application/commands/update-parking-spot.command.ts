@@ -6,6 +6,6 @@ export class UpdateParkingSpotCommand implements ICommand {
     public readonly price: number,
     public readonly parkingSpotFeatureIds: string[],
     public readonly version: number,
-    public readonly parkingOwnerId: string,
+    public readonly organizationId: string,
   ) {}
 }

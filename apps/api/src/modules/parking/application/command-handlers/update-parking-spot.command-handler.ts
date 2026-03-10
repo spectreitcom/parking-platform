@@ -4,7 +4,7 @@ import { ParkingSpotRepository } from '../ports/parking-spot.repository';
 import { AppError, ConcurrencyError } from '../../../../shared/errors';
 import { AggregateVersion } from '../../../../shared/value-objects/aggregate-version';
 import { ParkingRepository } from '../ports/parking.repository';
-import { OwnerId } from '../../domain/value-objects/owner-id';
+import { OrganizationId } from '../../domain/value-objects/organization-id';
 
 @CommandHandler(UpdateParkingSpotCommand)
 export class UpdateParkingSpotCommandHandler implements ICommandHandler<
@@ -18,7 +18,7 @@ export class UpdateParkingSpotCommandHandler implements ICommandHandler<
   ) {}
 
   async execute(command: UpdateParkingSpotCommand): Promise<string> {
-    const { id, price, parkingSpotFeatureIds, version, parkingOwnerId } =
+    const { id, price, parkingSpotFeatureIds, version, organizationId } =
       command;
 
     const parkingSpot = await this.parkingSpotRepository.findById(id);
@@ -41,12 +41,12 @@ export class UpdateParkingSpotCommandHandler implements ICommandHandler<
       );
     }
 
-    const _parkingOwnerId = OwnerId.fromString(parkingOwnerId);
+    const _organizationId = OrganizationId.fromString(organizationId);
 
-    if (!parking.getOwnerId().equals(_parkingOwnerId)) {
+    if (!parking.getOrganizationId().equals(_organizationId)) {
       throw new AppError(
         'FORBIDDEN_OPERATION',
-        `You are not the owner of this parking`,
+        `You are not authorized for this organization`,
       );
     }
 

@@ -4,7 +4,7 @@ import { PrismaTx } from 'src/shared/prisma/types';
 import { Parking } from '../../domain/parking';
 import { PrismaService } from '../../../../shared/prisma/prisma.service';
 import { ParkingId } from '../../domain/value-objects/parking-id';
-import { OwnerId } from '../../domain/value-objects/owner-id';
+import { OrganizationId } from '../../domain/value-objects/organization-id';
 import { ParkingName } from '../../domain/value-objects/parking-name';
 import { Address } from '../../domain/value-objects/address';
 import { Coords } from '../../domain/value-objects/coords';
@@ -51,7 +51,7 @@ export class PrismaParkingRepository implements ParkingRepository {
           address: parking.getAddress().value,
           latitude: parking.getCoords().latitude,
           longitude: parking.getCoords().longitude,
-          ownerId: parking.getOwnerId().value,
+          organizationId: parking.getOrganizationId().value,
           placeId: parking.getPlaceId().value,
           statute: parking.getStatute(),
           assetIds: parking.getAssetIds().map((id) => id.value),
@@ -80,7 +80,7 @@ export class PrismaParkingRepository implements ParkingRepository {
           address: parking.getAddress().value,
           latitude: parking.getCoords().latitude,
           longitude: parking.getCoords().longitude,
-          ownerId: parking.getOwnerId().value,
+          organizationId: parking.getOrganizationId().value,
           placeId: parking.getPlaceId().value,
           statute: parking.getStatute(),
           assetIds: parking.getAssetIds().map((id) => id.value),
@@ -120,7 +120,7 @@ export class PrismaParkingRepository implements ParkingRepository {
 
     return new Parking(
       ParkingId.fromString(record.id),
-      OwnerId.fromString(record.ownerId),
+      OrganizationId.fromString(record.organizationId),
       ParkingName.fromString(record.name),
       record.active,
       Address.fromString(record.address),

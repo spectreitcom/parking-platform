@@ -24,6 +24,9 @@ import { DeactivateParkingSpotCommand } from './commands/deactivate-parking-spot
 import { GetPlacesListForAdminQuery } from './queries/get-places-list-for-admin.query';
 import { PlaceListForAdminItemReadModel } from './query-handlers/read-models/place-list-for-admin-item.read-model';
 import { GetPlacesListForAdminTotalQuery } from './queries/get-places-list-for-admin-total.query';
+import { GetParkingListForAdminQuery } from './queries/get-parking-list-for-admin.query';
+import { ParkingListForAdminItemReadModel } from './query-handlers/read-models/parking-list-for-admin-item.read-model';
+import { GetParkingListForAdminTotalQuery } from './queries/get-parking-list-for-admin-total.query';
 
 @Injectable()
 export class ParkingFacade {
@@ -158,7 +161,7 @@ export class ParkingFacade {
   }
 
   async createParking(
-    ownerId: string,
+    organizationId: string,
     name: string,
     address: string,
     longitude: number,
@@ -166,7 +169,7 @@ export class ParkingFacade {
     placeId: string,
   ) {
     const command = new CreateParkingCommand(
-      ownerId,
+      organizationId,
       name,
       address,
       longitude,
@@ -223,13 +226,13 @@ export class ParkingFacade {
     parkingId: string,
     price: number,
     parkingSpotFeatureIds: string[],
-    parkingOwnerId: string,
+    organizationId: string,
   ) {
     const command = new CreateParkingSpotCommand(
       parkingId,
       price,
       parkingSpotFeatureIds,
-      parkingOwnerId,
+      organizationId,
     );
     return await this.commandBus.execute<CreateParkingSpotCommand, string>(
       command,
@@ -241,14 +244,14 @@ export class ParkingFacade {
     price: number,
     parkingSpotFeatureIds: string[],
     version: number,
-    parkingOwnerId: string,
+    organizationId: string,
   ) {
     const command = new UpdateParkingSpotCommand(
       id,
       price,
       parkingSpotFeatureIds,
       version,
-      parkingOwnerId,
+      organizationId,
     );
     return await this.commandBus.execute<UpdateParkingSpotCommand, string>(
       command,
@@ -258,9 +261,9 @@ export class ParkingFacade {
   async activateParkingSpot(
     id: string,
     version: number,
-    parkingOwnerId: string,
+    organizationId: string,
   ) {
-    const command = new ActivateParkingSpotCommand(id, version, parkingOwnerId);
+    const command = new ActivateParkingSpotCommand(id, version, organizationId);
     return await this.commandBus.execute<ActivateParkingSpotCommand, string>(
       command,
     );
@@ -269,12 +272,12 @@ export class ParkingFacade {
   async deactivateParkingSpot(
     id: string,
     version: number,
-    parkingOwnerId: string,
+    organizationId: string,
   ) {
     const command = new DeactivateParkingSpotCommand(
       id,
       version,
-      parkingOwnerId,
+      organizationId,
     );
     return await this.commandBus.execute<DeactivateParkingSpotCommand, string>(
       command,
@@ -293,5 +296,21 @@ export class ParkingFacade {
     return await this.queryBus.execute<GetPlacesListForAdminTotalQuery, number>(
       new GetPlacesListForAdminTotalQuery(search),
     );
+  }
+
+  async getParkingListForAdmin(page: number, limit: number, search?: string) {
+    const query = new GetParkingListForAdminQuery(page, limit, search);
+    return await this.queryBus.execute<
+      GetParkingListForAdminQuery,
+      ParkingListForAdminItemReadModel[]
+    >(query);
+  }
+
+  async getParkingListForAdminTotal(search?: string) {
+    const query = new GetParkingListForAdminTotalQuery(search);
+    return await this.queryBus.execute<
+      GetParkingListForAdminTotalQuery,
+      number
+    >(query);
   }
 }
