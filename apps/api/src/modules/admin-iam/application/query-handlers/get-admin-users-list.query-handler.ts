@@ -7,22 +7,25 @@ import { Prisma } from '@prisma/client';
 
 export const getAdminUsersListQueryWhere: (
   search?: string,
-) => Prisma.AdminUserReadWhereInput = (search?: string) => ({
-  OR: [
-    {
-      displayName: {
-        contains: search,
-        mode: 'insensitive',
-      },
-    },
-    {
-      email: {
-        contains: search,
-        mode: 'insensitive',
-      },
-    },
-  ],
-});
+) => Prisma.AdminUserReadWhereInput = (search?: string) =>
+  search
+    ? {
+        OR: [
+          {
+            displayName: {
+              contains: search,
+              mode: 'insensitive',
+            },
+          },
+          {
+            email: {
+              contains: search,
+              mode: 'insensitive',
+            },
+          },
+        ],
+      }
+    : {};
 
 @QueryHandler(GetAdminUsersListQuery)
 export class GetAdminUsersListQueryHandler implements IQueryHandler<
