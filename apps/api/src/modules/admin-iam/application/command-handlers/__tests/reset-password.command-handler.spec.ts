@@ -86,7 +86,7 @@ describe('ResetPasswordCommandHandler', () => {
     const tokenHash = 'hashed-token';
     const newPasswordHash = 'hashed-new-password';
 
-    const adminUser = new AdminUser(
+    const adminUser = AdminUser.reconstruct(
       AdminId.fromString(adminUserId),
       Email.fromString('test@example.com'),
       false,

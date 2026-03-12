@@ -3,18 +3,10 @@ import { ParkingRepository } from '../../application/ports/parking.repository';
 import { PrismaTx } from 'src/shared/prisma/types';
 import { Parking } from '../../domain/parking';
 import { PrismaService } from '../../../../shared/prisma/prisma.service';
-import { ParkingId } from '../../domain/value-objects/parking-id';
-import { OrganizationId } from '../../domain/value-objects/organization-id';
-import { ParkingName } from '../../domain/value-objects/parking-name';
-import { Address } from '../../domain/value-objects/address';
-import { Coords } from '../../domain/value-objects/coords';
-import { AssetId } from '../../domain/value-objects/asset-id';
-import { ParkingFeatureId } from '../../domain/value-objects/parking-feature-id';
-import { ParkingAddonId } from '../../domain/value-objects/parking-addon-id';
-import { PlaceId } from '../../domain/value-objects/place-id';
-import { AggregateVersion } from '../../../../shared/value-objects/aggregate-version';
 import { ConcurrencyError } from '../../../../shared/errors';
 import { RepositorySaveOptions } from '../../../../shared/types';
+
+import { ParkingMapper } from './parking.mapper';
 
 @Injectable()
 export class PrismaParkingRepository implements ParkingRepository {
@@ -22,20 +14,28 @@ export class PrismaParkingRepository implements ParkingRepository {
 
   async save(parking: Parking, options?: RepositorySaveOptions): Promise<void> {
     const prisma = options?.tx ?? this.prismaService;
-    const id = parking.getId().value;
-    const currentVersion = parking.getVersion().value;
+    const {
+      id,
+      name,
+      description,
+      active,
+      address,
+      latitude,
+      longitude,
+      organizationId,
+      placeId,
+      statute,
+      assetIds,
+      version: currentVersion,
+      parkingFeatures,
+      parkingAddons,
+    } = ParkingMapper.toPersistence(parking);
+
     const isNew = options?.isNew ?? false;
 
     const record = await prisma.parking.findUnique({
       where: { id },
     });
-
-    const parkingFeatures = parking
-      .getParkingFeatureIds()
-      .map((id) => ({ id: id.value }));
-    const parkingAddons = parking
-      .getParkingAddonIds()
-      .map((id) => ({ id: id.value }));
 
     if (!record) {
       if (!isNew) {
@@ -45,16 +45,16 @@ export class PrismaParkingRepository implements ParkingRepository {
       await prisma.parking.create({
         data: {
           id,
-          name: parking.getName().value,
-          description: parking.getDescription(),
-          active: parking.isActive(),
-          address: parking.getAddress().value,
-          latitude: parking.getCoords().latitude,
-          longitude: parking.getCoords().longitude,
-          organizationId: parking.getOrganizationId().value,
-          placeId: parking.getPlaceId().value,
-          statute: parking.getStatute(),
-          assetIds: parking.getAssetIds().map((id) => id.value),
+          name,
+          description,
+          active,
+          address,
+          latitude,
+          longitude,
+          organizationId,
+          placeId,
+          statute,
+          assetIds,
           version: 1,
           parkingFeatures: {
             connect: parkingFeatures,
@@ -74,16 +74,16 @@ export class PrismaParkingRepository implements ParkingRepository {
           version: currentVersion,
         },
         data: {
-          name: parking.getName().value,
-          description: parking.getDescription(),
-          active: parking.isActive(),
-          address: parking.getAddress().value,
-          latitude: parking.getCoords().latitude,
-          longitude: parking.getCoords().longitude,
-          organizationId: parking.getOrganizationId().value,
-          placeId: parking.getPlaceId().value,
-          statute: parking.getStatute(),
-          assetIds: parking.getAssetIds().map((id) => id.value),
+          name,
+          description,
+          active,
+          address,
+          latitude,
+          longitude,
+          organizationId,
+          placeId,
+          statute,
+          assetIds,
           version: {
             increment: 1,
           },
@@ -109,8 +109,8 @@ export class PrismaParkingRepository implements ParkingRepository {
     const record = await prisma.parking.findUnique({
       where: { id },
       include: {
-        parkingFeatures: { select: { id: true } },
-        parkingAddons: { select: { id: true } },
+        parkingFeatures: true,
+        parkingAddons: true,
       },
     });
 
@@ -118,20 +118,6 @@ export class PrismaParkingRepository implements ParkingRepository {
       return null;
     }
 
-    return new Parking(
-      ParkingId.fromString(record.id),
-      OrganizationId.fromString(record.organizationId),
-      ParkingName.fromString(record.name),
-      record.active,
-      Address.fromString(record.address),
-      Coords.fromNumbers(Number(record.latitude), Number(record.longitude)),
-      record.assetIds.map((assetId) => AssetId.fromString(assetId)),
-      record.parkingFeatures.map((f) => ParkingFeatureId.fromString(f.id)),
-      record.parkingAddons.map((a) => ParkingAddonId.fromString(a.id)),
-      PlaceId.fromString(record.placeId),
-      AggregateVersion.fromNumber(record.version),
-      record.description ?? undefined,
-      record.statute ?? undefined,
-    );
+    return ParkingMapper.toDomain(record);
   }
 }

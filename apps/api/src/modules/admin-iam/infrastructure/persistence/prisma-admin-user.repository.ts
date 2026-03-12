@@ -5,11 +5,7 @@ import { RepositorySaveOptions } from 'src/shared/types';
 import { AdminUser } from '../../domain/admin-user';
 import { PrismaService } from '../../../../shared/prisma/prisma.service';
 import { ConcurrencyError } from '../../../../shared/errors';
-import { AdminId } from '../../domain/value-objects/admin-id';
-import { Email } from '../../../../shared/value-objects/email';
-import { AdminDisplayName } from '../../domain/value-objects/admin-display-name';
-import { AdminStatus } from '../../domain/value-objects/admin-status';
-import { AggregateVersion } from '../../../../shared/value-objects/aggregate-version';
+import { AdminUserMapper } from './admin-user.mapper';
 
 @Injectable()
 export class PrismaAdminUserRepository implements AdminUserRepository {
@@ -21,7 +17,17 @@ export class PrismaAdminUserRepository implements AdminUserRepository {
   ): Promise<void> {
     const prisma = options?.tx ?? this.prismaService;
 
-    const id = adminUser.getId().value;
+    const {
+      id,
+      version: currentVersion,
+      isSuperAdmin,
+      email,
+      displayName,
+      status,
+      passwordHash,
+      createdAt,
+      updatedAt,
+    } = AdminUserMapper.toPersistence(adminUser);
     const isNew = options?.isNew ?? false;
 
     const record = await prisma.adminUser.findUnique({
@@ -37,13 +43,13 @@ export class PrismaAdminUserRepository implements AdminUserRepository {
         data: {
           id,
           version: 1,
-          isSuperAdmin: adminUser.getIsSuperAdmin(),
-          email: adminUser.getEmail().value,
-          displayName: adminUser.getDisplayName().value,
-          status: adminUser.getStatus().value,
-          passwordHash: adminUser.getPasswordHash(),
-          createdAt: adminUser.getCreatedAt(),
-          updatedAt: adminUser.getUpdatedAt(),
+          isSuperAdmin,
+          email,
+          displayName,
+          status,
+          passwordHash,
+          createdAt,
+          updatedAt,
         },
       });
 
@@ -56,17 +62,17 @@ export class PrismaAdminUserRepository implements AdminUserRepository {
 
     try {
       await prisma.adminUser.update({
-        where: { id, version: adminUser.getVersion().value },
+        where: { id, version: currentVersion },
         data: {
           version: {
             increment: 1,
           },
-          isSuperAdmin: adminUser.getIsSuperAdmin(),
-          email: adminUser.getEmail().value,
-          displayName: adminUser.getDisplayName().value,
-          status: adminUser.getStatus().value,
-          passwordHash: adminUser.getPasswordHash(),
-          updatedAt: adminUser.getUpdatedAt(),
+          isSuperAdmin,
+          email,
+          displayName,
+          status,
+          passwordHash,
+          updatedAt,
         },
       });
     } catch (error) {
@@ -88,17 +94,7 @@ export class PrismaAdminUserRepository implements AdminUserRepository {
       return null;
     }
 
-    return new AdminUser(
-      AdminId.fromString(record.id),
-      Email.fromString(record.email),
-      record.isSuperAdmin,
-      AdminDisplayName.fromString(record.displayName),
-      AdminStatus.fromString(record.status),
-      AggregateVersion.fromNumber(record.version),
-      record.createdAt,
-      record.updatedAt,
-      record.passwordHash ?? undefined,
-    );
+    return AdminUserMapper.toDomain(record);
   }
 
   async findById(id: string, tx?: PrismaTx): Promise<AdminUser | null> {
@@ -112,16 +108,6 @@ export class PrismaAdminUserRepository implements AdminUserRepository {
       return null;
     }
 
-    return new AdminUser(
-      AdminId.fromString(record.id),
-      Email.fromString(record.email),
-      record.isSuperAdmin,
-      AdminDisplayName.fromString(record.displayName),
-      AdminStatus.fromString(record.status),
-      AggregateVersion.fromNumber(record.version),
-      record.createdAt,
-      record.updatedAt,
-      record.passwordHash ?? undefined,
-    );
+    return AdminUserMapper.toDomain(record);
   }
 }

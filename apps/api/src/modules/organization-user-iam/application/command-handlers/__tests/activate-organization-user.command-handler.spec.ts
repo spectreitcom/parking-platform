@@ -3,15 +3,15 @@ import { EventPublisher } from '@nestjs/cqrs';
 import { randomUUID } from 'node:crypto';
 import { ActivateOrganizationUserCommandHandler } from '../activate-organization-user.command-handler';
 import { OrganizationUserRepository } from '../../ports/organization-user.repository';
+import { TransactionRunner } from '../../../../../shared/prisma/transaction-runner';
 import { ActivateOrganizationUserCommand } from '../../commands/activate-organization-user.command';
 import { OrganizationUser } from '../../../domain/organization-user';
 import { OrganizationUserId } from '../../../domain/value-objects/organization-user-id';
 import { Email } from '../../../../../shared/value-objects/email';
-import { OrganizationUserDisplayName } from '../../../domain/value-objects/organization-user-display-name';
 import { OrganizationUserStatus } from '../../../domain/value-objects/organization-user-status';
 import { AggregateVersion } from '../../../../../shared/value-objects/aggregate-version';
+import { OrganizationUserDisplayName } from '../../../domain/value-objects/organization-user-display-name';
 import { AppError } from '../../../../../shared/errors';
-import { TransactionRunner } from '../../../../../shared/prisma/transaction-runner';
 
 describe('ActivateOrganizationUserCommandHandler', () => {
   let handler: ActivateOrganizationUserCommandHandler;
@@ -30,7 +30,7 @@ describe('ActivateOrganizationUserCommandHandler', () => {
     } as unknown as typeof eventPublisher;
 
     transactionRunner = {
-      runInTransaction: jest.fn((cb: (arg: unknown) => unknown) =>
+      runInTransaction: jest.fn((cb: (tx: string) => unknown) =>
         cb('prisma-tx'),
       ),
     } as unknown as typeof transactionRunner;
@@ -67,7 +67,7 @@ describe('ActivateOrganizationUserCommandHandler', () => {
       version,
     );
 
-    const organizationUser = new OrganizationUser(
+    const organizationUser = OrganizationUser.reconstruct(
       OrganizationUserId.fromString(organizationUserId),
       Email.fromString('test@example.com'),
       OrganizationUserStatus.suspended(),
@@ -78,15 +78,23 @@ describe('ActivateOrganizationUserCommandHandler', () => {
     );
 
     organizationUserRepository.findById.mockResolvedValue(organizationUser);
+    const commitSpy = jest.spyOn(organizationUser, 'commit');
 
     // When
     await handler.execute(command);
 
     // Then
+    expect(transactionRunner.runInTransaction).toHaveBeenCalled();
     expect(organizationUserRepository.findById).toHaveBeenCalledWith(
       organizationUserId,
       'prisma-tx',
     );
+    expect(eventPublisher.mergeObjectContext).toHaveBeenCalledWith(
+      organizationUser,
+    );
+    expect(
+      organizationUser.getStatus().equals(OrganizationUserStatus.active()),
+    ).toBe(true);
     expect(organizationUserRepository.save).toHaveBeenCalledWith(
       organizationUser,
       {
@@ -94,15 +102,14 @@ describe('ActivateOrganizationUserCommandHandler', () => {
         tx: 'prisma-tx',
       },
     );
-    expect(
-      organizationUser.getStatus().equals(OrganizationUserStatus.active()),
-    ).toBe(true);
+    expect(commitSpy).toHaveBeenCalled();
   });
 
   it('should throw error if organization user not found', async () => {
     // Given
     const organizationUserId = randomUUID();
     const command = new ActivateOrganizationUserCommand(organizationUserId, 1);
+
     organizationUserRepository.findById.mockResolvedValue(null);
 
     // When & Then
@@ -116,10 +123,10 @@ describe('ActivateOrganizationUserCommandHandler', () => {
     const organizationUserId = randomUUID();
     const command = new ActivateOrganizationUserCommand(organizationUserId, 1);
 
-    const organizationUser = new OrganizationUser(
+    const organizationUser = OrganizationUser.reconstruct(
       OrganizationUserId.fromString(organizationUserId),
       Email.fromString('test@example.com'),
-      OrganizationUserStatus.active(),
+      OrganizationUserStatus.suspended(),
       AggregateVersion.fromNumber(2),
       OrganizationUserDisplayName.fromString('Test User'),
       new Date(),

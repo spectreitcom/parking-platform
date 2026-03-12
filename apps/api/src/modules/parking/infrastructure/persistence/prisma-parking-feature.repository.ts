@@ -3,12 +3,9 @@ import { ParkingFeatureRepository } from '../../application/ports/parking-featur
 import { PrismaTx } from 'src/shared/prisma/types';
 import { ParkingFeature } from '../../domain/parking-feature';
 import { PrismaService } from '../../../../shared/prisma/prisma.service';
-import { ParkingFeatureId } from '../../domain/value-objects/parking-feature-id';
-import { ParkingFeatureName } from '../../domain/value-objects/parking-feature-name';
-import { ParkingFeatureLevel } from '../../domain/value-objects/parking-feature-level';
-import { AggregateVersion } from '../../../../shared/value-objects/aggregate-version';
 import { ConcurrencyError } from '../../../../shared/errors';
 import { RepositorySaveOptions } from '../../../../shared/types';
+import { ParkingFeatureMapper } from './parking-feature.mapper';
 
 @Injectable()
 export class PrismaParkingFeatureRepository implements ParkingFeatureRepository {
@@ -20,8 +17,12 @@ export class PrismaParkingFeatureRepository implements ParkingFeatureRepository 
   ): Promise<void> {
     const prisma = options?.tx || this.prismaService;
     const isNew = options?.isNew ?? false;
-    const id = parkingFeature.getId().value;
-    const currentVersion = parkingFeature.getVersion().value;
+    const {
+      id,
+      name,
+      levels,
+      version: currentVersion,
+    } = ParkingFeatureMapper.toPersistence(parkingFeature);
 
     const record = await prisma.parkingFeature.findUnique({
       where: { id },
@@ -36,8 +37,8 @@ export class PrismaParkingFeatureRepository implements ParkingFeatureRepository 
         await prisma.parkingFeature.create({
           data: {
             id,
-            name: parkingFeature.getName().value,
-            levels: parkingFeature.getLevels().map((level) => level.value),
+            name,
+            levels,
             version: 1,
           },
         });
@@ -66,8 +67,8 @@ export class PrismaParkingFeatureRepository implements ParkingFeatureRepository 
           version: currentVersion,
         },
         data: {
-          name: parkingFeature.getName().value,
-          levels: parkingFeature.getLevels().map((level) => level.value),
+          name,
+          levels,
           version: {
             increment: 1,
           },
@@ -96,12 +97,7 @@ export class PrismaParkingFeatureRepository implements ParkingFeatureRepository 
       return null;
     }
 
-    return new ParkingFeature(
-      ParkingFeatureId.fromString(record.id),
-      ParkingFeatureName.fromString(record.name),
-      ParkingFeatureLevel.fromArray(record.levels),
-      AggregateVersion.fromNumber(record.version),
-    );
+    return ParkingFeatureMapper.toDomain(record);
   }
 
   async delete(id: string, version: number, tx?: PrismaTx): Promise<void> {

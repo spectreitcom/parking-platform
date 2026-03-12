@@ -4,15 +4,8 @@ import { RepositorySaveOptions } from 'src/shared/types';
 import { Organization } from '../../domain/organization';
 import { PrismaService } from '../../../../shared/prisma/prisma.service';
 import { PrismaTx } from '../../../../shared/prisma/types';
-import { OrganizationId } from '../../domain/value-objects/organization-id';
-import { OrganizationName } from '../../domain/value-objects/organization-name';
-import { OrganizationAddress } from '../../domain/value-objects/organization-address';
-import { OrganizationTaxId } from '../../domain/value-objects/organization-tax-id';
-import { AggregateVersion } from '../../../../shared/value-objects/aggregate-version';
-import { OrganizationMember } from '../../domain/entities/organization-member';
-import { OrganizationMemberId } from '../../domain/value-objects/organization-member-id';
-import { OrganizationUserId } from '../../domain/value-objects/organization-user-id';
 import { ConcurrencyError } from '../../../../shared/errors';
+import { OrganizationMapper } from './organization.mapper';
 
 @Injectable()
 export class PrismaOrganizationRepository implements OrganizationRepository {
@@ -23,8 +16,8 @@ export class PrismaOrganizationRepository implements OrganizationRepository {
     options?: RepositorySaveOptions,
   ): Promise<void> {
     const isNew = options?.isNew ?? false;
-    const currentVersion = organization.getVersion().value;
-    const id = organization.getId().value;
+    const { id, version: currentVersion } =
+      OrganizationMapper.toPersistence(organization);
     const _tx = options?.tx;
 
     if (_tx) {
@@ -44,6 +37,9 @@ export class PrismaOrganizationRepository implements OrganizationRepository {
     organization: Organization,
     tx: PrismaTx,
   ) {
+    const { name, address, taxId, members } =
+      OrganizationMapper.toPersistence(organization);
+
     const record = await tx.organization.findUnique({
       where: { id },
       include: {
@@ -57,9 +53,9 @@ export class PrismaOrganizationRepository implements OrganizationRepository {
       await tx.organization.create({
         data: {
           id,
-          name: organization.getName().value,
-          address: organization.getAddress().value,
-          taxId: organization.getTaxId().value,
+          name,
+          address,
+          taxId,
           version: 1,
         },
       });
@@ -69,35 +65,25 @@ export class PrismaOrganizationRepository implements OrganizationRepository {
     try {
       const existingMembers = [...record.members];
 
-      const membersToAdd = organization
-        .getMembers()
-        .filter(
-          (member) =>
-            !existingMembers.some((existingMember) =>
-              OrganizationMemberId.fromString(existingMember.id).equals(
-                member.id,
-              ),
-            ),
-        );
+      const membersToAdd = members.filter(
+        (member) =>
+          !existingMembers.some(
+            (existingMember) => existingMember.id === member.id,
+          ),
+      );
 
       const membersToRemoveIds = existingMembers
         .filter(
           (existingMember) =>
-            !organization
-              .getMembers()
-              .some((member) =>
-                member.id.equals(
-                  OrganizationMemberId.fromString(existingMember.id),
-                ),
-              ),
+            !members.some((member) => member.id === existingMember.id),
         )
         .map((member) => member.id);
 
       await tx.organizationMember.createMany({
         data: membersToAdd.map((member) => ({
-          id: member.id.value,
+          id: member.id,
           organizationId: id,
-          organizationUserId: member.organizationUserId.value,
+          organizationUserId: member.organizationUserId,
           isRoot: member.isRoot,
         })),
       });
@@ -114,9 +100,9 @@ export class PrismaOrganizationRepository implements OrganizationRepository {
       await tx.organization.update({
         where: { id, version: currentVersion },
         data: {
-          name: organization.getName().value,
-          address: organization.getAddress().value,
-          taxId: organization.getTaxId().value,
+          name,
+          address,
+          taxId,
           version: {
             increment: 1,
           },
@@ -142,20 +128,6 @@ export class PrismaOrganizationRepository implements OrganizationRepository {
 
     if (!record) return null;
 
-    return new Organization(
-      OrganizationId.fromString(record.id),
-      OrganizationName.fromString(record.name),
-      OrganizationAddress.fromString(record.address),
-      OrganizationTaxId.fromString(record.taxId),
-      AggregateVersion.fromNumber(record.version),
-      record.members.map(
-        (member) =>
-          new OrganizationMember(
-            OrganizationMemberId.fromString(member.id),
-            member.isRoot,
-            OrganizationUserId.fromString(member.organizationUserId),
-          ),
-      ),
-    );
+    return OrganizationMapper.toDomain(record);
   }
 }

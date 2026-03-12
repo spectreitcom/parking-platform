@@ -5,11 +5,7 @@ import { RepositorySaveOptions } from '../../../../shared/types';
 import { OrganizationUser } from '../../domain/organization-user';
 import { PrismaService } from '../../../../shared/prisma/prisma.service';
 import { ConcurrencyError } from '../../../../shared/errors';
-import { OrganizationUserId } from '../../domain/value-objects/organization-user-id';
-import { Email } from '../../../../shared/value-objects/email';
-import { OrganizationUserDisplayName } from '../../domain/value-objects/organization-user-display-name';
-import { OrganizationUserStatus } from '../../domain/value-objects/organization-user-status';
-import { AggregateVersion } from '../../../../shared/value-objects/aggregate-version';
+import { OrganizationUserMapper } from './organization-user.mapper';
 
 @Injectable()
 export class PrismaOrganizationUserRepository implements OrganizationUserRepository {
@@ -21,7 +17,16 @@ export class PrismaOrganizationUserRepository implements OrganizationUserReposit
   ): Promise<void> {
     const prisma = options?.tx ?? this.prismaService;
 
-    const id = organizationUser.getId().value;
+    const {
+      id,
+      version: currentVersion,
+      email,
+      displayName,
+      status,
+      passwordHash,
+      createdAt,
+      updatedAt,
+    } = OrganizationUserMapper.toPersistence(organizationUser);
     const isNew = options?.isNew ?? false;
 
     const record = await prisma.organizationUser.findUnique({
@@ -36,13 +41,13 @@ export class PrismaOrganizationUserRepository implements OrganizationUserReposit
       await prisma.organizationUser.create({
         data: {
           id,
-          version: organizationUser.getVersion().value,
-          email: organizationUser.getEmail().value,
-          displayName: organizationUser.getDisplayName().value,
-          status: organizationUser.getStatus().value,
-          passwordHash: organizationUser.getPasswordHash(),
-          createdAt: organizationUser.getCreatedAt(),
-          updatedAt: organizationUser.getUpdatedAt(),
+          version: currentVersion,
+          email,
+          displayName,
+          status,
+          passwordHash,
+          createdAt,
+          updatedAt,
         },
       });
 
@@ -55,16 +60,16 @@ export class PrismaOrganizationUserRepository implements OrganizationUserReposit
 
     try {
       await prisma.organizationUser.update({
-        where: { id, version: organizationUser.getVersion().value },
+        where: { id, version: currentVersion },
         data: {
           version: {
             increment: 1,
           },
-          email: organizationUser.getEmail().value,
-          displayName: organizationUser.getDisplayName().value,
-          status: organizationUser.getStatus().value,
-          passwordHash: organizationUser.getPasswordHash(),
-          updatedAt: organizationUser.getUpdatedAt(),
+          email,
+          displayName,
+          status,
+          passwordHash,
+          updatedAt,
         },
       });
     } catch (error) {
@@ -89,16 +94,7 @@ export class PrismaOrganizationUserRepository implements OrganizationUserReposit
       return null;
     }
 
-    return new OrganizationUser(
-      OrganizationUserId.fromString(record.id),
-      Email.fromString(record.email),
-      OrganizationUserStatus.fromString(record.status),
-      AggregateVersion.fromNumber(record.version),
-      OrganizationUserDisplayName.fromString(record.displayName),
-      record.createdAt,
-      record.updatedAt,
-      record.passwordHash ?? undefined,
-    );
+    return OrganizationUserMapper.toDomain(record);
   }
 
   async findById(id: string, tx?: PrismaTx): Promise<OrganizationUser | null> {
@@ -112,15 +108,6 @@ export class PrismaOrganizationUserRepository implements OrganizationUserReposit
       return null;
     }
 
-    return new OrganizationUser(
-      OrganizationUserId.fromString(record.id),
-      Email.fromString(record.email),
-      OrganizationUserStatus.fromString(record.status),
-      AggregateVersion.fromNumber(record.version),
-      OrganizationUserDisplayName.fromString(record.displayName),
-      record.createdAt,
-      record.updatedAt,
-      record.passwordHash ?? undefined,
-    );
+    return OrganizationUserMapper.toDomain(record);
   }
 }

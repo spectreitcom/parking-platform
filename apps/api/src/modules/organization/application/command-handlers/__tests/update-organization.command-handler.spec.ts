@@ -1,51 +1,42 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { EventPublisher } from '@nestjs/cqrs';
+import { randomUUID } from 'node:crypto';
 import { UpdateOrganizationCommandHandler } from '../update-organization.command-handler';
-import { UpdateOrganizationCommand } from '../../commands/update-organization.command';
 import { OrganizationRepository } from '../../ports/organization.repository';
+import { UpdateOrganizationCommand } from '../../commands/update-organization.command';
 import { Organization } from '../../../domain/organization';
-import { AppError } from '../../../../../shared/errors';
-import { AggregateVersion } from '../../../../../shared/value-objects/aggregate-version';
 import { OrganizationId } from '../../../domain/value-objects/organization-id';
 import { OrganizationName } from '../../../domain/value-objects/organization-name';
 import { OrganizationAddress } from '../../../domain/value-objects/organization-address';
 import { OrganizationTaxId } from '../../../domain/value-objects/organization-tax-id';
+import { AggregateVersion } from '../../../../../shared/value-objects/aggregate-version';
+import { AppError } from '../../../../../shared/errors';
 
 describe('UpdateOrganizationCommandHandler', () => {
   let handler: UpdateOrganizationCommandHandler;
   let organizationRepository: jest.Mocked<OrganizationRepository>;
   let eventPublisher: jest.Mocked<EventPublisher>;
 
-  const organizationId = '4469736c-939e-4e6a-a236-4d221a71957c';
-  const version = 1;
-
-  const createMockOrganization = (v = version) => {
-    return new Organization(
-      OrganizationId.fromString(organizationId),
-      OrganizationName.fromString('Test Org'),
-      OrganizationAddress.fromString('Test Address'),
-      OrganizationTaxId.fromString('1234567890'),
-      AggregateVersion.fromNumber(v),
-      [],
-    );
-  };
-
   beforeEach(async () => {
+    organizationRepository = {
+      findById: jest.fn(),
+      save: jest.fn(),
+    } as unknown as typeof organizationRepository;
+
+    eventPublisher = {
+      mergeObjectContext: jest.fn(<T>(obj: T) => obj),
+    } as unknown as typeof eventPublisher;
+
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         UpdateOrganizationCommandHandler,
         {
           provide: OrganizationRepository,
-          useValue: {
-            findById: jest.fn(),
-            save: jest.fn(),
-          },
+          useValue: organizationRepository,
         },
         {
           provide: EventPublisher,
-          useValue: {
-            mergeObjectContext: jest.fn(<T>(obj: T) => obj),
-          },
+          useValue: eventPublisher,
         },
       ],
     }).compile();
@@ -53,59 +44,92 @@ describe('UpdateOrganizationCommandHandler', () => {
     handler = module.get<UpdateOrganizationCommandHandler>(
       UpdateOrganizationCommandHandler,
     );
-    organizationRepository = module.get(OrganizationRepository);
-    eventPublisher = module.get(EventPublisher);
   });
 
-  it('should update an organization', async () => {
-    const organization = createMockOrganization();
-    organizationRepository.findById.mockResolvedValue(organization);
+  it('should update organization successfully', async () => {
+    // Given
+    const organizationId = randomUUID();
+    const version = 1;
     const command = new UpdateOrganizationCommand(
       organizationId,
       'New Name',
       'New Address',
-      '0987654321',
+      '1234567890',
       version,
     );
 
-    const result = await handler.execute(command);
+    const organization = Organization.reconstruct(
+      OrganizationId.fromString(organizationId),
+      OrganizationName.fromString('Old Name'),
+      OrganizationAddress.fromString('Old Address'),
+      OrganizationTaxId.fromString('0987654321'),
+      AggregateVersion.fromNumber(version),
+      [],
+    );
 
-    expect(result).toBe(organizationId);
-    expect(organization.getName().value).toBe('New Name');
-    expect(organization.getAddress().value).toBe('New Address');
-    expect(organization.getTaxId().value).toBe('0987654321');
-    expect(organizationRepository.save).toHaveBeenCalledWith(organization);
+    organizationRepository.findById.mockResolvedValue(organization);
+    const commitSpy = jest.spyOn(organization, 'commit');
+
+    // When
+    const resultId = await handler.execute(command);
+
+    // Then
+    expect(organizationRepository.findById).toHaveBeenCalledWith(
+      organizationId,
+    );
     expect(eventPublisher.mergeObjectContext).toHaveBeenCalledWith(
       organization,
     );
+    expect(organization.getName().value).toBe('New Name');
+    expect(organization.getAddress().value).toBe('New Address');
+    expect(organization.getTaxId().value).toBe('1234567890');
+    expect(organizationRepository.save).toHaveBeenCalledWith(organization);
+    expect(commitSpy).toHaveBeenCalled();
+    expect(resultId).toBe(organizationId);
   });
 
-  it('should throw ENTITY_NOT_FOUND if organization does not exist', async () => {
-    organizationRepository.findById.mockResolvedValue(null);
+  it('should throw error if organization not found', async () => {
+    // Given
+    const organizationId = randomUUID();
     const command = new UpdateOrganizationCommand(
       organizationId,
       'New Name',
       'New Address',
-      '0987654321',
-      version,
+      '1234567890',
+      1,
     );
 
+    organizationRepository.findById.mockResolvedValue(null);
+
+    // When & Then
     await expect(handler.execute(command)).rejects.toThrow(
       new AppError('ENTITY_NOT_FOUND', 'Organization not found'),
     );
   });
 
-  it('should throw CONCURRENCY error if versions do not match', async () => {
-    const organization = createMockOrganization(2);
-    organizationRepository.findById.mockResolvedValue(organization);
+  it('should throw error if version mismatch', async () => {
+    // Given
+    const organizationId = randomUUID();
     const command = new UpdateOrganizationCommand(
       organizationId,
       'New Name',
       'New Address',
-      '0987654321',
-      version,
+      '1234567890',
+      1,
     );
 
+    const organization = Organization.reconstruct(
+      OrganizationId.fromString(organizationId),
+      OrganizationName.fromString('Old Name'),
+      OrganizationAddress.fromString('Old Address'),
+      OrganizationTaxId.fromString('0987654321'),
+      AggregateVersion.fromNumber(2),
+      [],
+    );
+
+    organizationRepository.findById.mockResolvedValue(organization);
+
+    // When & Then
     await expect(handler.execute(command)).rejects.toThrow(
       new AppError(
         'CONCURRENCY',

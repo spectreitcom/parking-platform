@@ -10,9 +10,9 @@ import { ResetPasswordCommand } from '../../commands/reset-password.command';
 import { OrganizationUser } from '../../../domain/organization-user';
 import { OrganizationUserId } from '../../../domain/value-objects/organization-user-id';
 import { Email } from '../../../../../shared/value-objects/email';
-import { OrganizationUserDisplayName } from '../../../domain/value-objects/organization-user-display-name';
 import { OrganizationUserStatus } from '../../../domain/value-objects/organization-user-status';
 import { AggregateVersion } from '../../../../../shared/value-objects/aggregate-version';
+import { OrganizationUserDisplayName } from '../../../domain/value-objects/organization-user-display-name';
 import { AppError } from '../../../../../shared/errors';
 
 describe('ResetPasswordCommandHandler', () => {
@@ -82,12 +82,12 @@ describe('ResetPasswordCommandHandler', () => {
     const token = 'valid-token';
     const newPassword = 'NewPassword123!';
     const command = new ResetPasswordCommand(token, newPassword);
-    const organizationUserId = randomUUID();
+    const userId = randomUUID();
     const tokenHash = 'hashed-token';
     const newPasswordHash = 'hashed-new-password';
 
-    const organizationUser = new OrganizationUser(
-      OrganizationUserId.fromString(organizationUserId),
+    const organizationUser = OrganizationUser.reconstruct(
+      OrganizationUserId.fromString(userId),
       Email.fromString('test@example.com'),
       OrganizationUserStatus.active(),
       AggregateVersion.one(),
@@ -97,7 +97,7 @@ describe('ResetPasswordCommandHandler', () => {
     );
 
     resetPasswordTokenService.createHash.mockReturnValue(tokenHash);
-    resetPasswordTokenStorage.validate.mockResolvedValue(organizationUserId);
+    resetPasswordTokenStorage.validate.mockResolvedValue(userId);
     organizationUserRepository.findById.mockResolvedValue(organizationUser);
     passwordService.create.mockResolvedValue(newPasswordHash);
 
@@ -109,9 +109,7 @@ describe('ResetPasswordCommandHandler', () => {
     // Then
     expect(resetPasswordTokenService.createHash).toHaveBeenCalledWith(token);
     expect(resetPasswordTokenStorage.validate).toHaveBeenCalledWith(tokenHash);
-    expect(organizationUserRepository.findById).toHaveBeenCalledWith(
-      organizationUserId,
-    );
+    expect(organizationUserRepository.findById).toHaveBeenCalledWith(userId);
     expect(resetPasswordTokenStorage.invalidate).toHaveBeenCalledWith(
       tokenHash,
     );
@@ -146,11 +144,11 @@ describe('ResetPasswordCommandHandler', () => {
     // Given
     const token = 'valid-token';
     const command = new ResetPasswordCommand(token, 'password');
-    const organizationUserId = randomUUID();
+    const userId = randomUUID();
     const tokenHash = 'hashed-token';
 
     resetPasswordTokenService.createHash.mockReturnValue(tokenHash);
-    resetPasswordTokenStorage.validate.mockResolvedValue(organizationUserId);
+    resetPasswordTokenStorage.validate.mockResolvedValue(userId);
     organizationUserRepository.findById.mockResolvedValue(null);
 
     // When & Then

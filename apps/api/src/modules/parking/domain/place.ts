@@ -19,7 +19,7 @@ export class Place extends AggregateRoot {
   private placeTypeId: PlaceTypeId;
   private readonly version: AggregateVersion;
 
-  constructor(
+  private constructor(
     id: PlaceId,
     name: PlaceName,
     coords: Coords,
@@ -36,6 +36,18 @@ export class Place extends AggregateRoot {
     this.active = active;
     this.placeTypeId = placeTypeId;
     this.version = version;
+  }
+
+  static reconstruct(
+    id: PlaceId,
+    name: PlaceName,
+    coords: Coords,
+    address: Address,
+    active: boolean,
+    placeTypeId: PlaceTypeId,
+    version: AggregateVersion,
+  ) {
+    return new Place(id, name, coords, address, active, placeTypeId, version);
   }
 
   static create(

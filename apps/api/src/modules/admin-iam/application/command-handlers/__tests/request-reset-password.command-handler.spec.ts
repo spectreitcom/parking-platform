@@ -82,7 +82,7 @@ describe('RequestResetPasswordCommandHandler', () => {
     const emailStr = 'test@example.com';
     const command = new RequestResetPasswordCommand(emailStr);
     const adminUserId = randomUUID();
-    const adminUser = new AdminUser(
+    const adminUser = AdminUser.reconstruct(
       AdminId.fromString(adminUserId),
       Email.fromString(emailStr),
       false,

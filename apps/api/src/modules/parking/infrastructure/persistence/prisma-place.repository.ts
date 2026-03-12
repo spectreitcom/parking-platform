@@ -3,14 +3,9 @@ import { PlaceRepository } from '../../application/ports/place.repository';
 import { PrismaTx } from 'src/shared/prisma/types';
 import { Place } from '../../domain/place';
 import { PrismaService } from '../../../../shared/prisma/prisma.service';
-import { PlaceId } from '../../domain/value-objects/place-id';
-import { PlaceName } from '../../domain/value-objects/place-name';
-import { Coords } from '../../domain/value-objects/coords';
-import { Address } from '../../domain/value-objects/address';
-import { PlaceTypeId } from '../../domain/value-objects/place-type-id';
-import { AggregateVersion } from '../../../../shared/value-objects/aggregate-version';
 import { ConcurrencyError } from '../../../../shared/errors';
 import { RepositorySaveOptions } from '../../../../shared/types';
+import { PlaceMapper } from './place.mapper';
 
 @Injectable()
 export class PrismaPlaceRepository implements PlaceRepository {
@@ -18,8 +13,16 @@ export class PrismaPlaceRepository implements PlaceRepository {
 
   async save(place: Place, options?: RepositorySaveOptions): Promise<void> {
     const prisma = options?.tx ?? this.prismaService;
-    const id = place.getId().value;
-    const currentVersion = place.getVersion().value;
+    const {
+      id,
+      name,
+      latitude,
+      longitude,
+      active,
+      address,
+      placeTypeId,
+      version: currentVersion,
+    } = PlaceMapper.toPersistence(place);
     const isNew = options?.isNew ?? false;
 
     const record = await prisma.place.findUnique({
@@ -33,13 +36,13 @@ export class PrismaPlaceRepository implements PlaceRepository {
 
       await prisma.place.create({
         data: {
-          id: place.getId().value,
-          name: place.getName().value,
-          latitude: place.getCoords().latitude,
-          longitude: place.getCoords().longitude,
-          active: place.isActive(),
-          address: place.getAddress().value,
-          placeTypeId: place.getPlaceTypeId().value,
+          id,
+          name,
+          latitude,
+          longitude,
+          active,
+          address,
+          placeTypeId,
           version: 1,
         },
       });
@@ -57,12 +60,12 @@ export class PrismaPlaceRepository implements PlaceRepository {
           version: currentVersion,
         },
         data: {
-          name: place.getName().value,
-          latitude: place.getCoords().latitude,
-          longitude: place.getCoords().longitude,
-          active: place.isActive(),
-          address: place.getAddress().value,
-          placeTypeId: place.getPlaceTypeId().value,
+          name,
+          latitude,
+          longitude,
+          active,
+          address,
+          placeTypeId,
           version: {
             increment: 1,
           },
@@ -89,14 +92,6 @@ export class PrismaPlaceRepository implements PlaceRepository {
       return null;
     }
 
-    return new Place(
-      PlaceId.fromString(record.id),
-      PlaceName.fromString(record.name),
-      Coords.fromNumbers(Number(record.latitude), Number(record.longitude)),
-      Address.fromString(record.address),
-      record.active,
-      PlaceTypeId.fromString(record.placeTypeId),
-      AggregateVersion.fromNumber(record.version),
-    );
+    return PlaceMapper.toDomain(record);
   }
 }

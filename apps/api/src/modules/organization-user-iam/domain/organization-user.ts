@@ -20,7 +20,7 @@ export class OrganizationUser extends AggregateRoot {
   private readonly createdAt: Date;
   private updatedAt: Date;
 
-  constructor(
+  private constructor(
     id: OrganizationUserId,
     email: Email,
     status: OrganizationUserStatus,
@@ -39,6 +39,28 @@ export class OrganizationUser extends AggregateRoot {
     this.passwordHash = passwordHash;
     this.createdAt = createdAt;
     this.updatedAt = updatedAt;
+  }
+
+  static reconstruct(
+    id: OrganizationUserId,
+    email: Email,
+    status: OrganizationUserStatus,
+    version: AggregateVersion,
+    displayName: OrganizationUserDisplayName,
+    createdAt: Date,
+    updatedAt: Date,
+    passwordHash?: string,
+  ) {
+    return new OrganizationUser(
+      id,
+      email,
+      status,
+      version,
+      displayName,
+      createdAt,
+      updatedAt,
+      passwordHash,
+    );
   }
 
   static invite(email: string, displayName: string) {
