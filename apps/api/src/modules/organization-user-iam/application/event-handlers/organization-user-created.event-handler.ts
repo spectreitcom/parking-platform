@@ -24,11 +24,7 @@ export class OrganizationUserCreatedEventHandler implements IEventHandler<Organi
 
     await this.prismaService.organizationUserRead.upsert({
       where: { organizationUserId },
-      update: {
-        email,
-        displayName,
-        statusText: this.organizationUserStatusMapperService.toText(status),
-      },
+      update: {},
       create: {
         organizationUserId,
         email,
