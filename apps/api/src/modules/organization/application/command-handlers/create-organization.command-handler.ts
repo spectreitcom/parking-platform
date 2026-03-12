@@ -16,7 +16,7 @@ export class CreateOrganizationCommandHandler implements ICommandHandler<
   async execute(command: CreateOrganizationCommand): Promise<string> {
     const { name, taxId, address } = command;
 
-    const organization = Organization.create(name, taxId, address);
+    const organization = Organization.create(name, address, taxId);
     this.eventPublisher.mergeObjectContext(organization);
     await this.organizationRepository.save(organization, { isNew: true });
     organization.commit();
