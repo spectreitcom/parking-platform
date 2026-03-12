@@ -17,17 +17,18 @@ export class OrganizationMemberRemovedEventHandler implements IEventHandler<Orga
     const { organizationId, memberId } = event;
 
     const record =
-      await this.prismaService.organizationListForAdmnRead.findUnique({
+      await this.prismaService.organizationListForAdminRead.findUnique({
         where: { organizationId },
       });
 
-    const members = record?.members as {
-      id: string;
-      isRoot: boolean;
-      organizationUserId: string;
-    }[];
+    const members =
+      (record?.members as {
+        id: string;
+        isRoot: boolean;
+        organizationUserId: string;
+      }[]) ?? [];
 
-    await this.prismaService.organizationListForAdmnRead.update({
+    await this.prismaService.organizationListForAdminRead.update({
       where: { organizationId },
       data: {
         members: members.filter((member) => member.id !== memberId),

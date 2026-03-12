@@ -15,7 +15,7 @@ export class OrganizationCreatedEventHandler implements IEventHandler<Organizati
     );
     const { organizationId, name, taxId, members, address } = event;
 
-    await this.prismaService.organizationListForAdmnRead.create({
+    await this.prismaService.organizationListForAdminRead.create({
       data: {
         name,
         taxId,

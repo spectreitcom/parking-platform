@@ -95,6 +95,7 @@ export class PrismaOrganizationRepository implements OrganizationRepository {
 
       await tx.organizationMember.createMany({
         data: membersToAdd.map((member) => ({
+          id: member.id.value,
           organizationId: id,
           organizationUserId: member.organizationUserId.value,
           isRoot: member.isRoot,
@@ -123,7 +124,7 @@ export class PrismaOrganizationRepository implements OrganizationRepository {
       });
     } catch (error) {
       if (error instanceof Error && 'code' in error && error.code === 'P2025') {
-        throw new ConcurrencyError('Parking', id);
+        throw new ConcurrencyError('Organization', id);
       }
       throw error;
     }

@@ -6,28 +6,31 @@ import { Prisma } from '@prisma/client';
 
 export const getOrganizationListForAdminQueryWhere: (
   search?: string,
-) => Prisma.OrganizationListForAdmnReadWhereInput = (search?: string) => ({
-  OR: [
-    {
-      name: {
-        contains: search,
-        mode: 'insensitive',
-      },
-    },
-    {
-      address: {
-        contains: search,
-        mode: 'insensitive',
-      },
-    },
-    {
-      taxId: {
-        contains: search,
-        mode: 'insensitive',
-      },
-    },
-  ],
-});
+) => Prisma.OrganizationListForAdminReadWhereInput = (search?: string) =>
+  search
+    ? {
+        OR: [
+          {
+            name: {
+              contains: search,
+              mode: 'insensitive',
+            },
+          },
+          {
+            address: {
+              contains: search,
+              mode: 'insensitive',
+            },
+          },
+          {
+            taxId: {
+              contains: search,
+              mode: 'insensitive',
+            },
+          },
+        ],
+      }
+    : {};
 
 @QueryHandler(GetOrganizationListForAdminQuery)
 export class GetOrganizationListForAdminQueryHandler implements IQueryHandler<
@@ -42,7 +45,7 @@ export class GetOrganizationListForAdminQueryHandler implements IQueryHandler<
     const { page, limit, search } = query;
 
     const records =
-      await this.prismaService.organizationListForAdmnRead.findMany({
+      await this.prismaService.organizationListForAdminRead.findMany({
         where: getOrganizationListForAdminQueryWhere(search),
         skip: (page - 1) * limit,
         take: limit,

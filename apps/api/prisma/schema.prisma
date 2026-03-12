@@ -267,7 +267,7 @@ model OrganizationOrganizationUser {
   @@index([organizationUserId])
 }
 
-model OrganizationListForAdmnRead {
+model OrganizationListForAdminRead {
   id             String @id @default(uuid()) @db.Uuid
   organizationId String @unique @db.Uuid
   name           String @db.VarChar(255)

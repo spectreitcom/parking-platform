@@ -13,7 +13,7 @@ export class GetOrganizationListForAdminTotalQueryHandler implements IQueryHandl
   async execute(query: GetOrganizationListForAdminTotalQuery): Promise<number> {
     const { search } = query;
 
-    return this.prismaService.organizationListForAdmnRead.count({
+    return this.prismaService.organizationListForAdminRead.count({
       where: getOrganizationListForAdminQueryWhere(search),
     });
   }

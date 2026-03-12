@@ -19,15 +19,16 @@ export class OrganizationMemberAddedEventHandler implements IEventHandler<Organi
     const { organizationId, memberId, organizationUserId, isRoot } = event;
 
     const record =
-      await this.prismaService.organizationListForAdmnRead.findUnique({
+      await this.prismaService.organizationListForAdminRead.findUnique({
         where: { organizationId },
       });
 
-    const members = record?.members as {
-      id: string;
-      isRoot: boolean;
-      organizationUserId: string;
-    }[];
+    const members =
+      (record?.members as {
+        id: string;
+        isRoot: boolean;
+        organizationUserId: string;
+      }[]) ?? [];
 
     members.push({
       id: memberId,
@@ -35,7 +36,7 @@ export class OrganizationMemberAddedEventHandler implements IEventHandler<Organi
       organizationUserId,
     });
 
-    await this.prismaService.organizationListForAdmnRead.update({
+    await this.prismaService.organizationListForAdminRead.update({
       where: { organizationId },
       data: {
         members,

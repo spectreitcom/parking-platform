@@ -16,7 +16,7 @@ export class OrganizationUpdatedEventHandler implements IEventHandler<Organizati
 
     const { organizationId, name, taxId, members, address } = event;
 
-    await this.prismaService.organizationListForAdmnRead.upsert({
+    await this.prismaService.organizationListForAdminRead.upsert({
       where: { organizationId },
       update: {
         name,
