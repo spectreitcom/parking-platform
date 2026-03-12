@@ -19,26 +19,31 @@ export class RedisRefreshTokenStorage
     this.client = new Redis(redisUrl);
   }
 
-  async insert(adminUserId: string, tokenId: string): Promise<void> {
+  async insert(organizationUserId: string, tokenId: string): Promise<void> {
     await this.client.set(
-      this.getKey(adminUserId),
+      this.getKey(organizationUserId),
       tokenId,
       'EX',
       REFRESH_TOKEN_TTL_SECONDS,
     );
   }
 
-  async validate(adminUserId: string, tokenId: string): Promise<boolean> {
-    const storedTokenId = await this.client.get(this.getKey(adminUserId));
+  async validate(
+    organizationUserId: string,
+    tokenId: string,
+  ): Promise<boolean> {
+    const storedTokenId = await this.client.get(
+      this.getKey(organizationUserId),
+    );
     return storedTokenId === tokenId;
   }
 
-  async invalidate(adminUserId: string): Promise<void> {
-    await this.client.del(this.getKey(adminUserId));
+  async invalidate(organizationUserId: string): Promise<void> {
+    await this.client.del(this.getKey(organizationUserId));
   }
 
-  private getKey(adminUserId: string) {
-    return `refreshToken:${adminUserId}`;
+  private getKey(organizationUserId: string) {
+    return `organization-user:refreshToken:${organizationUserId}`;
   }
 
   async onApplicationShutdown() {

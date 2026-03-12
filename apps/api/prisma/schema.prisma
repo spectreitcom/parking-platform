@@ -68,7 +68,7 @@ model PlaceType {
   name      String   @unique @db.VarChar(60)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  version   Int      @default(0) @db.Integer
+  version   Int      @default(1) @db.Integer
   places    Place[]
 }
 
@@ -79,7 +79,7 @@ model ParkingAddon {
   price     Int       @default(0) // In grosze
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
-  version   Int       @default(0) @db.Integer
+  version   Int       @default(1) @db.Integer
   parkings  Parking[]
 }
 
@@ -97,7 +97,7 @@ model Place {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  version Int @default(0) @db.Integer
+  version Int @default(1) @db.Integer
 
   parkings Parking[]
 }
@@ -124,7 +124,7 @@ model ParkingFeature {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  version Int @default(0) @db.Integer
+  version Int @default(1) @db.Integer
 
   parkings     Parking[]
   parkingSpots ParkingSpot[]
@@ -154,7 +154,7 @@ model Parking {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  version Int @default(0) @db.Integer
+  version Int @default(1) @db.Integer
 
   parkingSpots ParkingSpot[]
 }
@@ -172,7 +172,7 @@ model ParkingSpot {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  version Int @default(0) @db.Integer
+  version Int @default(1) @db.Integer
 }
 
 model ParkingOrganization {
@@ -207,13 +207,13 @@ model AdminUser {
   email        String  @unique @db.VarChar(255)
   isSuperAdmin Boolean @default(false)
   displayName  String  @db.VarChar(120)
-  status       String
+  status       String  @db.VarChar(60)
   passwordHash String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  version Int @default(0) @db.Integer
+  version Int @default(1) @db.Integer
 }
 
 model AdminUserRead {
@@ -222,7 +222,7 @@ model AdminUserRead {
   email        String   @unique @db.VarChar(255)
   isSuperAdmin Boolean
   displayName  String   @db.VarChar(120)
-  status       String
+  status       String   @db.VarChar(60)
   createdAt    DateTime
   updatedAt    DateTime
 
@@ -244,7 +244,7 @@ model Organization {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  version Int @default(0) @db.Integer
+  version Int @default(1) @db.Integer
 
   members OrganizationMember[]
 }
@@ -264,7 +264,7 @@ model OrganizationOrganizationUser {
   displayName        String @db.VarChar(120)
   email              String @unique @db.VarChar(255)
 
-  @@index([organizationUserId])
+  @@index([organizationUserId, displayName, email])
 }
 
 model OrganizationListForAdminRead {
@@ -276,6 +276,32 @@ model OrganizationListForAdminRead {
   members        Json
 
   @@index([address, name, taxId])
+}
+
+// -----------------------------
+
+// Organization User IAM Bounded Context
+
+model OrganizationUser {
+  id           String   @id @default(uuid()) @db.Uuid
+  email        String   @unique @db.VarChar(255)
+  passwordHash String?
+  displayName  String   @db.VarChar(120)
+  status       String   @db.VarChar(60)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  version Int @default(1) @db.Integer
+}
+
+model OrganizationUserRead {
+  id                 String @id @default(uuid()) @db.Uuid
+  organizationUserId String @unique @db.Uuid
+  email              String @unique @db.VarChar(255)
+  displayName        String @db.VarChar(120)
+  statusText         String @db.VarChar(80)
+
+  @@index([email, displayName])
 }
 
 // -----------------------------
