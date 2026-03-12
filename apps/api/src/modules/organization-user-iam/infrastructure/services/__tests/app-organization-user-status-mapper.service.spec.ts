@@ -1,7 +1,6 @@
 import { AppOrganizationUserStatusMapperService } from '../app-organization-user-status-mapper.service';
 import {
   ORGANIZATION_USER_ACTIVE,
-  ORGANIZATION_USER_CREATED,
   ORGANIZATION_USER_INVITED,
   ORGANIZATION_USER_SUSPENDED,
 } from '../../../domain/constants';
@@ -15,7 +14,6 @@ describe('AppOrganizationUserStatusMapperService', () => {
 
   describe('toText', () => {
     it.each([
-      [ORGANIZATION_USER_CREATED, 'Created'],
       [ORGANIZATION_USER_INVITED, 'Invited'],
       [ORGANIZATION_USER_ACTIVE, 'Active'],
       [ORGANIZATION_USER_SUSPENDED, 'Suspended'],

@@ -2,17 +2,11 @@ import { OrganizationUserStatus } from '../organization-user-status';
 import { AppError } from '../../../../../shared/errors';
 import {
   ORGANIZATION_USER_ACTIVE,
-  ORGANIZATION_USER_CREATED,
   ORGANIZATION_USER_INVITED,
   ORGANIZATION_USER_SUSPENDED,
 } from '../../constants';
 
 describe('OrganizationUserStatus', () => {
-  it('should create a created status', () => {
-    const status = OrganizationUserStatus.created();
-    expect(status.value).toBe(ORGANIZATION_USER_CREATED);
-  });
-
   it('should create an invited status', () => {
     const status = OrganizationUserStatus.invited();
     expect(status.value).toBe(ORGANIZATION_USER_INVITED);
