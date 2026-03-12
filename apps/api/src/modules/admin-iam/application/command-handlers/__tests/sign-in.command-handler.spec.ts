@@ -24,19 +24,19 @@ describe('SignInCommandHandler', () => {
   beforeEach(async () => {
     adminUserRepository = {
       findById: jest.fn(),
-    } as any;
+    } as unknown as typeof adminUserRepository;
 
     accessTokenService = {
       createToken: jest.fn(),
-    } as any;
+    } as unknown as typeof accessTokenService;
 
     refreshTokenService = {
       createToken: jest.fn(),
-    } as any;
+    } as unknown as typeof refreshTokenService;
 
     refreshTokenStorage = {
       insert: jest.fn(),
-    } as any;
+    } as unknown as typeof refreshTokenStorage;
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [

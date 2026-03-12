@@ -44,7 +44,7 @@ describe('UpdateOrganizationCommandHandler', () => {
         {
           provide: EventPublisher,
           useValue: {
-            mergeObjectContext: jest.fn((obj) => obj),
+            mergeObjectContext: jest.fn(<T>(obj: T) => obj),
           },
         },
       ],

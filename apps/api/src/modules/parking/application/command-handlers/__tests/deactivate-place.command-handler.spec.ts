@@ -55,11 +55,11 @@ describe('DeactivatePlaceCommandHandler', () => {
     const result = await handler.execute(command);
 
     expect(result).toBeDefined();
-    /* eslint-disable @typescript-eslint/unbound-method */
+
     expect(repository.findById).toHaveBeenCalledWith(id);
     expect(publisher.mergeObjectContext).toHaveBeenCalledWith(place);
     expect(repository.save).toHaveBeenCalledWith(place);
-    /* eslint-enable @typescript-eslint/unbound-method */
+
     expect(place.isActive()).toBe(false);
   });
 

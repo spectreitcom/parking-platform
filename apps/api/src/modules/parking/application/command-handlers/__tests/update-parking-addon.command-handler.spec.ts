@@ -36,7 +36,6 @@ describe('UpdateParkingAddonCommandHandler', () => {
     repository = module.get(ParkingAddonRepository);
   });
 
-  /* eslint-disable @typescript-eslint/unbound-method */
   it('should update and save an existing parking addon', async () => {
     const addon = ParkingAddon.create('PA1', 'Old Name', 1000);
     const command = new UpdateParkingAddonCommand(

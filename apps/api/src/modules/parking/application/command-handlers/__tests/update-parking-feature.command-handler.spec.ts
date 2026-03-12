@@ -39,7 +39,6 @@ describe('UpdateParkingFeatureCommandHandler', () => {
     publisher = module.get(EventPublisher);
   });
 
-  /* eslint-disable @typescript-eslint/unbound-method */
   it('should update and save an existing parking feature', async () => {
     const parkingFeature = ParkingFeature.create('Old Name', [PARKING_LEVEL]);
     const id = parkingFeature.getId().value;

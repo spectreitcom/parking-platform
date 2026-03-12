@@ -21,11 +21,11 @@ describe('SuspendAdminUserCommandHandler', () => {
     adminUserRepository = {
       findById: jest.fn(),
       save: jest.fn(),
-    } as any;
+    } as unknown as typeof adminUserRepository;
 
     eventPublisher = {
-      mergeObjectContext: jest.fn((obj) => obj),
-    } as any;
+      mergeObjectContext: jest.fn(<T>(obj: T) => obj),
+    } as unknown as typeof eventPublisher;
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [

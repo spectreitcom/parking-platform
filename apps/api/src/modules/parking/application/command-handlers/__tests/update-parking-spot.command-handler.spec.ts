@@ -12,7 +12,6 @@ describe('UpdateParkingSpotCommandHandler', () => {
   let handler: UpdateParkingSpotCommandHandler;
   let parkingSpotRepository: jest.Mocked<ParkingSpotRepository>;
   let parkingRepository: jest.Mocked<ParkingRepository>;
-  let publisher: jest.Mocked<EventPublisher>;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -45,7 +44,6 @@ describe('UpdateParkingSpotCommandHandler', () => {
     );
     parkingSpotRepository = module.get(ParkingSpotRepository);
     parkingRepository = module.get(ParkingRepository);
-    publisher = module.get(EventPublisher);
   });
 
   it('should update a parking spot', async () => {
@@ -79,9 +77,8 @@ describe('UpdateParkingSpotCommandHandler', () => {
     expect(parkingSpot.getParkingSpotFeatureIds().map((f) => f.value)).toEqual(
       newFeatures,
     );
-    /* eslint-disable @typescript-eslint/unbound-method */
+
     expect(parkingSpotRepository.save).toHaveBeenCalledWith(parkingSpot);
-    /* eslint-enable @typescript-eslint/unbound-method */
   });
 
   it('should throw ENTITY_NOT_FOUND if parking spot does not exist', async () => {

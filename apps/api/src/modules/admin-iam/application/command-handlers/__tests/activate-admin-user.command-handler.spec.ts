@@ -21,11 +21,12 @@ describe('ActivateAdminUserCommandHandler', () => {
     adminUserRepository = {
       findById: jest.fn(),
       save: jest.fn(),
-    } as any;
+      findByEmail: jest.fn(),
+    } as unknown as jest.Mocked<AdminUserRepository>;
 
     eventPublisher = {
-      mergeObjectContext: jest.fn((obj) => obj),
-    } as any;
+      mergeObjectContext: jest.fn(<T>(obj: T) => obj),
+    } as unknown as jest.Mocked<EventPublisher>;
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [

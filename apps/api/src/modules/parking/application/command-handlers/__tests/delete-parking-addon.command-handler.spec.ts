@@ -36,7 +36,6 @@ describe('DeleteParkingAddonCommandHandler', () => {
     repository = module.get(ParkingAddonRepository);
   });
 
-  /* eslint-disable @typescript-eslint/unbound-method */
   it('should delete an existing parking addon', async () => {
     const addon = ParkingAddon.create('PA1', 'Premium', 1000);
     const command = new DeleteParkingAddonCommand(

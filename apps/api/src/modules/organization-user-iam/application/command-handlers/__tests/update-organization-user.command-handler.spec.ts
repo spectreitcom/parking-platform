@@ -26,19 +26,21 @@ describe('UpdateOrganizationUserCommandHandler', () => {
     organizationUserRepository = {
       findById: jest.fn(),
       save: jest.fn(),
-    } as any;
+    } as unknown as typeof organizationUserRepository;
 
     eventPublisher = {
-      mergeObjectContext: jest.fn((obj) => obj),
-    } as any;
+      mergeObjectContext: jest.fn(<T>(obj: T) => obj),
+    } as unknown as typeof eventPublisher;
 
     transactionRunner = {
-      runInTransaction: jest.fn((cb) => cb('prisma-tx')),
-    } as any;
+      runInTransaction: jest.fn((cb: (arg: unknown) => unknown) =>
+        cb('prisma-tx'),
+      ),
+    } as unknown as typeof transactionRunner;
 
     outboxService = {
       enqueue: jest.fn(),
-    } as any;
+    } as unknown as typeof outboxService;
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [

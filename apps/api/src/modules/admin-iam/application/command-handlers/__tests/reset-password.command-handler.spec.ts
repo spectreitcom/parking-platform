@@ -27,24 +27,24 @@ describe('ResetPasswordCommandHandler', () => {
     adminUserRepository = {
       findById: jest.fn(),
       save: jest.fn(),
-    } as any;
+    } as unknown as typeof adminUserRepository;
 
     eventPublisher = {
-      mergeObjectContext: jest.fn((obj) => obj),
-    } as any;
+      mergeObjectContext: jest.fn(<T>(obj: T) => obj),
+    } as unknown as typeof eventPublisher;
 
     resetPasswordTokenService = {
       createHash: jest.fn(),
-    } as any;
+    } as unknown as typeof resetPasswordTokenService;
 
     resetPasswordTokenStorage = {
       validate: jest.fn(),
       invalidate: jest.fn(),
-    } as any;
+    } as unknown as typeof resetPasswordTokenStorage;
 
     passwordService = {
       create: jest.fn(),
-    } as any;
+    } as unknown as typeof passwordService;
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [

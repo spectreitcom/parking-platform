@@ -43,7 +43,7 @@ describe('CreatePlaceTypeCommandHandler', () => {
 
     expect(result).toBeDefined();
     expect(typeof result).toBe('string');
-    /* eslint-disable @typescript-eslint/unbound-method */
+
     expect(publisher.mergeObjectContext).toHaveBeenCalledWith(
       expect.any(PlaceType),
     );
@@ -51,7 +51,7 @@ describe('CreatePlaceTypeCommandHandler', () => {
       expect.any(PlaceType),
       expect.objectContaining({ isNew: true }),
     );
-    /* eslint-enable @typescript-eslint/unbound-method */
+
     const savedPlaceType = repository.save.mock.calls[0][0];
     expect(savedPlaceType.getName().value).toBe('Standard');
   });

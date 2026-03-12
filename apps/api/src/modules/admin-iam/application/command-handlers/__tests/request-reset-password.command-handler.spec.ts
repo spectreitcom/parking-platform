@@ -26,23 +26,25 @@ describe('RequestResetPasswordCommandHandler', () => {
   beforeEach(async () => {
     adminUserRepository = {
       findByEmail: jest.fn(),
-    } as any;
+    } as unknown as typeof adminUserRepository;
 
     resetPasswordService = {
       createHash: jest.fn(),
-    } as any;
+    } as unknown as typeof resetPasswordService;
 
     resetPasswordTokenStorage = {
       insert: jest.fn(),
-    } as any;
+    } as unknown as typeof resetPasswordTokenStorage;
 
     transactionRunner = {
-      runInTransaction: jest.fn((cb) => cb('prisma-tx')),
-    } as any;
+      runInTransaction: jest.fn((cb: (arg: unknown) => unknown) =>
+        cb('prisma-tx'),
+      ),
+    } as unknown as typeof transactionRunner;
 
     outboxService = {
       enqueue: jest.fn(),
-    } as any;
+    } as unknown as typeof outboxService;
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
