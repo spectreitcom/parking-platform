@@ -1,8 +1,9 @@
 import { Module } from '@nestjs/common';
 import { AdminIamModule } from '../admin-iam/application/admin-iam.module';
 import { ParkingModule } from '../parking/application/parking.module';
+import { OrganizationModule } from '../organization/application/organization.module';
 
 @Module({
-  imports: [AdminIamModule, ParkingModule],
+  imports: [AdminIamModule, ParkingModule, OrganizationModule],
 })
 export class AdminApiModule {}

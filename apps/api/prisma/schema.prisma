@@ -232,3 +232,50 @@ model AdminUserRead {
 }
 
 // -----------------------------
+
+// Organization Bounded Context
+
+model Organization {
+  id      String @id @default(uuid()) @db.Uuid
+  name    String @db.VarChar(255)
+  address String @db.VarChar(255)
+  taxId   String @db.VarChar(120)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  version Int @default(0) @db.Integer
+
+  members OrganizationMember[]
+}
+
+model OrganizationMember {
+  id                 String  @id @default(uuid()) @db.Uuid
+  isRoot             Boolean @default(false)
+  organizationUserId String  @db.Uuid
+
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  organizationId String       @db.Uuid
+}
+
+model OrganizationOrganizationUser {
+  id                 String @id @default(uuid()) @db.Uuid
+  organizationUserId String @unique @db.Uuid
+  displayName        String @db.VarChar(120)
+  email              String @unique @db.VarChar(255)
+
+  @@index([organizationUserId])
+}
+
+model OrganizationListForAdminRead {
+  id             String @id @default(uuid()) @db.Uuid
+  organizationId String @unique @db.Uuid
+  name           String @db.VarChar(255)
+  address        String @db.VarChar(255)
+  taxId          String @db.VarChar(120)
+  members        Json
+
+  @@index([address, name, taxId])
+}
+
+// -----------------------------
