@@ -111,7 +111,7 @@ export class PrismaOrganizationRepository implements OrganizationRepository {
       });
 
       await tx.organization.update({
-        where: { id },
+        where: { id, version: currentVersion },
         data: {
           name: organization.getName().value,
           address: organization.getAddress().value,

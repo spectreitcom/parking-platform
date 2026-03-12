@@ -38,7 +38,6 @@ describe('AddMemberCommandHandler', () => {
   });
 
   it('should add a member to an organization', async () => {
-    const organizationId = randomUUID();
     const organization = Organization.create('Test Org', 'Address', '123');
     // Force ID for testing if possible, but Organization.create generates a random one.
     // We'll just use the one it generated.
