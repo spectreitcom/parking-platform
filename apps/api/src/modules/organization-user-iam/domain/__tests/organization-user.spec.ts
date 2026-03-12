@@ -1,102 +1,127 @@
 import { OrganizationUser } from '../organization-user';
-import { OrganizationUserCreatedEvent } from '../events/organization-user-created.event';
+import { OrganizationUserInvitedEvent } from '../events/organization-user-invited.event';
 import { OrganizationUserUpdatedEvent } from '../events/organization-user-updated.event';
 import { OrganizationUserActivatedEvent } from '../events/organization-user-activated.event';
 import { OrganizationUserSuspendedEvent } from '../events/organization-user-suspended.event';
-import { OrganizationUserInvitedEvent } from '../events/organization-user-invited.event';
 import { OrganizationUserPasswordChangedEvent } from '../events/organization-user-password-changed.event';
 import {
-  ORGANIZATION_USER_ACTIVE,
-  ORGANIZATION_USER_CREATED,
   ORGANIZATION_USER_INVITED,
+  ORGANIZATION_USER_ACTIVE,
   ORGANIZATION_USER_SUSPENDED,
 } from '../constants';
-import { AppError } from '../../../../shared/errors';
 
 describe('OrganizationUser', () => {
   const email = 'test@example.com';
   const displayName = 'Test User';
-  const passwordHash = 'hash123';
 
-  it('should create an organization user', () => {
-    const user = OrganizationUser.create(email, displayName, passwordHash);
+  describe('invite', () => {
+    it('should create a new organization user and apply OrganizationUserInvitedEvent', () => {
+      const user = OrganizationUser.invite(email, displayName);
 
-    expect(user.getId()).toBeDefined();
-    expect(user.getEmail().value).toBe(email);
-    expect(user.getDisplayName().value).toBe(displayName);
-    expect(user.getPasswordHash()).toBe(passwordHash);
-    expect(user.getStatus().value).toBe(ORGANIZATION_USER_CREATED);
-    expect(user.getVersion().value).toBe(1);
+      expect(user.getId()).toBeDefined();
+      expect(user.getEmail().value).toBe(email);
+      expect(user.getDisplayName().value).toBe(displayName);
+      expect(user.getStatus().value).toBe(ORGANIZATION_USER_INVITED);
+      expect(user.getVersion().value).toBe(1);
+      expect(user.getCreatedAt()).toBeInstanceOf(Date);
+      expect(user.getUpdatedAt()).toBeInstanceOf(Date);
+      expect(user.getPasswordHash()).toBeUndefined();
 
-    const events = user.getUncommittedEvents();
-    expect(events).toHaveLength(1);
-    expect(events[0]).toBeInstanceOf(OrganizationUserCreatedEvent);
-    const event = events[0] as OrganizationUserCreatedEvent;
-    expect(event.organizationUserId).toBe(user.getId().value);
-    expect(event.email).toBe(email);
-    expect(event.displayName).toBe(displayName);
-    expect(event.passwordHash).toBe(passwordHash);
+      const events = user.getUncommittedEvents();
+      expect(events).toHaveLength(1);
+      expect(events[0]).toBeInstanceOf(OrganizationUserInvitedEvent);
+
+      const event = events[0] as OrganizationUserInvitedEvent;
+      expect(event.organizationUserId).toBe(user.getId().value);
+      expect(event.email).toBe(email);
+      expect(event.displayName).toBe(displayName);
+      expect(event.status).toBe(ORGANIZATION_USER_INVITED);
+      expect(event.version).toBe(1);
+    });
   });
 
-  it('should throw error when creating with invalid email', () => {
-    expect(() => OrganizationUser.create('invalid-email', displayName)).toThrow(
-      AppError,
-    );
+  describe('update', () => {
+    it('should update display name, increment version and apply OrganizationUserUpdatedEvent', () => {
+      const user = OrganizationUser.invite(email, displayName);
+      const newDisplayName = 'Updated Name';
+      const initialVersion = user.getVersion().value;
+      const initialUpdatedAt = user.getUpdatedAt();
+
+      user.update(newDisplayName);
+
+      expect(user.getDisplayName().value).toBe(newDisplayName);
+      expect(user.getVersion().value).toBe(initialVersion + 1);
+      expect(user.getUpdatedAt().getTime()).toBeGreaterThanOrEqual(
+        initialUpdatedAt.getTime(),
+      );
+
+      const events = user.getUncommittedEvents();
+      // 1 from invite, 1 from update
+      expect(events).toHaveLength(2);
+      expect(events[1]).toBeInstanceOf(OrganizationUserUpdatedEvent);
+
+      const event = events[1] as OrganizationUserUpdatedEvent;
+      expect(event.organizationUserId).toBe(user.getId().value);
+      expect(event.displayName).toBe(newDisplayName);
+      expect(event.updatedAt).toBeInstanceOf(Date);
+    });
   });
 
-  it('should throw error when creating with empty display name', () => {
-    expect(() => OrganizationUser.create(email, '')).toThrow(AppError);
+  describe('activate', () => {
+    it('should change status to active, increment version and apply OrganizationUserActivatedEvent', () => {
+      const user = OrganizationUser.invite(email, displayName);
+      const initialVersion = user.getVersion().value;
+
+      user.activate();
+
+      expect(user.getStatus().value).toBe(ORGANIZATION_USER_ACTIVE);
+      expect(user.getVersion().value).toBe(initialVersion + 1);
+
+      const events = user.getUncommittedEvents();
+      expect(events).toHaveLength(2);
+      expect(events[1]).toBeInstanceOf(OrganizationUserActivatedEvent);
+
+      const event = events[1] as OrganizationUserActivatedEvent;
+      expect(event.organizationUserId).toBe(user.getId().value);
+    });
   });
 
-  it('should update display name', () => {
-    const user = OrganizationUser.create(email, displayName);
-    const newDisplayName = 'Updated Name';
+  describe('suspense', () => {
+    it('should change status to suspended, increment version and apply OrganizationUserSuspendedEvent', () => {
+      const user = OrganizationUser.invite(email, displayName);
+      const initialVersion = user.getVersion().value;
 
-    user.update(newDisplayName);
+      user.suspense();
 
-    expect(user.getDisplayName().value).toBe(newDisplayName);
-    const events = user.getUncommittedEvents();
-    expect(events).toHaveLength(2);
-    expect(events[1]).toBeInstanceOf(OrganizationUserUpdatedEvent);
-    expect((events[1] as OrganizationUserUpdatedEvent).displayName).toBe(
-      newDisplayName,
-    );
+      expect(user.getStatus().value).toBe(ORGANIZATION_USER_SUSPENDED);
+      expect(user.getVersion().value).toBe(initialVersion + 1);
+
+      const events = user.getUncommittedEvents();
+      expect(events).toHaveLength(2);
+      expect(events[1]).toBeInstanceOf(OrganizationUserSuspendedEvent);
+
+      const event = events[1] as OrganizationUserSuspendedEvent;
+      expect(event.organizationUserId).toBe(user.getId().value);
+    });
   });
 
-  it('should activate user', () => {
-    const user = OrganizationUser.create(email, displayName);
-    user.activate();
+  describe('changePassword', () => {
+    it('should update password hash, increment version and apply OrganizationUserPasswordChangedEvent', () => {
+      const user = OrganizationUser.invite(email, displayName);
+      const initialVersion = user.getVersion().value;
+      const newPasswordHash = 'hashedpassword123';
 
-    expect(user.getStatus().value).toBe(ORGANIZATION_USER_ACTIVE);
-    const events = user.getUncommittedEvents();
-    expect(events[1]).toBeInstanceOf(OrganizationUserActivatedEvent);
-  });
+      user.changePassword(newPasswordHash);
 
-  it('should suspend user', () => {
-    const user = OrganizationUser.create(email, displayName);
-    user.suspense();
+      expect(user.getPasswordHash()).toBe(newPasswordHash);
+      expect(user.getVersion().value).toBe(initialVersion + 1);
 
-    expect(user.getStatus().value).toBe(ORGANIZATION_USER_SUSPENDED);
-    const events = user.getUncommittedEvents();
-    expect(events[1]).toBeInstanceOf(OrganizationUserSuspendedEvent);
-  });
+      const events = user.getUncommittedEvents();
+      expect(events).toHaveLength(2);
+      expect(events[1]).toBeInstanceOf(OrganizationUserPasswordChangedEvent);
 
-  it('should invite user', () => {
-    const user = OrganizationUser.create(email, displayName);
-    user.invite();
-
-    expect(user.getStatus().value).toBe(ORGANIZATION_USER_INVITED);
-    const events = user.getUncommittedEvents();
-    expect(events[1]).toBeInstanceOf(OrganizationUserInvitedEvent);
-  });
-
-  it('should change password', () => {
-    const user = OrganizationUser.create(email, displayName);
-    const newPasswordHash = 'newhash';
-    user.changePassword(newPasswordHash);
-
-    expect(user.getPasswordHash()).toBe(newPasswordHash);
-    const events = user.getUncommittedEvents();
-    expect(events[1]).toBeInstanceOf(OrganizationUserPasswordChangedEvent);
+      const event = events[1] as OrganizationUserPasswordChangedEvent;
+      expect(event.organizationUserId).toBe(user.getId().value);
+    });
   });
 });

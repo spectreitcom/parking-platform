@@ -4,7 +4,6 @@ import { Email } from '../../../shared/value-objects/email';
 import { OrganizationUserStatus } from './value-objects/organization-user-status';
 import { AggregateVersion } from '../../../shared/value-objects/aggregate-version';
 import { OrganizationUserDisplayName } from './value-objects/organization-user-display-name';
-import { OrganizationUserCreatedEvent } from './events/organization-user-created.event';
 import { OrganizationUserUpdatedEvent } from './events/organization-user-updated.event';
 import { OrganizationUserActivatedEvent } from './events/organization-user-activated.event';
 import { OrganizationUserSuspendedEvent } from './events/organization-user-suspended.event';
@@ -15,7 +14,7 @@ export class OrganizationUser extends AggregateRoot {
   private readonly id: OrganizationUserId;
   private readonly email: Email;
   private status: OrganizationUserStatus;
-  private readonly version: AggregateVersion;
+  private version: AggregateVersion;
   private displayName: OrganizationUserDisplayName;
   private passwordHash?: string;
   private readonly createdAt: Date;
@@ -42,10 +41,10 @@ export class OrganizationUser extends AggregateRoot {
     this.updatedAt = updatedAt;
   }
 
-  static create(email: string, displayName: string, passwordHash?: string) {
+  static invite(email: string, displayName: string) {
     const id = OrganizationUserId.create();
     const emailVO = Email.fromString(email);
-    const status = OrganizationUserStatus.created();
+    const status = OrganizationUserStatus.invited();
     const version = AggregateVersion.one();
     const displayNameVO = OrganizationUserDisplayName.fromString(displayName);
     const createdAt = new Date();
@@ -58,11 +57,11 @@ export class OrganizationUser extends AggregateRoot {
       displayNameVO,
       createdAt,
       createdAt,
-      passwordHash,
+      undefined,
     );
 
     organizationUser.apply(
-      new OrganizationUserCreatedEvent(
+      new OrganizationUserInvitedEvent(
         id.value,
         emailVO.value,
         status.value,
@@ -70,16 +69,21 @@ export class OrganizationUser extends AggregateRoot {
         version.value,
         createdAt,
         createdAt,
-        passwordHash,
+        undefined,
       ),
     );
 
     return organizationUser;
   }
 
+  private incrementVersion() {
+    this.version = AggregateVersion.fromNumber(this.version.value + 1);
+  }
+
   update(displayName: string) {
     this.displayName = OrganizationUserDisplayName.fromString(displayName);
     this.updatedAt = new Date();
+    this.incrementVersion();
     this.apply(
       new OrganizationUserUpdatedEvent(
         this.id.value,
@@ -92,24 +96,21 @@ export class OrganizationUser extends AggregateRoot {
   activate() {
     this.status = OrganizationUserStatus.active();
     this.updatedAt = new Date();
+    this.incrementVersion();
     this.apply(new OrganizationUserActivatedEvent(this.id.value));
   }
 
   suspense() {
     this.status = OrganizationUserStatus.suspended();
     this.updatedAt = new Date();
+    this.incrementVersion();
     this.apply(new OrganizationUserSuspendedEvent(this.id.value));
-  }
-
-  invite() {
-    this.status = OrganizationUserStatus.invited();
-    this.updatedAt = new Date();
-    this.apply(new OrganizationUserInvitedEvent(this.id.value));
   }
 
   changePassword(passwordHash: string) {
     this.passwordHash = passwordHash;
     this.updatedAt = new Date();
+    this.incrementVersion();
     this.apply(new OrganizationUserPasswordChangedEvent(this.id.value));
   }
 

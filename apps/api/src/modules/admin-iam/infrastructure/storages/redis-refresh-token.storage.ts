@@ -3,6 +3,8 @@ import { RefreshTokenStorage } from '../../application/ports/refresh-token.stora
 import { Redis } from 'ioredis';
 import { ConfigService } from '@nestjs/config';
 
+const REFRESH_TOKEN_TTL_SECONDS = 7 * 24 * 60 * 60; // 7 days
+
 @Injectable()
 export class RedisRefreshTokenStorage
   implements RefreshTokenStorage, OnApplicationShutdown
@@ -18,7 +20,12 @@ export class RedisRefreshTokenStorage
   }
 
   async insert(adminUserId: string, tokenId: string): Promise<void> {
-    await this.client.set(this.getKey(adminUserId), tokenId);
+    await this.client.set(
+      this.getKey(adminUserId),
+      tokenId,
+      'EX',
+      REFRESH_TOKEN_TTL_SECONDS,
+    );
   }
 
   async validate(adminUserId: string, tokenId: string): Promise<boolean> {

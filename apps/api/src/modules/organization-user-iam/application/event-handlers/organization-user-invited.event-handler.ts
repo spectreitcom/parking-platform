@@ -21,11 +21,19 @@ export class OrganizationUserInvitedEventHandler implements IEventHandler<Organi
       `Handling OrganizationUserInvitedEvent for user ${event.organizationUserId}`,
     );
 
-    const { organizationUserId } = event;
+    const { organizationUserId, email, displayName } = event;
 
-    await this.prismaService.organizationUserRead.update({
+    await this.prismaService.organizationUserRead.upsert({
       where: { organizationUserId },
-      data: {
+      update: {
+        statusText: this.organizationUserStatusMapperService.toText(
+          ORGANIZATION_USER_INVITED,
+        ),
+      },
+      create: {
+        organizationUserId,
+        email,
+        displayName,
         statusText: this.organizationUserStatusMapperService.toText(
           ORGANIZATION_USER_INVITED,
         ),

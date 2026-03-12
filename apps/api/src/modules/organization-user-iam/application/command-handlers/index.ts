@@ -1,4 +1,3 @@
-import { CreateOrganizationUserCommandHandler } from './create-organization-user.command-handler';
 import { UpdateOrganizationUserCommandHandler } from './update-organization-user.command-handler';
 import { ActivateOrganizationUserCommandHandler } from './activate-organization-user.command-handler';
 import { SuspendOrganizationUserCommandHandler } from './suspend-organization-user.command-handler';
@@ -9,7 +8,6 @@ import { GenerateResetPasswordTokenCommandHandler } from './generate-reset-passw
 import { ResetPasswordCommandHandler } from './reset-password.command-handler';
 
 export const commandHandlers = [
-  CreateOrganizationUserCommandHandler,
   UpdateOrganizationUserCommandHandler,
   ActivateOrganizationUserCommandHandler,
   SuspendOrganizationUserCommandHandler,

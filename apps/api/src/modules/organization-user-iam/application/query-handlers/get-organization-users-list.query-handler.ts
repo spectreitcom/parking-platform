@@ -36,7 +36,10 @@ export class GetOrganizationUsersListQueryHandler implements IQueryHandler<
   async execute(
     query: GetOrganizationUsersListQuery,
   ): Promise<OrganizationUserListItemReadModel[]> {
-    const { page, limit, search } = query;
+    const { search } = query;
+
+    const page = Math.max(1, Math.floor(query.page || 1));
+    const limit = Math.min(100, Math.max(1, Math.floor(query.limit || 20)));
 
     const records = await this.prismaService.organizationUserRead.findMany({
       where: getOrganizationUsersListQueryWhere(search),

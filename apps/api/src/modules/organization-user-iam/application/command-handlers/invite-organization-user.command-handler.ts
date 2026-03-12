@@ -39,11 +39,9 @@ export class InviteOrganizationUserCommandHandler implements ICommandHandler<
         );
       }
 
-      const organizationUser = OrganizationUser.create(email, displayName);
+      const organizationUser = OrganizationUser.invite(email, displayName);
 
       this.eventPublisher.mergeObjectContext(organizationUser);
-
-      organizationUser.invite();
 
       await this.organizationUserRepository.save(organizationUser, {
         isNew: true,

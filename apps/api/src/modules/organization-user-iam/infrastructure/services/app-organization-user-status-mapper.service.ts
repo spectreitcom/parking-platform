@@ -17,8 +17,14 @@ const ORGANIZATION_USER_STATUS_MAP: Record<string, string> = {
 @Injectable()
 export class AppOrganizationUserStatusMapperService implements OrganizationUserStatusMapperService {
   toText(status: string): string {
-    const statusText = ORGANIZATION_USER_STATUS_MAP[status];
-    if (!statusText) {
+    const statusText = Object.prototype.hasOwnProperty.call(
+      ORGANIZATION_USER_STATUS_MAP,
+      status,
+    )
+      ? ORGANIZATION_USER_STATUS_MAP[status]
+      : undefined;
+
+    if (typeof statusText !== 'string') {
       throw new Error(`Invalid organization user status: ${status}`);
     }
     return statusText;

@@ -40,13 +40,14 @@ export class ResetPasswordCommandHandler implements ICommandHandler<
       throw new AppError('ENTITY_NOT_FOUND', 'Organization user not found');
     }
 
-    await this.resetPasswordTokenStorage.invalidate(resetPasswordTokenHash);
-
     this.eventPublisher.mergeObjectContext(organizationUser);
 
     const passwordHash = await this.passwordService.create(password);
     organizationUser.changePassword(passwordHash);
     await this.organizationUserRepository.save(organizationUser);
+
+    await this.resetPasswordTokenStorage.invalidate(resetPasswordTokenHash);
+
     organizationUser.commit();
   }
 }

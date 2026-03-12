@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import { CreateOrganizationUserCommand } from './commands/create-organization-user.command';
 import { UpdateOrganizationUserCommand } from './commands/update-organization-user.command';
 import { ActivateOrganizationUserCommand } from './commands/activate-organization-user.command';
 import { SuspendOrganizationUserCommand } from './commands/suspend-organization-user.command';
@@ -20,21 +19,6 @@ export class OrganizationUserIamFacade {
     private readonly commandBus: CommandBus,
     private readonly queryBus: QueryBus,
   ) {}
-
-  async createOrganizationUser(
-    email: string,
-    displayName: string,
-    passwordHash?: string,
-  ): Promise<string> {
-    const command = new CreateOrganizationUserCommand(
-      email,
-      displayName,
-      passwordHash,
-    );
-    return await this.commandBus.execute<CreateOrganizationUserCommand, string>(
-      command,
-    );
-  }
 
   async updateOrganizationUser(
     organizationUserId: string,
