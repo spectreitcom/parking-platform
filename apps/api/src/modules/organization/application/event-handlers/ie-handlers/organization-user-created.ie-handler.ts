@@ -23,7 +23,7 @@ export class OrganizationUserCreatedIeHandler implements IEventHandler<Event> {
       return;
 
     this.logger.debug(
-      `Handling OrganizationUserCreated event: ${JSON.stringify(event)}`,
+      `Handling OrganizationUserCreated event: ${event.payload.organizationUserId}`,
     );
 
     const { organizationUserId, email, displayName } = event.payload;
