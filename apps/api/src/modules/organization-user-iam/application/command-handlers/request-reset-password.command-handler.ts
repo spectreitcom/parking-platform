@@ -1,9 +1,6 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { RequestResetPasswordCommand } from '../commands/request-reset-password.command';
 import { OrganizationUserRepository } from '../ports/organization-user.repository';
-import { ResetPasswordTokenService } from '../ports/reset-password-token.service';
-import { ResetPasswordTokenStorage } from '../ports/reset-password-token.storage';
-import { randomUUID } from 'node:crypto';
 import { TransactionRunner } from '../../../../shared/prisma/transaction-runner';
 import { OutboxService } from '../../../../shared/outbox/outbox.service';
 import { IntegrationEvent } from '../../../../shared/outbox/outbox.types';
@@ -19,8 +16,6 @@ export class RequestResetPasswordCommandHandler implements ICommandHandler<
 > {
   constructor(
     private readonly organizationUserRepository: OrganizationUserRepository,
-    private readonly resetPasswordService: ResetPasswordTokenService,
-    private readonly resetPasswordTokenStorage: ResetPasswordTokenStorage,
     private readonly transactionRunner: TransactionRunner,
     private readonly outboxService: OutboxService,
   ) {}
@@ -34,11 +29,6 @@ export class RequestResetPasswordCommandHandler implements ICommandHandler<
 
       if (!organizationUser) return;
 
-      const resetPasswordToken = randomUUID();
-
-      const resetPasswordTokenHash =
-        this.resetPasswordService.createHash(resetPasswordToken);
-
       const event = new IntegrationEvent<
         OrganizationUserIamRequestedResetPasswordV1Payload,
         OrganizationUserIamIntegrationEventTypes
@@ -46,7 +36,7 @@ export class RequestResetPasswordCommandHandler implements ICommandHandler<
         'organization-user-iam.organization-user.requested-reset-password.v1',
         {
           email: organizationUser.getEmail().value,
-          resetPasswordToken,
+          organizationUserId: organizationUser.getId().value,
           displayName: organizationUser.getDisplayName().value,
         },
         'organization-user-iam',
@@ -54,11 +44,6 @@ export class RequestResetPasswordCommandHandler implements ICommandHandler<
         organizationUser.getId().value,
       );
       await this.outboxService.enqueue(event, { deduplicate: true }, prisma);
-
-      await this.resetPasswordTokenStorage.insert(
-        organizationUser.getId().value,
-        resetPasswordTokenHash,
-      );
     });
   }
 }

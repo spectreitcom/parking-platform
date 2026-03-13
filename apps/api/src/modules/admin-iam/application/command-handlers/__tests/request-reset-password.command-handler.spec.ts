@@ -1,73 +1,45 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { randomUUID } from 'node:crypto';
-import { RequestResetPasswordCommandHandler } from '../request-reset-password.command-handler';
-import { AdminUserRepository } from '../../ports/admin-user.repository';
-import { ResetPasswordTokenService } from '../../ports/reset-password-token.service';
-import { ResetPasswordTokenStorage } from '../../ports/reset-password-token.storage';
-import { TransactionRunner } from '../../../../../shared/prisma/transaction-runner';
-import { OutboxService } from '../../../../../shared/outbox/outbox.service';
-import { RequestResetPasswordCommand } from '../../commands/request-reset-password.command';
 import { AdminUser } from '../../../domain/admin-user';
+import { IntegrationEvent } from '../../../../../shared/outbox/outbox.types';
+import { RequestResetPasswordCommand } from '../../commands/request-reset-password.command';
+import { OutboxService } from '../../../../../shared/outbox/outbox.service';
+import { TransactionRunner } from '../../../../../shared/prisma/transaction-runner';
+import { AdminUserRepository } from '../../ports/admin-user.repository';
+import { RequestResetPasswordCommandHandler } from '../request-reset-password.command-handler';
 import { AdminId } from '../../../domain/value-objects/admin-id';
 import { Email } from '../../../../../shared/value-objects/email';
 import { AdminDisplayName } from '../../../domain/value-objects/admin-display-name';
 import { AdminStatus } from '../../../domain/value-objects/admin-status';
 import { AggregateVersion } from '../../../../../shared/value-objects/aggregate-version';
-import { IntegrationEvent } from '../../../../../shared/outbox/outbox.types';
 
 describe('RequestResetPasswordCommandHandler', () => {
   let handler: RequestResetPasswordCommandHandler;
   let adminUserRepository: jest.Mocked<AdminUserRepository>;
-  let resetPasswordService: jest.Mocked<ResetPasswordTokenService>;
-  let resetPasswordTokenStorage: jest.Mocked<ResetPasswordTokenStorage>;
-  let transactionRunner: jest.Mocked<TransactionRunner>;
   let outboxService: jest.Mocked<OutboxService>;
 
   beforeEach(async () => {
-    adminUserRepository = {
-      findByEmail: jest.fn(),
-    } as unknown as typeof adminUserRepository;
-
-    resetPasswordService = {
-      createHash: jest.fn(),
-    } as unknown as typeof resetPasswordService;
-
-    resetPasswordTokenStorage = {
-      insert: jest.fn(),
-    } as unknown as typeof resetPasswordTokenStorage;
-
-    transactionRunner = {
-      runInTransaction: jest.fn((cb: (arg: unknown) => unknown) =>
-        cb('prisma-tx'),
-      ),
-    } as unknown as typeof transactionRunner;
-
-    outboxService = {
-      enqueue: jest.fn(),
-    } as unknown as typeof outboxService;
-
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         RequestResetPasswordCommandHandler,
         {
           provide: AdminUserRepository,
-          useValue: adminUserRepository,
-        },
-        {
-          provide: ResetPasswordTokenService,
-          useValue: resetPasswordService,
-        },
-        {
-          provide: ResetPasswordTokenStorage,
-          useValue: resetPasswordTokenStorage,
+          useValue: {
+            findByEmail: jest.fn(),
+          },
         },
         {
           provide: TransactionRunner,
-          useValue: transactionRunner,
+          useValue: {
+            runInTransaction: jest.fn((cb: (tx: string) => Promise<unknown>) =>
+              cb('mock-prisma-tx'),
+            ),
+          },
         },
         {
           provide: OutboxService,
-          useValue: outboxService,
+          useValue: {
+            enqueue: jest.fn(),
+          },
         },
       ],
     }).compile();
@@ -75,64 +47,60 @@ describe('RequestResetPasswordCommandHandler', () => {
     handler = module.get<RequestResetPasswordCommandHandler>(
       RequestResetPasswordCommandHandler,
     );
+    adminUserRepository = module.get(AdminUserRepository);
+    outboxService = module.get(OutboxService);
   });
 
-  it('should request reset password successfully', async () => {
-    // Given
-    const emailStr = 'test@example.com';
-    const command = new RequestResetPasswordCommand(emailStr);
-    const adminUserId = randomUUID();
+  it('should enqueue an integration event when admin user exists', async () => {
+    const userId = '123e4567-e89b-12d3-a456-426614174000';
+    const email = 'test@example.com';
+    const command = new RequestResetPasswordCommand(email);
     const adminUser = AdminUser.reconstruct(
-      AdminId.fromString(adminUserId),
-      Email.fromString(emailStr),
+      AdminId.fromString(userId),
+      Email.fromString(email),
       false,
       AdminDisplayName.fromString('Test User'),
       AdminStatus.active(),
       AggregateVersion.one(),
       new Date(),
       new Date(),
+      'hash',
     );
-
     adminUserRepository.findByEmail.mockResolvedValue(adminUser);
-    resetPasswordService.createHash.mockReturnValue('hashed-token');
 
-    // When
     await handler.execute(command);
 
-    // Then
     expect(adminUserRepository.findByEmail).toHaveBeenCalledWith(
-      emailStr,
-      'prisma-tx',
-    );
-    expect(resetPasswordService.createHash).toHaveBeenCalledWith(
-      expect.any(String),
+      email,
+      'mock-prisma-tx',
     );
     expect(outboxService.enqueue).toHaveBeenCalledWith(
       expect.any(IntegrationEvent),
       { deduplicate: true },
-      'prisma-tx',
+      'mock-prisma-tx',
     );
-    expect(resetPasswordTokenStorage.insert).toHaveBeenCalledWith(
-      adminUserId,
-      'hashed-token',
+    const enqueuedEvent = outboxService.enqueue.mock.calls[0][0];
+    expect(enqueuedEvent.type).toBe(
+      'admin-iam.admin-user.requested-reset-password.v1',
     );
+    expect(enqueuedEvent.payload).toEqual({
+      email: email,
+      displayName: 'Test User',
+      adminUserId: userId,
+    });
   });
 
-  it('should do nothing if admin user not found', async () => {
-    // Given
-    const emailStr = 'notfound@example.com';
-    const command = new RequestResetPasswordCommand(emailStr);
+  it('should not enqueue an integration event when admin user does not exist', async () => {
+    const email = 'nonexistent@example.com';
+    const command = new RequestResetPasswordCommand(email);
     adminUserRepository.findByEmail.mockResolvedValue(null);
 
-    // When
     await handler.execute(command);
 
-    // Then
     expect(adminUserRepository.findByEmail).toHaveBeenCalledWith(
-      emailStr,
-      'prisma-tx',
+      email,
+      'mock-prisma-tx',
     );
     expect(outboxService.enqueue).not.toHaveBeenCalled();
-    expect(resetPasswordTokenStorage.insert).not.toHaveBeenCalled();
   });
 });

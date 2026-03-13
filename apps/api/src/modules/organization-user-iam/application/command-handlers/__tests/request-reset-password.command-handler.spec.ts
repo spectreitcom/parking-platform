@@ -1,12 +1,11 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { RequestResetPasswordCommandHandler } from '../request-reset-password.command-handler';
-import { OrganizationUserRepository } from '../../ports/organization-user.repository';
-import { ResetPasswordTokenService } from '../../ports/reset-password-token.service';
-import { ResetPasswordTokenStorage } from '../../ports/reset-password-token.storage';
-import { TransactionRunner } from '../../../../../shared/prisma/transaction-runner';
-import { OutboxService } from '../../../../../shared/outbox/outbox.service';
-import { RequestResetPasswordCommand } from '../../commands/request-reset-password.command';
 import { OrganizationUser } from '../../../domain/organization-user';
+import { IntegrationEvent } from '../../../../../shared/outbox/outbox.types';
+import { RequestResetPasswordCommand } from '../../commands/request-reset-password.command';
+import { OutboxService } from '../../../../../shared/outbox/outbox.service';
+import { TransactionRunner } from '../../../../../shared/prisma/transaction-runner';
+import { OrganizationUserRepository } from '../../ports/organization-user.repository';
+import { RequestResetPasswordCommandHandler } from '../request-reset-password.command-handler';
 import { OrganizationUserId } from '../../../domain/value-objects/organization-user-id';
 import { Email } from '../../../../../shared/value-objects/email';
 import { OrganizationUserStatus } from '../../../domain/value-objects/organization-user-status';
@@ -16,56 +15,31 @@ import { OrganizationUserDisplayName } from '../../../domain/value-objects/organ
 describe('RequestResetPasswordCommandHandler', () => {
   let handler: RequestResetPasswordCommandHandler;
   let organizationUserRepository: jest.Mocked<OrganizationUserRepository>;
-  let resetPasswordService: jest.Mocked<ResetPasswordTokenService>;
-  let resetPasswordTokenStorage: jest.Mocked<ResetPasswordTokenStorage>;
-  let transactionRunner: jest.Mocked<TransactionRunner>;
   let outboxService: jest.Mocked<OutboxService>;
 
   beforeEach(async () => {
-    organizationUserRepository = {
-      findByEmail: jest.fn(),
-    } as unknown as typeof organizationUserRepository;
-
-    resetPasswordService = {
-      createHash: jest.fn(),
-    } as unknown as typeof resetPasswordService;
-
-    resetPasswordTokenStorage = {
-      insert: jest.fn(),
-    } as unknown as typeof resetPasswordTokenStorage;
-
-    transactionRunner = {
-      runInTransaction: jest.fn((cb: (tx: string) => unknown) =>
-        cb('prisma-tx'),
-      ),
-    } as unknown as typeof transactionRunner;
-
-    outboxService = {
-      enqueue: jest.fn(),
-    } as unknown as typeof outboxService;
-
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         RequestResetPasswordCommandHandler,
         {
           provide: OrganizationUserRepository,
-          useValue: organizationUserRepository,
-        },
-        {
-          provide: ResetPasswordTokenService,
-          useValue: resetPasswordService,
-        },
-        {
-          provide: ResetPasswordTokenStorage,
-          useValue: resetPasswordTokenStorage,
+          useValue: {
+            findByEmail: jest.fn(),
+          },
         },
         {
           provide: TransactionRunner,
-          useValue: transactionRunner,
+          useValue: {
+            runInTransaction: jest.fn((cb: (tx: string) => Promise<unknown>) =>
+              cb('mock-prisma-tx'),
+            ),
+          },
         },
         {
           provide: OutboxService,
-          useValue: outboxService,
+          useValue: {
+            enqueue: jest.fn(),
+          },
         },
       ],
     }).compile();
@@ -73,57 +47,59 @@ describe('RequestResetPasswordCommandHandler', () => {
     handler = module.get<RequestResetPasswordCommandHandler>(
       RequestResetPasswordCommandHandler,
     );
+    organizationUserRepository = module.get(OrganizationUserRepository);
+    outboxService = module.get(OutboxService);
   });
 
-  it('should request reset password successfully', async () => {
-    // Given
+  it('should enqueue an integration event when organization user exists', async () => {
+    const userId = '123e4567-e89b-12d3-a456-426614174000';
     const email = 'test@example.com';
     const command = new RequestResetPasswordCommand(email);
-    const tokenHash = 'token-hash';
-
     const organizationUser = OrganizationUser.reconstruct(
-      OrganizationUserId.create(),
+      OrganizationUserId.fromString(userId),
       Email.fromString(email),
       OrganizationUserStatus.active(),
       AggregateVersion.one(),
       OrganizationUserDisplayName.fromString('Test User'),
       new Date(),
       new Date(),
+      'hash',
     );
-
     organizationUserRepository.findByEmail.mockResolvedValue(organizationUser);
-    resetPasswordService.createHash.mockReturnValue(tokenHash);
 
-    // When
     await handler.execute(command);
 
-    // Then
-    expect(transactionRunner.runInTransaction).toHaveBeenCalled();
     expect(organizationUserRepository.findByEmail).toHaveBeenCalledWith(
       email,
-      'prisma-tx',
+      'mock-prisma-tx',
     );
-    expect(resetPasswordService.createHash).toHaveBeenCalled();
-    expect(outboxService.enqueue).toHaveBeenCalled();
-    expect(resetPasswordTokenStorage.insert).toHaveBeenCalledWith(
-      organizationUser.getId().value,
-      tokenHash,
+    expect(outboxService.enqueue).toHaveBeenCalledWith(
+      expect.any(IntegrationEvent),
+      { deduplicate: true },
+      'mock-prisma-tx',
     );
+    const enqueuedEvent = outboxService.enqueue.mock.calls[0][0];
+    expect(enqueuedEvent.type).toBe(
+      'organization-user-iam.organization-user.requested-reset-password.v1',
+    );
+    expect(enqueuedEvent.payload).toEqual({
+      email: email,
+      organizationUserId: userId,
+      displayName: 'Test User',
+    });
   });
 
-  it('should do nothing if user not found', async () => {
-    // Given
-    const email = 'notfound@example.com';
+  it('should not enqueue an integration event when organization user does not exist', async () => {
+    const email = 'nonexistent@example.com';
     const command = new RequestResetPasswordCommand(email);
-
     organizationUserRepository.findByEmail.mockResolvedValue(null);
 
-    // When
     await handler.execute(command);
 
-    // Then
-    expect(resetPasswordService.createHash).not.toHaveBeenCalled();
+    expect(organizationUserRepository.findByEmail).toHaveBeenCalledWith(
+      email,
+      'mock-prisma-tx',
+    );
     expect(outboxService.enqueue).not.toHaveBeenCalled();
-    expect(resetPasswordTokenStorage.insert).not.toHaveBeenCalled();
   });
 });
