@@ -23,7 +23,7 @@ export type OrganizationUserIamOrganizationUserInvitedV1Payload = {
 };
 
 export type OrganizationUserIamRequestedResetPasswordV1Payload = {
-  resetPasswordToken: string;
+  organizationUserId: string;
   email: string;
   displayName: string;
 };

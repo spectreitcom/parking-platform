@@ -3,9 +3,9 @@ export type AdminIamIntegrationEventTypes =
   | 'admin-iam.admin-user.invited.v1';
 
 export type AdminIamRequestedResetPasswordV1Payload = {
-  resetPasswordToken: string;
   email: string;
   displayName: string;
+  adminUserId: string;
 };
 
 export type AdminIamAdminUserInvitedV1Payload = {
