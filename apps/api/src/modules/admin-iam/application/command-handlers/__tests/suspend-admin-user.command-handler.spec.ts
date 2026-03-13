@@ -21,11 +21,11 @@ describe('SuspendAdminUserCommandHandler', () => {
     adminUserRepository = {
       findById: jest.fn(),
       save: jest.fn(),
-    } as any;
+    } as unknown as typeof adminUserRepository;
 
     eventPublisher = {
-      mergeObjectContext: jest.fn((obj) => obj),
-    } as any;
+      mergeObjectContext: jest.fn(<T>(obj: T) => obj),
+    } as unknown as typeof eventPublisher;
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -52,7 +52,7 @@ describe('SuspendAdminUserCommandHandler', () => {
     const version = 1;
     const command = new SuspendAdminUserCommand(adminUserId, version);
 
-    const adminUser = new AdminUser(
+    const adminUser = AdminUser.reconstruct(
       AdminId.fromString(adminUserId),
       Email.fromString('test@example.com'),
       false,
@@ -64,20 +64,24 @@ describe('SuspendAdminUserCommandHandler', () => {
     );
 
     adminUserRepository.findById.mockResolvedValue(adminUser);
+    const commitSpy = jest.spyOn(adminUser, 'commit');
 
     // When
     await handler.execute(command);
 
     // Then
     expect(adminUserRepository.findById).toHaveBeenCalledWith(adminUserId);
-    expect(adminUserRepository.save).toHaveBeenCalledWith(adminUser);
+    expect(eventPublisher.mergeObjectContext).toHaveBeenCalledWith(adminUser);
     expect(adminUser.getStatus().equals(AdminStatus.suspended())).toBe(true);
+    expect(adminUserRepository.save).toHaveBeenCalledWith(adminUser);
+    expect(commitSpy).toHaveBeenCalled();
   });
 
   it('should throw error if admin user not found', async () => {
     // Given
     const adminUserId = randomUUID();
     const command = new SuspendAdminUserCommand(adminUserId, 1);
+
     adminUserRepository.findById.mockResolvedValue(null);
 
     // When & Then
@@ -91,7 +95,7 @@ describe('SuspendAdminUserCommandHandler', () => {
     const adminUserId = randomUUID();
     const command = new SuspendAdminUserCommand(adminUserId, 1);
 
-    const adminUser = new AdminUser(
+    const adminUser = AdminUser.reconstruct(
       AdminId.fromString(adminUserId),
       Email.fromString('test@example.com'),
       false,

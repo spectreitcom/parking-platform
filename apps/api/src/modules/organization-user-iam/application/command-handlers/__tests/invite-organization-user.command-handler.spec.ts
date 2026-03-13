@@ -21,19 +21,21 @@ describe('InviteOrganizationUserCommandHandler', () => {
     organizationUserRepository = {
       findByEmail: jest.fn(),
       save: jest.fn(),
-    } as any;
+    } as unknown as typeof organizationUserRepository;
 
     eventPublisher = {
-      mergeObjectContext: jest.fn((obj) => obj),
-    } as any;
+      mergeObjectContext: jest.fn(<T>(obj: T) => obj),
+    } as unknown as typeof eventPublisher;
 
     transactionRunner = {
-      runInTransaction: jest.fn((cb) => cb('prisma-tx')),
-    } as any;
+      runInTransaction: jest.fn((cb: (arg: unknown) => unknown) =>
+        cb('prisma-tx'),
+      ),
+    } as unknown as typeof transactionRunner;
 
     outboxService = {
       enqueue: jest.fn(),
-    } as any;
+    } as unknown as typeof outboxService;
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -81,7 +83,7 @@ describe('InviteOrganizationUserCommandHandler', () => {
     );
     expect(organizationUserRepository.save).toHaveBeenCalledWith(
       expect.objectContaining({
-        status: expect.any(OrganizationUserStatus),
+        status: expect.any(OrganizationUserStatus) as unknown,
       }),
       {
         isNew: true,
@@ -89,8 +91,7 @@ describe('InviteOrganizationUserCommandHandler', () => {
       },
     );
     // Extra check for status since it was invited
-    const savedUser = organizationUserRepository.save.mock
-      .calls[0][0] as OrganizationUser;
+    const savedUser = organizationUserRepository.save.mock.calls[0][0];
     expect(savedUser.getStatus().equals(OrganizationUserStatus.invited())).toBe(
       true,
     );

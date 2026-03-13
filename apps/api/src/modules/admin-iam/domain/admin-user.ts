@@ -22,7 +22,7 @@ export class AdminUser extends AggregateRoot {
   private readonly createdAt: Date;
   private updatedAt: Date;
 
-  constructor(
+  private constructor(
     id: AdminId,
     email: Email,
     isSuperAdmin: boolean,
@@ -43,6 +43,30 @@ export class AdminUser extends AggregateRoot {
     this.passwordHash = passwordHash;
     this.createdAt = createdAt;
     this.updatedAt = updatedAt;
+  }
+
+  static reconstruct(
+    id: AdminId,
+    email: Email,
+    isSuperAdmin: boolean,
+    displayName: AdminDisplayName,
+    status: AdminStatus,
+    version: AggregateVersion,
+    createdAt: Date,
+    updatedAt: Date,
+    passwordHash?: string,
+  ) {
+    return new AdminUser(
+      id,
+      email,
+      isSuperAdmin,
+      displayName,
+      status,
+      version,
+      createdAt,
+      updatedAt,
+      passwordHash,
+    );
   }
 
   static create(email: string, displayName: string, isSuperAdmin = false) {

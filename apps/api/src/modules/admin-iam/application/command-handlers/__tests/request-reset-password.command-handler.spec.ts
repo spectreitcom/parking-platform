@@ -26,23 +26,25 @@ describe('RequestResetPasswordCommandHandler', () => {
   beforeEach(async () => {
     adminUserRepository = {
       findByEmail: jest.fn(),
-    } as any;
+    } as unknown as typeof adminUserRepository;
 
     resetPasswordService = {
       createHash: jest.fn(),
-    } as any;
+    } as unknown as typeof resetPasswordService;
 
     resetPasswordTokenStorage = {
       insert: jest.fn(),
-    } as any;
+    } as unknown as typeof resetPasswordTokenStorage;
 
     transactionRunner = {
-      runInTransaction: jest.fn((cb) => cb('prisma-tx')),
-    } as any;
+      runInTransaction: jest.fn((cb: (arg: unknown) => unknown) =>
+        cb('prisma-tx'),
+      ),
+    } as unknown as typeof transactionRunner;
 
     outboxService = {
       enqueue: jest.fn(),
-    } as any;
+    } as unknown as typeof outboxService;
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -80,7 +82,7 @@ describe('RequestResetPasswordCommandHandler', () => {
     const emailStr = 'test@example.com';
     const command = new RequestResetPasswordCommand(emailStr);
     const adminUserId = randomUUID();
-    const adminUser = new AdminUser(
+    const adminUser = AdminUser.reconstruct(
       AdminId.fromString(adminUserId),
       Email.fromString(emailStr),
       false,

@@ -24,19 +24,19 @@ describe('SignInCommandHandler', () => {
   beforeEach(async () => {
     adminUserRepository = {
       findById: jest.fn(),
-    } as any;
+    } as unknown as typeof adminUserRepository;
 
     accessTokenService = {
       createToken: jest.fn(),
-    } as any;
+    } as unknown as typeof accessTokenService;
 
     refreshTokenService = {
       createToken: jest.fn(),
-    } as any;
+    } as unknown as typeof refreshTokenService;
 
     refreshTokenStorage = {
       insert: jest.fn(),
-    } as any;
+    } as unknown as typeof refreshTokenStorage;
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -70,7 +70,7 @@ describe('SignInCommandHandler', () => {
     const accessToken = 'access-token';
     const refreshToken = 'refresh-token';
 
-    const adminUser = new AdminUser(
+    const adminUser = AdminUser.reconstruct(
       AdminId.fromString(adminUserId),
       Email.fromString('test@example.com'),
       false,
@@ -84,7 +84,6 @@ describe('SignInCommandHandler', () => {
     adminUserRepository.findById.mockResolvedValue(adminUser);
     accessTokenService.createToken.mockReturnValue(accessToken);
     refreshTokenService.createToken.mockReturnValue(refreshToken);
-    refreshTokenStorage.insert.mockResolvedValue();
 
     // When
     const result = await handler.execute(command);
@@ -110,6 +109,7 @@ describe('SignInCommandHandler', () => {
     // Given
     const adminUserId = randomUUID();
     const command = new SignInCommand(adminUserId);
+
     adminUserRepository.findById.mockResolvedValue(null);
 
     // When & Then
@@ -123,7 +123,7 @@ describe('SignInCommandHandler', () => {
     const adminUserId = randomUUID();
     const command = new SignInCommand(adminUserId);
 
-    const adminUser = new AdminUser(
+    const adminUser = AdminUser.reconstruct(
       AdminId.fromString(adminUserId),
       Email.fromString('test@example.com'),
       false,

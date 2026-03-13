@@ -69,13 +69,12 @@ describe('CreateParkingSpotCommandHandler', () => {
     const result = await handler.execute(command);
 
     expect(result).toBeDefined();
-    /* eslint-disable @typescript-eslint/unbound-method */
+
     expect(publisher.mergeObjectContext).toHaveBeenCalled();
     expect(parkingSpotRepository.save).toHaveBeenCalledWith(
       expect.any(ParkingSpot),
       { isNew: true },
     );
-    /* eslint-enable @typescript-eslint/unbound-method */
   });
 
   it('should throw ENTITY_NOT_FOUND if parking does not exist', async () => {

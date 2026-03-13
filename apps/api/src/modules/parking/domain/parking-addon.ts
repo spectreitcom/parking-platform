@@ -15,7 +15,7 @@ export class ParkingAddon extends AggregateRoot {
   private price: Money;
   private readonly version: AggregateVersion;
 
-  constructor(
+  private constructor(
     id: ParkingAddonId,
     code: ParkingAddonCode,
     name: ParkingAddonName,
@@ -28,6 +28,16 @@ export class ParkingAddon extends AggregateRoot {
     this.name = name;
     this.price = price;
     this.version = version;
+  }
+
+  static reconstruct(
+    id: ParkingAddonId,
+    code: ParkingAddonCode,
+    name: ParkingAddonName,
+    price: Money,
+    version: AggregateVersion,
+  ) {
+    return new ParkingAddon(id, code, name, price, version);
   }
 
   static create(code: string, name: string, price: number) {

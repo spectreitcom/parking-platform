@@ -11,11 +11,23 @@ export class PlaceType extends AggregateRoot {
   private name: PlaceTypeName;
   private readonly version: AggregateVersion;
 
-  constructor(id: PlaceTypeId, name: PlaceTypeName, version: AggregateVersion) {
+  private constructor(
+    id: PlaceTypeId,
+    name: PlaceTypeName,
+    version: AggregateVersion,
+  ) {
     super();
     this.id = id;
     this.name = name;
     this.version = version;
+  }
+
+  static reconstruct(
+    id: PlaceTypeId,
+    name: PlaceTypeName,
+    version: AggregateVersion,
+  ) {
+    return new PlaceType(id, name, version);
   }
 
   static create(name: string) {

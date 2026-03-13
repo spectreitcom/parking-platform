@@ -37,7 +37,6 @@ describe('CreateParkingFeatureCommandHandler', () => {
     publisher = module.get(EventPublisher);
   });
 
-  /* eslint-disable @typescript-eslint/unbound-method */
   it('should create and save a new parking feature', async () => {
     const command = new CreateParkingFeatureCommand('Underground', [
       PARKING_LEVEL,

@@ -14,13 +14,13 @@ export class OrganizationUser extends AggregateRoot {
   private readonly id: OrganizationUserId;
   private readonly email: Email;
   private status: OrganizationUserStatus;
-  private version: AggregateVersion;
+  private readonly version: AggregateVersion;
   private displayName: OrganizationUserDisplayName;
   private passwordHash?: string;
   private readonly createdAt: Date;
   private updatedAt: Date;
 
-  constructor(
+  private constructor(
     id: OrganizationUserId,
     email: Email,
     status: OrganizationUserStatus,
@@ -39,6 +39,28 @@ export class OrganizationUser extends AggregateRoot {
     this.passwordHash = passwordHash;
     this.createdAt = createdAt;
     this.updatedAt = updatedAt;
+  }
+
+  static reconstruct(
+    id: OrganizationUserId,
+    email: Email,
+    status: OrganizationUserStatus,
+    version: AggregateVersion,
+    displayName: OrganizationUserDisplayName,
+    createdAt: Date,
+    updatedAt: Date,
+    passwordHash?: string,
+  ) {
+    return new OrganizationUser(
+      id,
+      email,
+      status,
+      version,
+      displayName,
+      createdAt,
+      updatedAt,
+      passwordHash,
+    );
   }
 
   static invite(email: string, displayName: string) {
@@ -76,14 +98,9 @@ export class OrganizationUser extends AggregateRoot {
     return organizationUser;
   }
 
-  private incrementVersion() {
-    this.version = AggregateVersion.fromNumber(this.version.value + 1);
-  }
-
   update(displayName: string) {
     this.displayName = OrganizationUserDisplayName.fromString(displayName);
     this.updatedAt = new Date();
-    this.incrementVersion();
     this.apply(
       new OrganizationUserUpdatedEvent(
         this.id.value,
@@ -96,21 +113,18 @@ export class OrganizationUser extends AggregateRoot {
   activate() {
     this.status = OrganizationUserStatus.active();
     this.updatedAt = new Date();
-    this.incrementVersion();
     this.apply(new OrganizationUserActivatedEvent(this.id.value));
   }
 
   suspense() {
     this.status = OrganizationUserStatus.suspended();
     this.updatedAt = new Date();
-    this.incrementVersion();
     this.apply(new OrganizationUserSuspendedEvent(this.id.value));
   }
 
   changePassword(passwordHash: string) {
     this.passwordHash = passwordHash;
     this.updatedAt = new Date();
-    this.incrementVersion();
     this.apply(new OrganizationUserPasswordChangedEvent(this.id.value));
   }
 

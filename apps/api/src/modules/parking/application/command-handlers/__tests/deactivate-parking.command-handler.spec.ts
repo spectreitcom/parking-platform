@@ -55,11 +55,10 @@ describe('DeactivateParkingCommandHandler', () => {
 
     expect(result).toBe(parking.getId().value);
     expect(parking.isActive()).toBe(false);
-    /* eslint-disable @typescript-eslint/unbound-method */
+
     expect(repository.findById).toHaveBeenCalledWith(parkingId);
     expect(publisher.mergeObjectContext).toHaveBeenCalledWith(parking);
     expect(repository.save).toHaveBeenCalledWith(parking);
-    /* eslint-enable @typescript-eslint/unbound-method */
   });
 
   it('should throw ENTITY_NOT_FOUND if parking does not exist', async () => {

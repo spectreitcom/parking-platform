@@ -13,11 +13,11 @@ describe('GenerateResetPasswordTokenCommandHandler', () => {
   beforeEach(async () => {
     resetPasswordService = {
       createHash: jest.fn(),
-    } as any;
+    } as unknown as typeof resetPasswordService;
 
     resetPasswordTokenStorage = {
       insert: jest.fn(),
-    } as any;
+    } as unknown as typeof resetPasswordTokenStorage;
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [

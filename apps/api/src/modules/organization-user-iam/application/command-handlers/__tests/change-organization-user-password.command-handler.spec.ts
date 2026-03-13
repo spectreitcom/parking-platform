@@ -3,15 +3,15 @@ import { EventPublisher } from '@nestjs/cqrs';
 import { randomUUID } from 'node:crypto';
 import { ChangeOrganizationUserPasswordCommandHandler } from '../change-organization-user-password.command-handler';
 import { OrganizationUserRepository } from '../../ports/organization-user.repository';
+import { TransactionRunner } from '../../../../../shared/prisma/transaction-runner';
 import { ChangeOrganizationUserPasswordCommand } from '../../commands/change-organization-user-password.command';
 import { OrganizationUser } from '../../../domain/organization-user';
 import { OrganizationUserId } from '../../../domain/value-objects/organization-user-id';
 import { Email } from '../../../../../shared/value-objects/email';
-import { OrganizationUserDisplayName } from '../../../domain/value-objects/organization-user-display-name';
 import { OrganizationUserStatus } from '../../../domain/value-objects/organization-user-status';
 import { AggregateVersion } from '../../../../../shared/value-objects/aggregate-version';
+import { OrganizationUserDisplayName } from '../../../domain/value-objects/organization-user-display-name';
 import { AppError } from '../../../../../shared/errors';
-import { TransactionRunner } from '../../../../../shared/prisma/transaction-runner';
 
 describe('ChangeOrganizationUserPasswordCommandHandler', () => {
   let handler: ChangeOrganizationUserPasswordCommandHandler;
@@ -23,15 +23,17 @@ describe('ChangeOrganizationUserPasswordCommandHandler', () => {
     organizationUserRepository = {
       findById: jest.fn(),
       save: jest.fn(),
-    } as any;
+    } as unknown as typeof organizationUserRepository;
 
     eventPublisher = {
-      mergeObjectContext: jest.fn((obj) => obj),
-    } as any;
+      mergeObjectContext: jest.fn(<T>(obj: T) => obj),
+    } as unknown as typeof eventPublisher;
 
     transactionRunner = {
-      runInTransaction: jest.fn((cb) => cb('prisma-tx')),
-    } as any;
+      runInTransaction: jest.fn((cb: (tx: string) => unknown) =>
+        cb('prisma-tx'),
+      ),
+    } as unknown as typeof transactionRunner;
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -59,15 +61,15 @@ describe('ChangeOrganizationUserPasswordCommandHandler', () => {
   it('should change organization user password successfully', async () => {
     // Given
     const organizationUserId = randomUUID();
+    const passwordHash = 'new-password-hash';
     const version = 1;
-    const newPasswordHash = 'new-password-hash';
     const command = new ChangeOrganizationUserPasswordCommand(
       organizationUserId,
-      newPasswordHash,
+      passwordHash,
       version,
     );
 
-    const organizationUser = new OrganizationUser(
+    const organizationUser = OrganizationUser.reconstruct(
       OrganizationUserId.fromString(organizationUserId),
       Email.fromString('test@example.com'),
       OrganizationUserStatus.active(),
@@ -75,19 +77,24 @@ describe('ChangeOrganizationUserPasswordCommandHandler', () => {
       OrganizationUserDisplayName.fromString('Test User'),
       new Date(),
       new Date(),
-      'old-password-hash',
     );
 
     organizationUserRepository.findById.mockResolvedValue(organizationUser);
+    const commitSpy = jest.spyOn(organizationUser, 'commit');
 
     // When
     await handler.execute(command);
 
     // Then
+    expect(transactionRunner.runInTransaction).toHaveBeenCalled();
     expect(organizationUserRepository.findById).toHaveBeenCalledWith(
       organizationUserId,
       'prisma-tx',
     );
+    expect(eventPublisher.mergeObjectContext).toHaveBeenCalledWith(
+      organizationUser,
+    );
+    expect(organizationUser.getPasswordHash()).toBe(passwordHash);
     expect(organizationUserRepository.save).toHaveBeenCalledWith(
       organizationUser,
       {
@@ -95,7 +102,7 @@ describe('ChangeOrganizationUserPasswordCommandHandler', () => {
         tx: 'prisma-tx',
       },
     );
-    expect(organizationUser.getPasswordHash()).toBe(newPasswordHash);
+    expect(commitSpy).toHaveBeenCalled();
   });
 
   it('should throw error if organization user not found', async () => {
@@ -106,6 +113,7 @@ describe('ChangeOrganizationUserPasswordCommandHandler', () => {
       'hash',
       1,
     );
+
     organizationUserRepository.findById.mockResolvedValue(null);
 
     // When & Then
@@ -123,7 +131,7 @@ describe('ChangeOrganizationUserPasswordCommandHandler', () => {
       1,
     );
 
-    const organizationUser = new OrganizationUser(
+    const organizationUser = OrganizationUser.reconstruct(
       OrganizationUserId.fromString(organizationUserId),
       Email.fromString('test@example.com'),
       OrganizationUserStatus.active(),

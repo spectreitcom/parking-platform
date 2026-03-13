@@ -51,12 +51,11 @@ describe('UpdatePlaceTypeCommandHandler', () => {
     const result = await handler.execute(command);
 
     expect(result).toBe(id);
-    /* eslint-disable @typescript-eslint/unbound-method */
+
     expect(repository.findById).toHaveBeenCalledWith(id);
     expect(publisher.mergeObjectContext).toHaveBeenCalledWith(placeType);
     expect(placeType.getName().value).toBe('Premium');
     expect(repository.save).toHaveBeenCalledWith(placeType);
-    /* eslint-enable @typescript-eslint/unbound-method */
   });
 
   it('should throw AppError if place type not found', async () => {

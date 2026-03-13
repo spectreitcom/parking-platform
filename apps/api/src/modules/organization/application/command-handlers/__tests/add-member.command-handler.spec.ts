@@ -26,7 +26,7 @@ describe('AddMemberCommandHandler', () => {
         {
           provide: EventPublisher,
           useValue: {
-            mergeObjectContext: jest.fn((obj) => obj),
+            mergeObjectContext: jest.fn(<T>(obj: T) => obj),
           },
         },
       ],
@@ -78,11 +78,9 @@ describe('AddMemberCommandHandler', () => {
       999, // Wrong version
     );
 
-    await expect(handler.execute(command)).rejects.toThrow(
-      expect.objectContaining({
-        code: 'CONCURRENCY',
-      }),
-    );
+    await expect(handler.execute(command)).rejects.toMatchObject({
+      code: 'CONCURRENCY',
+    });
   });
 
   it('should throw validation error if domain logic fails', async () => {
@@ -99,10 +97,8 @@ describe('AddMemberCommandHandler', () => {
       organization.getVersion().value,
     );
 
-    await expect(handler.execute(command)).rejects.toThrow(
-      expect.objectContaining({
-        code: 'VALIDATION_ERROR',
-      }),
-    );
+    await expect(handler.execute(command)).rejects.toMatchObject({
+      code: 'VALIDATION_ERROR',
+    });
   });
 });

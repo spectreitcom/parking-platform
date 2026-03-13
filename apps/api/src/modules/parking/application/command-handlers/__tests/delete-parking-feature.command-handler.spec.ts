@@ -39,7 +39,6 @@ describe('DeleteParkingFeatureCommandHandler', () => {
     publisher = module.get(EventPublisher);
   });
 
-  /* eslint-disable @typescript-eslint/unbound-method */
   it('should delete an existing parking feature', async () => {
     const parkingFeature = ParkingFeature.create('To Delete', [PARKING_LEVEL]);
     const id = parkingFeature.getId().value;

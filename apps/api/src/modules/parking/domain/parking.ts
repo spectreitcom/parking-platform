@@ -29,7 +29,7 @@ export class Parking extends AggregateRoot {
   private parkingAddonIds: ParkingAddonId[];
   private readonly placeId: PlaceId;
 
-  constructor(
+  private constructor(
     id: ParkingId,
     organizationId: OrganizationId,
     name: ParkingName,
@@ -58,6 +58,38 @@ export class Parking extends AggregateRoot {
     this.parkingAddonIds = [...parkingAddonIds];
     this.placeId = placeId;
     this.version = version;
+  }
+
+  static reconstruct(
+    id: ParkingId,
+    organizationId: OrganizationId,
+    name: ParkingName,
+    active: boolean,
+    address: Address,
+    coords: Coords,
+    assetIds: readonly AssetId[],
+    parkingFeatureIds: readonly ParkingFeatureId[],
+    parkingAddonIds: readonly ParkingAddonId[],
+    placeId: PlaceId,
+    version: AggregateVersion,
+    description?: string,
+    statute?: string,
+  ) {
+    return new Parking(
+      id,
+      organizationId,
+      name,
+      active,
+      address,
+      coords,
+      assetIds,
+      parkingFeatureIds,
+      parkingAddonIds,
+      placeId,
+      version,
+      description,
+      statute,
+    );
   }
 
   static create(

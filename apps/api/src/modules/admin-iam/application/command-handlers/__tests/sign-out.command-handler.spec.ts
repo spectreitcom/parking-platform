@@ -11,7 +11,7 @@ describe('SingOutCommandHandler', () => {
     refreshTokenStorage = {
       insert: jest.fn(),
       invalidate: jest.fn(),
-    } as any;
+    } as unknown as typeof refreshTokenStorage;
 
     handler = new SignOutCommandHandler(refreshTokenStorage);
   });

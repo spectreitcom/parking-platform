@@ -17,7 +17,7 @@ export class ParkingSpot extends AggregateRoot {
   private parkingSpotFeatureIds: ParkingFeatureId[];
   private readonly version: AggregateVersion;
 
-  constructor(
+  private constructor(
     id: ParkingSpotId,
     parkingId: ParkingId,
     price: Money,
@@ -32,6 +32,24 @@ export class ParkingSpot extends AggregateRoot {
     this.active = active;
     this.parkingSpotFeatureIds = [...parkingSpotFeatureIds];
     this.version = version;
+  }
+
+  static reconstruct(
+    id: ParkingSpotId,
+    parkingId: ParkingId,
+    price: Money,
+    active: boolean,
+    parkingSpotFeatureIds: readonly ParkingFeatureId[],
+    version: AggregateVersion,
+  ) {
+    return new ParkingSpot(
+      id,
+      parkingId,
+      price,
+      active,
+      parkingSpotFeatureIds,
+      version,
+    );
   }
 
   static create(

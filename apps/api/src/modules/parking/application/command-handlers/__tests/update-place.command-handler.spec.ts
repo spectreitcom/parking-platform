@@ -59,11 +59,11 @@ describe('UpdatePlaceCommandHandler', () => {
     );
 
     await handler.execute(command);
-    /* eslint-disable @typescript-eslint/unbound-method */
+
     expect(repository.findById).toHaveBeenCalledWith(id);
     expect(publisher.mergeObjectContext).toHaveBeenCalledWith(place);
     expect(repository.save).toHaveBeenCalledWith(place);
-    /* eslint-enable @typescript-eslint/unbound-method */
+
     expect(place.getName().value).toBe('New Name');
     expect(place.getCoords().latitude).toBe(53.0);
     expect(place.getCoords().longitude).toBe(22.0);

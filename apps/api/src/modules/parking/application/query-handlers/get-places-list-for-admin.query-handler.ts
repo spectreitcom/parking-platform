@@ -6,28 +6,31 @@ import { PrismaService } from '../../../../shared/prisma/prisma.service';
 
 export const getPlacesListForAdminQueryWhere: (
   search?: string,
-) => Prisma.PlaceReadWhereInput = (search: string) => ({
-  OR: [
-    {
-      name: {
-        contains: search,
-        mode: 'insensitive',
-      },
-    },
-    {
-      placeTypeName: {
-        contains: search,
-        mode: 'insensitive',
-      },
-    },
-    {
-      address: {
-        contains: search,
-        mode: 'insensitive',
-      },
-    },
-  ],
-});
+) => Prisma.PlaceReadWhereInput = (search?: string) =>
+  search
+    ? {
+        OR: [
+          {
+            name: {
+              contains: search,
+              mode: 'insensitive',
+            },
+          },
+          {
+            placeTypeName: {
+              contains: search,
+              mode: 'insensitive',
+            },
+          },
+          {
+            address: {
+              contains: search,
+              mode: 'insensitive',
+            },
+          },
+        ],
+      }
+    : {};
 
 @QueryHandler(GetPlacesListForAdminQuery)
 export class GetPlacesListForAdminQueryHandler implements IQueryHandler<

@@ -1,7 +1,6 @@
 import { IsIn, validateSync } from 'class-validator';
 import {
   ORGANIZATION_USER_ACTIVE,
-  ORGANIZATION_USER_CREATED,
   ORGANIZATION_USER_INVITED,
   ORGANIZATION_USER_SUSPENDED,
 } from '../constants';
@@ -9,7 +8,6 @@ import { AppError } from '../../../../shared/errors';
 
 export class OrganizationUserStatus {
   @IsIn([
-    ORGANIZATION_USER_CREATED,
     ORGANIZATION_USER_INVITED,
     ORGANIZATION_USER_SUSPENDED,
     ORGANIZATION_USER_ACTIVE,
@@ -26,10 +24,6 @@ export class OrganizationUserStatus {
     if (errors.length > 0) {
       throw new AppError('VALIDATION_ERROR', 'Invalid OrganizationUserStatus');
     }
-  }
-
-  static created() {
-    return new OrganizationUserStatus(ORGANIZATION_USER_CREATED);
   }
 
   static invited() {

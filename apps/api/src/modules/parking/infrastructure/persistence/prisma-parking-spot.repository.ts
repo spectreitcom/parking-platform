@@ -3,13 +3,9 @@ import { ParkingSpotRepository } from '../../application/ports/parking-spot.repo
 import { PrismaTx } from 'src/shared/prisma/types';
 import { ParkingSpot } from '../../domain/parking-spot';
 import { PrismaService } from '../../../../shared/prisma/prisma.service';
-import { ParkingSpotId } from '../../domain/value-objects/parking-spot-id';
-import { ParkingId } from '../../domain/value-objects/parking-id';
-import { Money } from '../../domain/value-objects/money';
-import { ParkingFeatureId } from '../../domain/value-objects/parking-feature-id';
-import { AggregateVersion } from '../../../../shared/value-objects/aggregate-version';
 import { ConcurrencyError } from '../../../../shared/errors';
 import { RepositorySaveOptions } from '../../../../shared/types';
+import { ParkingSpotMapper } from './parking-spot.mapper';
 
 @Injectable()
 export class PrismaParkingSpotRepository implements ParkingSpotRepository {
@@ -20,8 +16,14 @@ export class PrismaParkingSpotRepository implements ParkingSpotRepository {
     options?: RepositorySaveOptions,
   ): Promise<void> {
     const prisma = options?.tx || this.prismaService;
-    const id = parkingSpot.getId().value;
-    const currentVersion = parkingSpot.getVersion().value;
+    const {
+      id,
+      parkingId,
+      price,
+      active,
+      parkingSpotFeatures,
+      version: currentVersion,
+    } = ParkingSpotMapper.toPersistence(parkingSpot);
     const isNew = options?.isNew ?? false;
 
     const record = await prisma.parkingSpot.findUnique({
@@ -36,16 +38,12 @@ export class PrismaParkingSpotRepository implements ParkingSpotRepository {
       await prisma.parkingSpot.create({
         data: {
           id,
-          parkingId: parkingSpot.getParkingId().value,
-          price: parkingSpot.getPrice().value,
-          active: parkingSpot.isActive(),
+          parkingId,
+          price,
+          active,
           version: 1,
           parkingSpotFeatures: {
-            connect: parkingSpot
-              .getParkingSpotFeatureIds()
-              .map((featureId) => ({
-                id: featureId.value,
-              })),
+            connect: parkingSpotFeatures,
           },
         },
       });
@@ -59,15 +57,13 @@ export class PrismaParkingSpotRepository implements ParkingSpotRepository {
           version: currentVersion,
         },
         data: {
-          price: parkingSpot.getPrice().value,
-          active: parkingSpot.isActive(),
+          price,
+          active,
           version: {
             increment: 1,
           },
           parkingSpotFeatures: {
-            set: parkingSpot.getParkingSpotFeatureIds().map((featureId) => ({
-              id: featureId.value,
-            })),
+            set: parkingSpotFeatures,
           },
         },
       });
@@ -85,9 +81,7 @@ export class PrismaParkingSpotRepository implements ParkingSpotRepository {
     const record = await prisma.parkingSpot.findUnique({
       where: { id },
       include: {
-        parkingSpotFeatures: {
-          select: { id: true },
-        },
+        parkingSpotFeatures: true,
       },
     });
 
@@ -95,13 +89,6 @@ export class PrismaParkingSpotRepository implements ParkingSpotRepository {
       return null;
     }
 
-    return new ParkingSpot(
-      ParkingSpotId.fromString(record.id),
-      ParkingId.fromString(record.parkingId),
-      Money.fromNumber(record.price),
-      record.active,
-      record.parkingSpotFeatures.map((f) => ParkingFeatureId.fromString(f.id)),
-      AggregateVersion.fromNumber(record.version),
-    );
+    return ParkingSpotMapper.toDomain(record);
   }
 }

@@ -50,11 +50,10 @@ describe('CreateParkingCommandHandler', () => {
     const result = await handler.execute(command);
 
     expect(result).toBeDefined();
-    /* eslint-disable @typescript-eslint/unbound-method */
+
     expect(publisher.mergeObjectContext).toHaveBeenCalled();
     expect(repository.save).toHaveBeenCalledWith(expect.any(Parking), {
       isNew: true,
     });
-    /* eslint-enable @typescript-eslint/unbound-method */
   });
 });

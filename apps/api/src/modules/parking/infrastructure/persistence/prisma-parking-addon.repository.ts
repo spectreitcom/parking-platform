@@ -3,13 +3,9 @@ import { ParkingAddonRepository } from '../../application/ports/parking-addon.re
 import { ParkingAddon } from '../../domain/parking-addon';
 import { PrismaTx } from 'src/shared/prisma/types';
 import { PrismaService } from '../../../../shared/prisma/prisma.service';
-import { ParkingAddonId } from '../../domain/value-objects/parking-addon-id';
-import { ParkingAddonCode } from '../../domain/value-objects/parking-addon-code';
-import { ParkingAddonName } from '../../domain/value-objects/parking-addon-name';
-import { Money } from '../../domain/value-objects/money';
-import { AggregateVersion } from '../../../../shared/value-objects/aggregate-version';
 import { ConcurrencyError } from '../../../../shared/errors';
 import { RepositorySaveOptions } from '../../../../shared/types';
+import { ParkingAddonMapper } from './parking-addon.mapper';
 
 @Injectable()
 export class PrismaParkingAddonRepository implements ParkingAddonRepository {
@@ -20,8 +16,13 @@ export class PrismaParkingAddonRepository implements ParkingAddonRepository {
     options?: RepositorySaveOptions,
   ): Promise<void> {
     const prisma = options?.tx || this.prismaService;
-    const id = parkingAddon.getId().value;
-    const currentVersion = parkingAddon.getVersion().value;
+    const {
+      id,
+      code,
+      name,
+      price,
+      version: currentVersion,
+    } = ParkingAddonMapper.toPersistence(parkingAddon);
     const isNew = options?.isNew ?? false;
 
     const record = await prisma.parkingAddon.findUnique({
@@ -35,10 +36,10 @@ export class PrismaParkingAddonRepository implements ParkingAddonRepository {
 
       await prisma.parkingAddon.create({
         data: {
-          id: parkingAddon.getId().value,
-          code: parkingAddon.getCode().value,
-          name: parkingAddon.getName().value,
-          price: parkingAddon.getPrice().value,
+          id,
+          code,
+          name,
+          price,
           version: 1,
         },
       });
@@ -56,9 +57,9 @@ export class PrismaParkingAddonRepository implements ParkingAddonRepository {
           version: currentVersion,
         },
         data: {
-          code: parkingAddon.getCode().value,
-          name: parkingAddon.getName().value,
-          price: parkingAddon.getPrice().value,
+          code,
+          name,
+          price,
           version: {
             increment: 1,
           },
@@ -83,13 +84,7 @@ export class PrismaParkingAddonRepository implements ParkingAddonRepository {
       return null;
     }
 
-    return new ParkingAddon(
-      ParkingAddonId.fromString(record.id),
-      ParkingAddonCode.fromString(record.code),
-      ParkingAddonName.fromString(record.name),
-      Money.fromNumber(record.price),
-      AggregateVersion.fromNumber(record.version),
-    );
+    return ParkingAddonMapper.toDomain(record);
   }
 
   async findByCode(code: string, tx?: PrismaTx): Promise<ParkingAddon | null> {
@@ -103,13 +98,7 @@ export class PrismaParkingAddonRepository implements ParkingAddonRepository {
       return null;
     }
 
-    return new ParkingAddon(
-      ParkingAddonId.fromString(record.id),
-      ParkingAddonCode.fromString(record.code),
-      ParkingAddonName.fromString(record.name),
-      Money.fromNumber(record.price),
-      AggregateVersion.fromNumber(record.version),
-    );
+    return ParkingAddonMapper.toDomain(record);
   }
 
   async delete(id: string, version: number, tx?: PrismaTx): Promise<void> {

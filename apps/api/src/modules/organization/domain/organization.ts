@@ -24,7 +24,7 @@ export class Organization extends AggregateRoot {
   private readonly version: AggregateVersion;
   private members: OrganizationMember[];
 
-  constructor(
+  private constructor(
     id: OrganizationId,
     name: OrganizationName,
     address: OrganizationAddress,
@@ -39,6 +39,17 @@ export class Organization extends AggregateRoot {
     this.taxId = taxId;
     this.version = version;
     this.members = [...members];
+  }
+
+  static reconstruct(
+    id: OrganizationId,
+    name: OrganizationName,
+    address: OrganizationAddress,
+    taxId: OrganizationTaxId,
+    version: AggregateVersion,
+    members: OrganizationMember[],
+  ) {
+    return new Organization(id, name, address, taxId, version, members);
   }
 
   static create(name: string, address: string, taxId: string) {

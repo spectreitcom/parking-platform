@@ -6,28 +6,31 @@ import { Prisma } from '@prisma/client';
 
 export const getParkingListForAdminQueryWhere: (
   search?: string,
-) => Prisma.ParkingListForAdminReadWhereInput = (search?: string) => ({
-  OR: [
-    {
-      parkingName: {
-        contains: search,
-        mode: 'insensitive',
-      },
-    },
-    {
-      organizationName: {
-        contains: search,
-        mode: 'insensitive',
-      },
-    },
-    {
-      placeName: {
-        contains: search,
-        mode: 'insensitive',
-      },
-    },
-  ],
-});
+) => Prisma.ParkingListForAdminReadWhereInput = (search?: string) =>
+  search
+    ? {
+        OR: [
+          {
+            parkingName: {
+              contains: search,
+              mode: 'insensitive',
+            },
+          },
+          {
+            organizationName: {
+              contains: search,
+              mode: 'insensitive',
+            },
+          },
+          {
+            placeName: {
+              contains: search,
+              mode: 'insensitive',
+            },
+          },
+        ],
+      }
+    : {};
 
 @QueryHandler(GetParkingListForAdminQuery)
 export class GetParkingListForAdminQueryHandler implements IQueryHandler<

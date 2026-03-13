@@ -13,7 +13,6 @@ describe('DeactivateParkingSpotCommandHandler', () => {
   let handler: DeactivateParkingSpotCommandHandler;
   let parkingSpotRepository: jest.Mocked<ParkingSpotRepository>;
   let parkingRepository: jest.Mocked<ParkingRepository>;
-  let publisher: jest.Mocked<EventPublisher>;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -46,7 +45,6 @@ describe('DeactivateParkingSpotCommandHandler', () => {
     );
     parkingSpotRepository = module.get(ParkingSpotRepository);
     parkingRepository = module.get(ParkingRepository);
-    publisher = module.get(EventPublisher);
   });
 
   it('should deactivate a parking spot', async () => {
@@ -73,9 +71,8 @@ describe('DeactivateParkingSpotCommandHandler', () => {
 
     expect(result).toBe(parkingSpot.getId().value);
     expect(parkingSpot.isActive()).toBe(false);
-    /* eslint-disable @typescript-eslint/unbound-method */
+
     expect(parkingSpotRepository.save).toHaveBeenCalledWith(parkingSpot);
-    /* eslint-enable @typescript-eslint/unbound-method */
   });
 
   it('should throw ENTITY_NOT_FOUND if parking spot does not exist', async () => {

@@ -3,11 +3,9 @@ import { PlaceTypeRepository } from '../../application/ports/place-type.reposito
 import { PrismaService } from '../../../../shared/prisma/prisma.service';
 import { PrismaTx } from 'src/shared/prisma/types';
 import { PlaceType } from '../../domain/place-type';
-import { PlaceTypeId } from '../../domain/value-objects/place-type-id';
-import { PlaceTypeName } from '../../domain/value-objects/place-type-name';
-import { AggregateVersion } from '../../../../shared/value-objects/aggregate-version';
 import { ConcurrencyError } from '../../../../shared/errors';
 import { RepositorySaveOptions } from '../../../../shared/types';
+import { PlaceTypeMapper } from './place-type.mapper';
 
 @Injectable()
 export class PrismaPlaceTypeRepository implements PlaceTypeRepository {
@@ -18,8 +16,11 @@ export class PrismaPlaceTypeRepository implements PlaceTypeRepository {
     options?: RepositorySaveOptions,
   ): Promise<void> {
     const prisma = options?.tx ?? this.prismaService;
-    const id = placeType.getId().value;
-    const currentVersion = placeType.getVersion().value;
+    const {
+      id,
+      name,
+      version: currentVersion,
+    } = PlaceTypeMapper.toPersistence(placeType);
     const isNew = options?.isNew ?? false;
 
     const record = await prisma.placeType.findUnique({
@@ -33,8 +34,8 @@ export class PrismaPlaceTypeRepository implements PlaceTypeRepository {
 
       await prisma.placeType.create({
         data: {
-          id: placeType.getId().value,
-          name: placeType.getName().value,
+          id,
+          name,
           version: 1,
         },
       });
@@ -48,7 +49,7 @@ export class PrismaPlaceTypeRepository implements PlaceTypeRepository {
           version: currentVersion,
         },
         data: {
-          name: placeType.getName().value,
+          name,
           version: {
             increment: 1,
           },
@@ -75,11 +76,7 @@ export class PrismaPlaceTypeRepository implements PlaceTypeRepository {
       return null;
     }
 
-    return new PlaceType(
-      PlaceTypeId.fromString(record.id),
-      PlaceTypeName.fromString(record.name),
-      AggregateVersion.fromNumber(record.version),
-    );
+    return PlaceTypeMapper.toDomain(record);
   }
 
   async delete(id: string, version: number, tx?: PrismaTx): Promise<void> {

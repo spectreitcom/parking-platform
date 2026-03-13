@@ -50,14 +50,13 @@ describe('DeletePlaceTypeCommandHandler', () => {
     const result = await handler.execute(command);
 
     expect(result).toBe(id);
-    /* eslint-disable @typescript-eslint/unbound-method */
+
     expect(repository.findById).toHaveBeenCalledWith(id);
     expect(publisher.mergeObjectContext).toHaveBeenCalledWith(placeType);
     expect(repository.delete).toHaveBeenCalledWith(
       id,
       placeType.getVersion().value,
     );
-    /* eslint-enable @typescript-eslint/unbound-method */
   });
 
   it('should throw AppError if place type not found', async () => {

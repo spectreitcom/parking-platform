@@ -13,7 +13,7 @@ export class ParkingFeature extends AggregateRoot {
   private levels: ParkingFeatureLevel[];
   private readonly version: AggregateVersion;
 
-  constructor(
+  private constructor(
     id: ParkingFeatureId,
     name: ParkingFeatureName,
     levels: readonly ParkingFeatureLevel[],
@@ -24,6 +24,15 @@ export class ParkingFeature extends AggregateRoot {
     this.name = name;
     this.levels = [...levels];
     this.version = version;
+  }
+
+  static reconstruct(
+    id: ParkingFeatureId,
+    name: ParkingFeatureName,
+    levels: readonly ParkingFeatureLevel[],
+    version: AggregateVersion,
+  ) {
+    return new ParkingFeature(id, name, levels, version);
   }
 
   static create(name: string, levels: string[]) {

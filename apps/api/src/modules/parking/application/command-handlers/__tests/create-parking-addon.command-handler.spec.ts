@@ -47,7 +47,6 @@ describe('CreateParkingAddonCommandHandler', () => {
     publisher = module.get(EventPublisher);
   });
 
-  /* eslint-disable @typescript-eslint/unbound-method */
   it('should create and save a new parking addon', async () => {
     const command = new CreateParkingAddonCommand('PA1', 'Premium', 1000);
     repository.findByCode.mockResolvedValue(null);
@@ -63,7 +62,6 @@ describe('CreateParkingAddonCommandHandler', () => {
     expect(publisher.mergeObjectContext).toHaveBeenCalled();
   });
 
-  /* eslint-disable @typescript-eslint/unbound-method */
   it('should throw error if addon with code already exists', async () => {
     const command = new CreateParkingAddonCommand('PA1', 'Premium', 1000);
     repository.findByCode.mockResolvedValue({} as ParkingAddon);
