@@ -1,5 +1,11 @@
 import { IQuery } from '@nestjs/cqrs';
-import { IsInt, Min, validateSync } from 'class-validator';
+import {
+  IsInt,
+  IsOptional,
+  IsString,
+  Min,
+  validateSync,
+} from 'class-validator';
 import { AppError } from '../../../../shared/errors';
 
 export class GetPlacesListForAdminQuery implements IQuery {
@@ -11,6 +17,8 @@ export class GetPlacesListForAdminQuery implements IQuery {
   @Min(1)
   public readonly limit: number;
 
+  @IsOptional()
+  @IsString()
   public readonly search?: string;
 
   constructor(page: number, limit: number, search?: string) {

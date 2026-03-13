@@ -10,7 +10,6 @@ import { OrganizationName } from '../../../domain/value-objects/organization-nam
 import { OrganizationAddress } from '../../../domain/value-objects/organization-address';
 import { OrganizationTaxId } from '../../../domain/value-objects/organization-tax-id';
 import { AggregateVersion } from '../../../../../shared/value-objects/aggregate-version';
-import { AppError } from '../../../../../shared/errors';
 
 describe('UpdateOrganizationCommandHandler', () => {
   let handler: UpdateOrganizationCommandHandler;
@@ -102,9 +101,10 @@ describe('UpdateOrganizationCommandHandler', () => {
     organizationRepository.findById.mockResolvedValue(null);
 
     // When & Then
-    await expect(handler.execute(command)).rejects.toThrow(
-      new AppError('ENTITY_NOT_FOUND', 'Organization not found'),
-    );
+    await expect(handler.execute(command)).rejects.toMatchObject({
+      code: 'ENTITY_NOT_FOUND',
+      message: 'Organization not found',
+    });
   });
 
   it('should throw error if version mismatch', async () => {
@@ -130,11 +130,9 @@ describe('UpdateOrganizationCommandHandler', () => {
     organizationRepository.findById.mockResolvedValue(organization);
 
     // When & Then
-    await expect(handler.execute(command)).rejects.toThrow(
-      new AppError(
-        'CONCURRENCY',
-        `Organization with id ${organizationId} has been modified by another process`,
-      ),
-    );
+    await expect(handler.execute(command)).rejects.toMatchObject({
+      code: 'CONCURRENCY',
+      message: `Organization with id ${organizationId} has been modified by another process`,
+    });
   });
 });

@@ -44,13 +44,11 @@ describe('OrganizationUser', () => {
     it('should update display name, increment version and apply OrganizationUserUpdatedEvent', () => {
       const user = OrganizationUser.invite(email, displayName);
       const newDisplayName = 'Updated Name';
-      const initialVersion = user.getVersion().value;
       const initialUpdatedAt = user.getUpdatedAt();
 
       user.update(newDisplayName);
 
       expect(user.getDisplayName().value).toBe(newDisplayName);
-      expect(user.getVersion().value).toBe(initialVersion + 1);
       expect(user.getUpdatedAt().getTime()).toBeGreaterThanOrEqual(
         initialUpdatedAt.getTime(),
       );
@@ -70,12 +68,10 @@ describe('OrganizationUser', () => {
   describe('activate', () => {
     it('should change status to active, increment version and apply OrganizationUserActivatedEvent', () => {
       const user = OrganizationUser.invite(email, displayName);
-      const initialVersion = user.getVersion().value;
 
       user.activate();
 
       expect(user.getStatus().value).toBe(ORGANIZATION_USER_ACTIVE);
-      expect(user.getVersion().value).toBe(initialVersion + 1);
 
       const events = user.getUncommittedEvents();
       expect(events).toHaveLength(2);
@@ -89,12 +85,10 @@ describe('OrganizationUser', () => {
   describe('suspense', () => {
     it('should change status to suspended, increment version and apply OrganizationUserSuspendedEvent', () => {
       const user = OrganizationUser.invite(email, displayName);
-      const initialVersion = user.getVersion().value;
 
       user.suspense();
 
       expect(user.getStatus().value).toBe(ORGANIZATION_USER_SUSPENDED);
-      expect(user.getVersion().value).toBe(initialVersion + 1);
 
       const events = user.getUncommittedEvents();
       expect(events).toHaveLength(2);
@@ -108,13 +102,11 @@ describe('OrganizationUser', () => {
   describe('changePassword', () => {
     it('should update password hash, increment version and apply OrganizationUserPasswordChangedEvent', () => {
       const user = OrganizationUser.invite(email, displayName);
-      const initialVersion = user.getVersion().value;
       const newPasswordHash = 'hashedpassword123';
 
       user.changePassword(newPasswordHash);
 
       expect(user.getPasswordHash()).toBe(newPasswordHash);
-      expect(user.getVersion().value).toBe(initialVersion + 1);
 
       const events = user.getUncommittedEvents();
       expect(events).toHaveLength(2);
