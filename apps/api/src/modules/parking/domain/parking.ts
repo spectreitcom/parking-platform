@@ -2,7 +2,7 @@ import { AggregateRoot } from '@nestjs/cqrs';
 import { ParkingId } from './value-objects/parking-id';
 import { ParkingName } from './value-objects/parking-name';
 import { Address } from './value-objects/address';
-import { Coords } from './value-objects/coords';
+import { Coords } from '../../../shared/value-objects/coords';
 import { AssetId } from './value-objects/asset-id';
 import { ParkingFeatureId } from './value-objects/parking-feature-id';
 import { AggregateVersion } from '../../../shared/value-objects/aggregate-version';

@@ -2,7 +2,7 @@ import { ParkingAddon } from '../../domain/parking-addon';
 import { ParkingAddonId } from '../../domain/value-objects/parking-addon-id';
 import { ParkingAddonCode } from '../../domain/value-objects/parking-addon-code';
 import { ParkingAddonName } from '../../domain/value-objects/parking-addon-name';
-import { Money } from '../../domain/value-objects/money';
+import { Money } from '../../../../shared/value-objects/money';
 import { AggregateVersion } from '../../../../shared/value-objects/aggregate-version';
 import { ParkingAddon as ParkingAddonModel } from '@prisma/client';
 

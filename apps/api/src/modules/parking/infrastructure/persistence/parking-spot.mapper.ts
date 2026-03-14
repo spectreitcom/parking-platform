@@ -1,7 +1,7 @@
 import { ParkingSpot } from '../../domain/parking-spot';
 import { ParkingSpotId } from '../../domain/value-objects/parking-spot-id';
 import { ParkingId } from '../../domain/value-objects/parking-id';
-import { Money } from '../../domain/value-objects/money';
+import { Money } from '../../../../shared/value-objects/money';
 import { ParkingFeatureId } from '../../domain/value-objects/parking-feature-id';
 import { AggregateVersion } from '../../../../shared/value-objects/aggregate-version';
 import {

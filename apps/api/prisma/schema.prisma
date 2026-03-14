@@ -305,3 +305,23 @@ model OrganizationUserRead {
 }
 
 // -----------------------------
+
+// Cart Bounded Context
+
+model Cart {
+  id            String   @id @default(uuid()) @db.Uuid
+  parkingSpotId String   @db.Uuid
+  arrival       Int
+  departure     Int
+  days          Int
+  priceByDay    Float
+  createdAt     DateTime
+  total         Float    @default(0)
+  userId        String?  @db.Uuid
+  addons        Json
+
+  @@unique([id, parkingSpotId])
+  @@index([userId])
+}
+
+// -----------------------------

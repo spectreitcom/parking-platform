@@ -1,7 +1,7 @@
 import { Place } from '../../domain/place';
 import { PlaceId } from '../../domain/value-objects/place-id';
 import { PlaceName } from '../../domain/value-objects/place-name';
-import { Coords } from '../../domain/value-objects/coords';
+import { Coords } from '../../../../shared/value-objects/coords';
 import { Address } from '../../domain/value-objects/address';
 import { PlaceTypeId } from '../../domain/value-objects/place-type-id';
 import { AggregateVersion } from '../../../../shared/value-objects/aggregate-version';
