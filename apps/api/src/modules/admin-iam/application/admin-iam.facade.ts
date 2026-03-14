@@ -13,6 +13,7 @@ import { ResetPasswordCommand } from './commands/reset-password.command';
 import { ValidateResetPasswordTokenQuery } from './queries/validate-reset-password-token.query';
 import { InviteAdminUserCommand } from './commands/invite-admin-user.command';
 import { GenerateResetPasswordTokenCommand } from './commands/generate-reset-password-token.command';
+import { ValidateUserQuery } from './queries/validate-user.query';
 
 @Injectable()
 export class AdminIamFacade {
@@ -91,5 +92,11 @@ export class AdminIamFacade {
       GenerateResetPasswordTokenCommand,
       string
     >(command);
+  }
+
+  async validateUser(email: string, password: string) {
+    return await this.queryBus.execute<ValidateUserQuery, string>(
+      new ValidateUserQuery(email, password),
+    );
   }
 }
