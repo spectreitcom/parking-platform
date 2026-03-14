@@ -36,9 +36,10 @@ export class CartFacade {
     arrival: number,
     departure: number,
     addons: CartAddonRaw[],
+    userId?: string,
   ): Promise<string> {
     return this.commandBus.execute(
-      new UpdateCartCommand(cartId, arrival, departure, addons),
+      new UpdateCartCommand(cartId, arrival, departure, addons, userId),
     );
   }
 

@@ -7,5 +7,6 @@ export class UpdateCartCommand implements ICommand {
     public readonly arrival: number,
     public readonly departure: number,
     public readonly addons: CartAddonRaw[],
+    public readonly userId?: string,
   ) {}
 }

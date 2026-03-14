@@ -44,7 +44,7 @@ export class PrismaCartRepository implements CartRepository {
         data: {
           id,
           userId,
-          addons: addons as { id: string; price: number }[],
+          addons: addons as CartAddonRaw[],
           arrival,
           departure,
           days,
@@ -61,6 +61,7 @@ export class PrismaCartRepository implements CartRepository {
       await prisma.cart.update({
         where: {
           id,
+          userId,
         },
         data: {
           userId,

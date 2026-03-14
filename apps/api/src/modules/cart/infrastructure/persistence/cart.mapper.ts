@@ -6,6 +6,7 @@ import { CartParkingSpotId } from '../../domain/value-objects/cart-parking-spot-
 import { CartAddon } from '../../domain/entities/cart-addon';
 import { CartDateRange } from '../../domain/value-objects/cart-date-range';
 import { CartAddonId } from '../../domain/value-objects/cart-addon-id';
+import { CartUserId } from '../../domain/value-objects/cart-user-id';
 
 export class CartMapper {
   static toDomain(raw: CartModel) {
@@ -28,6 +29,7 @@ export class CartMapper {
       CartParkingSpotId.fromString(raw.parkingSpotId),
       _addons,
       raw.createdAt,
+      raw.userId ? CartUserId.fromString(raw.userId) : undefined,
     );
   }
 
