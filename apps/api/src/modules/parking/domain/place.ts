@@ -2,7 +2,7 @@ import { AggregateRoot } from '@nestjs/cqrs';
 import { PlaceId } from './value-objects/place-id';
 import { PlaceTypeId } from './value-objects/place-type-id';
 import { PlaceName } from './value-objects/place-name';
-import { Coords } from './value-objects/coords';
+import { Coords } from '../../../shared/value-objects/coords';
 import { Address } from './value-objects/address';
 import { PlaceCreatedEvent } from './events/place-created.event';
 import { PlaceActivatedEvent } from './events/place-activated.event';

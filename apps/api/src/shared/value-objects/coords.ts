@@ -4,7 +4,7 @@ import {
   IsLatitude,
   IsLongitude,
 } from 'class-validator';
-import { AppError } from '../../../../shared/errors';
+import { AppError } from '../errors';
 
 export class Coords {
   @IsNumber()

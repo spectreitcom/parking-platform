@@ -3,7 +3,7 @@ import { ParkingId } from '../../domain/value-objects/parking-id';
 import { OrganizationId } from '../../domain/value-objects/organization-id';
 import { ParkingName } from '../../domain/value-objects/parking-name';
 import { Address } from '../../domain/value-objects/address';
-import { Coords } from '../../domain/value-objects/coords';
+import { Coords } from '../../../../shared/value-objects/coords';
 import { AssetId } from '../../domain/value-objects/asset-id';
 import { ParkingFeatureId } from '../../domain/value-objects/parking-feature-id';
 import { ParkingAddonId } from '../../domain/value-objects/parking-addon-id';

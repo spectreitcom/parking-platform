@@ -1,5 +1,5 @@
 import { IsInt, Min, validateSync } from 'class-validator';
-import { AppError } from '../../../../shared/errors';
+import { AppError } from '../errors';
 
 export class Money {
   @IsInt()
@@ -22,6 +22,10 @@ export class Money {
     return new Money(value);
   }
 
+  static zero() {
+    return new Money(0);
+  }
+
   get value() {
     return this._value;
   }
@@ -36,6 +40,10 @@ export class Money {
 
   subtract(other: Money) {
     return new Money(this._value - other._value);
+  }
+
+  multiplyByNumber(value: number) {
+    return new Money(this._value * value);
   }
 
   equals(other: Money) {

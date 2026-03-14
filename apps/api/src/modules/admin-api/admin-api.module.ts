@@ -3,6 +3,7 @@ import { AdminIamModule } from '../admin-iam/application/admin-iam.module';
 import { ParkingModule } from '../parking/application/parking.module';
 import { OrganizationModule } from '../organization/application/organization.module';
 import { OrganizationUserIamModule } from '../organization-user-iam/application/organization-user-iam.module';
+import { CartModule } from '../cart/application/cart.module';
 
 @Module({
   imports: [
@@ -10,6 +11,7 @@ import { OrganizationUserIamModule } from '../organization-user-iam/application/
     ParkingModule,
     OrganizationModule,
     OrganizationUserIamModule,
+    CartModule,
   ],
 })
 export class AdminApiModule {}
