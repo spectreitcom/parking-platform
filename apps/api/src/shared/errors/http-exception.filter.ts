@@ -4,6 +4,7 @@ import {
   ExceptionFilter,
   HttpException,
   HttpStatus,
+  Logger,
   UnauthorizedException,
 } from '@nestjs/common';
 import { Response } from 'express';
@@ -11,12 +12,16 @@ import { AppErrorCode, codeToStatus } from './index';
 
 @Catch()
 export class HttpExceptionFilter implements ExceptionFilter {
+  private readonly logger = new Logger(HttpExceptionFilter.name);
+
   catch(
     exception:
       | { code?: AppErrorCode; message?: string }
       | UnauthorizedException,
     host: ArgumentsHost,
   ) {
+    this.logger.error(exception);
+
     const res: Response = host.switchToHttp().getResponse();
 
     if (exception instanceof HttpException) {
