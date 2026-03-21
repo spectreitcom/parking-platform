@@ -5,6 +5,8 @@ import { AdminUser } from '../../../domain/admin-user';
 import { Email } from '../../../../../shared/value-objects/email';
 import { AdminDisplayName } from '../../../domain/value-objects/admin-display-name';
 import { Logger } from '@nestjs/common';
+import { EventPublisher } from '@nestjs/cqrs';
+import { sleep } from '../../../../../shared/utils';
 
 interface Options {
   email: string;
@@ -19,6 +21,7 @@ export class GenerateSuperAdminCliCommand extends CommandRunner {
   constructor(
     private readonly passwordService: PasswordService,
     private readonly adminUserRepository: AdminUserRepository,
+    private readonly eventPublisher: EventPublisher,
   ) {
     super();
   }
@@ -46,8 +49,12 @@ export class GenerateSuperAdminCliCommand extends CommandRunner {
       passwordHash,
     );
 
-    await this.adminUserRepository.save(superAdmin, { isNew: true });
+    this.eventPublisher.mergeObjectContext(superAdmin);
 
+    await this.adminUserRepository.save(superAdmin, { isNew: true });
+    superAdmin.commit();
+
+    await sleep(2000);
     this.logger.log(`Super admin ${email} generated successfully`);
   }
 
