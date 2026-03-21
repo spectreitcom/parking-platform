@@ -6,6 +6,7 @@ import { OrganizationUserIamModule } from '../organization-user-iam/application/
 import { CartModule } from '../cart/application/cart.module';
 import { AuthController } from './endpoints/auth/auth.controller';
 import { AuthModule } from './auth/auth.module';
+import { ParkingFeaturesController } from './endpoints/parking-features/parking-features.controller';
 
 @Module({
   imports: [
@@ -16,6 +17,6 @@ import { AuthModule } from './auth/auth.module';
     CartModule,
     AuthModule,
   ],
-  controllers: [AuthController],
+  controllers: [AuthController, ParkingFeaturesController],
 })
 export class AdminApiModule {}
