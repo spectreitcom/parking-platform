@@ -13,6 +13,9 @@ import { ResetPasswordCommand } from './commands/reset-password.command';
 import { ValidateResetPasswordTokenQuery } from './queries/validate-reset-password-token.query';
 import { InviteAdminUserCommand } from './commands/invite-admin-user.command';
 import { GenerateResetPasswordTokenCommand } from './commands/generate-reset-password-token.command';
+import { ValidateUserQuery } from './queries/validate-user.query';
+import { GetAdminUserByIdQuery } from './queries/get-admin-user-by-id.query';
+import { AdminUserDetailsReadModel } from './query-handlers/read-models/admin-user-details.read-model';
 
 @Injectable()
 export class AdminIamFacade {
@@ -91,5 +94,19 @@ export class AdminIamFacade {
       GenerateResetPasswordTokenCommand,
       string
     >(command);
+  }
+
+  async validateUser(email: string, password: string) {
+    return await this.queryBus.execute<ValidateUserQuery, string>(
+      new ValidateUserQuery(email, password),
+    );
+  }
+
+  async getAdminUserById(adminUserId: string) {
+    const query = new GetAdminUserByIdQuery(adminUserId);
+    return await this.queryBus.execute<
+      GetAdminUserByIdQuery,
+      AdminUserDetailsReadModel
+    >(query);
   }
 }
