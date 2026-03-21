@@ -23,8 +23,20 @@ async function bootstrap() {
     .setTitle('Parking Platform API')
     .setDescription('API documentation for Parking Platform')
     .setVersion('1.0.0')
+    .addBearerAuth(
+      {
+        type: 'http',
+        scheme: 'bearer',
+        bearerFormat: 'JWT',
+        name: 'JWT',
+        description: 'Enter JWT token',
+        in: 'header',
+      },
+      'admin-auth',
+    )
     .build();
   const swaggerDocument = SwaggerModule.createDocument(app, swaggerConfig);
+
   SwaggerModule.setup('docs', app, swaggerDocument, {
     useGlobalPrefix: true,
     jsonDocumentUrl: '/docs-json',
