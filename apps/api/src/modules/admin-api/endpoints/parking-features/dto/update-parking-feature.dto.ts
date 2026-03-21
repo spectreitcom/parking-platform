@@ -1,4 +1,5 @@
 import {
+  IsArray,
   IsIn,
   IsInt,
   IsNumber,
@@ -35,6 +36,7 @@ export class UpdateParkingFeatureDto {
       },
     ],
   })
+  @IsArray()
   @IsIn([PARKING_LEVEL, PARKING_SPOT_LEVEL], {
     each: true,
   })
