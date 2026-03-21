@@ -3,10 +3,14 @@ import { ExtractJwt, Strategy } from 'passport-jwt';
 import { PassportStrategy } from '@nestjs/passport';
 import { ConfigService } from '@nestjs/config';
 import { JwtPayload } from '../types';
+import { AdminIamFacade } from '../../../admin-iam/application/admin-iam.facade';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
-  constructor(configService: ConfigService) {
+  constructor(
+    configService: ConfigService,
+    private readonly adminIamFacade: AdminIamFacade,
+  ) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
@@ -14,7 +18,9 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     });
   }
 
-  validate(payload: JwtPayload): string {
-    return payload.sub;
+  async validate(payload: JwtPayload) {
+    const adminUserId = payload.sub;
+    const adminUser = await this.adminIamFacade.getAdminUserById(adminUserId);
+    return adminUser.id;
   }
 }

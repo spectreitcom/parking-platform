@@ -1,7 +1,8 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { Strategy } from 'passport-local';
 import { AdminIamFacade } from '../../../admin-iam/application/admin-iam.facade';
+import { AppError } from '../../../../shared/errors';
 
 @Injectable()
 export class LocalStrategy extends PassportStrategy(Strategy) {
@@ -16,7 +17,7 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
     try {
       return await this.adminIamFacade.validateUser(email, password);
     } catch {
-      throw new UnauthorizedException();
+      throw new AppError('UNAUTHORIZED', 'Invalid credentials');
     }
   }
 }
