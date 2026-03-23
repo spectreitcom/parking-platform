@@ -1,11 +1,9 @@
-import { IEvent } from '@nestjs/cqrs';
-
-export class ParkingAddonUpdatedEvent implements IEvent {
+export class ParkingAddonListForAdminItemReadModel {
   constructor(
     public readonly id: string,
     public readonly code: string,
     public readonly name: string,
-    public readonly price: number,
+    public readonly priceInPln: number,
     public readonly version: number,
   ) {}
 }

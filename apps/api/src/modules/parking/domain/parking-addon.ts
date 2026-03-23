@@ -45,19 +45,16 @@ export class ParkingAddon extends AggregateRoot {
     const _code = ParkingAddonCode.fromString(code);
     const _name = ParkingAddonName.fromString(name);
     const _price = Money.fromNumber(price);
-    const parkingAddon = new ParkingAddon(
-      id,
-      _code,
-      _name,
-      _price,
-      AggregateVersion.one(),
-    );
+    const _version = AggregateVersion.one();
+
+    const parkingAddon = new ParkingAddon(id, _code, _name, _price, _version);
     parkingAddon.apply(
       new ParkingAddonCreatedEvent(
         id.value,
         _code.value,
         _name.value,
         _price.value,
+        _version.value,
       ),
     );
     return parkingAddon;
@@ -73,6 +70,7 @@ export class ParkingAddon extends AggregateRoot {
         this.code.value,
         this.name.value,
         this.price.value,
+        this.version.value,
       ),
     );
   }
