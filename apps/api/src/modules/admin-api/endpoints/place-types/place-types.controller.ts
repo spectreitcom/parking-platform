@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Delete,
+  Get,
   Param,
   ParseUUIDPipe,
   Post,
@@ -21,12 +22,81 @@ import { ParkingFacade } from '../../../parking/application/parking.facade';
 import { CreatePlaceTypeDto } from './dto/create-place-type.dto';
 import { UpdatePlaceTypeDto } from './dto/update-place-type.dto';
 import { DeletePlaceTypeQueryParamsDto } from './dto/delete-place-type-query-params.dto';
+import { GetPlaceTypesListQueryParamsDto } from './dto/get-place-types-list-query-params.dto';
+import { DEFAULT_PAGE_SIZE } from '../../constants';
 
 @ApiBearerAuth('admin-auth')
 @ApiTags('Admin Place Types')
 @Controller('admin/place-types')
 export class PlaceTypesController {
   constructor(private readonly parkingFacade: ParkingFacade) {}
+
+  @ApiOperation({
+    summary: 'Get place types list',
+  })
+  @ApiOkResponse({
+    description: 'The place types list has been successfully retrieved.',
+    schema: {
+      type: 'object',
+      properties: {
+        data: {
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: {
+              id: {
+                type: 'string',
+                description: 'The ID of the place type',
+                format: 'uuid',
+              },
+              name: {
+                type: 'string',
+                example: 'Outdoor',
+              },
+              version: {
+                type: 'number',
+                example: 1,
+              },
+            },
+          },
+        },
+        total: {
+          type: 'number',
+          example: DEFAULT_PAGE_SIZE,
+        },
+        currentPage: {
+          type: 'number',
+          example: 1,
+        },
+      },
+    },
+  })
+  @ApiUnauthorizedResponse({
+    description: 'Unauthorized',
+  })
+  @ApiBadRequestResponse({
+    description: 'Error retrieving place types list due to validation errors.',
+  })
+  @Get()
+  async getPlaceTypesList(
+    @Query() queryParams: GetPlaceTypesListQueryParamsDto,
+  ) {
+    const data = await this.parkingFacade.getPlaceTypeList(
+      queryParams.page ?? 1,
+      queryParams.limit ?? DEFAULT_PAGE_SIZE,
+      queryParams.search,
+    );
+
+    const total = await this.parkingFacade.getPlaceTypeListTotal(
+      queryParams.search,
+    );
+
+    return {
+      data,
+      total,
+      currentPage: queryParams.page ?? 1,
+    };
+  }
 
   @ApiOperation({
     summary: 'Create a new place type',

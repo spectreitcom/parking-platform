@@ -9,7 +9,7 @@ import { AggregateVersion } from '../../../shared/value-objects/aggregate-versio
 export class PlaceType extends AggregateRoot {
   private readonly id: PlaceTypeId;
   private name: PlaceTypeName;
-  private readonly version: AggregateVersion;
+  private version: AggregateVersion;
 
   private constructor(
     id: PlaceTypeId,
@@ -33,14 +33,25 @@ export class PlaceType extends AggregateRoot {
   static create(name: string) {
     const id = PlaceTypeId.create();
     const _name = PlaceTypeName.fromString(name);
-    const placeType = new PlaceType(id, _name, AggregateVersion.one());
-    placeType.apply(new PlaceTypeCreatedEvent(id.value, _name.value));
+    const _version = AggregateVersion.one();
+    const placeType = new PlaceType(id, _name, _version);
+    placeType.apply(
+      new PlaceTypeCreatedEvent(id.value, _name.value, _version.value),
+    );
     return placeType;
   }
 
   update(name: string) {
     this.name = PlaceTypeName.fromString(name);
-    this.apply(new PlaceTypeUpdatedEvent(this.id.value, this.name.value));
+    const nextVersion = this.version.increment();
+    this.version = nextVersion;
+    this.apply(
+      new PlaceTypeUpdatedEvent(
+        this.id.value,
+        this.name.value,
+        nextVersion.value,
+      ),
+    );
   }
 
   delete() {
