@@ -7,6 +7,7 @@ import { CartModule } from '../cart/application/cart.module';
 import { AuthController } from './endpoints/auth/auth.controller';
 import { AuthModule } from './auth/auth.module';
 import { ParkingFeaturesController } from './endpoints/parking-features/parking-features.controller';
+import { PlaceTypesController } from './endpoints/place-types/place-types.controller';
 
 @Module({
   imports: [
@@ -17,6 +18,10 @@ import { ParkingFeaturesController } from './endpoints/parking-features/parking-
     CartModule,
     AuthModule,
   ],
-  controllers: [AuthController, ParkingFeaturesController],
+  controllers: [
+    AuthController,
+    ParkingFeaturesController,
+    PlaceTypesController,
+  ],
 })
 export class AdminApiModule {}
