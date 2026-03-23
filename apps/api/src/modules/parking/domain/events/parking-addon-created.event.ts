@@ -6,5 +6,6 @@ export class ParkingAddonCreatedEvent implements IEvent {
     public readonly code: string,
     public readonly name: string,
     public readonly price: number,
+    public readonly version: number,
   ) {}
 }

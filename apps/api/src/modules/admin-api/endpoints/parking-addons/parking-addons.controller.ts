@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Delete,
+  Get,
   Param,
   ParseUUIDPipe,
   Post,
@@ -21,12 +22,88 @@ import { ParkingFacade } from '../../../parking/application/parking.facade';
 import { CreateParkingAddonDto } from './dto/create-parking-addon.dto';
 import { UpdateParkingAddonDto } from './dto/update-parking-addon.dto';
 import { DeleteParkingAddonQueryParamsDto } from './dto/delete-parking-addon-query-params.dto';
+import { GetAddonsListQueryParamsDto } from './dto/get-addons-list-query-params.dto';
+import { DEFAULT_PAGE_SIZE } from '../../constants';
 
 @ApiBearerAuth('admin-auth')
 @ApiTags('Admin - Parking Addons')
 @Controller('admin/parking-addons')
 export class ParkingAddonsController {
   constructor(private readonly parkingFacade: ParkingFacade) {}
+
+  @ApiOperation({
+    summary: 'Get parking addons list',
+  })
+  @ApiOkResponse({
+    description: 'The parking addons list has been successfully retrieved.',
+    schema: {
+      type: 'object',
+      properties: {
+        data: {
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: {
+              id: {
+                type: 'string',
+                description: 'The ID of the parking addon',
+                format: 'uuid',
+              },
+              code: {
+                type: 'string',
+                example: 'addon_code',
+              },
+              name: {
+                type: 'string',
+                example: 'Addon Name',
+              },
+              priceInPln: {
+                type: 'number',
+                example: 100,
+              },
+              version: {
+                type: 'number',
+                example: 1,
+              },
+            },
+          },
+        },
+        total: {
+          type: 'number',
+          example: DEFAULT_PAGE_SIZE,
+        },
+        currentPage: {
+          type: 'number',
+          example: 1,
+        },
+      },
+    },
+  })
+  @ApiUnauthorizedResponse({
+    description: 'Unauthorized',
+  })
+  @ApiBadRequestResponse({
+    description:
+      'Error retrieving parking addons list due to validation errors.',
+  })
+  @Get()
+  async getAddonsList(@Query() queryParams: GetAddonsListQueryParamsDto) {
+    const data = await this.parkingFacade.getParkingAddonListForAdmin(
+      queryParams.page ?? 1,
+      queryParams.limit ?? DEFAULT_PAGE_SIZE,
+      queryParams.search,
+    );
+
+    const total = await this.parkingFacade.getParkingAddonListForAdminTotal(
+      queryParams.search,
+    );
+
+    return {
+      data,
+      total,
+      currentPage: queryParams.page ?? 1,
+    };
+  }
 
   @ApiOperation({
     summary: 'Create a new parking addon',
