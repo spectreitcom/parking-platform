@@ -11,7 +11,7 @@ export class ParkingFeature extends AggregateRoot {
   private readonly id: ParkingFeatureId;
   private name: ParkingFeatureName;
   private levels: ParkingFeatureLevel[];
-  private readonly version: AggregateVersion;
+  private version: AggregateVersion;
 
   private constructor(
     id: ParkingFeatureId,
@@ -58,12 +58,15 @@ export class ParkingFeature extends AggregateRoot {
   update(name: string, levels: string[]) {
     this.name = ParkingFeatureName.fromString(name);
     this.levels = ParkingFeatureLevel.fromArray(levels);
+    const nextVersion = this.version.increment();
+    this.version = nextVersion;
+
     this.apply(
       new ParkingFeatureUpdatedEvent(
         this.id.value,
         this.name.value,
         this.levels.map((level) => level.value),
-        this.version.increment().value,
+        nextVersion.value,
       ),
     );
   }

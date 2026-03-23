@@ -13,7 +13,7 @@ export class ParkingAddon extends AggregateRoot {
   private readonly code: ParkingAddonCode;
   private name: ParkingAddonName;
   private price: Money;
-  private readonly version: AggregateVersion;
+  private version: AggregateVersion;
 
   private constructor(
     id: ParkingAddonId,
@@ -63,6 +63,8 @@ export class ParkingAddon extends AggregateRoot {
   update(name: string, price: number) {
     this.name = ParkingAddonName.fromString(name);
     this.price = Money.fromNumber(price);
+    const nextVersion = this.version.increment();
+    this.version = nextVersion;
 
     this.apply(
       new ParkingAddonUpdatedEvent(
@@ -70,7 +72,7 @@ export class ParkingAddon extends AggregateRoot {
         this.code.value,
         this.name.value,
         this.price.value,
-        this.version.increment().value,
+        nextVersion.value,
       ),
     );
   }
