@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Delete,
+  Get,
   Param,
   ParseUUIDPipe,
   Post,
@@ -21,12 +22,87 @@ import { ParkingFacade } from '../../../parking/application/parking.facade';
 import { CreateParkingFeatureDto } from './dto/create-parking-feature.dto';
 import { UpdateParkingFeatureDto } from './dto/update-parking-feature.dto';
 import { DeleteParkingFeatureQueryParamsDto } from './dto/delete-parking-feature-query-params.dto';
+import { GetParkingFeaturesListQueryParamsDto } from './dto/get-parking-features-list-query-params.dto';
+import { DEFAULT_PAGE_SIZE } from '../../constants';
 
 @ApiBearerAuth('admin-auth')
 @ApiTags('Admin Parking Features')
 @Controller('admin/parking-features')
 export class ParkingFeaturesController {
   constructor(private readonly parkingFacade: ParkingFacade) {}
+
+  @ApiOperation({
+    summary: 'Get parking features list',
+  })
+  @ApiOkResponse({
+    description: 'The parking features list has been successfully retrieved.',
+    schema: {
+      type: 'object',
+      properties: {
+        data: {
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: {
+              id: {
+                type: 'string',
+                description: 'The ID of the parking feature',
+                format: 'uuid',
+              },
+              name: {
+                type: 'string',
+              },
+              levels: {
+                type: 'array',
+                items: {
+                  type: 'string',
+                },
+              },
+              version: {
+                type: 'number',
+                example: 1,
+              },
+            },
+          },
+        },
+        total: {
+          type: 'number',
+          example: DEFAULT_PAGE_SIZE,
+        },
+        currentPage: {
+          type: 'number',
+          example: 1,
+        },
+      },
+    },
+  })
+  @ApiUnauthorizedResponse({
+    description: 'Unauthorized',
+  })
+  @ApiBadRequestResponse({
+    description:
+      'Error retrieving parking features list due to validation errors.',
+  })
+  @Get()
+  async getParkingFeaturesList(
+    @Query() queryParams: GetParkingFeaturesListQueryParamsDto,
+  ) {
+    const data = await this.parkingFacade.getParkingFeatureListForAdmin(
+      queryParams.page ?? 1,
+      queryParams.limit ?? DEFAULT_PAGE_SIZE,
+      queryParams.search,
+    );
+
+    const total = await this.parkingFacade.getParkingFeatureListForAdminTotal(
+      queryParams.search,
+    );
+
+    return {
+      data,
+      total,
+      currentPage: 1,
+    };
+  }
 
   @ApiOperation({
     summary: 'Create a new parking feature',
