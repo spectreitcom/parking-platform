@@ -82,6 +82,10 @@ export class ParkingAddonsController {
   @ApiUnauthorizedResponse({
     description: 'Unauthorized',
   })
+  @ApiBadRequestResponse({
+    description:
+      'Error retrieving parking addons list due to validation errors.',
+  })
   @Get()
   async getAddonsList(@Query() queryParams: GetAddonsListQueryParamsDto) {
     const data = await this.parkingFacade.getParkingAddonListForAdmin(
@@ -97,7 +101,7 @@ export class ParkingAddonsController {
     return {
       data,
       total,
-      currentPage: queryParams.page,
+      currentPage: queryParams.page ?? 1,
     };
   }
 

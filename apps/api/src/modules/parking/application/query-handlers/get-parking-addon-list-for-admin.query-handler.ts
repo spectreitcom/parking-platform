@@ -23,7 +23,9 @@ export const getParkingAddonListForAdminQueryWhere: (
             },
           },
           {
-            priceInPln: !Number.isNaN(search) ? parseFloat(search) : undefined,
+            priceInPln: !Number.isNaN(parseFloat(search))
+              ? parseFloat(search)
+              : undefined,
           },
         ],
       }
@@ -53,7 +55,7 @@ export class GetParkingAddonListForAdminQueryHandler implements IQueryHandler<
           record.parkingAddonId,
           record.code,
           record.name,
-          record.priceInPln,
+          record.priceInPln.toNumber(),
           record.version,
         ),
     );

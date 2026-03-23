@@ -32,6 +32,7 @@ export class ParkingAddonCreatedEventHandler implements IEventHandler<ParkingAdd
         price,
         code,
         version,
+        priceInPln: priceValue.toPLN(),
       },
     });
   }

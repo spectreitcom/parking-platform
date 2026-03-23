@@ -2,6 +2,7 @@ import { EventsHandler, IEventHandler } from '@nestjs/cqrs';
 import { Logger } from '@nestjs/common';
 import { ParkingAddonUpdatedEvent } from '../../domain/events/parking-addon-updated.event';
 import { PrismaService } from '../../../../shared/prisma/prisma.service';
+import { Money } from '../../../../shared/value-objects/money';
 
 @EventsHandler(ParkingAddonUpdatedEvent)
 export class ParkingAddonUpdatedEventHandler implements IEventHandler<ParkingAddonUpdatedEvent> {
@@ -14,6 +15,8 @@ export class ParkingAddonUpdatedEventHandler implements IEventHandler<ParkingAdd
 
     const { name, version, price, id, code } = event;
 
+    const _priceValue = Money.fromNumber(price);
+
     await this.prismaService.parkingAddonRead.update({
       where: {
         parkingAddonId: id,
@@ -23,6 +26,7 @@ export class ParkingAddonUpdatedEventHandler implements IEventHandler<ParkingAdd
         price,
         code,
         version,
+        priceInPln: _priceValue.toPLN(),
       },
     });
   }
