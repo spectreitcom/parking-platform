@@ -142,6 +142,16 @@ model ParkingFeature {
   parkingSpots ParkingSpot[]
 }
 
+model ParkingFeatureRead {
+  id               String   @id @default(uuid()) @db.Uuid
+  parkingFeatureId String   @unique @db.Uuid
+  name             String   @unique @db.VarChar(255)
+  levels           String[] @db.VarChar(60)
+  version          Int
+
+  @@index([name])
+}
+
 model Parking {
   id        String  @id @default(uuid()) @db.Uuid
   name      String  @unique @db.VarChar(255)

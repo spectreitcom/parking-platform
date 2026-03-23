@@ -39,18 +39,16 @@ export class ParkingFeature extends AggregateRoot {
     const id = ParkingFeatureId.create();
     const _name = ParkingFeatureName.fromString(name);
     const _levels = ParkingFeatureLevel.fromArray(levels);
-    const parkingFeature = new ParkingFeature(
-      id,
-      _name,
-      _levels,
-      AggregateVersion.one(),
-    );
+    const _version = AggregateVersion.one();
+
+    const parkingFeature = new ParkingFeature(id, _name, _levels, _version);
 
     parkingFeature.apply(
       new ParkingFeatureCreatedEvent(
         id.value,
         _name.value,
         _levels.map((level) => level.value),
+        _version.value,
       ),
     );
 
@@ -65,6 +63,7 @@ export class ParkingFeature extends AggregateRoot {
         this.id.value,
         this.name.value,
         this.levels.map((level) => level.value),
+        this.version.increment().value,
       ),
     );
   }

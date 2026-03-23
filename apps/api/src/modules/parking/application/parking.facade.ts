@@ -30,6 +30,9 @@ import { GetParkingListForAdminTotalQuery } from './queries/get-parking-list-for
 import { GetParkingAddonListForAdminQuery } from './queries/get-parking-addon-list-for-admin.query';
 import { ParkingAddonListForAdminItemReadModel } from './query-handlers/read-models/parking-addon-list-for-admin-item.read-model';
 import { GetParkingAddonListForAdminTotalQuery } from './queries/get-parking-addon-list-for-admin-total.query';
+import { GetParkingFeatureListForAdminQuery } from './queries/get-parking-feature-list-for-admin.query';
+import { ParkingFeatureListForAdminItemReadModel } from './query-handlers/read-models/parking-feature-list-for-admin-item.read-model';
+import { GetParkingFeatureListForAdminTotalQuery } from './queries/get-parking-feature-list-for-admin-total.query';
 
 @Injectable()
 export class ParkingFacade {
@@ -333,6 +336,26 @@ export class ParkingFacade {
     const query = new GetParkingAddonListForAdminTotalQuery(search);
     return await this.queryBus.execute<
       GetParkingAddonListForAdminTotalQuery,
+      number
+    >(query);
+  }
+
+  async getParkingFeatureListForAdmin(
+    page: number,
+    limit: number,
+    search?: string,
+  ) {
+    const query = new GetParkingFeatureListForAdminQuery(page, limit, search);
+    return await this.queryBus.execute<
+      GetParkingFeatureListForAdminQuery,
+      ParkingFeatureListForAdminItemReadModel[]
+    >(query);
+  }
+
+  async getParkingFeatureListForAdminTotal(search?: string) {
+    const query = new GetParkingFeatureListForAdminTotalQuery(search);
+    return await this.queryBus.execute<
+      GetParkingFeatureListForAdminTotalQuery,
       number
     >(query);
   }

@@ -70,7 +70,7 @@ export class ParkingAddon extends AggregateRoot {
         this.code.value,
         this.name.value,
         this.price.value,
-        this.version.value,
+        this.version.increment().value,
       ),
     );
   }
