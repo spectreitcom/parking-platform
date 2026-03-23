@@ -26,6 +26,7 @@ export class GetPlaceTypeListQuery implements IQuery {
     this.page = page;
     this.limit = limit;
     this.search = search;
+    this.validate();
   }
 
   private validate() {
