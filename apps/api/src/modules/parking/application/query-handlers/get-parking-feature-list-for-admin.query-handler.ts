@@ -36,6 +36,9 @@ export class GetParkingFeatureListForAdminQueryHandler implements IQueryHandler<
       where: getParkingFeatureListForAdminQueryWhere(search),
       skip: (page - 1) * limit,
       take: limit,
+      orderBy: {
+        parkingFeatureId: 'asc',
+      },
     });
 
     return records.map(

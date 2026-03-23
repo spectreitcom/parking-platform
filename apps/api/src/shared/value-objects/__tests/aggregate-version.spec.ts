@@ -21,6 +21,38 @@ describe('AggregateVersion', () => {
     );
   });
 
+  describe('fromNumber', () => {
+    it('should create an instance from a number', () => {
+      const value = 5;
+      const aggregateVersion = AggregateVersion.fromNumber(value);
+      expect(aggregateVersion.value).toBe(value);
+    });
+
+    it('should throw if number is invalid', () => {
+      expect(() => AggregateVersion.fromNumber(0)).toThrow(
+        'Invalid aggregate version',
+      );
+    });
+  });
+
+  describe('one', () => {
+    it('should create an instance with value 1', () => {
+      const aggregateVersion = AggregateVersion.one();
+      expect(aggregateVersion.value).toBe(1);
+    });
+  });
+
+  describe('increment', () => {
+    it('should return a new instance with incremented value', () => {
+      const version = new AggregateVersion(1);
+      const nextVersion = version.increment();
+
+      expect(nextVersion.value).toBe(2);
+      expect(version.value).toBe(1);
+      expect(nextVersion).not.toBe(version);
+    });
+  });
+
   describe('equals', () => {
     it('should return true if both versions are equal', () => {
       const version1 = new AggregateVersion(1);

@@ -63,7 +63,7 @@ export class ParkingFeature extends AggregateRoot {
         this.id.value,
         this.name.value,
         this.levels.map((level) => level.value),
-        this.version.value,
+        this.version.increment().value,
       ),
     );
   }

@@ -26,6 +26,10 @@ export class AggregateVersion {
     return new AggregateVersion(1);
   }
 
+  increment() {
+    return new AggregateVersion(this._value + 1);
+  }
+
   get value(): number {
     return this._value;
   }

@@ -100,7 +100,7 @@ export class ParkingFeaturesController {
     return {
       data,
       total,
-      currentPage: 1,
+      currentPage: queryParams.page ?? 1,
     };
   }
 
