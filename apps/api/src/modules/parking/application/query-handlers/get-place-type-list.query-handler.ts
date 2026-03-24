@@ -32,6 +32,9 @@ export class GetPlaceTypeListQueryHandler implements IQueryHandler<
       where: getPlaceTypeListQueryWhere(search),
       skip: (page - 1) * limit,
       take: limit,
+      orderBy: {
+        placeTypeId: 'asc',
+      },
     });
 
     return records.map(

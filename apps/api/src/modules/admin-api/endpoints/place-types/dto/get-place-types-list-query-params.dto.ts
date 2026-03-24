@@ -1,4 +1,4 @@
-import { IsInt, IsOptional, Min } from 'class-validator';
+import { IsInt, IsOptional, IsString, Min } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import { DEFAULT_PAGE_SIZE } from '../../../constants';
@@ -32,6 +32,7 @@ export class GetPlaceTypesListQueryParamsDto {
     required: false,
   })
   @IsOptional()
+  @IsString()
   readonly search?: string;
 
   constructor(page?: number, limit?: number, search?: string) {
