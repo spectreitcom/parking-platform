@@ -2,7 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { Strategy } from 'passport-local';
 import { AdminIamFacade } from '../../../admin-iam/application/admin-iam.facade';
-import { AppError } from '../../../../shared/errors';
+import { AppError } from 'src/shared/errors';
+import { RequestUser } from 'src/modules/admin-api/auth/types';
 
 @Injectable()
 export class LocalStrategy extends PassportStrategy(Strategy) {
@@ -13,9 +14,13 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
     });
   }
 
-  async validate(email: string, password: string): Promise<string> {
+  async validate(email: string, password: string): Promise<RequestUser> {
     try {
-      return await this.adminIamFacade.validateUser(email, password);
+      const adminUser = await this.adminIamFacade.validateUser(email, password);
+      return {
+        id: adminUser.id,
+        isSuperAdmin: adminUser.isSuperAdmin,
+      };
     } catch {
       throw new AppError('UNAUTHORIZED', 'Invalid credentials');
     }

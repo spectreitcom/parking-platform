@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { PassportStrategy } from '@nestjs/passport';
 import { ConfigService } from '@nestjs/config';
-import { JwtPayload } from '../types';
+import { JwtPayload, RequestUser } from '../types';
 import { AdminIamFacade } from '../../../admin-iam/application/admin-iam.facade';
 
 @Injectable()
@@ -18,9 +18,12 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     });
   }
 
-  async validate(payload: JwtPayload) {
+  async validate(payload: JwtPayload): Promise<RequestUser> {
     const adminUserId = payload.sub;
     const adminUser = await this.adminIamFacade.getAdminUserById(adminUserId);
-    return adminUser.id;
+    return {
+      id: adminUser.id,
+      isSuperAdmin: adminUser.isSuperAdmin,
+    };
   }
 }

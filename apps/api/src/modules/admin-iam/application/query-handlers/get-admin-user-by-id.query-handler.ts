@@ -1,8 +1,8 @@
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { GetAdminUserByIdQuery } from '../queries/get-admin-user-by-id.query';
 import { AdminUserDetailsReadModel } from './read-models/admin-user-details.read-model';
-import { PrismaService } from '../../../../shared/prisma/prisma.service';
-import { AppError } from '../../../../shared/errors';
+import { PrismaService } from 'src/shared/prisma/prisma.service';
+import { AppError } from 'src/shared/errors';
 
 @QueryHandler(GetAdminUserByIdQuery)
 export class GetAdminUserByIdQueryHandler implements IQueryHandler<

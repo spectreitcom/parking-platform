@@ -3,8 +3,8 @@ import { AdminUserRepository } from '../../application/ports/admin-user.reposito
 import { PrismaTx } from 'src/shared/prisma/types';
 import { RepositorySaveOptions } from 'src/shared/types';
 import { AdminUser } from '../../domain/admin-user';
-import { PrismaService } from '../../../../shared/prisma/prisma.service';
-import { ConcurrencyError } from '../../../../shared/errors';
+import { PrismaService } from 'src/shared/prisma/prisma.service';
+import { ConcurrencyError } from 'src/shared/errors';
 import { AdminUserMapper } from './admin-user.mapper';
 
 @Injectable()

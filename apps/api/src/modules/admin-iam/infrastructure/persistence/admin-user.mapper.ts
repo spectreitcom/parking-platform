@@ -1,9 +1,9 @@
 import { AdminUser } from '../../domain/admin-user';
 import { AdminId } from '../../domain/value-objects/admin-id';
-import { Email } from '../../../../shared/value-objects/email';
+import { Email } from 'src/shared/value-objects/email';
 import { AdminDisplayName } from '../../domain/value-objects/admin-display-name';
 import { AdminStatus } from '../../domain/value-objects/admin-status';
-import { AggregateVersion } from '../../../../shared/value-objects/aggregate-version';
+import { AggregateVersion } from 'src/shared/value-objects/aggregate-version';
 import { AdminUser as AdminUserModel } from '@prisma/client';
 
 export class AdminUserMapper {
