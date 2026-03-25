@@ -1,7 +1,8 @@
-import { Controller, Get, Query } from '@nestjs/common';
+import { Body, Controller, Get, Post, Query } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
   ApiBearerAuth,
+  ApiCreatedResponse,
   ApiOkResponse,
   ApiOperation,
   ApiTags,
@@ -9,6 +10,7 @@ import {
 } from '@nestjs/swagger';
 import { AdminIamFacade } from 'src/modules/admin-iam/application/admin-iam.facade';
 import { GetAdminsListQueryParamsDto } from 'src/modules/admin-api/endpoints/admins/dto/get-admins-list-query-params.dto';
+import { InviteAdminDto } from 'src/modules/admin-api/endpoints/admins/dto/invite-admin.dto';
 import { DEFAULT_PAGE_SIZE } from 'src/modules/admin-api/constants';
 
 @ApiBearerAuth('admin-auth')
@@ -78,5 +80,36 @@ export class AdminsController {
       queryParams.search,
     );
     return { data, total, currentPage: queryParams.page ?? 1 };
+  }
+
+  @ApiOperation({
+    summary: 'Invite admin',
+  })
+  @ApiCreatedResponse({
+    description: 'The admin has been successfully invited.',
+    schema: {
+      type: 'object',
+      properties: {
+        id: {
+          type: 'string',
+          description: 'The ID of the admin',
+          format: 'uuid',
+        },
+      },
+    },
+  })
+  @ApiUnauthorizedResponse({
+    description: 'Unauthorized',
+  })
+  @ApiBadRequestResponse({
+    description: 'Error inviting admin due to validation errors.',
+  })
+  @Post('invite')
+  async inviteAdmin(@Body() dto: InviteAdminDto) {
+    const id = await this.adminIamFacade.inviteAdminUser(
+      dto.email,
+      dto.displayName,
+    );
+    return { id };
   }
 }
