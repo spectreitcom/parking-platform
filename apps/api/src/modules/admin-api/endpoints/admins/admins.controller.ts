@@ -1,4 +1,15 @@
-import { Body, Controller, Get, Post, Query, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Param,
+  ParseUUIDPipe,
+  Post,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import {
   ApiBadRequestResponse,
   ApiBearerAuth,
@@ -13,6 +24,8 @@ import { GetAdminsListQueryParamsDto } from 'src/modules/admin-api/endpoints/adm
 import { InviteAdminDto } from 'src/modules/admin-api/endpoints/admins/dto/invite-admin.dto';
 import { DEFAULT_PAGE_SIZE } from 'src/modules/admin-api/constants';
 import { SuperAdminGuard } from 'src/modules/admin-api/auth/guards/super-admin.guard';
+import { SuspendAdminUserDto } from 'src/modules/admin-api/endpoints/admins/dto/suspend-admin-user.dto';
+import { ActivateAdminUserDto } from 'src/modules/admin-api/endpoints/admins/dto/activate-admin-user.dto';
 
 @ApiBearerAuth('admin-auth')
 @ApiTags('Admin - Admins')
@@ -113,5 +126,71 @@ export class AdminsController {
       dto.displayName,
     );
     return { id };
+  }
+
+  @ApiOperation({
+    summary: 'Suspend admin user',
+  })
+  @ApiOkResponse({
+    description: 'The admin user has been successfully suspended.',
+    schema: {
+      type: 'object',
+      properties: {
+        id: {
+          type: 'string',
+          description: 'The ID of the admin',
+          format: 'uuid',
+        },
+      },
+    },
+  })
+  @ApiUnauthorizedResponse({
+    description: 'Unauthorized',
+  })
+  @ApiBadRequestResponse({
+    description: 'Error suspending admin user due to validation errors.',
+  })
+  @UseGuards(SuperAdminGuard)
+  @Post(':adminUserId/suspend')
+  @HttpCode(HttpStatus.OK)
+  async suspendAdminUser(
+    @Param('adminUserId', new ParseUUIDPipe()) adminUserId: string,
+    @Body() dto: SuspendAdminUserDto,
+  ) {
+    await this.adminIamFacade.suspendAdminUser(adminUserId, dto.version);
+    return { id: adminUserId };
+  }
+
+  @ApiOperation({
+    summary: 'Activate admin user',
+  })
+  @ApiOkResponse({
+    description: 'The admin user has been successfully activated.',
+    schema: {
+      type: 'object',
+      properties: {
+        id: {
+          type: 'string',
+          description: 'The ID of the admin',
+          format: 'uuid',
+        },
+      },
+    },
+  })
+  @ApiUnauthorizedResponse({
+    description: 'Unauthorized',
+  })
+  @ApiBadRequestResponse({
+    description: 'Error activating admin user due to validation errors.',
+  })
+  @UseGuards(SuperAdminGuard)
+  @Post(':adminUserId/activate')
+  @HttpCode(HttpStatus.OK)
+  async activateAdminUser(
+    @Param('adminUserId', new ParseUUIDPipe()) adminUserId: string,
+    @Body() dto: ActivateAdminUserDto,
+  ) {
+    await this.adminIamFacade.activateAdminUser(adminUserId, dto.version);
+    return { id: adminUserId };
   }
 }
