@@ -98,9 +98,10 @@ export class AdminIamFacade {
   }
 
   async validateUser(email: string, password: string) {
-    return await this.queryBus.execute<ValidateUserQuery, string>(
-      new ValidateUserQuery(email, password),
-    );
+    return await this.queryBus.execute<
+      ValidateUserQuery,
+      AdminUserDetailsReadModel
+    >(new ValidateUserQuery(email, password));
   }
 
   async getAdminUserById(adminUserId: string) {

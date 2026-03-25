@@ -1,21 +1,22 @@
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { ValidateUserQuery } from '../queries/validate-user.query';
-import { PrismaService } from '../../../../shared/prisma/prisma.service';
+import { PrismaService } from 'src/shared/prisma/prisma.service';
 import { PasswordService } from '../ports/password.service';
 import { ADMIN_ACTIVE } from '../../domain/constants';
-import { AppError } from '../../../../shared/errors';
+import { AppError } from 'src/shared/errors';
+import { AdminUserDetailsReadModel } from 'src/modules/admin-iam/application/query-handlers/read-models/admin-user-details.read-model';
 
 @QueryHandler(ValidateUserQuery)
 export class ValidateUserQueryHandler implements IQueryHandler<
   ValidateUserQuery,
-  string
+  AdminUserDetailsReadModel
 > {
   constructor(
     private readonly prismaService: PrismaService,
     private readonly passwordService: PasswordService,
   ) {}
 
-  async execute(query: ValidateUserQuery): Promise<string> {
+  async execute(query: ValidateUserQuery): Promise<AdminUserDetailsReadModel> {
     const { email, password } = query;
 
     const record = await this.prismaService.adminUser.findUnique({
@@ -31,6 +32,11 @@ export class ValidateUserQueryHandler implements IQueryHandler<
 
     if (!isPasswordValid) throw new AppError('UNAUTHORIZED', 'Unauthorized');
 
-    return record.id;
+    return {
+      id: record.id,
+      isSuperAdmin: record.isSuperAdmin,
+      email: record.email,
+      displayName: record.displayName,
+    };
   }
 }
