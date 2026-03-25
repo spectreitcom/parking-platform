@@ -1,7 +1,7 @@
 import { CommandHandler, EventPublisher, ICommandHandler } from '@nestjs/cqrs';
 import { ChangePasswordCommand } from '../commands/change-password.command';
 import { AdminUserRepository } from '../ports/admin-user.repository';
-import { AppError } from '../../../../shared/errors';
+import { AppError } from 'src/shared/errors';
 import { PasswordService } from '../ports/password.service';
 
 @CommandHandler(ChangePasswordCommand)
