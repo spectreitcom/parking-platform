@@ -15,6 +15,7 @@ import { InviteAdminUserCommand } from './commands/invite-admin-user.command';
 import { GenerateResetPasswordTokenCommand } from './commands/generate-reset-password-token.command';
 import { ValidateUserQuery } from './queries/validate-user.query';
 import { GetAdminUserByIdQuery } from './queries/get-admin-user-by-id.query';
+import { ChangePasswordCommand } from './commands/change-password.command';
 import { AdminUserDetailsReadModel } from './query-handlers/read-models/admin-user-details.read-model';
 
 @Injectable()
@@ -108,5 +109,15 @@ export class AdminIamFacade {
       GetAdminUserByIdQuery,
       AdminUserDetailsReadModel
     >(query);
+  }
+
+  async changePassword(
+    adminUserId: string,
+    existingPassword: string,
+    newPassword: string,
+  ) {
+    return await this.commandBus.execute<ChangePasswordCommand, void>(
+      new ChangePasswordCommand(adminUserId, existingPassword, newPassword),
+    );
   }
 }
