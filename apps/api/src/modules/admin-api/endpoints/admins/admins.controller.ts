@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Query } from '@nestjs/common';
+import { Body, Controller, Get, Post, Query, UseGuards } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
   ApiBearerAuth,
@@ -12,6 +12,7 @@ import { AdminIamFacade } from 'src/modules/admin-iam/application/admin-iam.faca
 import { GetAdminsListQueryParamsDto } from 'src/modules/admin-api/endpoints/admins/dto/get-admins-list-query-params.dto';
 import { InviteAdminDto } from 'src/modules/admin-api/endpoints/admins/dto/invite-admin.dto';
 import { DEFAULT_PAGE_SIZE } from 'src/modules/admin-api/constants';
+import { SuperAdminGuard } from 'src/modules/admin-api/auth/guards/super-admin.guard';
 
 @ApiBearerAuth('admin-auth')
 @ApiTags('Admin - Admins')
@@ -104,6 +105,7 @@ export class AdminsController {
   @ApiBadRequestResponse({
     description: 'Error inviting admin due to validation errors.',
   })
+  @UseGuards(SuperAdminGuard)
   @Post('invite')
   async inviteAdmin(@Body() dto: InviteAdminDto) {
     const id = await this.adminIamFacade.inviteAdminUser(
