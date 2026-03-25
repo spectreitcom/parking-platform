@@ -9,6 +9,7 @@ import { AuthModule } from './auth/auth.module';
 import { ParkingFeaturesController } from './endpoints/parking-features/parking-features.controller';
 import { PlaceTypesController } from './endpoints/place-types/place-types.controller';
 import { ParkingAddonsController } from './endpoints/parking-addons/parking-addons.controller';
+import { AdminsController } from 'src/modules/admin-api/endpoints/admins/admins.controller';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { ParkingAddonsController } from './endpoints/parking-addons/parking-addo
     ParkingFeaturesController,
     PlaceTypesController,
     ParkingAddonsController,
+    AdminsController,
   ],
 })
 export class AdminApiModule {}
