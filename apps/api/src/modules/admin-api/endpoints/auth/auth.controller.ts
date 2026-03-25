@@ -1,4 +1,5 @@
 import {
+  Body,
   Controller,
   Get,
   HttpCode,
@@ -16,6 +17,8 @@ import { AdminIamFacade } from '../../../admin-iam/application/admin-iam.facade'
 import { CurrentAdminUserId } from '../../auth/decorators/current-admin-user-id.decorator';
 import { PublicApi } from '../../auth/decorators/public-api.decorator';
 import { LocalAuthGuard } from '../../auth/guards/local-auth.guard';
+import { RequestResetPasswordTokenDto } from './dto/request-reset-password-token.dto';
+import { ResetPasswordTokenDto } from './dto/reset-password-token.dto';
 
 @ApiTags('Admin Auth')
 @Controller('admin/auth')
@@ -115,5 +118,29 @@ export class AuthController {
   async signOut(@CurrentAdminUserId() adminUserId: string) {
     await this.adminIamFacade.signOut(adminUserId);
     return { status: HttpStatus.OK };
+  }
+
+  @ApiOperation({ summary: 'Request reset password token' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Reset password token requested successfully',
+  })
+  @PublicApi()
+  @Post('request-reset-password-token')
+  @HttpCode(HttpStatus.OK)
+  async requestResetPasswordToken(@Body() dto: RequestResetPasswordTokenDto) {
+    await this.adminIamFacade.requestResetPassword(dto.email);
+  }
+
+  @ApiOperation({ summary: 'Reset password' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Password reset successfully',
+  })
+  @PublicApi()
+  @Post('reset-password')
+  @HttpCode(HttpStatus.OK)
+  async resetPasswordToken(@Body() dto: ResetPasswordTokenDto) {
+    await this.adminIamFacade.resetPassword(dto.token, dto.password);
   }
 }
