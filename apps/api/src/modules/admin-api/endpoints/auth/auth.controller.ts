@@ -19,6 +19,7 @@ import { PublicApi } from '../../auth/decorators/public-api.decorator';
 import { LocalAuthGuard } from '../../auth/guards/local-auth.guard';
 import { RequestResetPasswordTokenDto } from './dto/request-reset-password-token.dto';
 import { ResetPasswordTokenDto } from './dto/reset-password-token.dto';
+import { ChangePasswordDto } from './dto/change-password.dto';
 
 @ApiTags('Admin Auth')
 @Controller('admin/auth')
@@ -142,5 +143,24 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   async resetPasswordToken(@Body() dto: ResetPasswordTokenDto) {
     await this.adminIamFacade.resetPassword(dto.token, dto.password);
+  }
+
+  @ApiBearerAuth('admin-auth')
+  @ApiOperation({ summary: 'Change password' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Password changed successfully',
+  })
+  @Post('change-password')
+  @HttpCode(HttpStatus.OK)
+  async changePassword(
+    @CurrentAdminUserId() adminUserId: string,
+    @Body() dto: ChangePasswordDto,
+  ) {
+    await this.adminIamFacade.changePassword(
+      adminUserId,
+      dto.existingPassword,
+      dto.newPassword,
+    );
   }
 }

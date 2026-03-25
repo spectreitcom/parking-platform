@@ -6,6 +6,7 @@ import { RequestResetPasswordCommandHandler } from './request-reset-password.com
 import { ResetPasswordCommandHandler } from './reset-password.command-handler';
 import { InviteAdminUserCommandHandler } from './invite-admin-user.command-handler';
 import { GenerateResetPasswordTokenCommandHandler } from './generate-reset-password-token.command-handler';
+import { ChangePasswordCommandHandler } from './change-password.command-handler';
 
 export const commandHandlers = [
   SignInCommandHandler,
@@ -16,4 +17,5 @@ export const commandHandlers = [
   ResetPasswordCommandHandler,
   InviteAdminUserCommandHandler,
   GenerateResetPasswordTokenCommandHandler,
+  ChangePasswordCommandHandler,
 ];
