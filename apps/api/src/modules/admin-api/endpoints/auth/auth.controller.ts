@@ -20,6 +20,7 @@ import { LocalAuthGuard } from '../../auth/guards/local-auth.guard';
 import { RequestResetPasswordTokenDto } from './dto/request-reset-password-token.dto';
 import { ResetPasswordTokenDto } from './dto/reset-password-token.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
+import { RefreshTokenDto } from './dto/refresh-token.dto';
 
 @ApiTags('Admin Auth')
 @Controller('admin/auth')
@@ -162,5 +163,34 @@ export class AuthController {
       dto.existingPassword,
       dto.newPassword,
     );
+  }
+
+  @ApiOperation({ summary: 'Refresh access token' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Access token refreshed successfully',
+    schema: {
+      type: 'object',
+      properties: {
+        accessToken: {
+          type: 'string',
+          description: 'JWT access token',
+        },
+        refreshToken: {
+          type: 'string',
+          description: 'JWT refresh token',
+        },
+      },
+    },
+  })
+  @ApiResponse({
+    status: HttpStatus.UNAUTHORIZED,
+    description: 'Invalid refresh token',
+  })
+  @PublicApi()
+  @Post('refresh-token')
+  @HttpCode(HttpStatus.OK)
+  async refreshToken(@Body() dto: RefreshTokenDto) {
+    return await this.adminIamFacade.refreshToken(dto.refreshToken);
   }
 }

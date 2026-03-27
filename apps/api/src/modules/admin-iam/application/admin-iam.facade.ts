@@ -16,6 +16,7 @@ import { GenerateResetPasswordTokenCommand } from './commands/generate-reset-pas
 import { ValidateUserQuery } from './queries/validate-user.query';
 import { GetAdminUserByIdQuery } from './queries/get-admin-user-by-id.query';
 import { ChangePasswordCommand } from './commands/change-password.command';
+import { RefreshTokenCommand } from './commands/refresh-token.command';
 import { AdminUserDetailsReadModel } from './query-handlers/read-models/admin-user-details.read-model';
 
 @Injectable()
@@ -120,5 +121,13 @@ export class AdminIamFacade {
     return await this.commandBus.execute<ChangePasswordCommand, void>(
       new ChangePasswordCommand(adminUserId, existingPassword, newPassword),
     );
+  }
+
+  async refreshToken(refreshToken: string) {
+    const command = new RefreshTokenCommand(refreshToken);
+    return await this.commandBus.execute<
+      RefreshTokenCommand,
+      SignInCommandResponse
+    >(command);
   }
 }
