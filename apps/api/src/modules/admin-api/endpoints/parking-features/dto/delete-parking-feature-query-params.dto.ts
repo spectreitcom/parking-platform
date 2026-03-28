@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsNumber, IsPositive } from 'class-validator';
+import { IsInt, IsNotEmpty, IsNumber, IsPositive } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 
@@ -12,6 +12,7 @@ export class DeleteParkingFeatureQueryParamsDto {
   @IsNotEmpty()
   @IsNumber()
   @IsPositive()
+  @IsInt()
   readonly version: number;
 
   constructor(version: number) {
