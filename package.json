@@ -16,7 +16,7 @@
     "husky": "^9.1.7",
     "prettier": "^3.8.1",
     "prisma": "^7.5.0",
-    "turbo": "^2.8.20",
+    "turbo": "^2.8.21",
     "typescript": "6.0.2"
   },
   "engines": {

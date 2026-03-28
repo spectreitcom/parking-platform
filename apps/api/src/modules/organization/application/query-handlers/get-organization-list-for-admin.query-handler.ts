@@ -1,7 +1,7 @@
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { GetOrganizationListForAdminQuery } from '../queries/get-organization-list-for-admin.query';
 import { OrganizationListForAdminItemReadModel } from './read-models/organization-list-for-admin-item.read-model';
-import { PrismaService } from '../../../../shared/prisma/prisma.service';
+import { PrismaService } from 'src/shared/prisma/prisma.service';
 import { Prisma } from '@prisma/client';
 
 export const getOrganizationListForAdminQueryWhere: (
