@@ -21,7 +21,7 @@ export class Organization extends AggregateRoot {
   private name: OrganizationName;
   private address: OrganizationAddress;
   private taxId: OrganizationTaxId;
-  private readonly version: AggregateVersion;
+  private version: AggregateVersion;
   private members: OrganizationMember[];
 
   private constructor(
@@ -84,7 +84,8 @@ export class Organization extends AggregateRoot {
     this.name = OrganizationName.fromString(name);
     this.address = OrganizationAddress.fromString(address);
     this.taxId = OrganizationTaxId.fromString(taxId);
-    const _nextVersion = this.version.increment();
+    this.version = this.version.increment();
+    const _nextVersion = this.version;
 
     this.apply(
       new OrganizationUpdatedEvent(

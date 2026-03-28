@@ -25,7 +25,7 @@ export class Parking extends AggregateRoot {
   private assetIds: AssetId[];
   private statute?: string;
   private parkingFeatureIds: ParkingFeatureId[];
-  private readonly version: AggregateVersion;
+  private version: AggregateVersion;
   private parkingAddonIds: ParkingAddonId[];
   private readonly placeId: PlaceId;
 
@@ -166,7 +166,8 @@ export class Parking extends AggregateRoot {
     );
     this.description = description;
     this.statute = statute;
-    const _nextVersion = this.version.increment();
+    this.version = this.version.increment();
+    const _nextVersion = this.version;
 
     this.apply(
       new ParkingUpdatedEvent(
@@ -193,7 +194,8 @@ export class Parking extends AggregateRoot {
       return;
     }
     this.active = true;
-    const _nextVersion = this.version.increment();
+    this.version = this.version.increment();
+    const _nextVersion = this.version;
     this.apply(new ParkingActivatedEvent(this.id.value, _nextVersion.value));
   }
 
@@ -202,7 +204,8 @@ export class Parking extends AggregateRoot {
       return;
     }
     this.active = false;
-    const _nextVersion = this.version.increment();
+    this.version = this.version.increment();
+    const _nextVersion = this.version;
     this.apply(new ParkingDeactivatedEvent(this.id.value, _nextVersion.value));
   }
 

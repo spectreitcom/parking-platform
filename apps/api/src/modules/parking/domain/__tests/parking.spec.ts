@@ -147,7 +147,7 @@ describe('Parking', () => {
       new ParkingDeactivatedEvent(parking.getId().value, 2),
     );
     expect(activationEvent).toEqual(
-      new ParkingActivatedEvent(parking.getId().value, 2),
+      new ParkingActivatedEvent(parking.getId().value, 3),
     );
   });
 
