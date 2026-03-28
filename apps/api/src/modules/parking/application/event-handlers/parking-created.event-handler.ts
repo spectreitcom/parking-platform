@@ -18,6 +18,7 @@ export class ParkingCreatedEventHandler implements IEventHandler<ParkingCreatedE
       name,
       address,
       active,
+      version,
     } = event;
 
     const organizationRecord =
@@ -38,6 +39,7 @@ export class ParkingCreatedEventHandler implements IEventHandler<ParkingCreatedE
         placeName: placeRecord?.name ?? '',
         parkingActive: active,
         organizationName: organizationRecord?.name ?? '',
+        version,
       },
       create: {
         parkingId,
@@ -49,6 +51,7 @@ export class ParkingCreatedEventHandler implements IEventHandler<ParkingCreatedE
         parkingActive: active,
         parkingSpotsNumber: 0,
         organizationName: organizationRecord?.name ?? '',
+        version,
       },
     });
   }

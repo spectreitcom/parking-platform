@@ -66,6 +66,7 @@ export class ParkingsController {
                   name: { type: 'string' },
                 },
               },
+              version: { type: 'number', format: 'int32', example: 1 },
             },
           },
         },
