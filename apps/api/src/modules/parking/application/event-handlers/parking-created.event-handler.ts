@@ -1,7 +1,7 @@
 import { EventsHandler, IEventHandler } from '@nestjs/cqrs';
 import { Logger } from '@nestjs/common';
 import { ParkingCreatedEvent } from '../../domain/events/parking-created.event';
-import { PrismaService } from '../../../../shared/prisma/prisma.service';
+import { PrismaService } from 'src/shared/prisma/prisma.service';
 
 @EventsHandler(ParkingCreatedEvent)
 export class ParkingCreatedEventHandler implements IEventHandler<ParkingCreatedEvent> {
@@ -18,6 +18,7 @@ export class ParkingCreatedEventHandler implements IEventHandler<ParkingCreatedE
       name,
       address,
       active,
+      version,
     } = event;
 
     const organizationRecord =
@@ -38,6 +39,7 @@ export class ParkingCreatedEventHandler implements IEventHandler<ParkingCreatedE
         placeName: placeRecord?.name ?? '',
         parkingActive: active,
         organizationName: organizationRecord?.name ?? '',
+        version,
       },
       create: {
         parkingId,
@@ -49,6 +51,7 @@ export class ParkingCreatedEventHandler implements IEventHandler<ParkingCreatedE
         parkingActive: active,
         parkingSpotsNumber: 0,
         organizationName: organizationRecord?.name ?? '',
+        version,
       },
     });
   }

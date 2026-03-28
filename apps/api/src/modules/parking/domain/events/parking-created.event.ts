@@ -15,5 +15,6 @@ export class ParkingCreatedEvent implements IEvent {
     public readonly assetIds: string[],
     public readonly description: string,
     public readonly statute: string,
+    public readonly version: number,
   ) {}
 }

@@ -11,6 +11,7 @@ import { PlaceTypesController } from './endpoints/place-types/place-types.contro
 import { ParkingAddonsController } from './endpoints/parking-addons/parking-addons.controller';
 import { AdminsController } from 'src/modules/admin-api/endpoints/admins/admins.controller';
 import { OrganizationsController } from 'src/modules/admin-api/endpoints/organizations/organizations.controller';
+import { ParkingsController } from 'src/modules/admin-api/endpoints/parkings/parkings.controller';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { OrganizationsController } from 'src/modules/admin-api/endpoints/organiz
     ParkingAddonsController,
     AdminsController,
     OrganizationsController,
+    ParkingsController,
   ],
 })
 export class AdminApiModule {}

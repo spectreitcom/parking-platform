@@ -66,6 +66,7 @@ describe('Organization', () => {
       const userId = randomUUID();
 
       organization.addMember(true, userId);
+      expect(organization.getVersion().value).toBe(2);
 
       expect(organization.getMembers()).toHaveLength(1);
       expect(organization.getMembers()[0].isRoot).toBe(true);
@@ -79,6 +80,7 @@ describe('Organization', () => {
       const event = uncommittedEvents[1] as OrganizationMemberAddedEvent;
       expect(event.isRoot).toBe(true);
       expect(event.organizationUserId).toBe(userId);
+      expect(event.version).toBe(2);
     });
 
     it('should throw error if member already exists', () => {
@@ -109,6 +111,7 @@ describe('Organization', () => {
       const memberId = organization.getMembers()[0].id.value;
 
       organization.removeMember(memberId);
+      expect(organization.getVersion().value).toBe(3);
 
       expect(organization.getMembers()).toHaveLength(0);
 
@@ -119,6 +122,7 @@ describe('Organization', () => {
       );
       const event = uncommittedEvents[2] as OrganizationMemberRemovedEvent;
       expect(event.memberId).toBe(memberId);
+      expect(event.version).toBe(3);
     });
 
     it('should throw error if member not found', () => {

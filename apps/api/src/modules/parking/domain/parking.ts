@@ -2,10 +2,10 @@ import { AggregateRoot } from '@nestjs/cqrs';
 import { ParkingId } from './value-objects/parking-id';
 import { ParkingName } from './value-objects/parking-name';
 import { Address } from './value-objects/address';
-import { Coords } from '../../../shared/value-objects/coords';
+import { Coords } from 'src/shared/value-objects/coords';
 import { AssetId } from './value-objects/asset-id';
 import { ParkingFeatureId } from './value-objects/parking-feature-id';
-import { AggregateVersion } from '../../../shared/value-objects/aggregate-version';
+import { AggregateVersion } from 'src/shared/value-objects/aggregate-version';
 import { OrganizationId } from './value-objects/organization-id';
 import { ParkingAddonId } from './value-objects/parking-addon-id';
 import { ParkingCreatedEvent } from './events/parking-created.event';
@@ -25,7 +25,7 @@ export class Parking extends AggregateRoot {
   private assetIds: AssetId[];
   private statute?: string;
   private parkingFeatureIds: ParkingFeatureId[];
-  private readonly version: AggregateVersion;
+  private version: AggregateVersion;
   private parkingAddonIds: ParkingAddonId[];
   private readonly placeId: PlaceId;
 
@@ -137,6 +137,7 @@ export class Parking extends AggregateRoot {
         [],
         '',
         '',
+        parking.version.value,
       ),
     );
 
@@ -165,6 +166,8 @@ export class Parking extends AggregateRoot {
     );
     this.description = description;
     this.statute = statute;
+    this.version = this.version.increment();
+    const _nextVersion = this.version;
 
     this.apply(
       new ParkingUpdatedEvent(
@@ -181,6 +184,7 @@ export class Parking extends AggregateRoot {
         this.assetIds.map((id) => id.value),
         this.description ?? '',
         this.statute ?? '',
+        _nextVersion.value,
       ),
     );
   }
@@ -190,7 +194,9 @@ export class Parking extends AggregateRoot {
       return;
     }
     this.active = true;
-    this.apply(new ParkingActivatedEvent(this.id.value));
+    this.version = this.version.increment();
+    const _nextVersion = this.version;
+    this.apply(new ParkingActivatedEvent(this.id.value, _nextVersion.value));
   }
 
   deactivate() {
@@ -198,7 +204,9 @@ export class Parking extends AggregateRoot {
       return;
     }
     this.active = false;
-    this.apply(new ParkingDeactivatedEvent(this.id.value));
+    this.version = this.version.increment();
+    const _nextVersion = this.version;
+    this.apply(new ParkingDeactivatedEvent(this.id.value, _nextVersion.value));
   }
 
   getId() {

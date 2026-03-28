@@ -7,5 +7,6 @@ export class ParkingListForAdminItemReadModel {
     public readonly active: boolean,
     public readonly spotsNumber: number,
     public readonly address: string,
+    public readonly version: number,
   ) {}
 }

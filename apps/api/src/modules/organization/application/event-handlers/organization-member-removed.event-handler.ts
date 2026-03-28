@@ -1,7 +1,7 @@
 import { EventsHandler, IEventHandler } from '@nestjs/cqrs';
 import { OrganizationMemberRemovedEvent } from '../../domain/events/organization-member-removed.event';
 import { Logger } from '@nestjs/common';
-import { PrismaService } from '../../../../shared/prisma/prisma.service';
+import { PrismaService } from 'src/shared/prisma/prisma.service';
 
 @EventsHandler(OrganizationMemberRemovedEvent)
 export class OrganizationMemberRemovedEventHandler implements IEventHandler<OrganizationMemberRemovedEvent> {
@@ -14,7 +14,7 @@ export class OrganizationMemberRemovedEventHandler implements IEventHandler<Orga
   async handle(event: OrganizationMemberRemovedEvent) {
     this.logger.log(`Organization member removed: ${event.memberId}`);
 
-    const { organizationId, memberId } = event;
+    const { organizationId, memberId, version } = event;
 
     const record =
       await this.prismaService.organizationListForAdminRead.findUnique({
@@ -32,6 +32,7 @@ export class OrganizationMemberRemovedEventHandler implements IEventHandler<Orga
       where: { organizationId },
       data: {
         members: members.filter((member) => member.id !== memberId),
+        version,
       },
     });
   }

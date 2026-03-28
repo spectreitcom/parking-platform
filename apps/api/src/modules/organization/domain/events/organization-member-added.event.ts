@@ -6,5 +6,6 @@ export class OrganizationMemberAddedEvent implements IEvent {
     public readonly memberId: string,
     public readonly isRoot: boolean,
     public readonly organizationUserId: string,
+    public readonly version: number,
   ) {}
 }

@@ -48,6 +48,7 @@ describe('Parking', () => {
         [],
         '',
         '',
+        1,
       ),
     );
   });
@@ -112,6 +113,7 @@ describe('Parking', () => {
         assetIds,
         description,
         statute,
+        2,
       ),
     );
   });
@@ -142,10 +144,10 @@ describe('Parking', () => {
     );
 
     expect(deactivationEvent).toEqual(
-      new ParkingDeactivatedEvent(parking.getId().value),
+      new ParkingDeactivatedEvent(parking.getId().value, 2),
     );
     expect(activationEvent).toEqual(
-      new ParkingActivatedEvent(parking.getId().value),
+      new ParkingActivatedEvent(parking.getId().value, 3),
     );
   });
 

@@ -1,7 +1,7 @@
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { GetParkingListForAdminQuery } from '../queries/get-parking-list-for-admin.query';
 import { ParkingListForAdminItemReadModel } from './read-models/parking-list-for-admin-item.read-model';
-import { PrismaService } from '../../../../shared/prisma/prisma.service';
+import { PrismaService } from 'src/shared/prisma/prisma.service';
 import { Prisma } from '@prisma/client';
 
 export const getParkingListForAdminQueryWhere: (
@@ -63,6 +63,7 @@ export class GetParkingListForAdminQueryHandler implements IQueryHandler<
           record.parkingActive,
           record.parkingSpotsNumber,
           record.parkingAddress,
+          record.version,
         ),
     );
   }

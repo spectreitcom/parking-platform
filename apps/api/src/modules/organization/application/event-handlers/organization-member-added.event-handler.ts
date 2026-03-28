@@ -1,7 +1,7 @@
 import { EventsHandler, IEventHandler } from '@nestjs/cqrs';
 import { OrganizationMemberAddedEvent } from '../../domain/events/organization-member-added.event';
 import { Logger } from '@nestjs/common';
-import { PrismaService } from '../../../../shared/prisma/prisma.service';
+import { PrismaService } from 'src/shared/prisma/prisma.service';
 
 @EventsHandler(OrganizationMemberAddedEvent)
 export class OrganizationMemberAddedEventHandler implements IEventHandler<OrganizationMemberAddedEvent> {
@@ -16,7 +16,8 @@ export class OrganizationMemberAddedEventHandler implements IEventHandler<Organi
       `Handling OrganizationMemberAddedEvent for organizationId: ${event.organizationId}`,
     );
 
-    const { organizationId, memberId, organizationUserId, isRoot } = event;
+    const { organizationId, memberId, organizationUserId, isRoot, version } =
+      event;
 
     const record =
       await this.prismaService.organizationListForAdminRead.findUnique({
@@ -40,6 +41,7 @@ export class OrganizationMemberAddedEventHandler implements IEventHandler<Organi
       where: { organizationId },
       data: {
         members,
+        version,
       },
     });
   }

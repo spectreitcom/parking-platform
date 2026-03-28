@@ -21,7 +21,7 @@ export class Organization extends AggregateRoot {
   private name: OrganizationName;
   private address: OrganizationAddress;
   private taxId: OrganizationTaxId;
-  private readonly version: AggregateVersion;
+  private version: AggregateVersion;
   private members: OrganizationMember[];
 
   private constructor(
@@ -84,7 +84,8 @@ export class Organization extends AggregateRoot {
     this.name = OrganizationName.fromString(name);
     this.address = OrganizationAddress.fromString(address);
     this.taxId = OrganizationTaxId.fromString(taxId);
-    const _nextVersion = this.version.increment();
+    this.version = this.version.increment();
+    const _nextVersion = this.version;
 
     this.apply(
       new OrganizationUpdatedEvent(
@@ -131,6 +132,8 @@ export class Organization extends AggregateRoot {
       ),
     );
     this.members = members;
+    this.version = this.version.increment();
+    const _nextVersion = this.version;
 
     this.apply(
       new OrganizationMemberAddedEvent(
@@ -138,6 +141,7 @@ export class Organization extends AggregateRoot {
         memberId.value,
         isRoot,
         organizationUserId,
+        _nextVersion.value,
       ),
     );
   }
@@ -154,7 +158,16 @@ export class Organization extends AggregateRoot {
       (member) => !member.id.equals(OrganizationMemberId.fromString(memberId)),
     );
 
-    this.apply(new OrganizationMemberRemovedEvent(this.id.value, memberId));
+    this.version = this.version.increment();
+    const _nextVersion = this.version;
+
+    this.apply(
+      new OrganizationMemberRemovedEvent(
+        this.id.value,
+        memberId,
+        _nextVersion.value,
+      ),
+    );
   }
 
   getId() {
