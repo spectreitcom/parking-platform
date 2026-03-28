@@ -1,5 +1,6 @@
 import { IsInt, IsNotEmpty, IsNumber, IsPositive } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
+import { Type } from 'class-transformer';
 
 export class DeletePlaceTypeQueryParamsDto {
   @ApiProperty({
@@ -7,6 +8,7 @@ export class DeletePlaceTypeQueryParamsDto {
     example: 1,
     required: true,
   })
+  @Type(() => Number)
   @IsNotEmpty()
   @IsNumber()
   @IsInt()
