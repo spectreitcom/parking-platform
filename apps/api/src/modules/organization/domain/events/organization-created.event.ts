@@ -11,5 +11,6 @@ export class OrganizationCreatedEvent implements IEvent {
       isRoot: boolean;
       organizationUserId: string;
     }[],
+    public readonly version: number,
   ) {}
 }

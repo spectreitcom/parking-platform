@@ -107,6 +107,7 @@ export class GetOrganizationListForAdminQueryHandler implements IQueryHandler<
           record.address,
           record.taxId,
           _members,
+          record.version,
         ),
       );
     }

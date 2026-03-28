@@ -73,6 +73,7 @@ export class Organization extends AggregateRoot {
         _address.value,
         _taxId.value,
         [],
+        organization.version.value,
       ),
     );
 
@@ -83,6 +84,7 @@ export class Organization extends AggregateRoot {
     this.name = OrganizationName.fromString(name);
     this.address = OrganizationAddress.fromString(address);
     this.taxId = OrganizationTaxId.fromString(taxId);
+    const _nextVersion = this.version.increment();
 
     this.apply(
       new OrganizationUpdatedEvent(
@@ -95,6 +97,7 @@ export class Organization extends AggregateRoot {
           isRoot: member.isRoot,
           organizationUserId: member.organizationUserId.value,
         })),
+        _nextVersion.value,
       ),
     );
   }
