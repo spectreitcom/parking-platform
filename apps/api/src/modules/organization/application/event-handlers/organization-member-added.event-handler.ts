@@ -1,7 +1,7 @@
 import { EventsHandler, IEventHandler } from '@nestjs/cqrs';
 import { OrganizationMemberAddedEvent } from '../../domain/events/organization-member-added.event';
 import { Logger } from '@nestjs/common';
-import { PrismaService } from '../../../../shared/prisma/prisma.service';
+import { PrismaService } from 'src/shared/prisma/prisma.service';
 
 @EventsHandler(OrganizationMemberAddedEvent)
 export class OrganizationMemberAddedEventHandler implements IEventHandler<OrganizationMemberAddedEvent> {
