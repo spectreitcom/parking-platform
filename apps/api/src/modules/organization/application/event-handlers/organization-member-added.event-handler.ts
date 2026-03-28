@@ -16,7 +16,8 @@ export class OrganizationMemberAddedEventHandler implements IEventHandler<Organi
       `Handling OrganizationMemberAddedEvent for organizationId: ${event.organizationId}`,
     );
 
-    const { organizationId, memberId, organizationUserId, isRoot } = event;
+    const { organizationId, memberId, organizationUserId, isRoot, version } =
+      event;
 
     const record =
       await this.prismaService.organizationListForAdminRead.findUnique({
@@ -40,6 +41,7 @@ export class OrganizationMemberAddedEventHandler implements IEventHandler<Organi
       where: { organizationId },
       data: {
         members,
+        version,
       },
     });
   }

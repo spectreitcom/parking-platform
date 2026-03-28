@@ -14,7 +14,7 @@ export class OrganizationMemberRemovedEventHandler implements IEventHandler<Orga
   async handle(event: OrganizationMemberRemovedEvent) {
     this.logger.log(`Organization member removed: ${event.memberId}`);
 
-    const { organizationId, memberId } = event;
+    const { organizationId, memberId, version } = event;
 
     const record =
       await this.prismaService.organizationListForAdminRead.findUnique({
@@ -32,6 +32,7 @@ export class OrganizationMemberRemovedEventHandler implements IEventHandler<Orga
       where: { organizationId },
       data: {
         members: members.filter((member) => member.id !== memberId),
+        version,
       },
     });
   }
