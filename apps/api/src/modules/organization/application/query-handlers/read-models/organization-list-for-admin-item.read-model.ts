@@ -11,5 +11,6 @@ export class OrganizationListForAdminItemReadModel {
       displayName: string;
       email: string;
     }[],
+    public readonly version: number,
   ) {}
 }

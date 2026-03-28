@@ -50,6 +50,7 @@ export class OrganizationsController {
               name: { type: 'string' },
               address: { type: 'string' },
               taxId: { type: 'string' },
+              version: { type: 'number', example: 1 },
               members: {
                 type: 'array',
                 items: {

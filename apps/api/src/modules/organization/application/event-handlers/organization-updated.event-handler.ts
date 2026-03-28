@@ -1,7 +1,7 @@
 import { EventsHandler, IEventHandler } from '@nestjs/cqrs';
 import { OrganizationUpdatedEvent } from '../../domain/events/organization-updated.event';
 import { Logger } from '@nestjs/common';
-import { PrismaService } from '../../../../shared/prisma/prisma.service';
+import { PrismaService } from 'src/shared/prisma/prisma.service';
 
 @EventsHandler(OrganizationUpdatedEvent)
 export class OrganizationUpdatedEventHandler implements IEventHandler<OrganizationUpdatedEvent> {
@@ -14,7 +14,7 @@ export class OrganizationUpdatedEventHandler implements IEventHandler<Organizati
       `Handling OrganizationUpdatedEvent for organization ${event.organizationId}`,
     );
 
-    const { organizationId, name, taxId, members, address } = event;
+    const { organizationId, name, taxId, members, address, version } = event;
 
     await this.prismaService.organizationListForAdminRead.upsert({
       where: { organizationId },
@@ -25,6 +25,7 @@ export class OrganizationUpdatedEventHandler implements IEventHandler<Organizati
         members: members.map((member) => ({
           ...member,
         })),
+        version,
       },
       create: {
         organizationId,
@@ -34,6 +35,7 @@ export class OrganizationUpdatedEventHandler implements IEventHandler<Organizati
         members: members.map((member) => ({
           ...member,
         })),
+        version,
       },
     });
   }

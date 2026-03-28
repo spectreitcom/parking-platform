@@ -305,6 +305,7 @@ model OrganizationListForAdminRead {
   address        String @db.VarChar(255)
   taxId          String @db.VarChar(120)
   members        Json
+  version        Int    @db.Integer
 
   @@index([address, name, taxId])
 }

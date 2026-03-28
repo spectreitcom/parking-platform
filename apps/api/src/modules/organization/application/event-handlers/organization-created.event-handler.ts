@@ -1,7 +1,7 @@
 import { EventsHandler, IEventHandler } from '@nestjs/cqrs';
 import { OrganizationCreatedEvent } from '../../domain/events/organization-created.event';
 import { Logger } from '@nestjs/common';
-import { PrismaService } from '../../../../shared/prisma/prisma.service';
+import { PrismaService } from 'src/shared/prisma/prisma.service';
 
 @EventsHandler(OrganizationCreatedEvent)
 export class OrganizationCreatedEventHandler implements IEventHandler<OrganizationCreatedEvent> {
@@ -13,7 +13,7 @@ export class OrganizationCreatedEventHandler implements IEventHandler<Organizati
     this.logger.log(
       `Handling OrganizationCreatedEvent for organization ${event.organizationId}`,
     );
-    const { organizationId, name, taxId, members, address } = event;
+    const { organizationId, name, taxId, members, address, version } = event;
 
     await this.prismaService.organizationListForAdminRead.create({
       data: {
@@ -24,6 +24,7 @@ export class OrganizationCreatedEventHandler implements IEventHandler<Organizati
         members: members.map((member) => ({
           ...member,
         })),
+        version,
       },
     });
   }
