@@ -1,7 +1,7 @@
 import { EventsHandler, IEventHandler } from '@nestjs/cqrs';
 import { Logger } from '@nestjs/common';
 import { ParkingActivatedEvent } from '../../domain/events/parking-activated.event';
-import { PrismaService } from '../../../../shared/prisma/prisma.service';
+import { PrismaService } from 'src/shared/prisma/prisma.service';
 
 @EventsHandler(ParkingActivatedEvent)
 export class ParkingActivatedEventHandler implements IEventHandler<ParkingActivatedEvent> {
