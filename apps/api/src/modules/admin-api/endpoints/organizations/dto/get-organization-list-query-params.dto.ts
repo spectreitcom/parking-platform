@@ -1,6 +1,7 @@
-import { IsInt, IsOptional } from 'class-validator';
+import { IsInt, IsOptional, MaxLength, Min } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { DEFAULT_PAGE_SIZE } from '../../../constants';
+import { Type } from 'class-transformer';
 
 export class GetOrganizationListQueryParamsDto {
   @ApiProperty({
@@ -9,7 +10,9 @@ export class GetOrganizationListQueryParamsDto {
     required: false,
   })
   @IsOptional()
+  @Type(() => Number)
   @IsInt()
+  @Min(1)
   readonly page?: number;
 
   @ApiProperty({
@@ -18,7 +21,9 @@ export class GetOrganizationListQueryParamsDto {
     required: false,
   })
   @IsOptional()
+  @Type(() => Number)
   @IsInt()
+  @Min(1)
   readonly limit?: number;
 
   @ApiProperty({
@@ -27,6 +32,7 @@ export class GetOrganizationListQueryParamsDto {
     required: false,
   })
   @IsOptional()
+  @MaxLength(255)
   readonly search?: string;
 
   constructor(page?: number, limit?: number, search?: string) {
