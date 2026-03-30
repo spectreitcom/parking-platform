@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { PrismaModule } from '../../../shared/prisma/prisma.module';
+import { PrismaModule } from 'src/shared/prisma/prisma.module';
 import { OrganizationUserRepository } from '../application/ports/organization-user.repository';
 import { PrismaOrganizationUserRepository } from './persistence/prisma-organization-user.repository';
 import { JwtModule } from '@nestjs/jwt';
@@ -16,6 +16,8 @@ import { ResetPasswordTokenStorage } from '../application/ports/reset-password-t
 import { RedisResetPasswordTokenStorage } from './storages/redis-reset-password-token.storage';
 import { ResetPasswordTokenService } from '../application/ports/reset-password-token.service';
 import { AppResetPasswordTokenService } from './tokens/app-reset-password-token.service';
+import { AccessTokenService } from '../application/ports/access-token.service';
+import { JwtAccessTokenService } from './tokens/jwt-access-token.service';
 
 @Module({
   imports: [
@@ -60,6 +62,10 @@ import { AppResetPasswordTokenService } from './tokens/app-reset-password-token.
       provide: ResetPasswordTokenService,
       useClass: AppResetPasswordTokenService,
     },
+    {
+      provide: AccessTokenService,
+      useClass: JwtAccessTokenService,
+    },
   ],
   exports: [
     OrganizationUserRepository,
@@ -69,6 +75,7 @@ import { AppResetPasswordTokenService } from './tokens/app-reset-password-token.
     PasswordService,
     ResetPasswordTokenStorage,
     ResetPasswordTokenService,
+    AccessTokenService,
   ],
 })
 export class InfrastructureModule {}

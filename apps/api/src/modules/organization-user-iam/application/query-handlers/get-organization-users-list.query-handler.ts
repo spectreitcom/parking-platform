@@ -1,7 +1,7 @@
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { GetOrganizationUsersListQuery } from '../queries/get-organization-users-list.query';
 import { OrganizationUserListItemReadModel } from './read-models/organization-user-list-item.read-model';
-import { PrismaService } from '../../../../shared/prisma/prisma.service';
+import { PrismaService } from 'src/shared/prisma/prisma.service';
 import { Prisma } from '@prisma/client';
 
 export const getOrganizationUsersListQueryWhere: (
