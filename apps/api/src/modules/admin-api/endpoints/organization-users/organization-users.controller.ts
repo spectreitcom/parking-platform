@@ -1,7 +1,8 @@
-import { Controller, Get, Query } from '@nestjs/common';
+import { Controller, Get, Param, ParseUUIDPipe, Query } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
   ApiBearerAuth,
+  ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
   ApiTags,
@@ -74,5 +75,39 @@ export class OrganizationUsersController {
       total,
       currentPage: queryParams.page ?? 1,
     };
+  }
+
+  @ApiOperation({
+    summary: 'Get an organization user by id',
+  })
+  @ApiOkResponse({
+    description: 'The organization user has been successfully retrieved.',
+    schema: {
+      type: 'object',
+      properties: {
+        organizationUserId: { type: 'string', format: 'uuid' },
+        email: { type: 'string' },
+        displayName: { type: 'string' },
+        statusText: { type: 'string' },
+      },
+    },
+  })
+  @ApiUnauthorizedResponse({
+    description: 'Unauthorized',
+  })
+  @ApiBadRequestResponse({
+    description: 'Validation errors',
+  })
+  @ApiNotFoundResponse({
+    description: 'Organization user not found',
+  })
+  @Get(':organizationUserId')
+  async getOrganizationUser(
+    @Param('organizationUserId', new ParseUUIDPipe())
+    organizationUserId: string,
+  ) {
+    return await this.organizationUserIamFacade.getOrganizationUserById(
+      organizationUserId,
+    );
   }
 }
