@@ -1,7 +1,7 @@
 import { EventsHandler, IEventHandler } from '@nestjs/cqrs';
 import { Logger } from '@nestjs/common';
 import { AdminUserInvitedEvent } from '../../domain/events/admin-user-invited.event';
-import { PrismaService } from '../../../../shared/prisma/prisma.service';
+import { PrismaService } from 'src/shared/prisma/prisma.service';
 import { AdminStatus } from '../../domain/value-objects/admin-status';
 
 @EventsHandler(AdminUserInvitedEvent)

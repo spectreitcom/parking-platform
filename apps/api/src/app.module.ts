@@ -8,6 +8,7 @@ import { envSchema } from '../env-schema';
 import { APP_FILTER } from '@nestjs/core';
 import { HttpExceptionFilter } from './shared/errors/http-exception.filter';
 import { SentryModule, SentryGlobalFilter } from '@sentry/nestjs/setup';
+import { EmailNotificationModule } from 'src/modules/email-notification/application/email-notification.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { SentryModule, SentryGlobalFilter } from '@sentry/nestjs/setup';
     ScheduleModule.forRoot(),
     OutboxModule,
     AdminApiModule,
+    EmailNotificationModule,
   ],
   providers: [
     {
