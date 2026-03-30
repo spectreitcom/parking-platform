@@ -6,6 +6,8 @@ import { ChangeOrganizationUserPasswordCommandHandler } from './change-organizat
 import { RequestResetPasswordCommandHandler } from './request-reset-password.command-handler';
 import { GenerateResetPasswordTokenCommandHandler } from './generate-reset-password-token.command-handler';
 import { ResetPasswordCommandHandler } from './reset-password.command-handler';
+import { SignInCommandHandler } from './sign-in.command-handler';
+import { SignOutCommandHandler } from './sign-out.command-handler';
 
 export const commandHandlers = [
   UpdateOrganizationUserCommandHandler,
@@ -16,4 +18,6 @@ export const commandHandlers = [
   RequestResetPasswordCommandHandler,
   GenerateResetPasswordTokenCommandHandler,
   ResetPasswordCommandHandler,
+  SignInCommandHandler,
+  SignOutCommandHandler,
 ];

@@ -7,11 +7,15 @@ import { InviteOrganizationUserCommand } from './commands/invite-organization-us
 import { ChangeOrganizationUserPasswordCommand } from './commands/change-organization-user-password.command';
 import { RequestResetPasswordCommand } from './commands/request-reset-password.command';
 import { ResetPasswordCommand } from './commands/reset-password.command';
+import { SignInCommand } from './commands/sign-in.command';
+import { SignOutCommand } from './commands/sign-out.command';
+import { SignInCommandResponse } from './command-handlers/sign-in.command-handler';
 import { ValidateResetPasswordTokenQuery } from './queries/validate-reset-password-token.query';
 import { GenerateResetPasswordTokenCommand } from './commands/generate-reset-password-token.command';
 import { GetOrganizationUsersListQuery } from './queries/get-organization-users-list.query';
 import { GetOrganizationUsersTotalQuery } from './queries/get-organization-users-total.query';
 import { OrganizationUserListItemReadModel } from './query-handlers/read-models/organization-user-list-item.read-model';
+import { GetOrganizationUserByIdQuery } from 'src/modules/organization-user-iam/application/queries/get-organization-user-by-id.query';
 
 @Injectable()
 export class OrganizationUserIamFacade {
@@ -102,6 +106,21 @@ export class OrganizationUserIamFacade {
     return await this.commandBus.execute<ResetPasswordCommand, void>(command);
   }
 
+  async signIn(
+    email: string,
+    password: string,
+  ): Promise<SignInCommandResponse> {
+    const command = new SignInCommand(email, password);
+    return await this.commandBus.execute<SignInCommand, SignInCommandResponse>(
+      command,
+    );
+  }
+
+  async signOut(organizationUserId: string): Promise<void> {
+    const command = new SignOutCommand(organizationUserId);
+    return await this.commandBus.execute<SignOutCommand, void>(command);
+  }
+
   async validateResetPasswordToken(
     resetPasswordToken: string,
   ): Promise<boolean> {
@@ -139,5 +158,15 @@ export class OrganizationUserIamFacade {
     return await this.queryBus.execute<GetOrganizationUsersTotalQuery, number>(
       query,
     );
+  }
+
+  async getOrganizationUserById(
+    organizationUserId: string,
+  ): Promise<OrganizationUserListItemReadModel> {
+    const query = new GetOrganizationUserByIdQuery(organizationUserId);
+    return await this.queryBus.execute<
+      GetOrganizationUserByIdQuery,
+      OrganizationUserListItemReadModel
+    >(query);
   }
 }
