@@ -24,6 +24,7 @@
     "generate-super-admin": "ts-node -r tsconfig-paths/register src/cli.ts generate-super-admin"
   },
   "dependencies": {
+    "@nestjs-modules/mailer": "^2.3.4",
     "@nestjs/common": "^11.1.17",
     "@nestjs/config": "^4.0.3",
     "@nestjs/core": "^11.1.17",
@@ -39,9 +40,11 @@
     "argon2": "^0.44.0",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.15.1",
+    "handlebars": "^4.7.9",
     "ioredis": "^5.10.1",
     "joi": "^18.1.1",
     "nest-commander": "^3.20.1",
+    "nodemailer": "^8.0.4",
     "passport": "^0.7.0",
     "passport-jwt": "^4.0.1",
     "passport-local": "^1.0.0",
