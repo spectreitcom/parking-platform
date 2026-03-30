@@ -7,9 +7,11 @@ import { AdminApiModule } from './modules/admin-api/admin-api.module';
 import { envSchema } from '../env-schema';
 import { APP_FILTER } from '@nestjs/core';
 import { HttpExceptionFilter } from './shared/errors/http-exception.filter';
+import { SentryModule, SentryGlobalFilter } from '@sentry/nestjs/setup';
 
 @Module({
   imports: [
+    SentryModule.forRoot(),
     ConfigModule.forRoot({
       isGlobal: true,
       validationSchema: envSchema,
@@ -23,6 +25,10 @@ import { HttpExceptionFilter } from './shared/errors/http-exception.filter';
     {
       provide: APP_FILTER,
       useClass: HttpExceptionFilter,
+    },
+    {
+      provide: APP_FILTER,
+      useClass: SentryGlobalFilter,
     },
   ],
 })
