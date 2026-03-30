@@ -60,9 +60,12 @@ export class OrganizationUsersController {
   async getOrganizationUsers(
     @Query() queryParams: GetOrganizationUsersListQueryParamsDto,
   ) {
+    const page = queryParams.page ?? 1;
+    const limit = queryParams.limit ?? DEFAULT_PAGE_SIZE;
+
     const data = await this.organizationUserIamFacade.getOrganizationUsersList(
-      queryParams.page ?? 1,
-      queryParams.limit ?? DEFAULT_PAGE_SIZE,
+      page,
+      limit,
       queryParams.search,
     );
     const total =
@@ -73,7 +76,7 @@ export class OrganizationUsersController {
     return {
       data,
       total,
-      currentPage: queryParams.page ?? 1,
+      currentPage: page,
     };
   }
 
