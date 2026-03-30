@@ -25,7 +25,7 @@ export class AdminIamInvitedIEHandler implements IEventHandler<IntegrationEvent>
     >,
   ) {
     if (event.type !== 'admin-iam.admin-user.invited.v1') return;
-    this.logger.log('Handling admin-iam.admin-user.invited.v1 event', event);
+    this.logger.log('Handling admin-iam.admin-user.invited.v1 event');
 
     const { email, adminUserId } = event.payload;
 
