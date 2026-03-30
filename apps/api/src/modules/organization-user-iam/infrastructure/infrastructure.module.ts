@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { PrismaModule } from '../../../shared/prisma/prisma.module';
+import { PrismaModule } from 'src/shared/prisma/prisma.module';
 import { OrganizationUserRepository } from '../application/ports/organization-user.repository';
 import { PrismaOrganizationUserRepository } from './persistence/prisma-organization-user.repository';
 import { JwtModule } from '@nestjs/jwt';
