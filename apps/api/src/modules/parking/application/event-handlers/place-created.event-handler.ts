@@ -1,7 +1,7 @@
 import { EventsHandler, IEventHandler } from '@nestjs/cqrs';
 import { Logger } from '@nestjs/common';
 import { PlaceCreatedEvent } from '../../domain/events/place-created.event';
-import { PrismaService } from '../../../../shared/prisma/prisma.service';
+import { PrismaService } from 'src/shared/prisma/prisma.service';
 
 @EventsHandler(PlaceCreatedEvent)
 export class PlaceCreatedEventHandler implements IEventHandler<PlaceCreatedEvent> {
@@ -11,8 +11,16 @@ export class PlaceCreatedEventHandler implements IEventHandler<PlaceCreatedEvent
 
   async handle(event: PlaceCreatedEvent) {
     this.logger.log(`Place created: ${event.id}`);
-    const { id, name, placeTypeId, address, active, longitude, latitude } =
-      event;
+    const {
+      id,
+      name,
+      placeTypeId,
+      address,
+      active,
+      longitude,
+      latitude,
+      version,
+    } = event;
 
     const placeType = await this.prismaService.placeType.findUnique({
       where: { id: placeTypeId },
@@ -34,6 +42,7 @@ export class PlaceCreatedEventHandler implements IEventHandler<PlaceCreatedEvent
         latitude,
         longitude,
         placeTypeName: placeType.name,
+        version,
       },
       create: {
         placeId: id,
@@ -44,6 +53,7 @@ export class PlaceCreatedEventHandler implements IEventHandler<PlaceCreatedEvent
         latitude,
         longitude,
         placeTypeName: placeType.name,
+        version,
       },
     });
   }

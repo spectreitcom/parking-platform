@@ -2,13 +2,13 @@ import { AggregateRoot } from '@nestjs/cqrs';
 import { PlaceId } from './value-objects/place-id';
 import { PlaceTypeId } from './value-objects/place-type-id';
 import { PlaceName } from './value-objects/place-name';
-import { Coords } from '../../../shared/value-objects/coords';
+import { Coords } from 'src/shared/value-objects/coords';
 import { Address } from './value-objects/address';
 import { PlaceCreatedEvent } from './events/place-created.event';
 import { PlaceActivatedEvent } from './events/place-activated.event';
 import { PlaceDeactivatedEvent } from './events/place-deactivated.event';
 import { PlaceUpdatedEvent } from './events/place-updated.event';
-import { AggregateVersion } from '../../../shared/value-objects/aggregate-version';
+import { AggregateVersion } from 'src/shared/value-objects/aggregate-version';
 
 export class Place extends AggregateRoot {
   private readonly id: PlaceId;
@@ -17,7 +17,7 @@ export class Place extends AggregateRoot {
   private address: Address;
   private active: boolean;
   private placeTypeId: PlaceTypeId;
-  private readonly version: AggregateVersion;
+  private version: AggregateVersion;
 
   private constructor(
     id: PlaceId,
@@ -57,6 +57,8 @@ export class Place extends AggregateRoot {
     active: boolean,
     placeTypeId: string,
   ) {
+    const _version = AggregateVersion.one();
+
     const place = new Place(
       PlaceId.create(),
       PlaceName.fromString(name),
@@ -64,7 +66,7 @@ export class Place extends AggregateRoot {
       Address.fromString(address),
       active,
       PlaceTypeId.fromString(placeTypeId),
-      AggregateVersion.one(),
+      _version,
     );
 
     place.apply(
@@ -76,6 +78,7 @@ export class Place extends AggregateRoot {
         place.getPlaceTypeId().value,
         place.isActive(),
         place.getAddress().value,
+        _version.value,
       ),
     );
 
@@ -87,7 +90,9 @@ export class Place extends AggregateRoot {
       return;
     }
     this.active = false;
-    this.apply(new PlaceDeactivatedEvent(this.id.value));
+    const _nextVersion = this.version.increment();
+    this.version = _nextVersion;
+    this.apply(new PlaceDeactivatedEvent(this.id.value, _nextVersion.value));
   }
 
   activate() {
@@ -95,7 +100,9 @@ export class Place extends AggregateRoot {
       return;
     }
     this.active = true;
-    this.apply(new PlaceActivatedEvent(this.id.value));
+    const _nextVersion = this.version.increment();
+    this.version = _nextVersion;
+    this.apply(new PlaceActivatedEvent(this.id.value, _nextVersion.value));
   }
 
   update(
@@ -111,6 +118,8 @@ export class Place extends AggregateRoot {
     );
     this.address = Address.fromString(address);
     this.placeTypeId = PlaceTypeId.fromString(placeTypeId);
+    const _nextVersion = this.version.increment();
+    this.version = _nextVersion;
 
     this.apply(
       new PlaceUpdatedEvent(
@@ -121,6 +130,7 @@ export class Place extends AggregateRoot {
         this.placeTypeId.value,
         this.active,
         this.address.value,
+        _nextVersion.value,
       ),
     );
   }

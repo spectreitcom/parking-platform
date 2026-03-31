@@ -52,6 +52,7 @@ export class PlacesController {
               address: { type: 'string' },
               active: { type: 'boolean' },
               placeTypeName: { type: 'string' },
+              version: { type: 'number', example: 1, format: 'int32' },
             },
           },
         },

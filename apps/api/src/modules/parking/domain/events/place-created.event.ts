@@ -9,5 +9,6 @@ export class PlaceCreatedEvent implements IEvent {
     public readonly placeTypeId: string,
     public readonly active: boolean,
     public readonly address: string,
+    public readonly version: number,
   ) {}
 }
