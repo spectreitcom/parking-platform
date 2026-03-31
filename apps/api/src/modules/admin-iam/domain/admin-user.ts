@@ -1,9 +1,9 @@
 import { AggregateRoot } from '@nestjs/cqrs';
 import { AdminId } from './value-objects/admin-id';
-import { Email } from '../../../shared/value-objects/email';
+import { Email } from 'src/shared/value-objects/email';
 import { AdminDisplayName } from './value-objects/admin-display-name';
 import { AdminStatus } from './value-objects/admin-status';
-import { AggregateVersion } from '../../../shared/value-objects/aggregate-version';
+import { AggregateVersion } from 'src/shared/value-objects/aggregate-version';
 import { AdminUserCreatedEvent } from './events/admin-user-created.event';
 import { AdminUserUpdatedEvent } from './events/admin-user-updated.event';
 import { AdminUserSuspendedEvent } from './events/admin-user-suspended.event';
@@ -69,17 +69,17 @@ export class AdminUser extends AggregateRoot {
     );
   }
 
-  static create(email: string, displayName: string, isSuperAdmin = false) {
+  static invite(email: string, displayName: string) {
     const id = AdminId.create();
     const _email = Email.fromString(email);
     const _displayName = AdminDisplayName.fromString(displayName);
-    const _status = AdminStatus.created();
+    const _status = AdminStatus.invited();
     const _createdAt = new Date();
 
     const adminUser = new AdminUser(
       id,
       _email,
-      isSuperAdmin,
+      false,
       _displayName,
       _status,
       AggregateVersion.one(),
@@ -88,10 +88,10 @@ export class AdminUser extends AggregateRoot {
     );
 
     adminUser.apply(
-      new AdminUserCreatedEvent(
+      new AdminUserInvitedEvent(
         id.value,
         _email.value,
-        isSuperAdmin,
+        false,
         _displayName.value,
         _status.value,
         _createdAt,
@@ -164,12 +164,6 @@ export class AdminUser extends AggregateRoot {
     this.status = AdminStatus.active();
     this.updatedAt = new Date();
     this.apply(new AdminUserActivatedEvent(this.id.value, this.updatedAt));
-  }
-
-  invite() {
-    this.status = AdminStatus.invited();
-    this.updatedAt = new Date();
-    this.apply(new AdminUserInvitedEvent(this.id.value, this.updatedAt));
   }
 
   changePassword(newHash: string) {
