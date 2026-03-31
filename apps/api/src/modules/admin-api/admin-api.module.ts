@@ -13,6 +13,7 @@ import { AdminsController } from 'src/modules/admin-api/endpoints/admins/admins.
 import { OrganizationsController } from 'src/modules/admin-api/endpoints/organizations/organizations.controller';
 import { ParkingsController } from 'src/modules/admin-api/endpoints/parkings/parkings.controller';
 import { OrganizationUsersController } from './endpoints/organization-users/organization-users.controller';
+import { PlacesController } from 'src/modules/admin-api/endpoints/places/places.controller';
 
 @Module({
   imports: [
@@ -32,6 +33,7 @@ import { OrganizationUsersController } from './endpoints/organization-users/orga
     OrganizationsController,
     ParkingsController,
     OrganizationUsersController,
+    PlacesController,
   ],
 })
 export class AdminApiModule {}
