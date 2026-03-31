@@ -13,8 +13,13 @@ export class PlaceDeactivatedEventHandler implements IEventHandler<PlaceDeactiva
     this.logger.log(`Place deactivated: ${event.id}`);
     const { id, version } = event;
 
-    await this.prismaService.placeRead.update({
-      where: { placeId: id },
+    await this.prismaService.placeRead.updateMany({
+      where: {
+        placeId: id,
+        version: {
+          lt: version,
+        },
+      },
       data: {
         active: false,
         version,
