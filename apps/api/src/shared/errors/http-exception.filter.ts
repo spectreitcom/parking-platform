@@ -25,10 +25,8 @@ export class HttpExceptionFilter implements ExceptionFilter {
     const res: Response = host.switchToHttp().getResponse();
 
     if (exception instanceof HttpException) {
-      // Cast to HttpStatus enum to avoid unsafe enum comparison warnings
       const status: HttpStatus = exception.getStatus() as HttpStatus;
 
-      // Explicit handling for auth/permission errors with constant messages
       if (status === HttpStatus.UNAUTHORIZED) {
         return res.status(HttpStatus.UNAUTHORIZED).json({
           title: 'UNAUTHORIZED',
@@ -45,7 +43,6 @@ export class HttpExceptionFilter implements ExceptionFilter {
         });
       }
 
-      // Hide details for server-side errors (5xx)
       if (status >= HttpStatus.INTERNAL_SERVER_ERROR) {
         return res.status(status).json({
           title: 'SERVER_ERROR',
@@ -54,7 +51,6 @@ export class HttpExceptionFilter implements ExceptionFilter {
         });
       }
 
-      // Default for other HttpExceptions (typically 4xx)
       return res.status(status).json({
         title: status.toString(),
         detail: exception.message,

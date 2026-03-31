@@ -7,7 +7,7 @@ import { AdminApiModule } from './modules/admin-api/admin-api.module';
 import { envSchema } from '../env-schema';
 import { APP_FILTER } from '@nestjs/core';
 import { HttpExceptionFilter } from './shared/errors/http-exception.filter';
-import { SentryModule, SentryGlobalFilter } from '@sentry/nestjs/setup';
+import { SentryModule } from '@sentry/nestjs/setup';
 import { EmailNotificationModule } from 'src/modules/email-notification/application/email-notification.module';
 
 @Module({
@@ -27,10 +27,6 @@ import { EmailNotificationModule } from 'src/modules/email-notification/applicat
     {
       provide: APP_FILTER,
       useClass: HttpExceptionFilter,
-    },
-    {
-      provide: APP_FILTER,
-      useClass: SentryGlobalFilter,
     },
   ],
 })
