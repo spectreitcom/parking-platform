@@ -11,11 +11,12 @@ export class PlaceActivatedEventHandler implements IEventHandler<PlaceActivatedE
 
   async handle(event: PlaceActivatedEvent) {
     this.logger.log(`Place activated: ${event.id}`);
-    const { id } = event;
+    const { id, version } = event;
     await this.prismaService.placeRead.update({
       where: { placeId: id },
       data: {
         active: true,
+        version,
       },
     });
   }
