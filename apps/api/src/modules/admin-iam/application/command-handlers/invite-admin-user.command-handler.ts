@@ -1,11 +1,11 @@
 import { CommandHandler, EventPublisher, ICommandHandler } from '@nestjs/cqrs';
 import { InviteAdminUserCommand } from '../commands/invite-admin-user.command';
 import { AdminUserRepository } from '../ports/admin-user.repository';
-import { OutboxService } from '../../../../shared/outbox/outbox.service';
-import { AppError } from '../../../../shared/errors';
+import { OutboxService } from 'src/shared/outbox/outbox.service';
+import { AppError } from 'src/shared/errors';
 import { AdminUser } from '../../domain/admin-user';
-import { TransactionRunner } from '../../../../shared/prisma/transaction-runner';
-import { IntegrationEvent } from '../../../../shared/outbox/outbox.types';
+import { TransactionRunner } from 'src/shared/prisma/transaction-runner';
+import { IntegrationEvent } from 'src/shared/outbox/outbox.types';
 import {
   AdminIamAdminUserInvitedV1Payload,
   AdminIamIntegrationEventTypes,
