@@ -1,13 +1,13 @@
 import {
   IsInt,
+  IsLatitude,
+  IsLongitude,
   IsNotEmpty,
   IsNumber,
   IsPositive,
   IsString,
   IsUUID,
-  Max,
   MaxLength,
-  Min,
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
@@ -30,8 +30,7 @@ export class UpdatePlaceDto {
     minimum: -90,
     maximum: 90,
   })
-  @Min(-90)
-  @Max(90)
+  @IsLatitude()
   @IsNumber()
   @IsNotEmpty()
   readonly latitude: number;
@@ -43,8 +42,7 @@ export class UpdatePlaceDto {
     minimum: -180,
     maximum: 180,
   })
-  @Min(-180)
-  @Max(180)
+  @IsLongitude()
   @IsNumber()
   @IsNotEmpty()
   readonly longitude: number;

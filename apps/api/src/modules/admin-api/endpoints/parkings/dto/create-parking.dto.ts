@@ -1,11 +1,10 @@
 import {
   IsNotEmpty,
-  IsNumber,
   IsString,
   MaxLength,
   IsUUID,
-  Max,
-  Min,
+  IsLatitude,
+  IsLongitude,
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
@@ -39,9 +38,7 @@ export class CreateParkingDto {
     minimum: -180,
     maximum: 180,
   })
-  @Min(-180)
-  @Max(180)
-  @IsNumber()
+  @IsLongitude()
   @IsNotEmpty()
   readonly longitude: number;
 
@@ -52,9 +49,7 @@ export class CreateParkingDto {
     minimum: -90,
     maximum: 90,
   })
-  @Min(-90)
-  @Max(90)
-  @IsNumber()
+  @IsLatitude()
   @IsNotEmpty()
   readonly latitude: number;
 
