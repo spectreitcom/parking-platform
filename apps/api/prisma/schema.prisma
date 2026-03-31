@@ -133,6 +133,7 @@ model PlaceRead {
   address       String  @db.VarChar(255)
   placeTypeId   String  @db.Uuid
   placeTypeName String  @db.VarChar(60)
+  version       Int     @db.Integer
 
   @@index([name, longitude, latitude, address, placeTypeId])
 }

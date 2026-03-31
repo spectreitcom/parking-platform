@@ -2,7 +2,7 @@ import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { GetPlacesListForAdminQuery } from '../queries/get-places-list-for-admin.query';
 import { PlaceListForAdminItemReadModel } from './read-models/place-list-for-admin-item.read-model';
 import { Prisma } from '@prisma/client';
-import { PrismaService } from '../../../../shared/prisma/prisma.service';
+import { PrismaService } from 'src/shared/prisma/prisma.service';
 
 export const getPlacesListForAdminQueryWhere: (
   search?: string,
@@ -58,6 +58,7 @@ export class GetPlacesListForAdminQueryHandler implements IQueryHandler<
           record.address,
           record.active,
           record.placeTypeName,
+          record.version,
         ),
     );
   }

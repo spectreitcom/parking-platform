@@ -1,7 +1,7 @@
 import { EventsHandler, IEventHandler } from '@nestjs/cqrs';
 import { Logger } from '@nestjs/common';
 import { PlaceActivatedEvent } from '../../domain/events/place-activated.event';
-import { PrismaService } from '../../../../shared/prisma/prisma.service';
+import { PrismaService } from 'src/shared/prisma/prisma.service';
 
 @EventsHandler(PlaceActivatedEvent)
 export class PlaceActivatedEventHandler implements IEventHandler<PlaceActivatedEvent> {
@@ -11,11 +11,17 @@ export class PlaceActivatedEventHandler implements IEventHandler<PlaceActivatedE
 
   async handle(event: PlaceActivatedEvent) {
     this.logger.log(`Place activated: ${event.id}`);
-    const { id } = event;
-    await this.prismaService.placeRead.update({
-      where: { placeId: id },
+    const { id, version } = event;
+    await this.prismaService.placeRead.updateMany({
+      where: {
+        placeId: id,
+        version: {
+          lt: version,
+        },
+      },
       data: {
         active: true,
+        version,
       },
     });
   }
