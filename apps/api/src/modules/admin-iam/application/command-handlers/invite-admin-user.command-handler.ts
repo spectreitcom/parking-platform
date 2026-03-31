@@ -36,10 +36,9 @@ export class InviteAdminUserCommandHandler implements ICommandHandler<
         throw new AppError('ALREADY_EXISTS', 'Admin user already exists');
       }
 
-      const adminUser = AdminUser.create(email, displayName);
+      const adminUser = AdminUser.invite(email, displayName);
       this.eventPublisher.mergeObjectContext(adminUser);
 
-      adminUser.invite();
       await this.adminUserRepository.save(adminUser, {
         isNew: true,
         tx: prisma,
