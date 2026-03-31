@@ -9,6 +9,7 @@ import {
 } from '@nestjs/common';
 import { Response } from 'express';
 import { AppErrorCode, codeToStatus } from './index';
+import { captureException } from '@sentry/nestjs';
 
 @Catch()
 export class HttpExceptionFilter implements ExceptionFilter {
@@ -66,6 +67,8 @@ export class HttpExceptionFilter implements ExceptionFilter {
         status,
       });
     }
+
+    captureException(exception);
 
     return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
       title: 'SERVER_ERROR',
