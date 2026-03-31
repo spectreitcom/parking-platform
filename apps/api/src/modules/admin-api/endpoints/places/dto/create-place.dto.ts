@@ -4,7 +4,9 @@ import {
   IsNumber,
   IsString,
   IsUUID,
+  Max,
   MaxLength,
+  Min,
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
@@ -24,7 +26,11 @@ export class CreatePlaceDto {
     description: 'The latitude of the place',
     example: 54.352025,
     required: true,
+    minimum: -90,
+    maximum: 90,
   })
+  @Min(-90)
+  @Max(90)
   @IsNumber()
   @IsNotEmpty()
   readonly latitude: number;
@@ -33,7 +39,11 @@ export class CreatePlaceDto {
     description: 'The longitude of the place',
     example: 18.646638,
     required: true,
+    minimum: -180,
+    maximum: 180,
   })
+  @Min(-180)
+  @Max(180)
   @IsNumber()
   @IsNotEmpty()
   readonly longitude: number;
