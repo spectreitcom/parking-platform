@@ -5,6 +5,7 @@ import {
   IsUUID,
   IsLatitude,
   IsLongitude,
+  IsNumber,
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
@@ -39,6 +40,7 @@ export class CreateParkingDto {
     maximum: 180,
   })
   @IsLongitude()
+  @IsNumber()
   @IsNotEmpty()
   readonly longitude: number;
 
@@ -50,6 +52,7 @@ export class CreateParkingDto {
     maximum: 90,
   })
   @IsLatitude()
+  @IsNumber()
   @IsNotEmpty()
   readonly latitude: number;
 

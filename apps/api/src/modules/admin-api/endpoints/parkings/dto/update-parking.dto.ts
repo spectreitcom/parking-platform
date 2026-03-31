@@ -9,6 +9,7 @@ import {
   IsInt,
   IsLatitude,
   IsLongitude,
+  IsNumber,
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
@@ -43,6 +44,7 @@ export class UpdateParkingDto {
     maximum: 180,
   })
   @IsLongitude()
+  @IsNumber()
   @IsNotEmpty()
   readonly longitude: number;
 
@@ -54,6 +56,7 @@ export class UpdateParkingDto {
     maximum: 90,
   })
   @IsLatitude()
+  @IsNumber()
   @IsNotEmpty()
   readonly latitude: number;
 
