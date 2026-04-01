@@ -11,14 +11,14 @@ export class HaversineDistanceCalculator implements DistanceCalculator {
   ): Promise<number> | number {
     const R = 6371; // km
 
-    const φ1 = this.toRad(lat1);
-    const φ2 = this.toRad(lat2);
-    const Δφ = this.toRad(lat2 - lat1);
-    const Δλ = this.toRad(lon2 - lon1);
+    const phi1 = this.toRad(lat1);
+    const phi2 = this.toRad(lat2);
+    const deltaPhi = this.toRad(lat2 - lat1);
+    const deltaLambda = this.toRad(lon2 - lon1);
 
     const a =
-      Math.sin(Δφ / 2) ** 2 +
-      Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ / 2) ** 2;
+      Math.sin(deltaPhi / 2) ** 2 +
+      Math.cos(phi1) * Math.cos(phi2) * Math.sin(deltaLambda / 2) ** 2;
 
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 
