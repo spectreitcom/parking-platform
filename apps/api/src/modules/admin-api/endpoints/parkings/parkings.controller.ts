@@ -67,6 +67,7 @@ export class ParkingsController {
                 },
               },
               version: { type: 'number', format: 'int32', example: 1 },
+              distance: { type: 'number', format: 'float', example: 10.5 },
             },
           },
         },

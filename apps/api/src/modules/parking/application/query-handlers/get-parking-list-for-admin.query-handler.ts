@@ -64,6 +64,7 @@ export class GetParkingListForAdminQueryHandler implements IQueryHandler<
           record.parkingSpotsNumber,
           record.parkingAddress,
           record.version,
+          record.distance,
         ),
     );
   }

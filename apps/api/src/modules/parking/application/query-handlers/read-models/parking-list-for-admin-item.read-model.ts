@@ -8,5 +8,6 @@ export class ParkingListForAdminItemReadModel {
     public readonly spotsNumber: number,
     public readonly address: string,
     public readonly version: number,
+    public readonly distance: number,
   ) {}
 }
