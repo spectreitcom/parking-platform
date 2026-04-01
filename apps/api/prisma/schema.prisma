@@ -226,6 +226,7 @@ model ParkingListForAdminRead {
   parkingSpotsNumber Int     @default(0)
   organizationName   String  @db.VarChar(255)
   version            Int     @db.Integer
+  distance           Float   @default(0)
 
   @@unique([parkingId, organizationId])
   @@index([parkingName, organizationName, placeName])

@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { PrismaModule } from '../../../shared/prisma/prisma.module';
+import { PrismaModule } from 'src/shared/prisma/prisma.module';
 import { PlaceTypeRepository } from '../application/ports/place-type.repository';
 import { PrismaPlaceTypeRepository } from './persistence/prisma-place-type.repository';
 import { ParkingAddonRepository } from '../application/ports/parking-addon.repository';
@@ -12,6 +12,8 @@ import { ParkingRepository } from '../application/ports/parking.repository';
 import { PrismaParkingRepository } from './persistence/prisma-parking.repository';
 import { ParkingSpotRepository } from '../application/ports/parking-spot.repository';
 import { PrismaParkingSpotRepository } from './persistence/prisma-parking-spot.repository';
+import { DistanceCalculator } from 'src/modules/parking/application/ports/distance-calculator';
+import { HaversineDistanceCalculator } from './haversine-distance-calculator';
 
 @Module({
   imports: [PrismaModule],
@@ -40,6 +42,10 @@ import { PrismaParkingSpotRepository } from './persistence/prisma-parking-spot.r
       provide: ParkingSpotRepository,
       useClass: PrismaParkingSpotRepository,
     },
+    {
+      provide: DistanceCalculator,
+      useClass: HaversineDistanceCalculator,
+    },
   ],
   exports: [
     PlaceTypeRepository,
@@ -48,6 +54,7 @@ import { PrismaParkingSpotRepository } from './persistence/prisma-parking-spot.r
     ParkingFeatureRepository,
     ParkingRepository,
     ParkingSpotRepository,
+    DistanceCalculator,
   ],
 })
 export class InfrastructureModule {}
