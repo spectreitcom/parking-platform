@@ -39,12 +39,12 @@ export class ParkingCreatedEventHandler implements IEventHandler<ParkingCreatedE
     if (
       placeRecord?.latitude &&
       placeRecord?.longitude &&
-      event.latitude &&
-      event.longitude
+      Number.isFinite(event.latitude) &&
+      Number.isFinite(event.longitude)
     ) {
       distance = this.distanceCalculator.calculate(
-        placeRecord?.latitude.toNumber(),
-        placeRecord?.longitude.toNumber(),
+        placeRecord.latitude.toNumber(),
+        placeRecord.longitude.toNumber(),
         event.latitude,
         event.longitude,
       ) as number;
