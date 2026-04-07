@@ -8,4 +8,5 @@ export const envSchema = Joi.object({
   SENTRY_DSN: Joi.string().uri().required(),
   MAILER_HOST: Joi.string().required(),
   MAILER_PORT: Joi.number().integer().positive().required(),
+  TRACE_EXPORTER_URL: Joi.string().uri().required(),
 });
