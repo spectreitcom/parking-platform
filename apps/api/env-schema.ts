@@ -9,4 +9,6 @@ export const envSchema = Joi.object({
   MAILER_HOST: Joi.string().required(),
   MAILER_PORT: Joi.number().integer().positive().required(),
   TRACE_EXPORTER_URL: Joi.string().uri().required(),
+  LOG_EXPORTER_URL: Joi.string().uri().required(),
+  METRIC_EXPORTER_URL: Joi.string().uri().required(),
 });
