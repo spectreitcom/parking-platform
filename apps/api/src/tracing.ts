@@ -39,16 +39,20 @@ const sdk = new NodeSDK({
   traceExporter: new OTLPTraceExporter({
     url: traceExporterUrl,
   }),
-  logRecordProcessor: new BatchLogRecordProcessor(
-    new OTLPLogExporter({
-      url: logExporterUrl,
+  logRecordProcessors: [
+    new BatchLogRecordProcessor(
+      new OTLPLogExporter({
+        url: logExporterUrl,
+      }),
+    ),
+  ],
+  metricReaders: [
+    new PeriodicExportingMetricReader({
+      exporter: new OTLPMetricExporter({
+        url: metricExporterUrl,
+      }),
     }),
-  ),
-  metricReader: new PeriodicExportingMetricReader({
-    exporter: new OTLPMetricExporter({
-      url: metricExporterUrl,
-    }),
-  }),
+  ],
   instrumentations: [getNodeAutoInstrumentations()],
 });
 
