@@ -7,12 +7,17 @@ import { config } from 'dotenv';
 
 config();
 
+const traceExporterUrl = process.env.TRACE_EXPORTER_URL;
+if (!traceExporterUrl) {
+  throw new Error('TRACE_EXPORTER_URL is not defined in environment variables');
+}
+
 const sdk = new NodeSDK({
   resource: resourceFromAttributes({
     [ATTR_SERVICE_NAME]: 'parking-api',
   }),
   traceExporter: new OTLPTraceExporter({
-    url: process.env.TRACE_EXPORTER_URL,
+    url: traceExporterUrl,
   }),
   instrumentations: [getNodeAutoInstrumentations()],
 });
