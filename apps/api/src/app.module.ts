@@ -3,7 +3,7 @@ import { ConfigModule } from '@nestjs/config';
 import { CqrsModule } from '@nestjs/cqrs';
 import { ScheduleModule } from '@nestjs/schedule';
 import { OutboxModule } from './shared/outbox/outbox.module';
-import { AdminApiModule } from './modules/admin-api/admin-api.module';
+import { AdminApiModule } from 'src/bff/admin-api/admin-api.module';
 import { envSchema } from '../env-schema';
 import { APP_FILTER } from '@nestjs/core';
 import { HttpExceptionFilter } from './shared/errors/http-exception.filter';
