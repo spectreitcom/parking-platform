@@ -1,8 +1,8 @@
 import { CommandHandler, EventPublisher, ICommandHandler } from '@nestjs/cqrs';
 import { UpdateParkingFeatureCommand } from '../commands/update-parking-feature.command';
 import { ParkingFeatureRepository } from '../ports/parking-feature.repository';
-import { AppError } from '../../../../shared/errors';
-import { AggregateVersion } from '../../../../shared/value-objects/aggregate-version';
+import { AppError } from 'src/shared/errors';
+import { AggregateVersion } from 'src/shared/value-objects/aggregate-version';
 
 @CommandHandler(UpdateParkingFeatureCommand)
 export class UpdateParkingFeatureCommandHandler implements ICommandHandler<
