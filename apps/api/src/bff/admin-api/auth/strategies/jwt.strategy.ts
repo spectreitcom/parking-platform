@@ -3,7 +3,7 @@ import { ExtractJwt, Strategy } from 'passport-jwt';
 import { PassportStrategy } from '@nestjs/passport';
 import { ConfigService } from '@nestjs/config';
 import { JwtPayload, RequestUser } from '../types';
-import { AdminIamFacade } from '../../../../modules/admin-iam/application/admin-iam.facade';
+import { AdminIamFacade } from 'src/modules/admin-iam/application/admin-iam.facade';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {

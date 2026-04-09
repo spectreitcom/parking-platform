@@ -18,7 +18,7 @@ import {
   ApiTags,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
-import { ParkingFacade } from '../../../../modules/parking/application/parking.facade';
+import { ParkingFacade } from 'src/modules/parking/application/parking.facade';
 import { CreateParkingFeatureDto } from './dto/create-parking-feature.dto';
 import { UpdateParkingFeatureDto } from './dto/update-parking-feature.dto';
 import { DeleteParkingFeatureQueryParamsDto } from './dto/delete-parking-feature-query-params.dto';

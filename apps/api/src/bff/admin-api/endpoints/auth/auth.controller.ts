@@ -13,7 +13,7 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { AdminIamFacade } from '../../../../modules/admin-iam/application/admin-iam.facade';
+import { AdminIamFacade } from 'src/modules/admin-iam/application/admin-iam.facade';
 import { CurrentAdminUserId } from '../../auth/decorators/current-admin-user-id.decorator';
 import { PublicApi } from '../../auth/decorators/public-api.decorator';
 import { LocalAuthGuard } from '../../auth/guards/local-auth.guard';

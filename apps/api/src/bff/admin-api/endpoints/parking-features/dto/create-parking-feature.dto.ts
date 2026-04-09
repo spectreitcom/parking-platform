@@ -2,7 +2,7 @@ import { IsArray, IsIn, IsString, MaxLength } from 'class-validator';
 import {
   PARKING_LEVEL,
   PARKING_SPOT_LEVEL,
-} from '../../../../../modules/parking/domain/constants';
+} from 'src/modules/parking/domain/constants';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateParkingFeatureDto {

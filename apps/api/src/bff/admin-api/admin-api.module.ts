@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common';
-import { AdminIamModule } from '../../modules/admin-iam/application/admin-iam.module';
-import { ParkingModule } from '../../modules/parking/application/parking.module';
-import { OrganizationModule } from '../../modules/organization/application/organization.module';
-import { OrganizationUserIamModule } from '../../modules/organization-user-iam/application/organization-user-iam.module';
-import { CartModule } from '../../modules/cart/application/cart.module';
+import { AdminIamModule } from 'src/modules/admin-iam/application/admin-iam.module';
+import { ParkingModule } from 'src/modules/parking/application/parking.module';
+import { OrganizationModule } from 'src/modules/organization/application/organization.module';
+import { OrganizationUserIamModule } from 'src/modules/organization-user-iam/application/organization-user-iam.module';
+import { CartModule } from 'src/modules/cart/application/cart.module';
 import { AuthController } from './endpoints/auth/auth.controller';
 import { AuthModule } from './auth/auth.module';
 import { ParkingFeaturesController } from './endpoints/parking-features/parking-features.controller';

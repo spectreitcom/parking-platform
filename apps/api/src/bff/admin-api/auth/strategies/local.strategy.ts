@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { Strategy } from 'passport-local';
-import { AdminIamFacade } from '../../../../modules/admin-iam/application/admin-iam.facade';
+import { AdminIamFacade } from 'src/modules/admin-iam/application/admin-iam.facade';
 import { AppError } from 'src/shared/errors';
 import { RequestUser } from 'src/bff/admin-api/auth/types';
 
