@@ -35,3 +35,9 @@ export class ConcurrencyError extends Error {
     super(`${entityName} with id ${id} has been modified by another process`);
   }
 }
+
+export class UniqueConstraintError extends Error {
+  constructor(entityName: string) {
+    super(entityName);
+  }
+}

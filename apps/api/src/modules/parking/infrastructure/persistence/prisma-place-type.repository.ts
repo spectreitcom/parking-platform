@@ -1,10 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { PlaceTypeRepository } from '../../application/ports/place-type.repository';
-import { PrismaService } from '../../../../shared/prisma/prisma.service';
+import { PrismaService } from 'src/shared/prisma/prisma.service';
 import { PrismaTx } from 'src/shared/prisma/types';
 import { PlaceType } from '../../domain/place-type';
-import { ConcurrencyError } from '../../../../shared/errors';
-import { RepositorySaveOptions } from '../../../../shared/types';
+import { ConcurrencyError, UniqueConstraintError } from 'src/shared/errors';
+import { RepositorySaveOptions } from 'src/shared/types';
 import { PlaceTypeMapper } from './place-type.mapper';
 
 @Injectable()
@@ -32,14 +32,25 @@ export class PrismaPlaceTypeRepository implements PlaceTypeRepository {
         throw new ConcurrencyError('PlaceType', id);
       }
 
-      await prisma.placeType.create({
-        data: {
-          id,
-          name,
-          version: 1,
-        },
-      });
-      return;
+      try {
+        await prisma.placeType.create({
+          data: {
+            id,
+            name,
+            version: 1,
+          },
+        });
+        return;
+      } catch (error) {
+        if (
+          error instanceof Error &&
+          'code' in error &&
+          error.code === 'P2002'
+        ) {
+          throw new UniqueConstraintError('PlaceType');
+        }
+        throw error;
+      }
     }
 
     try {
@@ -58,6 +69,9 @@ export class PrismaPlaceTypeRepository implements PlaceTypeRepository {
     } catch (error) {
       if (error instanceof Error && 'code' in error && error.code === 'P2025') {
         throw new ConcurrencyError('PlaceType', id);
+      }
+      if (error instanceof Error && 'code' in error && error.code === 'P2002') {
+        throw new UniqueConstraintError('PlaceType');
       }
       throw error;
     }
