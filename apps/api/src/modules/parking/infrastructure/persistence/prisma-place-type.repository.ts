@@ -49,6 +49,7 @@ export class PrismaPlaceTypeRepository implements PlaceTypeRepository {
         ) {
           throw new UniqueConstraintError('PlaceType');
         }
+        throw error;
       }
     }
 

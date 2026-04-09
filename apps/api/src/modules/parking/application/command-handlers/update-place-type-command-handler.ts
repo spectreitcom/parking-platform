@@ -1,8 +1,8 @@
 import { CommandHandler, EventPublisher, ICommandHandler } from '@nestjs/cqrs';
 import { UpdatePlaceTypeCommand } from '../commands/update-place-type.command';
 import { PlaceTypeRepository } from '../ports/place-type.repository';
-import { AppError } from '../../../../shared/errors';
-import { AggregateVersion } from '../../../../shared/value-objects/aggregate-version';
+import { AppError, UniqueConstraintError } from 'src/shared/errors';
+import { AggregateVersion } from 'src/shared/value-objects/aggregate-version';
 
 @CommandHandler(UpdatePlaceTypeCommand)
 export class UpdatePlaceTypeCommandHandler implements ICommandHandler<
@@ -38,9 +38,19 @@ export class UpdatePlaceTypeCommandHandler implements ICommandHandler<
     this.eventPublisher.mergeObjectContext(placeType);
     placeType.update(name);
 
-    await this.placeTypeRepository.save(placeType);
-    placeType.commit();
+    try {
+      await this.placeTypeRepository.save(placeType);
+      placeType.commit();
 
-    return placeType.getId().value;
+      return placeType.getId().value;
+    } catch (e) {
+      if (e instanceof UniqueConstraintError) {
+        throw new AppError(
+          'VALIDATION_ERROR',
+          'Place type with the same name already exists',
+        );
+      }
+      throw e;
+    }
   }
 }
