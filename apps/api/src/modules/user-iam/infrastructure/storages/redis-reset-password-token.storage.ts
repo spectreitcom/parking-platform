@@ -3,7 +3,7 @@ import { ResetPasswordTokenStorage } from '../../application/ports/reset-passwor
 import { Redis } from 'ioredis';
 import { ConfigService } from '@nestjs/config';
 
-const RESET_PASSWORD_TOKEN_TTL_SECONDS = 1 * 24 * 60 * 60; // 1 day
+const RESET_PASSWORD_TOKEN_TTL_SECONDS = 24 * 60 * 60; // 1 day
 
 @Injectable()
 export class RedisResetPasswordTokenStorage

@@ -6,7 +6,7 @@ import {
   Min,
   validateSync,
 } from 'class-validator';
-import { AppError } from '../../../../shared/errors';
+import { AppError } from 'src/shared/errors';
 
 export class GetUsersListQuery implements IQuery {
   @IsInt()
