@@ -39,6 +39,10 @@ export class PrismaUserRepository implements UserRepository {
       where: { id: userId },
     });
 
+    if (record && isNew) {
+      throw new ConcurrencyError('User', userId);
+    }
+
     if (!record) {
       if (!isNew) throw new ConcurrencyError('User', userId);
 

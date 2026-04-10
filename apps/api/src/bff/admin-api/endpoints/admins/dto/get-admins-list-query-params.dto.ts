@@ -1,5 +1,6 @@
 import { IsInt, Max, IsOptional, IsPositive, IsString } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
+import { Type } from 'class-transformer';
 import { DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE } from 'src/bff/admin-api/constants';
 
 export class GetAdminsListQueryParamsDto {
@@ -11,6 +12,7 @@ export class GetAdminsListQueryParamsDto {
   @IsOptional()
   @IsInt()
   @IsPositive()
+  @Type(() => Number)
   readonly page?: number;
 
   @ApiProperty({
@@ -22,6 +24,7 @@ export class GetAdminsListQueryParamsDto {
   @IsInt()
   @IsPositive()
   @Max(MAX_PAGE_SIZE)
+  @Type(() => Number)
   readonly limit?: number;
 
   @ApiProperty({
