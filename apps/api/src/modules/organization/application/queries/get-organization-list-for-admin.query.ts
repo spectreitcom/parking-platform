@@ -1,6 +1,7 @@
 import { IQuery } from '@nestjs/cqrs';
-import { IsInt, Min, validateSync } from 'class-validator';
+import { IsInt, Max, Min, validateSync } from 'class-validator';
 import { AppError } from '../../../../shared/errors';
+import { MAX_PAGE_SIZE } from '../../../../shared/constants';
 
 export class GetOrganizationListForAdminQuery implements IQuery {
   @IsInt()
@@ -9,6 +10,7 @@ export class GetOrganizationListForAdminQuery implements IQuery {
 
   @IsInt()
   @Min(1)
+  @Max(MAX_PAGE_SIZE)
   public readonly limit: number;
 
   public readonly search?: string;

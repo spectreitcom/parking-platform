@@ -1,6 +1,6 @@
-import { IsInt, IsOptional, IsPositive, IsString } from 'class-validator';
+import { IsInt, Max, IsOptional, IsPositive, IsString } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
-import { DEFAULT_PAGE_SIZE } from 'src/bff/admin-api/constants';
+import { DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE } from 'src/bff/admin-api/constants';
 
 export class GetUsersListQueryParamsDto {
   @ApiProperty({
@@ -8,6 +8,7 @@ export class GetUsersListQueryParamsDto {
     example: 1,
     required: false,
   })
+  @IsOptional()
   @IsInt()
   @IsPositive()
   readonly page?: number;
@@ -17,8 +18,10 @@ export class GetUsersListQueryParamsDto {
     example: DEFAULT_PAGE_SIZE,
     required: false,
   })
+  @IsOptional()
   @IsInt()
   @IsPositive()
+  @Max(MAX_PAGE_SIZE)
   readonly limit?: number;
 
   @ApiProperty({

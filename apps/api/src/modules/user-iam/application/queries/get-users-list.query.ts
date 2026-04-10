@@ -3,10 +3,12 @@ import {
   IsInt,
   IsOptional,
   IsString,
+  Max,
   Min,
   validateSync,
 } from 'class-validator';
 import { AppError } from 'src/shared/errors';
+import { MAX_PAGE_SIZE } from 'src/shared/constants';
 
 export class GetUsersListQuery implements IQuery {
   @IsInt()
@@ -15,6 +17,7 @@ export class GetUsersListQuery implements IQuery {
 
   @IsInt()
   @Min(1)
+  @Max(MAX_PAGE_SIZE)
   public readonly limit: number;
 
   @IsOptional()

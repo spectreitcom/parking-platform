@@ -14,15 +14,15 @@ export class PrismaUserRepository implements UserRepository {
   async save(user: User, options?: RepositorySaveOptions): Promise<void> {
     const isNew = options?.isNew ?? false;
     const _tx = options?.tx;
-    const { userId } = UserMapper.toPersistence(user);
+    const { id } = UserMapper.toPersistence(user);
 
     if (_tx) {
-      await this.createOrUpdate(isNew, userId, user, _tx);
+      await this.createOrUpdate(isNew, id, user, _tx);
       return;
     }
 
     await this.prismaService.$transaction(async (tx) => {
-      await this.createOrUpdate(isNew, userId, user, tx);
+      await this.createOrUpdate(isNew, id, user, tx);
     });
   }
 
@@ -69,7 +69,7 @@ export class PrismaUserRepository implements UserRepository {
       });
     } catch (error) {
       if (error instanceof Error && 'code' in error && error.code === 'P2025') {
-        throw new ConcurrencyError('Organization', userId);
+        throw new ConcurrencyError('User', userId);
       }
       throw error;
     }

@@ -13,9 +13,17 @@ export class UserUpdatedEventHandler implements IEventHandler<UserUpdatedEvent> 
     this.logger.log('User updated', event.userId);
     const { userId, updatedAt, name, provider, email } = event;
 
-    await this.prismaService.userRead.update({
-      where: { id: userId },
-      data: { updatedAt, name, provider, email },
+    await this.prismaService.userRead.upsert({
+      where: { userId },
+      update: { updatedAt, name, provider, email },
+      create: {
+        userId,
+        updatedAt,
+        createdAt: updatedAt,
+        name,
+        provider,
+        email,
+      },
     });
   }
 }

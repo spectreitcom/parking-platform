@@ -22,7 +22,7 @@ import { AppResetPasswordTokenService } from './tokens/app-reset-password-token.
     PrismaModule,
     JwtModule.registerAsync({
       useFactory: (configService: ConfigService) => ({
-        secret: configService.get<string>('JWT_SECRET')!,
+        secret: configService.getOrThrow<string>('JWT_SECRET'),
         signOptions: {
           expiresIn: '1h',
         },

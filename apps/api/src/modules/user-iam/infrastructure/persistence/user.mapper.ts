@@ -20,7 +20,7 @@ export class UserMapper {
 
   static toPersistence(user: User) {
     return {
-      userId: user.getId().value,
+      id: user.getId().value,
       email: user.getEmail().value,
       name: user.getName().value,
       provider: user.getProvider().value,
