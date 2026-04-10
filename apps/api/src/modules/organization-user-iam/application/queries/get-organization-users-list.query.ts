@@ -1,7 +1,7 @@
 import { IQuery } from '@nestjs/cqrs';
 import { IsInt, Max, Min, validateSync } from 'class-validator';
-import { AppError } from '../../../../shared/errors';
-import { MAX_PAGE_SIZE } from '../../../../shared/constants';
+import { AppError } from 'src/shared/errors';
+import { MAX_PAGE_SIZE } from 'src/shared/constants';
 
 export class GetOrganizationUsersListQuery implements IQuery {
   @IsInt()

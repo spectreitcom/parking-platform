@@ -4,7 +4,7 @@ import { OrganizationUserListItemReadModel } from './read-models/organization-us
 import { PrismaService } from 'src/shared/prisma/prisma.service';
 import { Prisma } from '@prisma/client';
 
-import { MAX_PAGE_SIZE } from '../../../../shared/constants';
+import { MAX_PAGE_SIZE } from 'src/shared/constants';
 
 export const getOrganizationUsersListQueryWhere: (
   search?: string,
