@@ -3,7 +3,7 @@ import { OrganizationId } from '../../domain/value-objects/organization-id';
 import { OrganizationName } from '../../domain/value-objects/organization-name';
 import { OrganizationAddress } from '../../domain/value-objects/organization-address';
 import { OrganizationTaxId } from '../../domain/value-objects/organization-tax-id';
-import { AggregateVersion } from '../../../../shared/value-objects/aggregate-version';
+import { AggregateVersion } from 'src/shared/value-objects/aggregate-version';
 import { OrganizationMember } from '../../domain/entities/organization-member';
 import { OrganizationMemberId } from '../../domain/value-objects/organization-member-id';
 import { OrganizationUserId } from '../../domain/value-objects/organization-user-id';

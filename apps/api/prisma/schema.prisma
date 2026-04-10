@@ -360,3 +360,29 @@ model Cart {
 }
 
 // -----------------------------
+
+// User IAM Bounded Context
+model User {
+  id           String  @id @default(uuid()) @db.Uuid
+  email        String  @unique @db.VarChar(255)
+  name         String  @db.VarChar(120)
+  passwordHash String?
+  provider     String  @db.VarChar(60)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model UserRead {
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String   @unique @db.Uuid
+  email     String   @unique @db.VarChar(255)
+  name      String   @db.VarChar(120)
+  provider  String   @db.VarChar(60)
+  createdAt DateTime
+  updatedAt DateTime
+
+  @@index([email, name, provider])
+}
+
+// -----------------------------

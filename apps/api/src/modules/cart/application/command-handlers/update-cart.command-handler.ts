@@ -1,7 +1,7 @@
 import { CommandHandler, EventPublisher, ICommandHandler } from '@nestjs/cqrs';
 import { UpdateCartCommand } from '../commands/update-cart.command';
 import { CartRepository } from '../ports/cart.repository';
-import { AppError } from '../../../../shared/errors';
+import { AppError } from 'src/shared/errors';
 
 @CommandHandler(UpdateCartCommand)
 export class UpdateCartCommandHandler implements ICommandHandler<
