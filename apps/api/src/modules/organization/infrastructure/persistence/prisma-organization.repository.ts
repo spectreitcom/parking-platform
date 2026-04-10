@@ -2,9 +2,9 @@ import { Injectable } from '@nestjs/common';
 import { OrganizationRepository } from '../../application/ports/organization.repository';
 import { RepositorySaveOptions } from 'src/shared/types';
 import { Organization } from '../../domain/organization';
-import { PrismaService } from '../../../../shared/prisma/prisma.service';
-import { PrismaTx } from '../../../../shared/prisma/types';
-import { ConcurrencyError } from '../../../../shared/errors';
+import { PrismaService } from 'src/shared/prisma/prisma.service';
+import { PrismaTx } from 'src/shared/prisma/types';
+import { ConcurrencyError } from 'src/shared/errors';
 import { OrganizationMapper } from './organization.mapper';
 
 @Injectable()

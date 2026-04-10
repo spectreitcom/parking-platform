@@ -4,6 +4,8 @@ import { OrganizationUserListItemReadModel } from './read-models/organization-us
 import { PrismaService } from 'src/shared/prisma/prisma.service';
 import { Prisma } from '@prisma/client';
 
+import { DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE } from 'src/shared/constants';
+
 export const getOrganizationUsersListQueryWhere: (
   search?: string,
 ) => Prisma.OrganizationUserReadWhereInput = (search?: string) =>
@@ -39,7 +41,10 @@ export class GetOrganizationUsersListQueryHandler implements IQueryHandler<
     const { search } = query;
 
     const page = Math.max(1, Math.floor(query.page || 1));
-    const limit = Math.min(100, Math.max(1, Math.floor(query.limit || 20)));
+    const limit = Math.min(
+      MAX_PAGE_SIZE,
+      Math.max(1, Math.floor(query.limit || DEFAULT_PAGE_SIZE)),
+    );
 
     const records = await this.prismaService.organizationUserRead.findMany({
       where: getOrganizationUsersListQueryWhere(search),

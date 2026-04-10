@@ -1,12 +1,14 @@
 import { IQuery } from '@nestjs/cqrs';
 import {
   IsInt,
+  Max,
   IsOptional,
   IsPositive,
   Min,
   validateSync,
 } from 'class-validator';
-import { AppError } from '../../../../shared/errors';
+import { AppError } from 'src/shared/errors';
+import { MAX_PAGE_SIZE } from 'src/shared/constants';
 
 export class GetPlaceTypeListQuery implements IQuery {
   @IsInt()
@@ -17,6 +19,7 @@ export class GetPlaceTypeListQuery implements IQuery {
   @IsInt()
   @IsPositive()
   @Min(1)
+  @Max(MAX_PAGE_SIZE)
   readonly limit: number;
 
   @IsOptional()

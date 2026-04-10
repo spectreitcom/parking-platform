@@ -2,12 +2,14 @@ import { IQuery } from '@nestjs/cqrs';
 import {
   IsInt,
   IsNumber,
+  Max,
   IsOptional,
   IsString,
   Min,
   validateSync,
 } from 'class-validator';
-import { AppError } from '../../../../shared/errors';
+import { AppError } from 'src/shared/errors';
+import { MAX_PAGE_SIZE } from 'src/shared/constants';
 
 export class GetParkingFeatureListForAdminQuery implements IQuery {
   @IsNumber()
@@ -18,6 +20,7 @@ export class GetParkingFeatureListForAdminQuery implements IQuery {
   @IsNumber()
   @IsInt()
   @Min(1)
+  @Max(MAX_PAGE_SIZE)
   readonly limit: number;
 
   @IsOptional()

@@ -1,6 +1,6 @@
-import { IsInt, IsOptional, Min } from 'class-validator';
+import { IsInt, Max, IsOptional, Min } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
-import { DEFAULT_PAGE_SIZE } from '../../../constants';
+import { DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE } from '../../../constants';
 import { Type } from 'class-transformer';
 
 export class GetParkingFeaturesListQueryParamsDto {
@@ -24,6 +24,7 @@ export class GetParkingFeaturesListQueryParamsDto {
   @Type(() => Number)
   @IsInt()
   @Min(1)
+  @Max(MAX_PAGE_SIZE)
   readonly limit?: number;
 
   @ApiProperty({
