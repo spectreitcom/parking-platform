@@ -74,12 +74,9 @@ describe('RegisterUserCommandHandler', () => {
     expect(eventPublisher.mergeObjectContext).toHaveBeenCalledWith(
       expect.any(User),
     );
-    expect(userRepository.save).toHaveBeenCalledWith(
-      expect.objectContaining({
-        getEmail: expect.any(Function) as () => unknown,
-        getName: expect.any(Function) as () => unknown,
-      }),
-    );
+    expect(userRepository.save).toHaveBeenCalledWith(expect.any(User), {
+      isNew: true,
+    });
 
     const savedUser = userRepository.save.mock.calls[0][0];
     expect(savedUser.getEmail().value).toBe(email);
