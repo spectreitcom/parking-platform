@@ -9,6 +9,7 @@ import {
   Post,
   Put,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
@@ -27,7 +28,9 @@ import { UpdateParkingDto } from './dto/update-parking.dto';
 import { ActivateParkingDto } from './dto/activate-parking.dto';
 import { DeactivateParkingDto } from './dto/deactivate-parking.dto';
 import { DEFAULT_PAGE_SIZE } from 'src/bff/admin-api/constants';
+import { JwtAuthGuard } from 'src/bff/admin-api/auth/guards/jwt-auth.guard';
 
+@UseGuards(JwtAuthGuard)
 @ApiBearerAuth('admin-auth')
 @ApiTags('Admin - Parkings')
 @Controller('admin/parkings')

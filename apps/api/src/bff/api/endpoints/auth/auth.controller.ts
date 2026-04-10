@@ -8,32 +8,48 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import {
+  ApiBadRequestResponse,
   ApiBearerAuth,
+  ApiCreatedResponse,
   ApiOkResponse,
   ApiOperation,
-  ApiResponse,
   ApiTags,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
-import { AdminIamFacade } from 'src/modules/admin-iam/application/admin-iam.facade';
-import { CurrentAdminUserId } from '../../auth/decorators/current-admin-user-id.decorator';
+import { UserIamFacade } from 'src/modules/user-iam/application/user-iam.facade';
+import { CurrentUserId } from '../../auth/decorators/current-user-id.decorator';
 import { PublicApi } from '../../auth/decorators/public-api.decorator';
 import { LocalAuthGuard } from '../../auth/guards/local-auth.guard';
+import { RegisterUserDto } from './dto/register-user.dto';
 import { RequestResetPasswordTokenDto } from './dto/request-reset-password-token.dto';
 import { ResetPasswordTokenDto } from './dto/reset-password-token.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
-import { JwtAuthGuard } from 'src/bff/admin-api/auth/guards/jwt-auth.guard';
+import { JwtAuthGuard } from 'src/bff/api/auth/guards/jwt-auth.guard';
 
 @UseGuards(JwtAuthGuard)
-@ApiTags('Admin Auth')
-@Controller('admin/auth')
+@ApiTags('Auth')
+@Controller('auth')
 export class AuthController {
-  constructor(private readonly adminIamFacade: AdminIamFacade) {}
+  constructor(private readonly userIamFacade: UserIamFacade) {}
+
+  @ApiOperation({ summary: 'Sign up with email, name and password' })
+  @ApiCreatedResponse({
+    description: 'User registered successfully',
+  })
+  @PublicApi()
+  @Post('sign-up')
+  async registerUser(@Body() dto: RegisterUserDto) {
+    return await this.userIamFacade.registerUser(
+      dto.email,
+      dto.name,
+      dto.password,
+    );
+  }
 
   @ApiOperation({ summary: 'Sign in with email and password' })
   @ApiOkResponse({
-    description: 'Admin signed in successfully',
+    description: 'User signed in successfully',
     schema: {
       type: 'object',
       properties: {
@@ -51,55 +67,53 @@ export class AuthController {
   @ApiUnauthorizedResponse({
     description: 'Invalid credentials',
   })
-  @UseGuards(LocalAuthGuard)
   @PublicApi()
+  @UseGuards(LocalAuthGuard)
   @Post('sign-in')
   @HttpCode(HttpStatus.OK)
-  async signIn(@CurrentAdminUserId() adminUserId: string) {
-    return await this.adminIamFacade.signIn(adminUserId);
+  async signIn(@CurrentUserId() userId: string) {
+    return await this.userIamFacade.signIn(userId);
   }
 
-  @ApiBearerAuth('admin-auth')
+  @ApiBearerAuth('auth')
   @ApiOperation({
-    summary: 'Get current admin user',
+    summary: 'Get current user',
   })
   @ApiOkResponse({
-    description: 'Admin user retrieved successfully',
+    description: 'User retrieved successfully',
     schema: {
       type: 'object',
       properties: {
         id: {
           type: 'string',
-          description: 'Admin user ID',
+          description: 'User ID',
           format: 'uuid',
         },
         email: {
           type: 'string',
-          description: 'Admin user email',
+          description: 'User email',
           format: 'email',
         },
-        displayName: {
+        name: {
           type: 'string',
-          description: 'Admin user display name',
+          description: 'User name',
           example: 'John Doe',
-        },
-        isSuperAdmin: {
-          type: 'boolean',
-          description: 'Indicates if the admin user is a super admin',
-          format: 'boolean',
         },
       },
     },
   })
+  @ApiUnauthorizedResponse({
+    description: 'User not authenticated',
+  })
   @Get('me')
-  async me(@CurrentAdminUserId() adminUserId: string) {
-    return await this.adminIamFacade.getAdminUserById(adminUserId);
+  async me(@CurrentUserId() userId: string) {
+    return await this.userIamFacade.getUserById(userId);
   }
 
-  @ApiBearerAuth('admin-auth')
+  @ApiBearerAuth('auth')
   @ApiOperation({ summary: 'Sign out' })
   @ApiOkResponse({
-    description: 'Admin signed out successfully',
+    description: 'User signed out successfully',
     schema: {
       type: 'object',
       properties: {
@@ -112,12 +126,12 @@ export class AuthController {
     },
   })
   @ApiUnauthorizedResponse({
-    description: 'Admin not authenticated',
+    description: 'User not authenticated',
   })
   @Post('sign-out')
   @HttpCode(HttpStatus.OK)
-  async signOut(@CurrentAdminUserId() adminUserId: string) {
-    await this.adminIamFacade.signOut(adminUserId);
+  async signOut(@CurrentUserId() userId: string) {
+    await this.userIamFacade.signOut(userId);
     return { status: HttpStatus.OK };
   }
 
@@ -129,22 +143,24 @@ export class AuthController {
   @Post('request-reset-password-token')
   @HttpCode(HttpStatus.OK)
   async requestResetPasswordToken(@Body() dto: RequestResetPasswordTokenDto) {
-    await this.adminIamFacade.requestResetPassword(dto.email);
+    await this.userIamFacade.requestResetPassword(dto.email);
   }
 
   @ApiOperation({ summary: 'Reset password' })
-  @ApiResponse({
-    status: HttpStatus.OK,
+  @ApiOkResponse({
     description: 'Password reset successfully',
+  })
+  @ApiBadRequestResponse({
+    description: 'Invalid reset password token',
   })
   @PublicApi()
   @Post('reset-password')
   @HttpCode(HttpStatus.OK)
   async resetPasswordToken(@Body() dto: ResetPasswordTokenDto) {
-    await this.adminIamFacade.resetPassword(dto.token, dto.password);
+    await this.userIamFacade.resetPassword(dto.token, dto.password);
   }
 
-  @ApiBearerAuth('admin-auth')
+  @ApiBearerAuth('auth')
   @ApiOperation({ summary: 'Change password' })
   @ApiOkResponse({
     description: 'Password changed successfully',
@@ -152,11 +168,11 @@ export class AuthController {
   @Post('change-password')
   @HttpCode(HttpStatus.OK)
   async changePassword(
-    @CurrentAdminUserId() adminUserId: string,
+    @CurrentUserId() userId: string,
     @Body() dto: ChangePasswordDto,
   ) {
-    await this.adminIamFacade.changePassword(
-      adminUserId,
+    await this.userIamFacade.changePassword(
+      userId,
       dto.existingPassword,
       dto.newPassword,
     );
@@ -186,6 +202,6 @@ export class AuthController {
   @Post('refresh-token')
   @HttpCode(HttpStatus.OK)
   async refreshToken(@Body() dto: RefreshTokenDto) {
-    return await this.adminIamFacade.refreshToken(dto.refreshToken);
+    return await this.userIamFacade.refreshToken(dto.refreshToken);
   }
 }

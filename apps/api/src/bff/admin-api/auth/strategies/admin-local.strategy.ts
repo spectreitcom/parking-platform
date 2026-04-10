@@ -6,7 +6,10 @@ import { AppError } from 'src/shared/errors';
 import { RequestUser } from 'src/bff/admin-api/auth/types';
 
 @Injectable()
-export class LocalStrategy extends PassportStrategy(Strategy) {
+export class AdminLocalStrategy extends PassportStrategy(
+  Strategy,
+  'admin-local',
+) {
   constructor(private readonly adminIamFacade: AdminIamFacade) {
     super({
       usernameField: 'email',

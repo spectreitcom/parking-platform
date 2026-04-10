@@ -31,9 +31,9 @@ export class UserIamFacade {
     );
   }
 
-  async signOut(refreshToken: string) {
+  async signOut(userId: string) {
     return await this.commandBus.execute<SignOutCommand, void>(
-      new SignOutCommand(refreshToken),
+      new SignOutCommand(userId),
     );
   }
 
