@@ -15,6 +15,7 @@ import { ValidateResetPasswordTokenQuery } from './queries/validate-reset-passwo
 import { ValidateUserQuery } from './queries/validate-user.query';
 import { UserDetailsReadModel } from './query-handlers/read-models/user-details.read-model';
 import { GetUserByIdQuery } from './queries/get-user-by-id.query';
+import { RegisterUserCommand } from 'src/modules/user-iam/application/commands/register-user.command';
 
 @Injectable()
 export class UserIamFacade {
@@ -105,5 +106,10 @@ export class UserIamFacade {
     return await this.queryBus.execute<GetUserByIdQuery, UserDetailsReadModel>(
       query,
     );
+  }
+
+  async registerUser(email: string, name: string, password: string) {
+    const command = new RegisterUserCommand(email, password, name);
+    return await this.commandBus.execute<RegisterUserCommand, string>(command);
   }
 }
