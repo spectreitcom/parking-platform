@@ -19,6 +19,9 @@ export class GetPlaceTypesListQueryParamsDto {
     description: 'The number of items per page',
     example: DEFAULT_PAGE_SIZE,
     required: false,
+    minimum: 1,
+    maximum: MAX_PAGE_SIZE,
+    type: 'integer',
   })
   @IsOptional()
   @Type(() => Number)
