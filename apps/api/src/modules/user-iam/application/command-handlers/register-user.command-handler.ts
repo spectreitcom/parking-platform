@@ -5,6 +5,8 @@ import { PasswordService } from 'src/modules/user-iam/application/ports/password
 import { AppError } from 'src/shared/errors';
 import { User } from 'src/modules/user-iam/domain/user';
 import { LoginProvider } from 'src/modules/user-iam/domain/value-objects/login-provider';
+import { Email } from 'src/shared/value-objects/email';
+import { UserName } from 'src/modules/user-iam/domain/value-objects/user-name';
 
 @CommandHandler(RegisterUserCommand)
 export class RegisterUserCommandHandler implements ICommandHandler<
@@ -20,7 +22,10 @@ export class RegisterUserCommandHandler implements ICommandHandler<
   async execute(command: RegisterUserCommand): Promise<string> {
     const { name, password, email } = command;
 
-    const existingUser = await this.userRepository.findByEmail(email);
+    const _email = Email.fromString(email);
+    const _name = UserName.fromString(name);
+
+    const existingUser = await this.userRepository.findByEmail(_email.value);
 
     if (existingUser) {
       throw new AppError(
@@ -32,14 +37,14 @@ export class RegisterUserCommandHandler implements ICommandHandler<
     const passwordHash = await this.passwordService.create(password);
 
     const user = User.create(
-      email,
-      name,
+      _email.value,
+      _name.value,
       LoginProvider.credentials().value,
       passwordHash,
     );
 
     this.eventPublisher.mergeObjectContext(user);
-    await this.userRepository.save(user);
+    await this.userRepository.save(user, { isNew: true });
     user.commit();
 
     return user.getId().value;
