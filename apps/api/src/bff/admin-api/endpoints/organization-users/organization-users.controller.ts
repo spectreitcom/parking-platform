@@ -1,4 +1,11 @@
-import { Controller, Get, Param, ParseUUIDPipe, Query } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Param,
+  ParseUUIDPipe,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import {
   ApiBadRequestResponse,
   ApiBearerAuth,
@@ -11,7 +18,9 @@ import {
 import { OrganizationUserIamFacade } from 'src/modules/organization-user-iam/application/organization-user-iam.facade';
 import { GetOrganizationUsersListQueryParamsDto } from 'src/bff/admin-api/endpoints/organization-users/dto/get-organization-users-list-query-params.dto';
 import { DEFAULT_PAGE_SIZE } from 'src/bff/admin-api/constants';
+import { JwtAuthGuard } from 'src/bff/admin-api/auth/guards/jwt-auth.guard';
 
+@UseGuards(JwtAuthGuard)
 @ApiBearerAuth('admin-auth')
 @ApiTags('Admin - Organization Users')
 @Controller('admin/organization-users')

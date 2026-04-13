@@ -26,7 +26,9 @@ import { DEFAULT_PAGE_SIZE } from 'src/bff/admin-api/constants';
 import { SuperAdminGuard } from 'src/bff/admin-api/auth/guards/super-admin.guard';
 import { SuspendAdminUserDto } from 'src/bff/admin-api/endpoints/admins/dto/suspend-admin-user.dto';
 import { ActivateAdminUserDto } from 'src/bff/admin-api/endpoints/admins/dto/activate-admin-user.dto';
+import { JwtAuthGuard } from 'src/bff/admin-api/auth/guards/jwt-auth.guard';
 
+@UseGuards(JwtAuthGuard)
 @ApiBearerAuth('admin-auth')
 @ApiTags('Admin - Admins')
 @Controller('admin/admins')

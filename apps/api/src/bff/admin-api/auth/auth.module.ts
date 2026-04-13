@@ -1,20 +1,11 @@
 import { Module } from '@nestjs/common';
 import { PassportModule } from '@nestjs/passport';
 import { AdminIamModule } from 'src/modules/admin-iam/application/admin-iam.module';
-import { LocalStrategy } from './strategies/local.strategy';
-import { JwtStrategy } from './strategies/jwt.strategy';
-import { JwtAuthGuard } from './guards/jwt-auth.guard';
-import { APP_GUARD } from '@nestjs/core';
+import { AdminLocalStrategy } from './strategies/admin-local.strategy';
+import { AdminJwtStrategy } from './strategies/admin-jwt.strategy';
 
 @Module({
   imports: [PassportModule, AdminIamModule],
-  providers: [
-    LocalStrategy,
-    JwtStrategy,
-    {
-      provide: APP_GUARD,
-      useClass: JwtAuthGuard,
-    },
-  ],
+  providers: [AdminLocalStrategy, AdminJwtStrategy],
 })
 export class AuthModule {}

@@ -1,15 +1,15 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { PassportStrategy } from '@nestjs/passport';
 import { ConfigService } from '@nestjs/config';
 import { JwtPayload, RequestUser } from '../types';
-import { AdminIamFacade } from 'src/modules/admin-iam/application/admin-iam.facade';
+import { UserIamFacade } from 'src/modules/user-iam/application/user-iam.facade';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
   constructor(
     configService: ConfigService,
-    private readonly adminIamFacade: AdminIamFacade,
+    private readonly userIamFacade: UserIamFacade,
   ) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
@@ -19,11 +19,15 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(payload: JwtPayload): Promise<RequestUser> {
-    const adminUserId = payload.sub;
-    const adminUser = await this.adminIamFacade.getAdminUserById(adminUserId);
-    return {
-      id: adminUser.id,
-      isSuperAdmin: adminUser.isSuperAdmin,
-    };
+    const userId = payload.sub;
+
+    try {
+      const user = await this.userIamFacade.getUserById(userId);
+      return {
+        id: user.id,
+      };
+    } catch {
+      throw new UnauthorizedException();
+    }
   }
 }

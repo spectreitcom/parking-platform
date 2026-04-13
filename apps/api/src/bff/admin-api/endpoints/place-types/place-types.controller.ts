@@ -8,6 +8,7 @@ import {
   Post,
   Put,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
@@ -24,7 +25,9 @@ import { UpdatePlaceTypeDto } from './dto/update-place-type.dto';
 import { DeletePlaceTypeQueryParamsDto } from './dto/delete-place-type-query-params.dto';
 import { GetPlaceTypesListQueryParamsDto } from './dto/get-place-types-list-query-params.dto';
 import { DEFAULT_PAGE_SIZE } from '../../constants';
+import { JwtAuthGuard } from 'src/bff/admin-api/auth/guards/jwt-auth.guard';
 
+@UseGuards(JwtAuthGuard)
 @ApiBearerAuth('admin-auth')
 @ApiTags('Admin Place Types')
 @Controller('admin/place-types')

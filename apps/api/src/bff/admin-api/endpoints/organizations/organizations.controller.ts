@@ -8,6 +8,7 @@ import {
   Post,
   Put,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
@@ -26,7 +27,9 @@ import { AddMemberToOrganizationDto } from 'src/bff/admin-api/endpoints/organiza
 import { RemoveMemberFromOrganizationQueryParamsDto } from 'src/bff/admin-api/endpoints/organizations/dto/remove-member-from-organization-query-params.dto';
 import { GetOrganizationListQueryParamsDto } from 'src/bff/admin-api/endpoints/organizations/dto/get-organization-list-query-params.dto';
 import { DEFAULT_PAGE_SIZE } from 'src/bff/admin-api/constants';
+import { JwtAuthGuard } from 'src/bff/admin-api/auth/guards/jwt-auth.guard';
 
+@UseGuards(JwtAuthGuard)
 @ApiBearerAuth('admin-auth')
 @ApiTags('Admin - Organizations')
 @Controller('admin/organizations')
