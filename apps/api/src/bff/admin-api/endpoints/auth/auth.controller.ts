@@ -11,7 +11,6 @@ import {
   ApiBearerAuth,
   ApiOkResponse,
   ApiOperation,
-  ApiResponse,
   ApiTags,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
@@ -133,8 +132,7 @@ export class AuthController {
   }
 
   @ApiOperation({ summary: 'Reset password' })
-  @ApiResponse({
-    status: HttpStatus.OK,
+  @ApiOkResponse({
     description: 'Password reset successfully',
   })
   @PublicApi()

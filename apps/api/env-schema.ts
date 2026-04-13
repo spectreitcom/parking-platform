@@ -5,6 +5,7 @@ export const envSchema = Joi.object({
   DATABASE_URL: Joi.string().uri().required(),
   REDIS_URL: Joi.string().uri().required(),
   JWT_SECRET: Joi.string().trim().min(32).required(),
+  ADMIN_JWT_SECRET: Joi.string().trim().min(32).required(),
   SENTRY_DSN: Joi.string().uri().required(),
   MAILER_HOST: Joi.string().required(),
   MAILER_PORT: Joi.number().integer().positive().required(),

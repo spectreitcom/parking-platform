@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { AdminUserRepository } from '../application/ports/admin-user.repository';
 import { PrismaAdminUserRepository } from './persistence/prisma-admin-user.repository';
-import { PrismaModule } from '../../../shared/prisma/prisma.module';
+import { PrismaModule } from 'src/shared/prisma/prisma.module';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { AccessTokenService } from '../application/ports/access-token.service';
@@ -24,7 +24,7 @@ import { AppResetPasswordTokenService } from './tokens/app-reset-password-token.
     PrismaModule,
     JwtModule.registerAsync({
       useFactory: (configService: ConfigService) => ({
-        secret: configService.get<string>('JWT_SECRET')!,
+        secret: configService.getOrThrow<string>('ADMIN_JWT_SECRET'),
         signOptions: {
           expiresIn: '1h',
         },
