@@ -8,6 +8,7 @@ import {
   OrganizationUserIamRequestedResetPasswordV1Payload,
 } from 'src/modules/organization-user-iam/application/contracts/integration-events';
 import { OrganizationUserIamFacade } from 'src/modules/organization-user-iam/application/organization-user-iam.facade';
+import { OutboxService } from 'src/shared/outbox/outbox.service';
 
 @EventsHandler(IntegrationEvent)
 export class OrganizationUserIamRequestedResetPasswordTokenIeHandler implements IEventHandler<IntegrationEvent> {
@@ -18,6 +19,7 @@ export class OrganizationUserIamRequestedResetPasswordTokenIeHandler implements 
   constructor(
     private readonly emailService: EmailService,
     private readonly organizationUserIamFacade: OrganizationUserIamFacade,
+    private readonly outboxService: OutboxService,
   ) {}
 
   async handle(
@@ -35,15 +37,33 @@ export class OrganizationUserIamRequestedResetPasswordTokenIeHandler implements 
       'Handling organization-user-iam.organization-user.requested-reset-password.v1 event',
     );
 
-    const { email, organizationUserId } = event.payload;
+    const outboxId = event.headers?.outboxId;
+    let emailSent = false;
 
-    const resetPasswordToken =
-      await this.organizationUserIamFacade.generateResetPasswordToken(
-        organizationUserId,
+    try {
+      const { email, organizationUserId } = event.payload;
+
+      const resetPasswordToken =
+        await this.organizationUserIamFacade.generateResetPasswordToken(
+          organizationUserId,
+        );
+
+      await this.emailService.send(
+        new ResetPasswordEmail(email, resetPasswordToken),
       );
+      emailSent = true;
 
-    await this.emailService.send(
-      new ResetPasswordEmail(email, resetPasswordToken),
-    );
+      if (outboxId) {
+        await this.outboxService.ack(outboxId);
+      }
+    } catch (error) {
+      if (outboxId && !emailSent) {
+        await this.outboxService.nack(outboxId, {
+          requeue: true,
+          reason: error instanceof Error ? error.message : String(error),
+        });
+      }
+      throw error;
+    }
   }
 }

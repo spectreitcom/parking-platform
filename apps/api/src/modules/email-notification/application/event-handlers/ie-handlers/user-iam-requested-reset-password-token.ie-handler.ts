@@ -8,6 +8,7 @@ import {
   UserIamIntegrationEventTypes,
   UserIamRequestedResetPasswordV1Payload,
 } from 'src/modules/user-iam/application/contracts/integration-events';
+import { OutboxService } from 'src/shared/outbox/outbox.service';
 
 @EventsHandler(IntegrationEvent)
 export class UserIamRequestedResetPasswordTokenIeHandler implements IEventHandler<IntegrationEvent> {
@@ -18,6 +19,7 @@ export class UserIamRequestedResetPasswordTokenIeHandler implements IEventHandle
   constructor(
     private readonly emailService: EmailService,
     private readonly userIamFacade: UserIamFacade,
+    private readonly outboxService: OutboxService,
   ) {}
 
   async handle(
@@ -29,13 +31,31 @@ export class UserIamRequestedResetPasswordTokenIeHandler implements IEventHandle
     if (event.type !== 'user-iam.user.requested-reset-password.v1') return;
     this.logger.log('Handling user-iam.user.requested-reset-password.v1 event');
 
-    const { email, userId } = event.payload;
+    const outboxId = event.headers?.outboxId;
+    let emailSent = false;
 
-    const resetPasswordToken =
-      await this.userIamFacade.generateResetPasswordToken(userId);
+    try {
+      const { email, userId } = event.payload;
 
-    await this.emailService.send(
-      new ResetPasswordEmail(email, resetPasswordToken),
-    );
+      const resetPasswordToken =
+        await this.userIamFacade.generateResetPasswordToken(userId);
+
+      await this.emailService.send(
+        new ResetPasswordEmail(email, resetPasswordToken),
+      );
+      emailSent = true;
+
+      if (outboxId) {
+        await this.outboxService.ack(outboxId);
+      }
+    } catch (error) {
+      if (outboxId && !emailSent) {
+        await this.outboxService.nack(outboxId, {
+          requeue: true,
+          reason: error instanceof Error ? error.message : String(error),
+        });
+      }
+      throw error;
+    }
   }
 }

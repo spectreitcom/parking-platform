@@ -169,19 +169,17 @@ export class OutboxService {
           msg.boundedContext,
           msg.aggregateType,
           msg.aggregateId,
-          (msg.headers ?? undefined) as IntegrationEventHeaders,
+          {
+            ...(msg.headers as Record<string, unknown>),
+            outboxId: msg.id,
+          } as IntegrationEventHeaders,
         );
 
         await this.eventBus.publish(event);
 
-        await this.prisma.outboxMessage.update({
-          where: { id: msg.id },
-          data: {
-            status: OutboxStatus.SENT,
-            processedAt: new Date(),
-            nextRetryAt: null,
-          },
-        });
+        if (!options.manualAck) {
+          await this.ack(msg.id);
+        }
       } catch (error) {
         const err = error as Error;
         this.logger.error(
@@ -232,5 +230,72 @@ export class OutboxService {
     // prosty exponential backoff: 2^attempt minut (max 60 min)
     const minutes = Math.min(60, Math.pow(2, attempt));
     return new Date(Date.now() + minutes * 60 * 1000);
+  }
+
+  async ack(id: string, tx?: PrismaTx): Promise<void> {
+    const prisma = tx ?? this.prisma;
+    const res = await prisma.outboxMessage.updateMany({
+      where: { id, status: OutboxStatus.PROCESSING },
+      data: {
+        status: OutboxStatus.SENT,
+        processedAt: new Date(),
+        nextRetryAt: null,
+      },
+    });
+
+    if (res.count === 0) {
+      this.logger.warn(
+        `Ack for message ${id} failed: zero rows updated (likely not in PROCESSING state).`,
+      );
+    }
+  }
+
+  async nack(
+    id: string,
+    options: { requeue: boolean; reason?: string },
+    tx?: PrismaTx,
+  ): Promise<void> {
+    const prisma = tx ?? this.prisma;
+
+    const res = await prisma.outboxMessage.updateMany({
+      where: { id, status: OutboxStatus.PROCESSING },
+      data: {
+        attemptCount: { increment: 1 },
+      },
+    });
+
+    if (res.count === 0) {
+      this.logger.warn(
+        `Nack for message ${id} failed: zero rows updated (likely not in PROCESSING state).`,
+      );
+      return;
+    }
+
+    const msg = await prisma.outboxMessage.findUnique({ where: { id } });
+    if (!msg) return;
+
+    const newAttempt = msg.attemptCount;
+
+    if (options.requeue && newAttempt < MAX_RETRIES) {
+      const next = this.calculateBackoff(newAttempt - 1);
+      await prisma.outboxMessage.updateMany({
+        where: { id, status: OutboxStatus.PROCESSING },
+        data: {
+          status: OutboxStatus.FAILED,
+          nextRetryAt: next,
+        },
+      });
+    } else {
+      this.logger.warn(
+        `Message ${msg.id} nacked without requeue or reached max retries (${MAX_RETRIES}). Moving to DEAD_LETTER.`,
+      );
+      await prisma.outboxMessage.updateMany({
+        where: { id, status: OutboxStatus.PROCESSING },
+        data: {
+          status: OutboxStatus.DEAD_LETTER,
+          nextRetryAt: null,
+        },
+      });
+    }
   }
 }
