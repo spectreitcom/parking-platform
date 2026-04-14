@@ -35,17 +35,28 @@ export class AdminIamRequestedResetPasswordTokenIeHandler implements IEventHandl
     );
 
     const outboxId = event.headers?.outboxId;
-    if (outboxId) {
-      await this.outboxService.ack(outboxId);
+
+    try {
+      const { email, adminUserId } = event.payload;
+
+      const resetPasswordToken =
+        await this.adminIamFacade.generateResetPasswordToken(adminUserId);
+
+      await this.emailService.send(
+        new ResetPasswordEmail(email, resetPasswordToken),
+      );
+
+      if (outboxId) {
+        await this.outboxService.ack(outboxId);
+      }
+    } catch (error) {
+      if (outboxId) {
+        await this.outboxService.nack(outboxId, {
+          requeue: true,
+          reason: error instanceof Error ? error.message : String(error),
+        });
+      }
+      throw error;
     }
-
-    const { email, adminUserId } = event.payload;
-
-    const resetPasswordToken =
-      await this.adminIamFacade.generateResetPasswordToken(adminUserId);
-
-    await this.emailService.send(
-      new ResetPasswordEmail(email, resetPasswordToken),
-    );
   }
 }

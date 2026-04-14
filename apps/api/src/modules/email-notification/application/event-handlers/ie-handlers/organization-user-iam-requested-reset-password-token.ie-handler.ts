@@ -38,19 +38,30 @@ export class OrganizationUserIamRequestedResetPasswordTokenIeHandler implements 
     );
 
     const outboxId = event.headers?.outboxId;
-    if (outboxId) {
-      await this.outboxService.ack(outboxId);
-    }
 
-    const { email, organizationUserId } = event.payload;
+    try {
+      const { email, organizationUserId } = event.payload;
 
-    const resetPasswordToken =
-      await this.organizationUserIamFacade.generateResetPasswordToken(
-        organizationUserId,
+      const resetPasswordToken =
+        await this.organizationUserIamFacade.generateResetPasswordToken(
+          organizationUserId,
+        );
+
+      await this.emailService.send(
+        new ResetPasswordEmail(email, resetPasswordToken),
       );
 
-    await this.emailService.send(
-      new ResetPasswordEmail(email, resetPasswordToken),
-    );
+      if (outboxId) {
+        await this.outboxService.ack(outboxId);
+      }
+    } catch (error) {
+      if (outboxId) {
+        await this.outboxService.nack(outboxId, {
+          requeue: true,
+          reason: error instanceof Error ? error.message : String(error),
+        });
+      }
+      throw error;
+    }
   }
 }

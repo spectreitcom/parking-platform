@@ -234,14 +234,20 @@ export class OutboxService {
 
   async ack(id: string, tx?: PrismaTx): Promise<void> {
     const prisma = tx ?? this.prisma;
-    await prisma.outboxMessage.update({
-      where: { id },
+    const res = await prisma.outboxMessage.updateMany({
+      where: { id, status: OutboxStatus.PROCESSING },
       data: {
         status: OutboxStatus.SENT,
         processedAt: new Date(),
         nextRetryAt: null,
       },
     });
+
+    if (res.count === 0) {
+      this.logger.warn(
+        `Ack for message ${id} failed: zero rows updated (likely not in PROCESSING state).`,
+      );
+    }
   }
 
   async nack(
@@ -250,30 +256,43 @@ export class OutboxService {
     tx?: PrismaTx,
   ): Promise<void> {
     const prisma = tx ?? this.prisma;
+
+    const res = await prisma.outboxMessage.updateMany({
+      where: { id, status: OutboxStatus.PROCESSING },
+      data: {
+        attemptCount: { increment: 1 },
+      },
+    });
+
+    if (res.count === 0) {
+      this.logger.warn(
+        `Nack for message ${id} failed: zero rows updated (likely not in PROCESSING state).`,
+      );
+      return;
+    }
+
     const msg = await prisma.outboxMessage.findUnique({ where: { id } });
     if (!msg) return;
 
-    const newAttempt = (msg.attemptCount ?? 0) + 1;
+    const newAttempt = msg.attemptCount;
 
     if (options.requeue && newAttempt < MAX_RETRIES) {
-      const next = this.calculateBackoff(msg.attemptCount ?? 0);
-      await prisma.outboxMessage.update({
-        where: { id },
+      const next = this.calculateBackoff(newAttempt - 1);
+      await prisma.outboxMessage.updateMany({
+        where: { id, status: OutboxStatus.PROCESSING },
         data: {
           status: OutboxStatus.FAILED,
-          attemptCount: newAttempt,
           nextRetryAt: next,
         },
       });
     } else {
       this.logger.warn(
-        `Message ${msg.id} nacked without requeue or reached max retries. Moving to DEAD_LETTER.`,
+        `Message ${msg.id} nacked without requeue or reached max retries (${MAX_RETRIES}). Moving to DEAD_LETTER.`,
       );
-      await prisma.outboxMessage.update({
-        where: { id },
+      await prisma.outboxMessage.updateMany({
+        where: { id, status: OutboxStatus.PROCESSING },
         data: {
           status: OutboxStatus.DEAD_LETTER,
-          attemptCount: newAttempt,
           nextRetryAt: null,
         },
       });
