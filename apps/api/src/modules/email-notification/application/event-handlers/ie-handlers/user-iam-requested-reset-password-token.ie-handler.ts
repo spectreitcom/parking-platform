@@ -1,0 +1,41 @@
+import { EventsHandler, IEventHandler } from '@nestjs/cqrs';
+import { IntegrationEvent } from 'src/shared/outbox/outbox.types';
+import { Logger } from '@nestjs/common';
+import { EmailService } from 'src/modules/email-notification/application/ports/email.service';
+import { ResetPasswordEmail } from 'src/modules/email-notification/application/email/reset-password.email';
+import { UserIamFacade } from 'src/modules/user-iam/application/user-iam.facade';
+import {
+  UserIamIntegrationEventTypes,
+  UserIamRequestedResetPasswordV1Payload,
+} from 'src/modules/user-iam/application/contracts/integration-events';
+
+@EventsHandler(IntegrationEvent)
+export class UserIamRequestedResetPasswordTokenIeHandler implements IEventHandler<IntegrationEvent> {
+  private readonly logger = new Logger(
+    UserIamRequestedResetPasswordTokenIeHandler.name,
+  );
+
+  constructor(
+    private readonly emailService: EmailService,
+    private readonly userIamFacade: UserIamFacade,
+  ) {}
+
+  async handle(
+    event: IntegrationEvent<
+      UserIamRequestedResetPasswordV1Payload,
+      UserIamIntegrationEventTypes
+    >,
+  ) {
+    if (event.type !== 'user-iam.user.requested-reset-password.v1') return;
+    this.logger.log('Handling user-iam.user.requested-reset-password.v1 event');
+
+    const { email, userId } = event.payload;
+
+    const resetPasswordToken =
+      await this.userIamFacade.generateResetPasswordToken(userId);
+
+    await this.emailService.send(
+      new ResetPasswordEmail(email, resetPasswordToken),
+    );
+  }
+}
