@@ -4,6 +4,7 @@ import { eventHandlers } from './event-handlers';
 import { AdminIamModule } from 'src/modules/admin-iam/application/admin-iam.module';
 import { OrganizationUserIamModule } from 'src/modules/organization-user-iam/application/organization-user-iam.module';
 import { UserIamModule } from 'src/modules/user-iam/application/user-iam.module';
+import { OutboxModule } from 'src/shared/outbox/outbox.module';
 
 @Module({
   imports: [
@@ -11,6 +12,7 @@ import { UserIamModule } from 'src/modules/user-iam/application/user-iam.module'
     AdminIamModule,
     OrganizationUserIamModule,
     UserIamModule,
+    OutboxModule,
   ],
   providers: [...eventHandlers],
 })

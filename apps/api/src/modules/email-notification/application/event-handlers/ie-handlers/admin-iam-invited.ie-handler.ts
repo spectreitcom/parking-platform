@@ -8,6 +8,7 @@ import {
 } from 'src/modules/admin-iam/application/contracts/integration-events';
 import { AdminWelcomeEmail } from 'src/modules/email-notification/application/email/admin-welcome.email';
 import { AdminIamFacade } from 'src/modules/admin-iam/application/admin-iam.facade';
+import { OutboxService } from 'src/shared/outbox/outbox.service';
 
 @EventsHandler(IntegrationEvent)
 export class AdminIamInvitedIEHandler implements IEventHandler<IntegrationEvent> {
@@ -16,6 +17,7 @@ export class AdminIamInvitedIEHandler implements IEventHandler<IntegrationEvent>
   constructor(
     private readonly emailService: EmailService,
     private readonly adminIamFacade: AdminIamFacade,
+    private readonly outboxService: OutboxService,
   ) {}
 
   async handle(
@@ -26,6 +28,11 @@ export class AdminIamInvitedIEHandler implements IEventHandler<IntegrationEvent>
   ) {
     if (event.type !== 'admin-iam.admin-user.invited.v1') return;
     this.logger.log('Handling admin-iam.admin-user.invited.v1 event');
+
+    const outboxId = event.headers?.outboxId;
+    if (outboxId) {
+      await this.outboxService.ack(outboxId);
+    }
 
     const { email, adminUserId } = event.payload;
 

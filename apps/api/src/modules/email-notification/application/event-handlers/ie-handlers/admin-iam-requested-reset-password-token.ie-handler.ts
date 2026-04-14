@@ -8,6 +8,7 @@ import { Logger } from '@nestjs/common';
 import { EmailService } from 'src/modules/email-notification/application/ports/email.service';
 import { AdminIamFacade } from 'src/modules/admin-iam/application/admin-iam.facade';
 import { ResetPasswordEmail } from 'src/modules/email-notification/application/email/reset-password.email';
+import { OutboxService } from 'src/shared/outbox/outbox.service';
 
 @EventsHandler(IntegrationEvent)
 export class AdminIamRequestedResetPasswordTokenIeHandler implements IEventHandler<IntegrationEvent> {
@@ -18,6 +19,7 @@ export class AdminIamRequestedResetPasswordTokenIeHandler implements IEventHandl
   constructor(
     private readonly emailService: EmailService,
     private readonly adminIamFacade: AdminIamFacade,
+    private readonly outboxService: OutboxService,
   ) {}
 
   async handle(
@@ -31,6 +33,11 @@ export class AdminIamRequestedResetPasswordTokenIeHandler implements IEventHandl
     this.logger.log(
       'Handling admin-iam.admin-user.requested-reset-password.v1 event',
     );
+
+    const outboxId = event.headers?.outboxId;
+    if (outboxId) {
+      await this.outboxService.ack(outboxId);
+    }
 
     const { email, adminUserId } = event.payload;
 

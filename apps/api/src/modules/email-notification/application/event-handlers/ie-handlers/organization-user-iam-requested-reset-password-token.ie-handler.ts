@@ -8,6 +8,7 @@ import {
   OrganizationUserIamRequestedResetPasswordV1Payload,
 } from 'src/modules/organization-user-iam/application/contracts/integration-events';
 import { OrganizationUserIamFacade } from 'src/modules/organization-user-iam/application/organization-user-iam.facade';
+import { OutboxService } from 'src/shared/outbox/outbox.service';
 
 @EventsHandler(IntegrationEvent)
 export class OrganizationUserIamRequestedResetPasswordTokenIeHandler implements IEventHandler<IntegrationEvent> {
@@ -18,6 +19,7 @@ export class OrganizationUserIamRequestedResetPasswordTokenIeHandler implements 
   constructor(
     private readonly emailService: EmailService,
     private readonly organizationUserIamFacade: OrganizationUserIamFacade,
+    private readonly outboxService: OutboxService,
   ) {}
 
   async handle(
@@ -34,6 +36,11 @@ export class OrganizationUserIamRequestedResetPasswordTokenIeHandler implements 
     this.logger.log(
       'Handling organization-user-iam.organization-user.requested-reset-password.v1 event',
     );
+
+    const outboxId = event.headers?.outboxId;
+    if (outboxId) {
+      await this.outboxService.ack(outboxId);
+    }
 
     const { email, organizationUserId } = event.payload;
 
