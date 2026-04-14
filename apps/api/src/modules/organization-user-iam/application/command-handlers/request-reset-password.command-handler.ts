@@ -1,9 +1,9 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { RequestResetPasswordCommand } from '../commands/request-reset-password.command';
 import { OrganizationUserRepository } from '../ports/organization-user.repository';
-import { TransactionRunner } from '../../../../shared/prisma/transaction-runner';
-import { OutboxService } from '../../../../shared/outbox/outbox.service';
-import { IntegrationEvent } from '../../../../shared/outbox/outbox.types';
+import { TransactionRunner } from 'src/shared/prisma/transaction-runner';
+import { OutboxService } from 'src/shared/outbox/outbox.service';
+import { IntegrationEvent } from 'src/shared/outbox/outbox.types';
 import {
   OrganizationUserIamIntegrationEventTypes,
   OrganizationUserIamRequestedResetPasswordV1Payload,
