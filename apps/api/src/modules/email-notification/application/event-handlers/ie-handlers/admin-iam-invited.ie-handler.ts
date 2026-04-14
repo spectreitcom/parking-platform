@@ -30,6 +30,7 @@ export class AdminIamInvitedIEHandler implements IEventHandler<IntegrationEvent>
     this.logger.log('Handling admin-iam.admin-user.invited.v1 event');
 
     const outboxId = event.headers?.outboxId;
+    let emailSent = false;
 
     try {
       const { email, adminUserId } = event.payload;
@@ -40,12 +41,13 @@ export class AdminIamInvitedIEHandler implements IEventHandler<IntegrationEvent>
       await this.emailService.send(
         new AdminWelcomeEmail(email, resetPasswordToken),
       );
+      emailSent = true;
 
       if (outboxId) {
         await this.outboxService.ack(outboxId);
       }
     } catch (error) {
-      if (outboxId) {
+      if (outboxId && !emailSent) {
         await this.outboxService.nack(outboxId, {
           requeue: true,
           reason: error instanceof Error ? error.message : String(error),

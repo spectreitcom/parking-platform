@@ -38,6 +38,7 @@ export class OrganizationUserIamRequestedResetPasswordTokenIeHandler implements 
     );
 
     const outboxId = event.headers?.outboxId;
+    let emailSent = false;
 
     try {
       const { email, organizationUserId } = event.payload;
@@ -50,12 +51,13 @@ export class OrganizationUserIamRequestedResetPasswordTokenIeHandler implements 
       await this.emailService.send(
         new ResetPasswordEmail(email, resetPasswordToken),
       );
+      emailSent = true;
 
       if (outboxId) {
         await this.outboxService.ack(outboxId);
       }
     } catch (error) {
-      if (outboxId) {
+      if (outboxId && !emailSent) {
         await this.outboxService.nack(outboxId, {
           requeue: true,
           reason: error instanceof Error ? error.message : String(error),

@@ -32,6 +32,7 @@ export class UserIamRequestedResetPasswordTokenIeHandler implements IEventHandle
     this.logger.log('Handling user-iam.user.requested-reset-password.v1 event');
 
     const outboxId = event.headers?.outboxId;
+    let emailSent = false;
 
     try {
       const { email, userId } = event.payload;
@@ -42,12 +43,13 @@ export class UserIamRequestedResetPasswordTokenIeHandler implements IEventHandle
       await this.emailService.send(
         new ResetPasswordEmail(email, resetPasswordToken),
       );
+      emailSent = true;
 
       if (outboxId) {
         await this.outboxService.ack(outboxId);
       }
     } catch (error) {
-      if (outboxId) {
+      if (outboxId && !emailSent) {
         await this.outboxService.nack(outboxId, {
           requeue: true,
           reason: error instanceof Error ? error.message : String(error),
