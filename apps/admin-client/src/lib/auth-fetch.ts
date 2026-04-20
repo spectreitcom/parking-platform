@@ -52,11 +52,16 @@ const refreshToken = createServerFn()
 export const authFetch = async (...args: FetchParameter) => {
   const session = await useAppSession();
 
+  const apiOrigin = new URL(env.SERVER_URL).origin;
+  const shouldAttachAuthHeader = apiOrigin === env.SERVER_ORIGIN;
+
   const response = await fetch(args[0], {
     ...args[1],
     headers: {
       'Content-Type': 'application/json',
-      Authorization: `Bearer ${session.data.accessToken ?? ''}`,
+      ...(shouldAttachAuthHeader && {
+        Authorization: `Bearer ${session.data.accessToken ?? ''}`,
+      }),
       ...args[1]?.headers,
     },
   });
@@ -71,7 +76,9 @@ export const authFetch = async (...args: FetchParameter) => {
       ...args[1],
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${accessToken}`,
+        ...(shouldAttachAuthHeader && {
+          Authorization: `Bearer ${accessToken}`,
+        }),
         ...args[1]?.headers,
       },
     });
