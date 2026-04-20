@@ -13,6 +13,7 @@ import { signOut } from '#/features/auth/api';
 import { LogOut, Moon, Sun, Monitor } from 'lucide-react';
 import { useTheme } from '#/hooks/use-theme';
 import { Separator } from '#/components/ui/separator';
+import { Link } from '@tanstack/react-router';
 
 export function AppSidebar() {
   const signOutFn = useServerFn(signOut);
@@ -26,7 +27,11 @@ export function AppSidebar() {
       <SidebarContent>
         <SidebarGroup>
           <SidebarMenu>
-            <SidebarMenuItem>Dashboard</SidebarMenuItem>
+            <SidebarMenuItem>
+              <SidebarMenuButton asChild>
+                <Link to={'/app'}>Dashboard</Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
             <SidebarMenuItem>Reservations</SidebarMenuItem>
             <SidebarMenuItem>Parkings</SidebarMenuItem>
             <SidebarMenuItem>Parking Addons</SidebarMenuItem>
@@ -54,10 +59,10 @@ export function AppSidebar() {
               <span>
                 Motyw:{' '}
                 {mode === 'light'
-                  ? 'Jasny'
+                  ? 'Light'
                   : mode === 'dark'
-                    ? 'Ciemny'
-                    : 'Systemowy'}
+                    ? 'Dark'
+                    : 'System'}
               </span>
             </SidebarMenuButton>
           </SidebarMenuItem>
@@ -67,7 +72,7 @@ export function AppSidebar() {
               className="text-destructive hover:bg-destructive/10 hover:text-destructive"
             >
               <LogOut className="size-4" />
-              <span>Wyloguj</span>
+              <span>Sign Out</span>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
