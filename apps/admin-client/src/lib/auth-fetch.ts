@@ -1,6 +1,9 @@
 import { useAppSession } from '#/lib/session.ts';
 import { createServerFn } from '@tanstack/react-start';
-import { signInResponseSchema } from '#/features/auth/schemas';
+import {
+  refreshTokenSchema,
+  signInResponseSchema,
+} from '#/features/auth/schemas';
 import type { RefreshTokenSchema } from '#/features/auth/schemas';
 import { env } from '#/env.ts';
 import { redirect } from '@tanstack/react-router';
@@ -8,10 +11,19 @@ import { redirect } from '@tanstack/react-router';
 type FetchParameter = Parameters<typeof fetch>;
 
 const refreshToken = createServerFn()
-  .inputValidator((data: RefreshTokenSchema) => data)
+  .inputValidator((data: RefreshTokenSchema) => {
+    const validationResult = refreshTokenSchema.safeParse(data);
+    if (!validationResult.success) {
+      throw new Error(validationResult.error.message);
+    }
+    return validationResult.data;
+  })
   .handler(async ({ data }) => {
     const response = await fetch(`${env.SERVER_URL}/auth/refresh-token`, {
       method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
       body: JSON.stringify(data),
     });
 

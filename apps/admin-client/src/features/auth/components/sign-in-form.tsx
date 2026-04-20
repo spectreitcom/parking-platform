@@ -25,6 +25,7 @@ export function SignInForm() {
       onSubmit: signInSchema,
     },
     onSubmit: async ({ value }) => {
+      setHasError(false);
       setIsFormSubmitting(true);
 
       try {

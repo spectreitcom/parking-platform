@@ -5,7 +5,7 @@ export const env = createEnv({
   server: {
     NODE_ENV: z.enum(['development', 'production']),
     SERVER_URL: z.url(),
-    SESSION_SECRET: z.string(),
+    SESSION_SECRET: z.string().min(32),
   },
 
   /**
