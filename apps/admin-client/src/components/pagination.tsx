@@ -25,7 +25,7 @@ export function Pagination({ total, page, pageSize, onPageChange }: Props) {
         <ChevronLeft className="size-4" />
       </Button>
       <span>
-        {page}/{totalPages}
+        {page} of {totalPages}
       </span>
       <Button
         variant="outline"
