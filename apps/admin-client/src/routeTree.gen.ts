@@ -12,8 +12,9 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as AuthRouteRouteImport } from './routes/auth/route'
 import { Route as ProtectedRouteRouteImport } from './routes/_protected/route'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as ProtectedAppRouteImport } from './routes/_protected/app'
 import { Route as AuthSignInIndexRouteImport } from './routes/auth/sign-in/index'
+import { Route as ProtectedAppIndexRouteImport } from './routes/_protected/app/index'
+import { Route as ProtectedAppAdminUsersIndexRouteImport } from './routes/_protected/app/admin-users/index'
 
 const AuthRouteRoute = AuthRouteRouteImport.update({
   id: '/auth',
@@ -29,49 +30,59 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ProtectedAppRoute = ProtectedAppRouteImport.update({
-  id: '/app',
-  path: '/app',
-  getParentRoute: () => ProtectedRouteRoute,
-} as any)
 const AuthSignInIndexRoute = AuthSignInIndexRouteImport.update({
   id: '/sign-in/',
   path: '/sign-in/',
   getParentRoute: () => AuthRouteRoute,
 } as any)
+const ProtectedAppIndexRoute = ProtectedAppIndexRouteImport.update({
+  id: '/app/',
+  path: '/app/',
+  getParentRoute: () => ProtectedRouteRoute,
+} as any)
+const ProtectedAppAdminUsersIndexRoute =
+  ProtectedAppAdminUsersIndexRouteImport.update({
+    id: '/app/admin-users/',
+    path: '/app/admin-users/',
+    getParentRoute: () => ProtectedRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRouteRouteWithChildren
-  '/app': typeof ProtectedAppRoute
+  '/app/': typeof ProtectedAppIndexRoute
   '/auth/sign-in/': typeof AuthSignInIndexRoute
+  '/app/admin-users/': typeof ProtectedAppAdminUsersIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRouteRouteWithChildren
-  '/app': typeof ProtectedAppRoute
+  '/app': typeof ProtectedAppIndexRoute
   '/auth/sign-in': typeof AuthSignInIndexRoute
+  '/app/admin-users': typeof ProtectedAppAdminUsersIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_protected': typeof ProtectedRouteRouteWithChildren
   '/auth': typeof AuthRouteRouteWithChildren
-  '/_protected/app': typeof ProtectedAppRoute
+  '/_protected/app/': typeof ProtectedAppIndexRoute
   '/auth/sign-in/': typeof AuthSignInIndexRoute
+  '/_protected/app/admin-users/': typeof ProtectedAppAdminUsersIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/auth' | '/app' | '/auth/sign-in/'
+  fullPaths: '/' | '/auth' | '/app/' | '/auth/sign-in/' | '/app/admin-users/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth' | '/app' | '/auth/sign-in'
+  to: '/' | '/auth' | '/app' | '/auth/sign-in' | '/app/admin-users'
   id:
     | '__root__'
     | '/'
     | '/_protected'
     | '/auth'
-    | '/_protected/app'
+    | '/_protected/app/'
     | '/auth/sign-in/'
+    | '/_protected/app/admin-users/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -103,13 +114,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_protected/app': {
-      id: '/_protected/app'
-      path: '/app'
-      fullPath: '/app'
-      preLoaderRoute: typeof ProtectedAppRouteImport
-      parentRoute: typeof ProtectedRouteRoute
-    }
     '/auth/sign-in/': {
       id: '/auth/sign-in/'
       path: '/sign-in'
@@ -117,15 +121,31 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthSignInIndexRouteImport
       parentRoute: typeof AuthRouteRoute
     }
+    '/_protected/app/': {
+      id: '/_protected/app/'
+      path: '/app'
+      fullPath: '/app/'
+      preLoaderRoute: typeof ProtectedAppIndexRouteImport
+      parentRoute: typeof ProtectedRouteRoute
+    }
+    '/_protected/app/admin-users/': {
+      id: '/_protected/app/admin-users/'
+      path: '/app/admin-users'
+      fullPath: '/app/admin-users/'
+      preLoaderRoute: typeof ProtectedAppAdminUsersIndexRouteImport
+      parentRoute: typeof ProtectedRouteRoute
+    }
   }
 }
 
 interface ProtectedRouteRouteChildren {
-  ProtectedAppRoute: typeof ProtectedAppRoute
+  ProtectedAppIndexRoute: typeof ProtectedAppIndexRoute
+  ProtectedAppAdminUsersIndexRoute: typeof ProtectedAppAdminUsersIndexRoute
 }
 
 const ProtectedRouteRouteChildren: ProtectedRouteRouteChildren = {
-  ProtectedAppRoute: ProtectedAppRoute,
+  ProtectedAppIndexRoute: ProtectedAppIndexRoute,
+  ProtectedAppAdminUsersIndexRoute: ProtectedAppAdminUsersIndexRoute,
 }
 
 const ProtectedRouteRouteWithChildren = ProtectedRouteRoute._addFileChildren(

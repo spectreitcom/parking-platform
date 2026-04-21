@@ -40,7 +40,11 @@ export function AppSidebar() {
             <SidebarMenuItem>Organizations</SidebarMenuItem>
             <SidebarMenuItem>Organization Users</SidebarMenuItem>
             <SidebarMenuItem>Users</SidebarMenuItem>
-            <SidebarMenuItem>Admin Users</SidebarMenuItem>
+            <SidebarMenuItem>
+              <SidebarMenuButton asChild>
+                <Link to={'/app/admin-users'}>Admin Users</Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
           </SidebarMenu>
         </SidebarGroup>
       </SidebarContent>

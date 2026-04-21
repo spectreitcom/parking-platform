@@ -17,8 +17,8 @@ function ProtectedLayout() {
     <SidebarProvider>
       <TooltipProvider>
         <AppSidebar />
-        <main>
-          <SidebarTrigger />
+        <SidebarTrigger />
+        <main className={'p-8 w-full'}>
           <Outlet />
         </main>
       </TooltipProvider>
