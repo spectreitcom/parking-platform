@@ -45,16 +45,17 @@ export const Route = createFileRoute('/_protected/app/admin-users/')({
         adminUsers: [],
         total: 0,
         currentPage: 1,
-        limit: 0,
-        error: 'Failed to fetch admin users',
+        limit: deps.limit,
+        error: 'Failed to fetch admin users.',
       };
     }
   },
 });
 
 function RouteComponent() {
-  const { adminUsers, total, currentPage, limit } = Route.useLoaderData();
-  const navigate = useNavigate();
+  const { adminUsers, total, currentPage, limit, error } =
+    Route.useLoaderData();
+  const navigate = useNavigate({ from: Route.fullPath });
 
   const handlePageChange = async (page: number) => {
     await navigate({
@@ -79,8 +80,9 @@ function RouteComponent() {
 
   return (
     <div>
-      <h1 className={'text-2xl'}>Admin Users</h1>
+      <h1 className={'text-2xl font-bold'}>Admin Users</h1>
       <div className={'mt-8'}>
+        {error && <div className={'mb-4 text-red-500'}>{error}</div>}
         <div>
           <Input
             placeholder={'Search'}
@@ -122,9 +124,9 @@ function NoAdminUsers() {
         'flex h-full w-full flex-col items-center justify-center py-20'
       }
     >
-      <h2 className={'text-xl font-semibold'}>No admin users found</h2>
+      <h2 className={'text-xl font-semibold'}>No administrators found</h2>
       <p className={'text-muted-foreground'}>
-        There are no administrator users in the system.
+        There are no administrators in the system matching the criteria.
       </p>
     </div>
   );
