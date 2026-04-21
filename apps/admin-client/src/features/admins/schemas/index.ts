@@ -11,13 +11,13 @@ export type AdminListItemSchema = z.infer<typeof adminListItemSchema>;
 
 export const adminsListSchema = z.object({
   data: z.array(adminListItemSchema),
-  total: z.number(),
-  currentPage: z.number().positive(),
+  total: z.number().int().nonnegative(),
+  currentPage: z.number().int().positive(),
 });
 
 export const adminListInputSchema = z.object({
-  page: z.coerce.number().positive().optional(),
-  limit: z.coerce.number().positive().optional(),
+  page: z.coerce.number().int().positive().optional(),
+  limit: z.coerce.number().int().positive().optional(),
   search: z.string().optional(),
 });
 

@@ -78,11 +78,19 @@ function RouteComponent() {
 
   const debouncedSearch = useDebounceCallback(handleSearch, 500);
 
+  if (error) {
+    return (
+      <div className={'mt-8'}>
+        <h1 className={'text-2xl'}>Admin Users</h1>
+        <p className={'mt-4 text-destructive'}>{error}</p>
+      </div>
+    );
+  }
+
   return (
     <div>
       <h1 className={'text-2xl font-bold'}>Admin Users</h1>
       <div className={'mt-8'}>
-        {error && <div className={'mb-4 text-red-500'}>{error}</div>}
         <div>
           <Input
             placeholder={'Search'}

@@ -9,6 +9,7 @@ type Props = Readonly<{
 }>;
 
 export function Pagination({ total, page, pageSize, onPageChange }: Props) {
+  if (pageSize <= 0) return;
   const totalPages = Math.ceil(total / pageSize);
 
   if (totalPages <= 1) return null;
