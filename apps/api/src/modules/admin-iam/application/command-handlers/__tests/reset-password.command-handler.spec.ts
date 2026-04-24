@@ -9,11 +9,11 @@ import { PasswordService } from '../../ports/password.service';
 import { ResetPasswordCommand } from '../../commands/reset-password.command';
 import { AdminUser } from '../../../domain/admin-user';
 import { AdminId } from '../../../domain/value-objects/admin-id';
-import { Email } from '../../../../../shared/value-objects/email';
+import { Email } from 'src/shared/value-objects/email';
 import { AdminDisplayName } from '../../../domain/value-objects/admin-display-name';
 import { AdminStatus } from '../../../domain/value-objects/admin-status';
-import { AggregateVersion } from '../../../../../shared/value-objects/aggregate-version';
-import { AppError } from '../../../../../shared/errors';
+import { AggregateVersion } from 'src/shared/value-objects/aggregate-version';
+import { AppError } from 'src/shared/errors';
 
 describe('ResetPasswordCommandHandler', () => {
   let handler: ResetPasswordCommandHandler;
