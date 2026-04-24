@@ -13,7 +13,7 @@ describe('GenerateResetPasswordTokenCommandHandler', () => {
   beforeEach(async () => {
     resetPasswordService = {
       createHash: jest.fn(),
-    } as unknown as typeof resetPasswordService;
+    };
 
     resetPasswordTokenStorage = {
       insert: jest.fn(),

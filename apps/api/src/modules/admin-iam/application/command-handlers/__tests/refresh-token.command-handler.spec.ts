@@ -33,13 +33,13 @@ describe('RefreshTokenCommandHandler', () => {
     refreshTokenService = {
       createToken: jest.fn(),
       verifyToken: jest.fn(),
-    } as unknown as typeof refreshTokenService;
+    };
 
     refreshTokenStorage = {
       validate: jest.fn(),
       invalidate: jest.fn(),
       insert: jest.fn(),
-    } as unknown as typeof refreshTokenStorage;
+    };
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [

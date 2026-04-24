@@ -35,7 +35,7 @@ describe('ResetPasswordCommandHandler', () => {
 
     resetPasswordTokenService = {
       createHash: jest.fn(),
-    } as unknown as typeof resetPasswordTokenService;
+    };
 
     resetPasswordTokenStorage = {
       validate: jest.fn(),

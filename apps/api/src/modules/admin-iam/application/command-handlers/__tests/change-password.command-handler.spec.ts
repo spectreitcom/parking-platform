@@ -32,7 +32,7 @@ describe('ChangePasswordCommandHandler', () => {
     passwordService = {
       compare: jest.fn(),
       create: jest.fn(),
-    } as unknown as jest.Mocked<PasswordService>;
+    };
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [

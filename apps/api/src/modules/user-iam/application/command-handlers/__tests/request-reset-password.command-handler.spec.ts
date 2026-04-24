@@ -28,7 +28,7 @@ describe('RequestResetPasswordCommandHandler', () => {
         .mockImplementation(<T>(cb: (prisma: unknown) => Promise<T>) =>
           cb('prisma-mock'),
         ),
-    } as unknown as jest.Mocked<TransactionRunner>;
+    };
     outboxService = {
       enqueue: jest.fn(),
     } as unknown as jest.Mocked<OutboxService>;

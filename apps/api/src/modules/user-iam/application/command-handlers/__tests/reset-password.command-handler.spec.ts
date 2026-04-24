@@ -32,7 +32,7 @@ describe('ResetPasswordCommandHandler', () => {
     } as unknown as jest.Mocked<EventPublisher>;
     resetPasswordTokenService = {
       createHash: jest.fn(),
-    } as unknown as jest.Mocked<ResetPasswordTokenService>;
+    };
     resetPasswordTokenStorage = {
       validate: jest.fn(),
       invalidate: jest.fn(),

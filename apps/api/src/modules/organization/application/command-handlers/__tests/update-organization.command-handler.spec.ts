@@ -20,7 +20,7 @@ describe('UpdateOrganizationCommandHandler', () => {
     organizationRepository = {
       findById: jest.fn(),
       save: jest.fn(),
-    } as unknown as typeof organizationRepository;
+    };
 
     eventPublisher = {
       mergeObjectContext: jest.fn(<T>(obj: T) => obj),
