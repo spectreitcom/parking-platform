@@ -112,7 +112,7 @@ describe('CancelReservationCommandHandler', () => {
 
   it('should throw SIMPLE_ERROR if domain logic throws CancellingReservationError', async () => {
     const userId = randomUUID();
-    const arrivalDate = Date.now() + 1 * 60 * 60 * 1000; // 1 hour from now (too late to cancel without addon)
+    const arrivalDate = Date.now() + 60 * 60 * 1000; // 1 hour from now (too late to cancel without addon)
     const departureDate = arrivalDate + 2 * 60 * 60 * 1000;
 
     const reservation = Reservation.create(

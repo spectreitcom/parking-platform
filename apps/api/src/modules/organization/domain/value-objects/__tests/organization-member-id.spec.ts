@@ -1,5 +1,5 @@
 import { OrganizationMemberId } from '../organization-member-id';
-import { AppError } from '../../../../../shared/errors';
+import { AppError } from 'src/shared/errors';
 import { randomUUID } from 'node:crypto';
 
 describe('OrganizationMemberId', () => {

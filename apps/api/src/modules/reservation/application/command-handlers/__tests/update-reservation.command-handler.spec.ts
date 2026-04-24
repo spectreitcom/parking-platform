@@ -5,7 +5,7 @@ import { UpdateReservationCommandHandler } from '../update-reservation.command-h
 import { ReservationRepository } from '../../ports/reservation.repository';
 import { UpdateReservationCommand } from '../../commands/update-reservation.command';
 import { Reservation } from '../../../domain/reservation';
-import { AppError } from '../../../../../shared/errors';
+import { AppError } from 'src/shared/errors';
 
 describe('UpdateReservationCommandHandler', () => {
   let reservationRepository: jest.Mocked<ReservationRepository>;

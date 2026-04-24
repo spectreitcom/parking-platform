@@ -1,15 +1,15 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { OrganizationUser } from '../../../domain/organization-user';
-import { IntegrationEvent } from '../../../../../shared/outbox/outbox.types';
+import { IntegrationEvent } from 'src/shared/outbox/outbox.types';
 import { RequestResetPasswordCommand } from '../../commands/request-reset-password.command';
-import { OutboxService } from '../../../../../shared/outbox/outbox.service';
-import { TransactionRunner } from '../../../../../shared/prisma/transaction-runner';
+import { OutboxService } from 'src/shared/outbox/outbox.service';
+import { TransactionRunner } from 'src/shared/prisma/transaction-runner';
 import { OrganizationUserRepository } from '../../ports/organization-user.repository';
 import { RequestResetPasswordCommandHandler } from '../request-reset-password.command-handler';
 import { OrganizationUserId } from '../../../domain/value-objects/organization-user-id';
-import { Email } from '../../../../../shared/value-objects/email';
+import { Email } from 'src/shared/value-objects/email';
 import { OrganizationUserStatus } from '../../../domain/value-objects/organization-user-status';
-import { AggregateVersion } from '../../../../../shared/value-objects/aggregate-version';
+import { AggregateVersion } from 'src/shared/value-objects/aggregate-version';
 import { OrganizationUserDisplayName } from '../../../domain/value-objects/organization-user-display-name';
 import { randomUUID } from 'node:crypto';
 

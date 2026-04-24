@@ -1,16 +1,16 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { AdminUser } from '../../../domain/admin-user';
-import { IntegrationEvent } from '../../../../../shared/outbox/outbox.types';
+import { IntegrationEvent } from 'src/shared/outbox/outbox.types';
 import { RequestResetPasswordCommand } from '../../commands/request-reset-password.command';
-import { OutboxService } from '../../../../../shared/outbox/outbox.service';
-import { TransactionRunner } from '../../../../../shared/prisma/transaction-runner';
+import { OutboxService } from 'src/shared/outbox/outbox.service';
+import { TransactionRunner } from 'src/shared/prisma/transaction-runner';
 import { AdminUserRepository } from '../../ports/admin-user.repository';
 import { RequestResetPasswordCommandHandler } from '../request-reset-password.command-handler';
 import { AdminId } from '../../../domain/value-objects/admin-id';
-import { Email } from '../../../../../shared/value-objects/email';
+import { Email } from 'src/shared/value-objects/email';
 import { AdminDisplayName } from '../../../domain/value-objects/admin-display-name';
 import { AdminStatus } from '../../../domain/value-objects/admin-status';
-import { AggregateVersion } from '../../../../../shared/value-objects/aggregate-version';
+import { AggregateVersion } from 'src/shared/value-objects/aggregate-version';
 import { randomUUID } from 'node:crypto';
 
 describe('RequestResetPasswordCommandHandler', () => {
