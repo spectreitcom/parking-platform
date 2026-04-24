@@ -386,3 +386,45 @@ model UserRead {
 }
 
 // -----------------------------
+
+// Reservation Bounded Context
+model Reservation {
+  id                 String   @id @default(uuid()) @db.Uuid
+  cartId             String   @db.Uuid
+  parkingSpotId      String   @db.Uuid
+  userId             String   @db.Uuid
+  arrival            Int
+  departure          Int
+  lines              Json
+  total              Int
+  status             String   @db.VarChar(20)
+  registrationNumber String   @db.VarChar(20)
+  addons             String[] @default([]) @db.VarChar(90)
+
+  version   Int      @default(1) @db.Integer
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model ReservationRead {
+  id                 String   @id @default(uuid()) @db.Uuid
+  reservationId      String   @unique @db.Uuid
+  cartId             String   @db.Uuid
+  parkingSpotId      String   @db.Uuid
+  userId             String   @db.Uuid
+  arrival            Int
+  departure          Int
+  lines              Json
+  total              Int
+  status             String   @db.VarChar(20)
+  registrationNumber String   @db.VarChar(20)
+  addons             String[] @default([]) @db.VarChar(90)
+
+  version   Int      @db.Integer
+  createdAt DateTime
+  updatedAt DateTime
+
+  @@index([registrationNumber, status, arrival, departure, userId])
+}
+
+// -----------------------------

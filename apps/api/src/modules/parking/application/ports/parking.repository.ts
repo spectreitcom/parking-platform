@@ -1,6 +1,6 @@
 import { Parking } from '../../domain/parking';
-import { PrismaTx } from '../../../../shared/prisma/types';
-import { RepositorySaveOptions } from '../../../../shared/types';
+import { PrismaTx } from 'src/shared/prisma/types';
+import { RepositorySaveOptions } from 'src/shared/types';
 
 export abstract class ParkingRepository {
   abstract save(

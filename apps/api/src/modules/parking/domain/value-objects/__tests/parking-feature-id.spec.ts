@@ -1,4 +1,5 @@
 import { ParkingFeatureId } from '../parking-feature-id';
+import { randomUUID } from 'node:crypto';
 
 describe('ParkingFeatureId', () => {
   it('should create a new ParkingFeatureId with valid UUID', () => {
@@ -10,7 +11,7 @@ describe('ParkingFeatureId', () => {
   });
 
   it('should create from valid UUID string', () => {
-    const uuid = '00000000-0000-0000-0000-000000000000';
+    const uuid = randomUUID();
     const id = ParkingFeatureId.fromString(uuid);
     expect(id.value).toBe(uuid);
   });
@@ -23,7 +24,7 @@ describe('ParkingFeatureId', () => {
   });
 
   it('should return true when comparing two identical IDs', () => {
-    const uuid = '00000000-0000-0000-0000-000000000000';
+    const uuid = randomUUID();
     const id1 = ParkingFeatureId.fromString(uuid);
     const id2 = ParkingFeatureId.fromString(uuid);
     expect(id1.equals(id2)).toBe(true);

@@ -1,6 +1,7 @@
 import { UserId } from '../user-id';
 import { AppError } from 'src/shared/errors';
 import { isUUID } from 'class-validator';
+import { randomUUID } from 'node:crypto';
 
 describe('UserId Value Object', () => {
   it('should create a new UserId with create method', () => {
@@ -9,7 +10,7 @@ describe('UserId Value Object', () => {
   });
 
   it('should create a valid UserId from string', () => {
-    const uuid = '00000000-0000-0000-0000-000000000000';
+    const uuid = randomUUID();
     const userId = UserId.fromString(uuid);
     expect(userId.value).toBe(uuid);
   });

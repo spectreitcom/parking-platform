@@ -1,5 +1,5 @@
 import { IsInt, IsPositive, validateSync } from 'class-validator';
-import { AppError } from '../../../../shared/errors';
+import { AppError } from 'src/shared/errors';
 
 export class CartDateRange {
   @IsInt()

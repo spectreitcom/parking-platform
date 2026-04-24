@@ -11,6 +11,7 @@ import { Email } from '../../../../../shared/value-objects/email';
 import { OrganizationUserStatus } from '../../../domain/value-objects/organization-user-status';
 import { AggregateVersion } from '../../../../../shared/value-objects/aggregate-version';
 import { OrganizationUserDisplayName } from '../../../domain/value-objects/organization-user-display-name';
+import { randomUUID } from 'node:crypto';
 
 describe('RequestResetPasswordCommandHandler', () => {
   let handler: RequestResetPasswordCommandHandler;
@@ -52,7 +53,7 @@ describe('RequestResetPasswordCommandHandler', () => {
   });
 
   it('should enqueue an integration event when organization user exists', async () => {
-    const userId = '123e4567-e89b-12d3-a456-426614174000';
+    const userId = randomUUID();
     const email = 'test@example.com';
     const command = new RequestResetPasswordCommand(email);
     const organizationUser = OrganizationUser.reconstruct(

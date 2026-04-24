@@ -1,4 +1,5 @@
 import { ParkingAddonId } from '../parking-addon-id';
+import { randomUUID } from 'node:crypto';
 
 describe('ParkingAddonId', () => {
   it('should create a valid id', () => {
@@ -8,7 +9,7 @@ describe('ParkingAddonId', () => {
   });
 
   it('should create from string', () => {
-    const uuid = '123e4567-e89b-12d3-a456-426614174000';
+    const uuid = randomUUID();
     const id = ParkingAddonId.fromString(uuid);
     expect(id.value).toBe(uuid);
   });
@@ -20,7 +21,7 @@ describe('ParkingAddonId', () => {
   });
 
   it('should compare two ids', () => {
-    const uuid = '123e4567-e89b-12d3-a456-426614174000';
+    const uuid = randomUUID();
     const id1 = ParkingAddonId.fromString(uuid);
     const id2 = ParkingAddonId.fromString(uuid);
     const id3 = ParkingAddonId.create();

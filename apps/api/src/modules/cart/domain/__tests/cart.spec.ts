@@ -2,14 +2,15 @@ import { Cart } from '../cart';
 import { CartInvalidError } from '../errors';
 import { CartId } from '../value-objects/cart-id';
 import { CartDateRange } from '../value-objects/cart-date-range';
-import { Money } from '../../../../shared/value-objects/money';
+import { Money } from 'src/shared/value-objects/money';
 import { CartParkingSpotId } from '../value-objects/cart-parking-spot-id';
 import { CartAddon } from '../entities/cart-addon';
 import { CartAddonId } from '../value-objects/cart-addon-id';
 import { CartUserId } from '../value-objects/cart-user-id';
+import { randomUUID } from 'node:crypto';
 
 describe('Cart', () => {
-  const parkingSpotId = '550e8400-e29b-41d4-a716-446655440000';
+  const parkingSpotId = randomUUID();
   const oneDayInMs = 24 * 60 * 60 * 1000;
   const now = Date.now();
   const tomorrow = now + oneDayInMs;
@@ -36,7 +37,7 @@ describe('Cart', () => {
     });
 
     it('should create a new cart with user id', () => {
-      const userId = '550e8400-e29b-41d4-a716-446655440003';
+      const userId = randomUUID();
       const cart = Cart.create(
         parkingSpotId,
         tomorrow,
@@ -52,12 +53,12 @@ describe('Cart', () => {
 
   describe('reconstruct', () => {
     it('should reconstruct cart from values', () => {
-      const id = '550e8400-e29b-41d4-a716-446655440000';
+      const id = randomUUID();
       const arrival = tomorrow;
       const departure = dayAfterTomorrow;
       const createdAt = new Date();
-      const userId = '550e8400-e29b-41d4-a716-446655440003';
-      const addonId = '550e8400-e29b-41d4-a716-446655440001';
+      const userId = randomUUID();
+      const addonId = randomUUID();
 
       const cart = Cart.reconstruct(
         CartId.fromString(id),
@@ -91,8 +92,8 @@ describe('Cart', () => {
       );
       const newArrival = tomorrow + oneDayInMs;
       const newDeparture = dayAfterTomorrow + oneDayInMs;
-      const addonId1 = '550e8400-e29b-41d4-a716-446655440001';
-      const addonId2 = '550e8400-e29b-41d4-a716-446655440002';
+      const addonId1 = randomUUID();
+      const addonId2 = randomUUID();
       const addons = [
         { id: addonId1, price: 500 },
         { id: addonId2, price: 300 },
@@ -131,8 +132,8 @@ describe('Cart', () => {
         tomorrow + oneDayInMs,
         pricePerDay,
       );
-      const addonId1 = '550e8400-e29b-41d4-a716-446655440001';
-      const addonId2 = '550e8400-e29b-41d4-a716-446655440002';
+      const addonId1 = randomUUID();
+      const addonId2 = randomUUID();
       cart.update(tomorrow, tomorrow + oneDayInMs, [
         { id: addonId1, price: 500 },
         { id: addonId2, price: 300 },
