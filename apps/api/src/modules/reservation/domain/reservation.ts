@@ -54,14 +54,14 @@ export class Reservation extends AggregateRoot {
     this.parkingSpotId = parkingSpotId;
     this.userId = userId;
     this.dateRange = dateRange;
-    this.lines = lines;
+    this.lines = [...lines];
     this.total = total;
     this.version = version;
     this.status = status;
     this.registrationNumber = registrationNumber;
-    this.addons = addons;
-    this.createdAt = createdAt;
-    this.updatedAt = updatedAt;
+    this.addons = [...addons];
+    this.createdAt = new Date(createdAt);
+    this.updatedAt = new Date(updatedAt);
   }
 
   static reconstruct(
@@ -152,12 +152,15 @@ export class Reservation extends AggregateRoot {
         _userId.value,
         _dateRange.arrival,
         _dateRange.departure,
-        lines,
+        _lines.map((line) => ({
+          title: line.title,
+          price: line.price,
+        })),
         total,
         version.value,
         status.value,
         _registrationNumber.value,
-        addons,
+        _addons.map((addon) => addon.value),
         createdAt,
         createdAt,
       ),
@@ -258,7 +261,7 @@ export class Reservation extends AggregateRoot {
   }
 
   getLines() {
-    return this.lines;
+    return [...this.lines];
   }
 
   getTotal() {
@@ -278,14 +281,14 @@ export class Reservation extends AggregateRoot {
   }
 
   getCreatedAt() {
-    return this.createdAt;
+    return new Date(this.createdAt);
   }
 
   getUpdatedAt() {
-    return this.updatedAt;
+    return new Date(this.updatedAt);
   }
 
   getAddons() {
-    return this.addons;
+    return [...this.addons];
   }
 }

@@ -44,7 +44,7 @@ export class PrismaReservationRepository implements ReservationRepository {
         where: {
           id,
           userId,
-          version,
+          version: version - 1,
         },
         data: {
           ...persistanceData,

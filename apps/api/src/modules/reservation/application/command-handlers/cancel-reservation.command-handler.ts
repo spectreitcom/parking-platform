@@ -1,7 +1,7 @@
 import { CommandHandler, EventPublisher, ICommandHandler } from '@nestjs/cqrs';
 import { CancelReservationCommand } from '../commands/cancel-reservation.command';
 import { ReservationRepository } from 'src/modules/reservation/application/ports/reservation.repository';
-import { AppError } from 'src/shared/errors';
+import { AppError, ConcurrencyError } from 'src/shared/errors';
 import { AggregateVersion } from 'src/shared/value-objects/aggregate-version';
 import { CancellingReservationError } from 'src/modules/reservation/domain/errors';
 
@@ -44,6 +44,9 @@ export class CancelReservationCommandHandler implements ICommandHandler<
       reservation.commit();
       return reservation.getId().value;
     } catch (e) {
+      if (e instanceof ConcurrencyError) {
+        throw new AppError('CONCURRENCY', e.message);
+      }
       if (e instanceof CancellingReservationError) {
         throw new AppError(
           'SIMPLE_ERROR',

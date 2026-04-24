@@ -36,9 +36,7 @@ export class GetReservationsListQueryHandler implements IQueryHandler<
       where: getReservationsListQueryWhere(search),
       skip: (page - 1) * limit,
       take: limit,
-      orderBy: {
-        createdAt: 'desc',
-      },
+      orderBy: [{ createdAt: 'desc' }, { reservationId: 'desc' }],
     });
 
     return records.map(

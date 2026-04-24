@@ -1,13 +1,14 @@
-import { IsString, MaxLength, validateSync } from 'class-validator';
+import { IsNotEmpty, IsString, MaxLength, validateSync } from 'class-validator';
 import { AppError } from 'src/shared/errors';
 
 export class RegistrationNumber {
   @IsString()
   @MaxLength(20)
+  @IsNotEmpty()
   private readonly _value: string;
 
   private constructor(value: string) {
-    this._value = value;
+    this._value = value.trim();
     this.validate();
   }
 

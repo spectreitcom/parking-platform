@@ -1,7 +1,7 @@
 import { CommandHandler, EventPublisher, ICommandHandler } from '@nestjs/cqrs';
 import { UpdateReservationCommand } from '../commands/update-reservation.command';
 import { ReservationRepository } from 'src/modules/reservation/application/ports/reservation.repository';
-import { AppError } from 'src/shared/errors';
+import { AppError, ConcurrencyError } from 'src/shared/errors';
 import { AggregateVersion } from 'src/shared/value-objects/aggregate-version';
 import { UpdateReservationError } from 'src/modules/reservation/domain/errors';
 
@@ -44,6 +44,9 @@ export class UpdateReservationCommandHandler implements ICommandHandler<
       reservation.commit();
       return reservation.getId().value;
     } catch (e) {
+      if (e instanceof ConcurrencyError) {
+        throw new AppError('CONCURRENCY', e.message);
+      }
       if (e instanceof UpdateReservationError) {
         throw new AppError('SIMPLE_ERROR', 'Error during updating reservation');
       }

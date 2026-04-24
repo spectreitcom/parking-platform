@@ -44,8 +44,8 @@ export class ReservationUpdatedEventHandler implements IEventHandler<Reservation
         total,
         lines,
         addons,
-        startDate,
-        endDate,
+        arrival: startDate,
+        departure: endDate,
         version,
       },
     });

@@ -270,4 +270,94 @@ describe('Reservation', () => {
       );
     });
   });
+
+  describe('defensive copies', () => {
+    it('should not allow external mutation of createdAt Date object passed to reconstruct', () => {
+      const createdAt = new Date('2023-01-01T00:00:00Z');
+      const reservation = Reservation.reconstruct(
+        ReservationId.create(),
+        CartId.fromString(randomUUID()),
+        ParkingSpotId.fromString(randomUUID()),
+        UserId.fromString(randomUUID()),
+        ReservationDateRange.fromValues(Date.now(), Date.now() + 3600),
+        [],
+        Money.zero(),
+        AggregateVersion.one(),
+        ReservationStatus.created(),
+        RegistrationNumber.fromString('ABC-123'),
+        [],
+        createdAt,
+        new Date(),
+      );
+
+      createdAt.setFullYear(2024);
+      expect(reservation.getCreatedAt().getFullYear()).toBe(2023);
+    });
+
+    it('should not allow external mutation of Date object returned by getCreatedAt', () => {
+      const reservation = Reservation.reconstruct(
+        ReservationId.create(),
+        CartId.fromString(randomUUID()),
+        ParkingSpotId.fromString(randomUUID()),
+        UserId.fromString(randomUUID()),
+        ReservationDateRange.fromValues(Date.now(), Date.now() + 3600),
+        [],
+        Money.zero(),
+        AggregateVersion.one(),
+        ReservationStatus.created(),
+        RegistrationNumber.fromString('ABC-123'),
+        [],
+        new Date('2023-01-01T00:00:00Z'),
+        new Date(),
+      );
+
+      const createdAtFromGetter = reservation.getCreatedAt();
+      createdAtFromGetter.setFullYear(2024);
+      expect(reservation.getCreatedAt().getFullYear()).toBe(2023);
+    });
+
+    it('should not allow external mutation of lines array passed to reconstruct', () => {
+      const linesArr = [ReservationLine.create('Test', 100)];
+      const reservation = Reservation.reconstruct(
+        ReservationId.create(),
+        CartId.fromString(randomUUID()),
+        ParkingSpotId.fromString(randomUUID()),
+        UserId.fromString(randomUUID()),
+        ReservationDateRange.fromValues(Date.now(), Date.now() + 3600),
+        linesArr,
+        Money.fromNumber(100),
+        AggregateVersion.one(),
+        ReservationStatus.created(),
+        RegistrationNumber.fromString('ABC-123'),
+        [],
+        new Date(),
+        new Date(),
+      );
+
+      linesArr.push(ReservationLine.create('Another', 200));
+      expect(reservation.getLines()).toHaveLength(1);
+    });
+
+    it('should not allow external mutation of lines array returned by getter', () => {
+      const reservation = Reservation.reconstruct(
+        ReservationId.create(),
+        CartId.fromString(randomUUID()),
+        ParkingSpotId.fromString(randomUUID()),
+        UserId.fromString(randomUUID()),
+        ReservationDateRange.fromValues(Date.now(), Date.now() + 3600),
+        [ReservationLine.create('Test', 100)],
+        Money.fromNumber(100),
+        AggregateVersion.one(),
+        ReservationStatus.created(),
+        RegistrationNumber.fromString('ABC-123'),
+        [],
+        new Date(),
+        new Date(),
+      );
+
+      const linesFromGetter = reservation.getLines();
+      linesFromGetter.push(ReservationLine.create('Another', 200));
+      expect(reservation.getLines()).toHaveLength(1);
+    });
+  });
 });
