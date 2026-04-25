@@ -1,7 +1,7 @@
 import { IsNotEmpty, IsString } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
-export class ChangePasswordDto {
+export class AdminChangePasswordDto {
   @ApiProperty({
     description: 'The existing password',
     required: true,

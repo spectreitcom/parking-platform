@@ -1,7 +1,7 @@
 import { IsNotEmpty, IsString } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
-export class ResetPasswordTokenDto {
+export class UserResetPasswordTokenDto {
   @ApiProperty({
     description: 'The reset password token',
     required: true,
