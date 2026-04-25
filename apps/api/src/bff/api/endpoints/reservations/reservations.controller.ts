@@ -1,4 +1,13 @@
-import { Body, Controller, Param, Post, Put, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  HttpCode,
+  HttpStatus,
+  Param,
+  Post,
+  Put,
+  UseGuards,
+} from '@nestjs/common';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import {
   ApiBearerAuth,
@@ -87,6 +96,7 @@ export class ReservationsController {
     description: 'Unauthorized',
   })
   @Post(':reservationId/cancel')
+  @HttpCode(HttpStatus.OK)
   async cancelReservation(
     @Param('reservationId') reservationId: string,
     @CurrentUserId() userId: string,

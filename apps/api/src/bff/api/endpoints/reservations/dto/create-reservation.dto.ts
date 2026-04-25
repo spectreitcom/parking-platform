@@ -1,8 +1,10 @@
 import {
   IsArray,
+  IsInt,
   IsNotEmpty,
   IsNumber,
   IsString,
+  Min,
   ValidateNested,
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
@@ -36,11 +38,13 @@ export class CreateReservationDto {
   readonly parkingSpotId: string;
 
   @ApiProperty()
-  @IsNumber()
+  @IsInt()
+  @Min(0)
   readonly startDate: number;
 
   @ApiProperty()
-  @IsNumber()
+  @IsInt()
+  @Min(0)
   readonly endDate: number;
 
   @ApiProperty()

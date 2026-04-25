@@ -116,6 +116,8 @@ export class ReservationsController {
       reservations.map((reservation) => reservation.userId),
     );
 
+    const usersMap = new Map(users.map((user) => [user.id, user]));
+
     const data: (Omit<(typeof reservations)[0], 'userId'> & {
       user: {
         id: string;
@@ -126,7 +128,7 @@ export class ReservationsController {
     })[] = [];
 
     for (const reservation of reservations) {
-      const user = users.find((user) => user.id === reservation.userId);
+      const user = usersMap.get(reservation.userId);
 
       data.push({
         ...reservation,

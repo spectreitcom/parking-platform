@@ -1,4 +1,11 @@
-import { IsInt, Max, IsOptional, MaxLength, Min } from 'class-validator';
+import {
+  IsInt,
+  Max,
+  IsOptional,
+  MaxLength,
+  Min,
+  IsString,
+} from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE } from '../../../constants';
 import { Type } from 'class-transformer';
@@ -33,6 +40,7 @@ export class GetReservationsListQueryParamsDto {
     required: false,
   })
   @IsOptional()
+  @IsString()
   @MaxLength(255)
   readonly search?: string;
 

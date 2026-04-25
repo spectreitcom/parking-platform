@@ -1,10 +1,11 @@
-import { IsNotEmpty, IsNumber } from 'class-validator';
+import { IsInt, IsNotEmpty, Min } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class CancelReservationDto {
   @ApiProperty()
-  @IsNumber()
+  @IsInt()
   @IsNotEmpty()
+  @Min(0)
   readonly version: number;
 
   constructor(version: number) {
