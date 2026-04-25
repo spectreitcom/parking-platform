@@ -18,10 +18,10 @@ import { AdminIamFacade } from 'src/modules/admin-iam/application/admin-iam.faca
 import { CurrentAdminUserId } from '../../auth/decorators/current-admin-user-id.decorator';
 import { PublicApi } from '../../auth/decorators/public-api.decorator';
 import { LocalAuthGuard } from '../../auth/guards/local-auth.guard';
-import { RequestResetPasswordTokenDto } from './dto/request-reset-password-token.dto';
-import { ResetPasswordTokenDto } from './dto/reset-password-token.dto';
-import { ChangePasswordDto } from './dto/change-password.dto';
-import { RefreshTokenDto } from './dto/refresh-token.dto';
+import { AdminRequestResetPasswordTokenDto } from './dto/admin-request-reset-password-token.dto';
+import { AdminResetPasswordTokenDto } from './dto/admin-reset-password-token.dto';
+import { AdminChangePasswordDto } from './dto/admin-change-password.dto';
+import { AdminRefreshTokenDto } from './dto/admin-refresh-token.dto';
 import { JwtAuthGuard } from 'src/bff/admin-api/auth/guards/jwt-auth.guard';
 
 @UseGuards(JwtAuthGuard)
@@ -127,7 +127,9 @@ export class AuthController {
   @PublicApi()
   @Post('request-reset-password-token')
   @HttpCode(HttpStatus.OK)
-  async requestResetPasswordToken(@Body() dto: RequestResetPasswordTokenDto) {
+  async requestResetPasswordToken(
+    @Body() dto: AdminRequestResetPasswordTokenDto,
+  ) {
     await this.adminIamFacade.requestResetPassword(dto.email);
   }
 
@@ -138,7 +140,7 @@ export class AuthController {
   @PublicApi()
   @Post('reset-password')
   @HttpCode(HttpStatus.OK)
-  async resetPasswordToken(@Body() dto: ResetPasswordTokenDto) {
+  async resetPasswordToken(@Body() dto: AdminResetPasswordTokenDto) {
     await this.adminIamFacade.resetPassword(dto.token, dto.password);
   }
 
@@ -151,7 +153,7 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   async changePassword(
     @CurrentAdminUserId() adminUserId: string,
-    @Body() dto: ChangePasswordDto,
+    @Body() dto: AdminChangePasswordDto,
   ) {
     await this.adminIamFacade.changePassword(
       adminUserId,
@@ -183,7 +185,7 @@ export class AuthController {
   @PublicApi()
   @Post('refresh-token')
   @HttpCode(HttpStatus.OK)
-  async refreshToken(@Body() dto: RefreshTokenDto) {
+  async refreshToken(@Body() dto: AdminRefreshTokenDto) {
     return await this.adminIamFacade.refreshToken(dto.refreshToken);
   }
 }

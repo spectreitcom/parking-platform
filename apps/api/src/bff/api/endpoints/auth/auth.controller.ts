@@ -21,10 +21,10 @@ import { CurrentUserId } from '../../auth/decorators/current-user-id.decorator';
 import { PublicApi } from '../../auth/decorators/public-api.decorator';
 import { LocalAuthGuard } from '../../auth/guards/local-auth.guard';
 import { RegisterUserDto } from './dto/register-user.dto';
-import { RequestResetPasswordTokenDto } from './dto/request-reset-password-token.dto';
-import { ResetPasswordTokenDto } from './dto/reset-password-token.dto';
-import { ChangePasswordDto } from './dto/change-password.dto';
-import { RefreshTokenDto } from './dto/refresh-token.dto';
+import { UserRequestResetPasswordTokenDto } from './dto/user-request-reset-password-token.dto';
+import { UserResetPasswordTokenDto } from './dto/user-reset-password-token.dto';
+import { UserChangePasswordDto } from './dto/user-change-password.dto';
+import { UserRefreshTokenDto } from './dto/user-refresh-token.dto';
 import { JwtAuthGuard } from 'src/bff/api/auth/guards/jwt-auth.guard';
 
 @UseGuards(JwtAuthGuard)
@@ -142,7 +142,9 @@ export class AuthController {
   @PublicApi()
   @Post('request-reset-password-token')
   @HttpCode(HttpStatus.OK)
-  async requestResetPasswordToken(@Body() dto: RequestResetPasswordTokenDto) {
+  async requestResetPasswordToken(
+    @Body() dto: UserRequestResetPasswordTokenDto,
+  ) {
     await this.userIamFacade.requestResetPassword(dto.email);
   }
 
@@ -156,7 +158,7 @@ export class AuthController {
   @PublicApi()
   @Post('reset-password')
   @HttpCode(HttpStatus.OK)
-  async resetPasswordToken(@Body() dto: ResetPasswordTokenDto) {
+  async resetPasswordToken(@Body() dto: UserResetPasswordTokenDto) {
     await this.userIamFacade.resetPassword(dto.token, dto.password);
   }
 
@@ -169,7 +171,7 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   async changePassword(
     @CurrentUserId() userId: string,
-    @Body() dto: ChangePasswordDto,
+    @Body() dto: UserChangePasswordDto,
   ) {
     await this.userIamFacade.changePassword(
       userId,
@@ -201,7 +203,7 @@ export class AuthController {
   @PublicApi()
   @Post('refresh-token')
   @HttpCode(HttpStatus.OK)
-  async refreshToken(@Body() dto: RefreshTokenDto) {
+  async refreshToken(@Body() dto: UserRefreshTokenDto) {
     return await this.userIamFacade.refreshToken(dto.refreshToken);
   }
 }
