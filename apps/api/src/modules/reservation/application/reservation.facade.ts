@@ -6,6 +6,7 @@ import { CancelReservationCommand } from './commands/cancel-reservation.command'
 import { GetReservationsListQuery } from './queries/get-reservations-list.query';
 import { GetReservationsListTotalQuery } from './queries/get-reservations-list-total.query';
 import { ReservationListItemReadModel } from './query-handlers/read-models/reservation-list-item.read-model';
+import { CompleteReservationCommand } from './commands/complete-reservation.command';
 
 @Injectable()
 export class ReservationFacade {
@@ -61,6 +62,16 @@ export class ReservationFacade {
   ): Promise<string> {
     return await this.commandBus.execute<CancelReservationCommand, string>(
       new CancelReservationCommand(reservationId, userId, version),
+    );
+  }
+
+  async completeReservation(
+    reservationId: string,
+    userId: string,
+    version: number,
+  ) {
+    return await this.commandBus.execute<CompleteReservationCommand, string>(
+      new CompleteReservationCommand(reservationId, userId, version),
     );
   }
 
