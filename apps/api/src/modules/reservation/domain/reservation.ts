@@ -109,6 +109,7 @@ export class Reservation extends AggregateRoot {
     const id = ReservationId.create();
     const status = ReservationStatus.created();
     const createdAt = new Date();
+    const updatedAt = new Date();
     const _cartId = CartId.fromString(cartId);
     const _parkingSpotId = ParkingSpotId.fromString(parkingSpotId);
     const _userId = UserId.fromString(userId);
@@ -140,8 +141,8 @@ export class Reservation extends AggregateRoot {
       status,
       _registrationNumber,
       _addons,
-      createdAt,
-      createdAt,
+      new Date(createdAt),
+      new Date(updatedAt),
     );
 
     reservation.apply(
@@ -161,8 +162,8 @@ export class Reservation extends AggregateRoot {
         status.value,
         _registrationNumber.value,
         _addons.map((addon) => addon.value),
-        createdAt,
-        createdAt,
+        new Date(createdAt),
+        new Date(updatedAt),
       ),
     );
 
@@ -203,7 +204,7 @@ export class Reservation extends AggregateRoot {
         this.id.value,
         this.version.value,
         this.status.value,
-        this.updatedAt,
+        new Date(this.updatedAt),
       ),
     );
   }
@@ -234,8 +235,8 @@ export class Reservation extends AggregateRoot {
         this.status.value,
         this.registrationNumber.value,
         this.addons.map((addon) => addon.value),
-        this.createdAt,
-        this.updatedAt,
+        new Date(this.createdAt),
+        new Date(this.updatedAt),
       ),
     );
   }
