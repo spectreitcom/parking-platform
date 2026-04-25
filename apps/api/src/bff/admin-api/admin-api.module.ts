@@ -10,12 +10,14 @@ import { AuthModule } from './auth/auth.module';
 import { ParkingFeaturesController } from './endpoints/parking-features/parking-features.controller';
 import { PlaceTypesController } from './endpoints/place-types/place-types.controller';
 import { ParkingAddonsController } from './endpoints/parking-addons/parking-addons.controller';
-import { AdminsController } from 'src/bff/admin-api/endpoints/admins/admins.controller';
-import { OrganizationsController } from 'src/bff/admin-api/endpoints/organizations/organizations.controller';
-import { ParkingsController } from 'src/bff/admin-api/endpoints/parkings/parkings.controller';
+import { AdminsController } from './endpoints/admins/admins.controller';
+import { OrganizationsController } from './endpoints/organizations/organizations.controller';
+import { ParkingsController } from './endpoints/parkings/parkings.controller';
 import { OrganizationUsersController } from './endpoints/organization-users/organization-users.controller';
-import { PlacesController } from 'src/bff/admin-api/endpoints/places/places.controller';
+import { PlacesController } from './endpoints/places/places.controller';
 import { UsersController } from './endpoints/users/users.controller';
+import { ReservationsController } from './endpoints/reservations/reservations.controller';
+import { ReservationModule } from 'src/modules/reservation/application/reservation.module';
 
 @Module({
   imports: [
@@ -26,6 +28,7 @@ import { UsersController } from './endpoints/users/users.controller';
     CartModule,
     UserIamModule,
     AuthModule,
+    ReservationModule,
   ],
   controllers: [
     AuthController,
@@ -38,6 +41,7 @@ import { UsersController } from './endpoints/users/users.controller';
     OrganizationUsersController,
     PlacesController,
     UsersController,
+    ReservationsController,
   ],
 })
 export class AdminApiModule {}

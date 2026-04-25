@@ -1,6 +1,7 @@
 import { ReservationStatus } from '../reservation-status';
 import {
   RESERVATION_CANCELLED,
+  RESERVATION_COMPLETED,
   RESERVATION_CREATED,
   RESERVATION_PAID,
 } from 'src/modules/reservation/domain/constants';
@@ -26,6 +27,11 @@ describe('ReservationStatus', () => {
   it('should create a cancelled status', () => {
     const status = ReservationStatus.cancelled();
     expect(status.value).toBe(RESERVATION_CANCELLED);
+  });
+
+  it('should create a completed status', () => {
+    const status = ReservationStatus.completed();
+    expect(status.value).toBe(RESERVATION_COMPLETED);
   });
 
   it('should throw an error if status is invalid', () => {

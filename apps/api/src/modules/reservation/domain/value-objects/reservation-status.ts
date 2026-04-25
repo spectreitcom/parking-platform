@@ -1,6 +1,7 @@
 import { IsIn, IsNotEmpty, validateSync } from 'class-validator';
 import {
   RESERVATION_CANCELLED,
+  RESERVATION_COMPLETED,
   RESERVATION_CREATED,
   RESERVATION_PAID,
 } from 'src/modules/reservation/domain/constants';
@@ -8,7 +9,12 @@ import { AppError } from 'src/shared/errors';
 
 export class ReservationStatus {
   @IsNotEmpty()
-  @IsIn([RESERVATION_CREATED, RESERVATION_PAID, RESERVATION_CANCELLED])
+  @IsIn([
+    RESERVATION_CREATED,
+    RESERVATION_PAID,
+    RESERVATION_CANCELLED,
+    RESERVATION_COMPLETED,
+  ])
   private readonly _value: string;
 
   private constructor(value: string) {
@@ -37,6 +43,10 @@ export class ReservationStatus {
 
   static cancelled() {
     return new ReservationStatus(RESERVATION_CANCELLED);
+  }
+
+  static completed() {
+    return new ReservationStatus(RESERVATION_COMPLETED);
   }
 
   get value() {
