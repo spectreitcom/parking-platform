@@ -12,9 +12,14 @@ import { AggregateVersion } from 'src/shared/value-objects/aggregate-version';
 import { Money } from 'src/shared/value-objects/money';
 import { ReservationLine } from '../value-objects/reservation-line';
 import { ReservationCreatedEvent } from '../events/reservation-created.event';
-import { CancellingReservationError, UpdateReservationError } from '../errors';
+import {
+  CancellingReservationError,
+  CompletingReservationError,
+  UpdateReservationError,
+} from '../errors';
 import { ReservationCancelledEvent } from '../events/reservation-cancelled.event';
 import { ReservationUpdatedEvent } from '../events/reservation-updated.event';
+import { ReservationCompletedEvent } from '../events/reservation-completed.event';
 import { ADDON_CAN_CANCEL_15_MINUTES_BEFORE } from '../constants';
 
 describe('Reservation', () => {
@@ -323,6 +328,75 @@ describe('Reservation', () => {
       );
 
       expect(() => reservation.cancel()).toThrow(CancellingReservationError);
+    });
+  });
+
+  describe('complete', () => {
+    it('should complete a reservation and apply ReservationCompletedEvent', () => {
+      const reservation = Reservation.create(
+        cartId,
+        parkingSpotId,
+        userId,
+        arrivalDate,
+        departureDate,
+        lines,
+        registrationNumber,
+        addons,
+      );
+
+      reservation.complete();
+
+      expect(reservation.getStatus().value).toBe(
+        ReservationStatus.completed().value,
+      );
+      expect(reservation.getVersion().value).toBe(2);
+
+      const events = reservation.getUncommittedEvents();
+      const event = events[1] as ReservationCompletedEvent;
+      expect(event).toBeInstanceOf(ReservationCompletedEvent);
+      expect(event.reservationId).toBe(reservation.getId().value);
+      expect(event.version).toBe(2);
+      expect(event.status).toBe(ReservationStatus.completed().value);
+      expect(event.updatedAt).toBeDefined();
+    });
+
+    it('should throw CompletingReservationError if already cancelled', () => {
+      const now = Date.now();
+      const arrival = now + 48 * 60 * 60 * 1000;
+      const reservation = Reservation.create(
+        cartId,
+        parkingSpotId,
+        userId,
+        arrival,
+        arrival + 3600,
+        lines,
+        registrationNumber,
+        [],
+      );
+
+      reservation.cancel();
+
+      expect(() => reservation.complete()).toThrow(CompletingReservationError);
+    });
+
+    it('should throw CompletingReservationError if already completed', () => {
+      const reservation = Reservation.reconstruct(
+        ReservationId.create(),
+        CartId.fromString(cartId),
+        ParkingSpotId.fromString(parkingSpotId),
+        UserId.fromString(userId),
+        ReservationDateRange.fromValues(Date.now(), Date.now() + 3600),
+        [],
+        Money.zero(),
+        AggregateVersion.one(),
+        ReservationStatus.completed(),
+        RegistrationNumber.fromString(registrationNumber),
+        [],
+        new Date(),
+        new Date(),
+      );
+
+      expect(() => reservation.complete()).toThrow(CompletingReservationError);
     });
   });
 

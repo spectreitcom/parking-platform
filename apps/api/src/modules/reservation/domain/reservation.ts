@@ -1,22 +1,24 @@
 import { AggregateRoot } from '@nestjs/cqrs';
-import { ReservationId } from 'src/modules/reservation/domain/value-objects/reservation-id';
-import { ReservationLine } from 'src/modules/reservation/domain/value-objects/reservation-line';
-import { CartId } from 'src/modules/reservation/domain/value-objects/cart-id';
-import { ParkingSpotId } from 'src/modules/reservation/domain/value-objects/parking-spot-id';
-import { UserId } from 'src/modules/reservation/domain/value-objects/user-id';
-import { ReservationDateRange } from 'src/modules/reservation/domain/value-objects/reservation-date-range';
+import { ReservationId } from './value-objects/reservation-id';
+import { ReservationLine } from './value-objects/reservation-line';
+import { CartId } from './value-objects/cart-id';
+import { ParkingSpotId } from './value-objects/parking-spot-id';
+import { UserId } from './value-objects/user-id';
+import { ReservationDateRange } from './value-objects/reservation-date-range';
 import { Money } from 'src/shared/value-objects/money';
 import { AggregateVersion } from 'src/shared/value-objects/aggregate-version';
-import { ReservationStatus } from 'src/modules/reservation/domain/value-objects/reservation-status';
-import { RegistrationNumber } from 'src/modules/reservation/domain/value-objects/registration-number';
-import { ReservationCancelledEvent } from 'src/modules/reservation/domain/events/reservation-cancelled.event';
+import { ReservationStatus } from './value-objects/reservation-status';
+import { RegistrationNumber } from './value-objects/registration-number';
+import { ReservationCancelledEvent } from './events/reservation-cancelled.event';
 import {
   CancellingReservationError,
+  CompletingReservationError,
   UpdateReservationError,
-} from 'src/modules/reservation/domain/errors';
-import { ReservationCreatedEvent } from 'src/modules/reservation/domain/events/reservation-created.event';
-import { ReservationUpdatedEvent } from 'src/modules/reservation/domain/events/reservation-updated.event';
-import { ReservationAddon } from 'src/modules/reservation/domain/value-objects/reservation-addon';
+} from './errors';
+import { ReservationCreatedEvent } from './events/reservation-created.event';
+import { ReservationUpdatedEvent } from './events/reservation-updated.event';
+import { ReservationAddon } from './value-objects/reservation-addon';
+import { ReservationCompletedEvent } from './events/reservation-completed.event';
 
 export class Reservation extends AggregateRoot {
   private readonly id: ReservationId;
@@ -204,6 +206,28 @@ export class Reservation extends AggregateRoot {
 
     this.apply(
       new ReservationCancelledEvent(
+        this.id.value,
+        this.version.value,
+        this.status.value,
+        new Date(this.updatedAt),
+      ),
+    );
+  }
+
+  complete() {
+    if (
+      this.status.equals(ReservationStatus.cancelled()) ||
+      this.status.equals(ReservationStatus.completed())
+    ) {
+      throw new CompletingReservationError();
+    }
+
+    this.status = ReservationStatus.completed();
+    this.updatedAt = new Date();
+    this.version = this.version.increment();
+
+    this.apply(
+      new ReservationCompletedEvent(
         this.id.value,
         this.version.value,
         this.status.value,
