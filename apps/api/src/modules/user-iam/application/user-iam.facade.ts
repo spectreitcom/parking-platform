@@ -16,6 +16,7 @@ import { ValidateUserQuery } from './queries/validate-user.query';
 import { UserDetailsReadModel } from './query-handlers/read-models/user-details.read-model';
 import { GetUserByIdQuery } from './queries/get-user-by-id.query';
 import { RegisterUserCommand } from 'src/modules/user-iam/application/commands/register-user.command';
+import { GetUsersByIdsQuery } from './queries/get-users-by-ids.query';
 
 @Injectable()
 export class UserIamFacade {
@@ -111,5 +112,13 @@ export class UserIamFacade {
   async registerUser(email: string, name: string, password: string) {
     const command = new RegisterUserCommand(email, password, name);
     return await this.commandBus.execute<RegisterUserCommand, string>(command);
+  }
+
+  async getUsersByIds(userIds: string[]) {
+    const query = new GetUsersByIdsQuery(userIds);
+    return await this.queryBus.execute<
+      GetUsersByIdsQuery,
+      UsersListItemReadModel[]
+    >(query);
   }
 }

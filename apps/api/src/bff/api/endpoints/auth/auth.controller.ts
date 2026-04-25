@@ -25,7 +25,7 @@ import { UserRequestResetPasswordTokenDto } from './dto/user-request-reset-passw
 import { UserResetPasswordTokenDto } from './dto/user-reset-password-token.dto';
 import { UserChangePasswordDto } from './dto/user-change-password.dto';
 import { UserRefreshTokenDto } from './dto/user-refresh-token.dto';
-import { JwtAuthGuard } from 'src/bff/api/auth/guards/jwt-auth.guard';
+import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 
 @UseGuards(JwtAuthGuard)
 @ApiTags('Auth')

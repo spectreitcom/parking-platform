@@ -171,7 +171,10 @@ export class Reservation extends AggregateRoot {
   }
 
   cancel() {
-    if (this.status.equals(ReservationStatus.cancelled())) {
+    if (
+      this.status.equals(ReservationStatus.cancelled()) ||
+      this.status.equals(ReservationStatus.completed())
+    ) {
       throw new CancellingReservationError('Reservation is already cancelled.');
     }
 
@@ -210,7 +213,10 @@ export class Reservation extends AggregateRoot {
   }
 
   update(registrationNumber: string) {
-    if (this.status.equals(ReservationStatus.cancelled())) {
+    if (
+      this.status.equals(ReservationStatus.cancelled()) ||
+      this.status.equals(ReservationStatus.completed())
+    ) {
       throw new UpdateReservationError();
     }
 
