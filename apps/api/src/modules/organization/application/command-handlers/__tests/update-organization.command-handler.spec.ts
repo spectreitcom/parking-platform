@@ -9,7 +9,7 @@ import { OrganizationId } from '../../../domain/value-objects/organization-id';
 import { OrganizationName } from '../../../domain/value-objects/organization-name';
 import { OrganizationAddress } from '../../../domain/value-objects/organization-address';
 import { OrganizationTaxId } from '../../../domain/value-objects/organization-tax-id';
-import { AggregateVersion } from '../../../../../shared/value-objects/aggregate-version';
+import { AggregateVersion } from 'src/shared/value-objects/aggregate-version';
 
 describe('UpdateOrganizationCommandHandler', () => {
   let handler: UpdateOrganizationCommandHandler;
@@ -20,7 +20,7 @@ describe('UpdateOrganizationCommandHandler', () => {
     organizationRepository = {
       findById: jest.fn(),
       save: jest.fn(),
-    } as unknown as typeof organizationRepository;
+    };
 
     eventPublisher = {
       mergeObjectContext: jest.fn(<T>(obj: T) => obj),

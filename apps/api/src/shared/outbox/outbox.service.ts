@@ -3,12 +3,7 @@ import { Prisma, OutboxStatus } from '@prisma/client';
 import { EventBus } from '@nestjs/cqrs';
 import { createHash } from 'node:crypto';
 import { PrismaService } from '../prisma/prisma.service';
-import {
-  EmitOptions,
-  EnqueueOptions,
-  IntegrationEvent,
-  IntegrationEventHeaders,
-} from './outbox.types';
+import { EmitOptions, EnqueueOptions, IntegrationEvent } from './outbox.types';
 import { PrismaTx } from '../prisma/types';
 
 const DEFAULT_BATCH = 50;
@@ -165,14 +160,14 @@ export class OutboxService {
       try {
         const event = new IntegrationEvent(
           msg.type,
-          msg.payload as unknown,
+          msg.payload,
           msg.boundedContext,
           msg.aggregateType,
           msg.aggregateId,
           {
             ...(msg.headers as Record<string, unknown>),
             outboxId: msg.id,
-          } as IntegrationEventHeaders,
+          },
         );
 
         await this.eventBus.publish(event);

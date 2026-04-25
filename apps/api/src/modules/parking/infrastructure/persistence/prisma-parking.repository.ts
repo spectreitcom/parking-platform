@@ -2,9 +2,9 @@ import { Injectable } from '@nestjs/common';
 import { ParkingRepository } from '../../application/ports/parking.repository';
 import { PrismaTx } from 'src/shared/prisma/types';
 import { Parking } from '../../domain/parking';
-import { PrismaService } from '../../../../shared/prisma/prisma.service';
-import { ConcurrencyError } from '../../../../shared/errors';
-import { RepositorySaveOptions } from '../../../../shared/types';
+import { PrismaService } from 'src/shared/prisma/prisma.service';
+import { ConcurrencyError } from 'src/shared/errors';
+import { RepositorySaveOptions } from 'src/shared/types';
 
 import { ParkingMapper } from './parking.mapper';
 

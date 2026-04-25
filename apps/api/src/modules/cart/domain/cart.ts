@@ -1,6 +1,6 @@
 import { CartId } from './value-objects/cart-id';
 import { CartDateRange } from './value-objects/cart-date-range';
-import { Money } from '../../../shared/value-objects/money';
+import { Money } from 'src/shared/value-objects/money';
 import { CartParkingSpotId } from './value-objects/cart-parking-spot-id';
 import { CartAddon } from './entities/cart-addon';
 import { AggregateRoot } from '@nestjs/cqrs';

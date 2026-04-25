@@ -3,10 +3,10 @@ import { ParkingAddonId } from './value-objects/parking-addon-id';
 import { ParkingAddonName } from './value-objects/parking-addon-name';
 import { ParkingAddonCode } from './value-objects/parking-addon-code';
 import { ParkingAddonCreatedEvent } from './events/parking-addon-created.event';
-import { Money } from '../../../shared/value-objects/money';
+import { Money } from 'src/shared/value-objects/money';
 import { ParkingAddonUpdatedEvent } from './events/parking-addon-updated.event';
 import { ParkingAddonDeletedEvent } from './events/parking-addon-deleted.event';
-import { AggregateVersion } from '../../../shared/value-objects/aggregate-version';
+import { AggregateVersion } from 'src/shared/value-objects/aggregate-version';
 
 export class ParkingAddon extends AggregateRoot {
   private readonly id: ParkingAddonId;

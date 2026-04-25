@@ -26,7 +26,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
     const res: Response = host.switchToHttp().getResponse();
 
     if (exception instanceof HttpException) {
-      const status: HttpStatus = exception.getStatus() as HttpStatus;
+      const status: HttpStatus = exception.getStatus();
 
       if (status === HttpStatus.UNAUTHORIZED) {
         return res.status(HttpStatus.UNAUTHORIZED).json({

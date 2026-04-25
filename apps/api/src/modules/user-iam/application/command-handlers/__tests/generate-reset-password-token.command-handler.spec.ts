@@ -6,10 +6,8 @@ import { ResetPasswordTokenStorage } from '../../ports/reset-password-token.stor
 import { GenerateResetPasswordTokenCommand } from '../../commands/generate-reset-password-token.command';
 
 jest.mock('node:crypto', () => {
-  const actual = jest.requireActual('node:crypto') as unknown as Record<
-    string,
-    unknown
-  >;
+  const actual =
+    jest.requireActual<typeof import('node:crypto')>('node:crypto');
   return {
     ...actual,
     randomUUID: jest.fn(),
@@ -24,7 +22,7 @@ describe('GenerateResetPasswordTokenCommandHandler', () => {
   beforeEach(async () => {
     resetPasswordTokenService = {
       createHash: jest.fn(),
-    } as unknown as jest.Mocked<ResetPasswordTokenService>;
+    };
     resetPasswordTokenStorage = {
       insert: jest.fn(),
     } as unknown as jest.Mocked<ResetPasswordTokenStorage>;

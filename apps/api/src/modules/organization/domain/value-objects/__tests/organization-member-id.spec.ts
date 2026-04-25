@@ -1,5 +1,6 @@
 import { OrganizationMemberId } from '../organization-member-id';
-import { AppError } from '../../../../../shared/errors';
+import { AppError } from 'src/shared/errors';
+import { randomUUID } from 'node:crypto';
 
 describe('OrganizationMemberId', () => {
   it('should create a valid organization member ID using create', () => {
@@ -12,7 +13,7 @@ describe('OrganizationMemberId', () => {
   });
 
   it('should create an organization member ID from string', () => {
-    const uuid = '550e8400-e29b-41d4-a716-446655440000';
+    const uuid = randomUUID();
     const organizationMemberId = OrganizationMemberId.fromString(uuid);
     expect(organizationMemberId.value).toBe(uuid);
   });
@@ -27,7 +28,7 @@ describe('OrganizationMemberId', () => {
   });
 
   it('should return true when comparing two identical IDs', () => {
-    const uuid = '550e8400-e29b-41d4-a716-446655440000';
+    const uuid = randomUUID();
     const id1 = OrganizationMemberId.fromString(uuid);
     const id2 = OrganizationMemberId.fromString(uuid);
     expect(id1.equals(id2)).toBe(true);

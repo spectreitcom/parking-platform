@@ -1,6 +1,6 @@
 import { GetParkingListForAdminTotalQuery } from '../queries/get-parking-list-for-admin-total.query';
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
-import { PrismaService } from '../../../../shared/prisma/prisma.service';
+import { PrismaService } from 'src/shared/prisma/prisma.service';
 import { getParkingListForAdminQueryWhere } from './get-parking-list-for-admin.query-handler';
 
 @QueryHandler(GetParkingListForAdminTotalQuery)
