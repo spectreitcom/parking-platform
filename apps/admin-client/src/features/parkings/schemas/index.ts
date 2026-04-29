@@ -1,5 +1,11 @@
 import { z } from 'zod';
 
+export const parkingListBaseInputSchema = z.object({
+  page: z.coerce.number().int().positive().optional(),
+  limit: z.coerce.number().int().positive().max(100).optional(),
+  search: z.string().max(255).optional(),
+});
+
 export const parkingListItemSchema = z.object({
   id: z.uuid(),
   name: z.string(),
@@ -23,8 +29,16 @@ export const parkingListSchema = z.object({
   currentPage: z.number().int().positive(),
 });
 
-export const parkingListInputSchema = z.object({
-  page: z.coerce.number().int().positive().optional(),
-  limit: z.coerce.number().int().positive().max(100).optional(),
-  search: z.string().max(255).optional(),
+export const placeTypesListItemSchema = z.object({
+  id: z.uuid(),
+  name: z.string(),
+  version: z.number().int().positive(),
+});
+
+export type PlaceTypesListItemSchema = z.infer<typeof placeTypesListItemSchema>;
+
+export const placeTypesListSchema = z.object({
+  data: z.array(placeTypesListItemSchema),
+  total: z.number().int().nonnegative(),
+  currentPage: z.number().int().positive(),
 });
