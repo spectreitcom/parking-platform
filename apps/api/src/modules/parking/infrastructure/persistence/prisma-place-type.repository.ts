@@ -57,7 +57,7 @@ export class PrismaPlaceTypeRepository implements PlaceTypeRepository {
       await prisma.placeType.update({
         where: {
           id,
-          version: currentVersion,
+          version: currentVersion - 1,
         },
         data: {
           name,
