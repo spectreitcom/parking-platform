@@ -41,7 +41,11 @@ export function AppSidebar() {
         </SidebarGroup>
         <SidebarGroup title="Parking">
           <SidebarGroupLabel>Parking</SidebarGroupLabel>
-          <SidebarMenuItem>Parkings</SidebarMenuItem>
+          <SidebarMenuItem>
+            <SidebarMenuButton asChild>
+              <Link to={'/app/parkings'}>Parkings</Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
           <SidebarMenuItem>Parking Addons</SidebarMenuItem>
           <SidebarMenuItem>Parking Features</SidebarMenuItem>
           <SidebarMenuItem>Places</SidebarMenuItem>

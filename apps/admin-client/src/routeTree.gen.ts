@@ -14,6 +14,7 @@ import { Route as ProtectedRouteRouteImport } from './routes/_protected/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthSignInIndexRouteImport } from './routes/auth/sign-in/index'
 import { Route as ProtectedAppIndexRouteImport } from './routes/_protected/app/index'
+import { Route as ProtectedAppParkingsIndexRouteImport } from './routes/_protected/app/parkings/index'
 import { Route as ProtectedAppAdminUsersIndexRouteImport } from './routes/_protected/app/admin-users/index'
 
 const AuthRouteRoute = AuthRouteRouteImport.update({
@@ -40,6 +41,12 @@ const ProtectedAppIndexRoute = ProtectedAppIndexRouteImport.update({
   path: '/app/',
   getParentRoute: () => ProtectedRouteRoute,
 } as any)
+const ProtectedAppParkingsIndexRoute =
+  ProtectedAppParkingsIndexRouteImport.update({
+    id: '/app/parkings/',
+    path: '/app/parkings/',
+    getParentRoute: () => ProtectedRouteRoute,
+  } as any)
 const ProtectedAppAdminUsersIndexRoute =
   ProtectedAppAdminUsersIndexRouteImport.update({
     id: '/app/admin-users/',
@@ -53,6 +60,7 @@ export interface FileRoutesByFullPath {
   '/app/': typeof ProtectedAppIndexRoute
   '/auth/sign-in/': typeof AuthSignInIndexRoute
   '/app/admin-users/': typeof ProtectedAppAdminUsersIndexRoute
+  '/app/parkings/': typeof ProtectedAppParkingsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -60,6 +68,7 @@ export interface FileRoutesByTo {
   '/app': typeof ProtectedAppIndexRoute
   '/auth/sign-in': typeof AuthSignInIndexRoute
   '/app/admin-users': typeof ProtectedAppAdminUsersIndexRoute
+  '/app/parkings': typeof ProtectedAppParkingsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -69,12 +78,25 @@ export interface FileRoutesById {
   '/_protected/app/': typeof ProtectedAppIndexRoute
   '/auth/sign-in/': typeof AuthSignInIndexRoute
   '/_protected/app/admin-users/': typeof ProtectedAppAdminUsersIndexRoute
+  '/_protected/app/parkings/': typeof ProtectedAppParkingsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/auth' | '/app/' | '/auth/sign-in/' | '/app/admin-users/'
+  fullPaths:
+    | '/'
+    | '/auth'
+    | '/app/'
+    | '/auth/sign-in/'
+    | '/app/admin-users/'
+    | '/app/parkings/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth' | '/app' | '/auth/sign-in' | '/app/admin-users'
+  to:
+    | '/'
+    | '/auth'
+    | '/app'
+    | '/auth/sign-in'
+    | '/app/admin-users'
+    | '/app/parkings'
   id:
     | '__root__'
     | '/'
@@ -83,6 +105,7 @@ export interface FileRouteTypes {
     | '/_protected/app/'
     | '/auth/sign-in/'
     | '/_protected/app/admin-users/'
+    | '/_protected/app/parkings/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -128,6 +151,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProtectedAppIndexRouteImport
       parentRoute: typeof ProtectedRouteRoute
     }
+    '/_protected/app/parkings/': {
+      id: '/_protected/app/parkings/'
+      path: '/app/parkings'
+      fullPath: '/app/parkings/'
+      preLoaderRoute: typeof ProtectedAppParkingsIndexRouteImport
+      parentRoute: typeof ProtectedRouteRoute
+    }
     '/_protected/app/admin-users/': {
       id: '/_protected/app/admin-users/'
       path: '/app/admin-users'
@@ -141,11 +171,13 @@ declare module '@tanstack/react-router' {
 interface ProtectedRouteRouteChildren {
   ProtectedAppIndexRoute: typeof ProtectedAppIndexRoute
   ProtectedAppAdminUsersIndexRoute: typeof ProtectedAppAdminUsersIndexRoute
+  ProtectedAppParkingsIndexRoute: typeof ProtectedAppParkingsIndexRoute
 }
 
 const ProtectedRouteRouteChildren: ProtectedRouteRouteChildren = {
   ProtectedAppIndexRoute: ProtectedAppIndexRoute,
   ProtectedAppAdminUsersIndexRoute: ProtectedAppAdminUsersIndexRoute,
+  ProtectedAppParkingsIndexRoute: ProtectedAppParkingsIndexRoute,
 }
 
 const ProtectedRouteRouteWithChildren = ProtectedRouteRoute._addFileChildren(
