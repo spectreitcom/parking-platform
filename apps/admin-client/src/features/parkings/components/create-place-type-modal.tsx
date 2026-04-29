@@ -1,6 +1,5 @@
 'use client';
 
-import * as React from 'react';
 import { useForm } from '@tanstack/react-form';
 import { useServerFn } from '@tanstack/react-start';
 import { toast } from 'sonner';
@@ -52,16 +51,24 @@ export function CreatePlaceTypeModal({
   });
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog
+      open={open}
+      onOpenChange={(isOpen) => {
+        onOpenChange(isOpen);
+        if (!isOpen) {
+          form.reset();
+        }
+      }}
+    >
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Create Place Type</DialogTitle>
         </DialogHeader>
         <form
-          onSubmit={(e) => {
+          onSubmit={async (e) => {
             e.preventDefault();
             e.stopPropagation();
-            form.handleSubmit();
+            await form.handleSubmit();
           }}
           className="space-y-4"
         >
@@ -90,7 +97,10 @@ export function CreatePlaceTypeModal({
             <Button
               type="button"
               variant="outline"
-              onClick={() => onOpenChange(false)}
+              onClick={() => {
+                onOpenChange(false);
+                form.reset();
+              }}
             >
               Cancel
             </Button>

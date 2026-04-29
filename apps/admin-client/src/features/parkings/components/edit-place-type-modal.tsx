@@ -1,6 +1,5 @@
 'use client';
 
-import * as React from 'react';
 import { useForm } from '@tanstack/react-form';
 import { useServerFn } from '@tanstack/react-start';
 import { toast } from 'sonner';
@@ -19,6 +18,7 @@ import { updatePlaceTypeInputSchema } from '#/features/parkings/schemas';
 import { Spinner } from '#/components/ui/spinner';
 import { useRouter } from '@tanstack/react-router';
 import type { PlaceTypesListItemSchema } from '#/features/parkings/schemas';
+import { useEffect } from 'react';
 
 interface EditPlaceTypeModalProps {
   open: boolean;
@@ -48,6 +48,7 @@ export function EditPlaceTypeModal({
         await updatePlaceTypeFn({ data: value });
         toast.success('Place type updated successfully');
         onOpenChange(false);
+        form.reset();
         await router.invalidate();
       } catch (error) {
         toast.error('Failed to update place type');
@@ -55,26 +56,34 @@ export function EditPlaceTypeModal({
     },
   });
 
-  // Update form values when placeType changes
-  React.useEffect(() => {
-    if (placeType) {
+  // Update form values when placeType changes or modal opens
+  useEffect(() => {
+    if (placeType && open) {
       form.setFieldValue('name', placeType.name);
       form.setFieldValue('version', placeType.version);
       form.setFieldValue('placeTypeId', placeType.id);
     }
-  }, [placeType, form]);
+  }, [placeType, form, open]);
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog
+      open={open}
+      onOpenChange={(isOpen) => {
+        onOpenChange(isOpen);
+        if (!isOpen) {
+          form.reset();
+        }
+      }}
+    >
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Edit Place Type</DialogTitle>
         </DialogHeader>
         <form
-          onSubmit={(e) => {
+          onSubmit={async (e) => {
             e.preventDefault();
             e.stopPropagation();
-            form.handleSubmit();
+            await form.handleSubmit();
           }}
           className="space-y-4"
         >
@@ -103,7 +112,10 @@ export function EditPlaceTypeModal({
             <Button
               type="button"
               variant="outline"
-              onClick={() => onOpenChange(false)}
+              onClick={() => {
+                onOpenChange(false);
+                form.reset();
+              }}
             >
               Cancel
             </Button>
