@@ -47,6 +47,7 @@ describe('CancelReservationCommandHandler', () => {
     const reservation = Reservation.create(
       randomUUID(),
       randomUUID(),
+      randomUUID(),
       userId,
       arrivalDate,
       departureDate,
@@ -86,6 +87,7 @@ describe('CancelReservationCommandHandler', () => {
     const reservation = Reservation.create(
       randomUUID(),
       randomUUID(),
+      randomUUID(),
       userId,
       Date.now() + 25 * 60 * 60 * 1000,
       Date.now() + 27 * 60 * 60 * 1000,
@@ -116,6 +118,7 @@ describe('CancelReservationCommandHandler', () => {
     const departureDate = arrivalDate + 2 * 60 * 60 * 1000;
 
     const reservation = Reservation.create(
+      randomUUID(),
       randomUUID(),
       randomUUID(),
       userId,

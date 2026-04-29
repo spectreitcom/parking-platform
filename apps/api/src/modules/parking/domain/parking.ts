@@ -28,6 +28,8 @@ export class Parking extends AggregateRoot {
   private version: AggregateVersion;
   private parkingAddonIds: ParkingAddonId[];
   private readonly placeId: PlaceId;
+  private readonly createdAt: Date;
+  private updatedAt: Date;
 
   private constructor(
     id: ParkingId,
@@ -41,6 +43,8 @@ export class Parking extends AggregateRoot {
     parkingAddonIds: readonly ParkingAddonId[],
     placeId: PlaceId,
     version: AggregateVersion,
+    createdAt: Date,
+    updatedAt: Date,
     description?: string,
     statute?: string,
   ) {
@@ -58,6 +62,8 @@ export class Parking extends AggregateRoot {
     this.parkingAddonIds = [...parkingAddonIds];
     this.placeId = placeId;
     this.version = version;
+    this.createdAt = new Date(createdAt);
+    this.updatedAt = new Date(updatedAt);
   }
 
   static reconstruct(
@@ -72,6 +78,8 @@ export class Parking extends AggregateRoot {
     parkingAddonIds: readonly ParkingAddonId[],
     placeId: PlaceId,
     version: AggregateVersion,
+    createdAt: Date,
+    updatedAt: Date,
     description?: string,
     statute?: string,
   ) {
@@ -87,6 +95,8 @@ export class Parking extends AggregateRoot {
       parkingAddonIds,
       placeId,
       version,
+      createdAt,
+      updatedAt,
       description,
       statute,
     );
@@ -106,6 +116,8 @@ export class Parking extends AggregateRoot {
     const _address = Address.fromString(address);
     const _coords = Coords.fromNumbers(coords.latitude, coords.longitude);
     const _placeId = PlaceId.fromString(placeId);
+    const createdAt = new Date();
+    const updatedAt = new Date();
     const parking = new Parking(
       _id,
       _organizationId,
@@ -118,6 +130,8 @@ export class Parking extends AggregateRoot {
       [],
       _placeId,
       AggregateVersion.one(),
+      createdAt,
+      updatedAt,
       '',
       '',
     );
@@ -138,6 +152,8 @@ export class Parking extends AggregateRoot {
         '',
         '',
         parking.version.value,
+        createdAt,
+        updatedAt,
       ),
     );
 
@@ -167,6 +183,7 @@ export class Parking extends AggregateRoot {
     this.description = description;
     this.statute = statute;
     this.version = this.version.increment();
+    this.updatedAt = new Date();
     const _nextVersion = this.version;
 
     this.apply(
@@ -185,6 +202,8 @@ export class Parking extends AggregateRoot {
         this.description ?? '',
         this.statute ?? '',
         _nextVersion.value,
+        this.createdAt,
+        this.updatedAt,
       ),
     );
   }
@@ -195,8 +214,15 @@ export class Parking extends AggregateRoot {
     }
     this.active = true;
     this.version = this.version.increment();
+    this.updatedAt = new Date();
     const _nextVersion = this.version;
-    this.apply(new ParkingActivatedEvent(this.id.value, _nextVersion.value));
+    this.apply(
+      new ParkingActivatedEvent(
+        this.id.value,
+        _nextVersion.value,
+        this.updatedAt,
+      ),
+    );
   }
 
   deactivate() {
@@ -205,8 +231,15 @@ export class Parking extends AggregateRoot {
     }
     this.active = false;
     this.version = this.version.increment();
+    this.updatedAt = new Date();
     const _nextVersion = this.version;
-    this.apply(new ParkingDeactivatedEvent(this.id.value, _nextVersion.value));
+    this.apply(
+      new ParkingDeactivatedEvent(
+        this.id.value,
+        _nextVersion.value,
+        this.updatedAt,
+      ),
+    );
   }
 
   getId() {
@@ -259,5 +292,13 @@ export class Parking extends AggregateRoot {
 
   getPlaceId() {
     return this.placeId;
+  }
+
+  getCreatedAt() {
+    return new Date(this.createdAt);
+  }
+
+  getUpdatedAt() {
+    return new Date(this.updatedAt);
   }
 }

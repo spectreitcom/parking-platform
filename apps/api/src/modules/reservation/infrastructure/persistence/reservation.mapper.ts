@@ -12,6 +12,7 @@ import { RegistrationNumber } from '../../domain/value-objects/registration-numb
 import { ReservationLine } from '../../domain/value-objects/reservation-line';
 import { z } from 'zod';
 import { ReservationAddon } from '../../domain/value-objects/reservation-addon';
+import { ParkingId } from '../../domain/value-objects/parking-id';
 
 const linesSchema = z.array(z.object({ title: z.string(), price: z.number() }));
 
@@ -25,6 +26,7 @@ export class ReservationMapper {
     return Reservation.reconstruct(
       ReservationId.fromString(raw.id),
       CartId.fromString(raw.cartId),
+      ParkingId.fromString(raw.parkingId),
       ParkingSpotId.fromString(raw.parkingSpotId),
       UserId.fromString(raw.userId),
       ReservationDateRange.fromValues(raw.arrival, raw.departure),
@@ -55,6 +57,7 @@ export class ReservationMapper {
       arrival: reservation.getDateRange().arrival,
       departure: reservation.getDateRange().departure,
       cartId: reservation.getCartId().value,
+      parkingId: reservation.getParkingId().value,
       parkingSpotId: reservation.getParkingSpotId().value,
       userId: reservation.getUserId().value,
       createdAt: reservation.getCreatedAt(),

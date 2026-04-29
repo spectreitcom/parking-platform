@@ -29,6 +29,8 @@ export class PrismaParkingRepository implements ParkingRepository {
       version: currentVersion,
       parkingFeatures,
       parkingAddons,
+      createdAt,
+      updatedAt,
     } = ParkingMapper.toPersistence(parking);
 
     const isNew = options?.isNew ?? false;
@@ -55,6 +57,8 @@ export class PrismaParkingRepository implements ParkingRepository {
           placeId,
           statute,
           assetIds,
+          createdAt,
+          updatedAt,
           version: 1,
           parkingFeatures: {
             connect: parkingFeatures,
@@ -84,6 +88,7 @@ export class PrismaParkingRepository implements ParkingRepository {
           placeId,
           statute,
           assetIds,
+          updatedAt,
           version: {
             increment: 1,
           },

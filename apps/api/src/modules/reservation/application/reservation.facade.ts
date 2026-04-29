@@ -9,6 +9,7 @@ import { GetUserReservationsListQuery } from './queries/get-user-reservations-li
 import { GetUserReservationsListTotalQuery } from './queries/get-user-reservations-list-total.query';
 import { ReservationListItemReadModel } from './query-handlers/read-models/reservation-list-item.read-model';
 import { CompleteReservationCommand } from './commands/complete-reservation.command';
+import { UserReservationListItemReadModel } from './query-handlers/read-models/user-reservation-list-item.read-model';
 
 @Injectable()
 export class ReservationFacade {
@@ -20,6 +21,7 @@ export class ReservationFacade {
   async createReservation(
     cartId: string,
     userId: string,
+    parkingId: string,
     parkingSpotId: string,
     startDate: number,
     endDate: number,
@@ -31,6 +33,7 @@ export class ReservationFacade {
       new CreateReservationCommand(
         cartId,
         userId,
+        parkingId,
         parkingSpotId,
         startDate,
         endDate,
@@ -99,10 +102,10 @@ export class ReservationFacade {
     page: number,
     limit: number,
     search?: string,
-  ): Promise<ReservationListItemReadModel[]> {
+  ): Promise<UserReservationListItemReadModel[]> {
     return await this.queryBus.execute<
       GetUserReservationsListQuery,
-      ReservationListItemReadModel[]
+      UserReservationListItemReadModel[]
     >(new GetUserReservationsListQuery(userId, page, limit, search));
   }
 

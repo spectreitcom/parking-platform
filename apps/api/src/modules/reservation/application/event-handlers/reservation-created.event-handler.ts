@@ -27,6 +27,7 @@ export class ReservationCreatedEventHandler implements IEventHandler<Reservation
       parkingSpotId,
       cartId,
       addons,
+      parkingId,
     } = event;
 
     await this.prismaService.reservationRead.create({
@@ -43,6 +44,7 @@ export class ReservationCreatedEventHandler implements IEventHandler<Reservation
         registrationNumber,
         updatedAt,
         addons,
+        parkingId,
         arrival: startDate,
         departure: endDate,
       },

@@ -8,6 +8,8 @@ import { GetParkingFeatureListForAdminQueryHandler } from './get-parking-feature
 import { GetParkingFeatureListForAdminTotalQueryHandler } from './get-parking-feature-list-for-admin-total.query-handler';
 import { GetPlaceTypeListQueryHandler } from './get-place-type-list.query-handler';
 import { GetPlaceTypeListTotalQueryHandler } from './get-place-type-list-total.query-handler';
+import { GetParkingByIdsQueryHandler } from './get-parking-by-ids.query-handler';
+import { GetParkingByParkingSpotIdQueryHandler } from './get-parking-by-parking-spot-id.query-handler';
 
 export const queryHandlers = [
   GetPlacesListForAdminQueryHandler,
@@ -20,4 +22,6 @@ export const queryHandlers = [
   GetParkingFeatureListForAdminTotalQueryHandler,
   GetPlaceTypeListQueryHandler,
   GetPlaceTypeListTotalQueryHandler,
+  GetParkingByIdsQueryHandler,
+  GetParkingByParkingSpotIdQueryHandler,
 ];

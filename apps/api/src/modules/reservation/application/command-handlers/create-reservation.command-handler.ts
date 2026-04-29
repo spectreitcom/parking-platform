@@ -23,10 +23,12 @@ export class CreateReservationCommandHandler implements ICommandHandler<
       startDate,
       cartId,
       addons,
+      parkingId,
     } = command;
 
     const reservation = Reservation.create(
       cartId,
+      parkingId,
       parkingSpotId,
       userId,
       startDate,

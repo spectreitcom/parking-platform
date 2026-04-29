@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "ParkingRead" ADD COLUMN     "distance" DOUBLE PRECISION NOT NULL DEFAULT 0;

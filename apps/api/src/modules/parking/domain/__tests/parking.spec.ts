@@ -49,6 +49,8 @@ describe('Parking', () => {
         '',
         '',
         1,
+        expect.any(Date),
+        expect.any(Date),
       ),
     );
   });
@@ -114,6 +116,8 @@ describe('Parking', () => {
         description,
         statute,
         2,
+        expect.any(Date),
+        expect.any(Date),
       ),
     );
   });
@@ -144,10 +148,10 @@ describe('Parking', () => {
     );
 
     expect(deactivationEvent).toEqual(
-      new ParkingDeactivatedEvent(parking.getId().value, 2),
+      new ParkingDeactivatedEvent(parking.getId().value, 2, expect.any(Date)),
     );
     expect(activationEvent).toEqual(
-      new ParkingActivatedEvent(parking.getId().value, 3),
+      new ParkingActivatedEvent(parking.getId().value, 3, expect.any(Date)),
     );
   });
 

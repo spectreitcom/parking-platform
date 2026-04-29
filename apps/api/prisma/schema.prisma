@@ -191,6 +191,35 @@ model Parking {
   parkingSpots ParkingSpot[]
 }
 
+model ParkingRead {
+  id        String  @id @default(uuid()) @db.Uuid
+  parkingId String  @unique @db.Uuid
+  name      String  @unique @db.VarChar(255)
+  longitude Decimal @db.Decimal(10, 7)
+  latitude  Decimal @db.Decimal(10, 7)
+
+  statute        String? @db.Text
+  description    String? @db.Text
+  organizationId String  @db.Uuid
+
+  assetIds String[] @default([]) @db.Uuid
+
+  parkingFeatureIds String[] @default([])
+  parkingAddonIds   String[] @default([])
+
+  placeId String @db.Uuid
+
+  active  Boolean @default(false)
+  address String  @db.VarChar(255)
+
+  createdAt DateTime
+  updatedAt DateTime
+
+  version Int @db.Integer
+
+  @@index([name, organizationId, placeId])
+}
+
 model ParkingSpot {
   id     String  @id @default(uuid()) @db.Uuid
   price  Int
@@ -392,6 +421,7 @@ model Reservation {
   id                 String   @id @default(uuid()) @db.Uuid
   cartId             String   @db.Uuid
   parkingSpotId      String   @db.Uuid
+  parkingId          String   @db.Uuid
   userId             String   @db.Uuid
   arrival            Int
   departure          Int
@@ -411,6 +441,7 @@ model ReservationRead {
   reservationId      String   @unique @db.Uuid
   cartId             String   @db.Uuid
   parkingSpotId      String   @db.Uuid
+  parkingId          String   @db.Uuid
   userId             String   @db.Uuid
   arrival            Int
   departure          Int

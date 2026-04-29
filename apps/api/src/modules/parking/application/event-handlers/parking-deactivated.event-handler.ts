@@ -1,7 +1,7 @@
 import { EventsHandler, IEventHandler } from '@nestjs/cqrs';
 import { Logger } from '@nestjs/common';
 import { ParkingDeactivatedEvent } from '../../domain/events/parking-deactivated.event';
-import { PrismaService } from '../../../../shared/prisma/prisma.service';
+import { PrismaService } from 'src/shared/prisma/prisma.service';
 
 @EventsHandler(ParkingDeactivatedEvent)
 export class ParkingDeactivatedEventHandler implements IEventHandler<ParkingDeactivatedEvent> {
@@ -11,7 +11,7 @@ export class ParkingDeactivatedEventHandler implements IEventHandler<ParkingDeac
 
   async handle(event: ParkingDeactivatedEvent) {
     this.logger.log(`Parking deactivated: ${event.id}`);
-    const { id } = event;
+    const { id, version, updatedAt } = event;
 
     await this.prismaService.parkingListForAdminRead.updateMany({
       where: {
@@ -19,6 +19,18 @@ export class ParkingDeactivatedEventHandler implements IEventHandler<ParkingDeac
       },
       data: {
         parkingActive: false,
+        version,
+      },
+    });
+
+    await this.prismaService.parkingRead.updateMany({
+      where: {
+        parkingId: id,
+      },
+      data: {
+        active: false,
+        version,
+        updatedAt,
       },
     });
   }

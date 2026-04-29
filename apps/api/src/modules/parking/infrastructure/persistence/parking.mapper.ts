@@ -38,6 +38,8 @@ export class ParkingMapper {
       ),
       PlaceId.fromString(raw.placeId),
       AggregateVersion.fromNumber(raw.version),
+      raw.createdAt,
+      raw.updatedAt,
       raw.description ?? undefined,
       raw.statute ?? undefined,
     );
@@ -57,6 +59,8 @@ export class ParkingMapper {
       statute: parking.getStatute(),
       assetIds: parking.getAssetIds().map((id) => id.value),
       version: parking.getVersion().value,
+      createdAt: parking.getCreatedAt(),
+      updatedAt: parking.getUpdatedAt(),
       parkingFeatures: parking
         .getParkingFeatureIds()
         .map((id) => ({ id: id.value })),

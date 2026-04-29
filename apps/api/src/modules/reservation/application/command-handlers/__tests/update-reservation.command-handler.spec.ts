@@ -46,6 +46,7 @@ describe('UpdateReservationCommandHandler', () => {
     const reservation = Reservation.create(
       randomUUID(),
       randomUUID(),
+      randomUUID(),
       userId,
       arrivalDate,
       departureDate,
@@ -96,6 +97,7 @@ describe('UpdateReservationCommandHandler', () => {
     const reservation = Reservation.create(
       randomUUID(),
       randomUUID(),
+      randomUUID(),
       userId,
       arrivalDate,
       departureDate,
@@ -126,6 +128,7 @@ describe('UpdateReservationCommandHandler', () => {
     const arrivalDate = Date.now() + 25 * 60 * 60 * 1000;
     const departureDate = arrivalDate + 2 * 60 * 60 * 1000;
     const reservation = Reservation.create(
+      randomUUID(),
       randomUUID(),
       randomUUID(),
       userId,

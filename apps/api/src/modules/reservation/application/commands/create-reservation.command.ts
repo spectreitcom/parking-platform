@@ -4,6 +4,7 @@ export class CreateReservationCommand implements ICommand {
   constructor(
     public readonly cartId: string,
     public readonly userId: string,
+    public readonly parkingId: string,
     public readonly parkingSpotId: string,
     public readonly startDate: number,
     public readonly endDate: number,

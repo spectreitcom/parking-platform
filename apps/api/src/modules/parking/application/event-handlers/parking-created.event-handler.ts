@@ -2,7 +2,7 @@ import { EventsHandler, IEventHandler } from '@nestjs/cqrs';
 import { Logger } from '@nestjs/common';
 import { ParkingCreatedEvent } from '../../domain/events/parking-created.event';
 import { PrismaService } from 'src/shared/prisma/prisma.service';
-import { DistanceCalculator } from 'src/modules/parking/application/ports/distance-calculator';
+import { DistanceCalculator } from '../ports/distance-calculator';
 
 @EventsHandler(ParkingCreatedEvent)
 export class ParkingCreatedEventHandler implements IEventHandler<ParkingCreatedEvent> {
@@ -23,6 +23,15 @@ export class ParkingCreatedEventHandler implements IEventHandler<ParkingCreatedE
       address,
       active,
       version,
+      latitude,
+      longitude,
+      parkingAddonIds,
+      description,
+      statute,
+      parkingFeatureIds,
+      assetIds,
+      createdAt,
+      updatedAt,
     } = event;
 
     const organizationRecord =
@@ -74,6 +83,47 @@ export class ParkingCreatedEventHandler implements IEventHandler<ParkingCreatedE
         organizationName: organizationRecord?.name ?? '',
         version,
         distance,
+      },
+    });
+
+    await this.prismaService.parkingRead.upsert({
+      where: {
+        parkingId,
+      },
+      update: {
+        name,
+        longitude,
+        latitude,
+        statute,
+        description,
+        organizationId,
+        assetIds,
+        parkingFeatureIds,
+        parkingAddonIds,
+        placeId,
+        active,
+        address,
+        createdAt,
+        updatedAt,
+        version,
+      },
+      create: {
+        parkingId,
+        name,
+        longitude,
+        latitude,
+        statute,
+        description,
+        organizationId,
+        assetIds,
+        parkingFeatureIds,
+        parkingAddonIds,
+        placeId,
+        active,
+        address,
+        createdAt,
+        updatedAt,
+        version,
       },
     });
   }

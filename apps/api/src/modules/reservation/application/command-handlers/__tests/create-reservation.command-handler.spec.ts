@@ -48,6 +48,7 @@ describe('CreateReservationCommandHandler', () => {
     const command = new CreateReservationCommand(
       cartId,
       userId,
+      randomUUID(),
       parkingSpotId,
       startDate,
       endDate,
