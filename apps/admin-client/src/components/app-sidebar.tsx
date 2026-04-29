@@ -3,6 +3,7 @@ import {
   SidebarContent,
   SidebarFooter,
   SidebarGroup,
+  SidebarGroupLabel,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
@@ -32,20 +33,40 @@ export function AppSidebar() {
                 <Link to={'/app'}>Dashboard</Link>
               </SidebarMenuButton>
             </SidebarMenuItem>
-            <SidebarMenuItem>Reservations</SidebarMenuItem>
-            <SidebarMenuItem>Parkings</SidebarMenuItem>
-            <SidebarMenuItem>Parking Addons</SidebarMenuItem>
-            <SidebarMenuItem>Parking Features</SidebarMenuItem>
-            <SidebarMenuItem>Object Types</SidebarMenuItem>
-            <SidebarMenuItem>Organizations</SidebarMenuItem>
-            <SidebarMenuItem>Organization Users</SidebarMenuItem>
-            <SidebarMenuItem>Users</SidebarMenuItem>
-            <SidebarMenuItem>
-              <SidebarMenuButton asChild>
-                <Link to={'/app/admin-users'}>Admin Users</Link>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
           </SidebarMenu>
+        </SidebarGroup>
+        <SidebarGroup title="Reservations">
+          <SidebarGroupLabel>Reservations</SidebarGroupLabel>
+          <SidebarMenuItem>Reservations</SidebarMenuItem>
+        </SidebarGroup>
+        <SidebarGroup title="Parking">
+          <SidebarGroupLabel>Parking</SidebarGroupLabel>
+          <SidebarMenuItem>
+            <SidebarMenuButton asChild>
+              <Link to={'/app/parkings'}>Parkings</Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+          <SidebarMenuItem>Parking Addons</SidebarMenuItem>
+          <SidebarMenuItem>Parking Features</SidebarMenuItem>
+          <SidebarMenuItem>Places</SidebarMenuItem>
+          <SidebarMenuItem>Place Types</SidebarMenuItem>
+        </SidebarGroup>
+        <SidebarGroup title="Organizations">
+          <SidebarGroupLabel>Organizations</SidebarGroupLabel>
+          <SidebarMenuItem>Organizations</SidebarMenuItem>
+          <SidebarMenuItem>Organization Users</SidebarMenuItem>
+        </SidebarGroup>
+        <SidebarGroup title="Users">
+          <SidebarGroupLabel>Users</SidebarGroupLabel>
+          <SidebarMenuItem>Users</SidebarMenuItem>
+        </SidebarGroup>
+        <SidebarGroup title="Admins">
+          <SidebarGroupLabel>Admins</SidebarGroupLabel>
+          <SidebarMenuItem>
+            <SidebarMenuButton asChild>
+              <Link to={'/app/admin-users'}>Admin Users</Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
         </SidebarGroup>
       </SidebarContent>
       <Separator />
