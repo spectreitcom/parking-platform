@@ -1,9 +1,9 @@
 import { AggregateRoot } from '@nestjs/cqrs';
 import { ParkingSpotId } from './value-objects/parking-spot-id';
 import { ParkingId } from './value-objects/parking-id';
-import { Money } from '../../../shared/value-objects/money';
+import { Money } from 'src/shared/value-objects/money';
 import { ParkingFeatureId } from './value-objects/parking-feature-id';
-import { AggregateVersion } from '../../../shared/value-objects/aggregate-version';
+import { AggregateVersion } from 'src/shared/value-objects/aggregate-version';
 import { ParkingSpotCreatedEvent } from './events/parking-spot-created.event';
 import { ParkingSpotUpdatedEvent } from './events/parking-spot-updated.event';
 import { ParkingSpotActivatedEvent } from './events/parking-spot-activated.event';

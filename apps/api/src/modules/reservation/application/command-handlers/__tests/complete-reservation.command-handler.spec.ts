@@ -44,6 +44,7 @@ describe('CompleteReservationCommandHandler', () => {
     const reservation = Reservation.create(
       randomUUID(),
       randomUUID(),
+      randomUUID(),
       userId,
       Date.now() + 25 * 60 * 60 * 1000,
       Date.now() + 27 * 60 * 60 * 1000,
@@ -87,6 +88,7 @@ describe('CompleteReservationCommandHandler', () => {
     const reservation = Reservation.create(
       randomUUID(),
       randomUUID(),
+      randomUUID(),
       userId,
       Date.now() + 25 * 60 * 60 * 1000,
       Date.now() + 27 * 60 * 60 * 1000,
@@ -114,6 +116,7 @@ describe('CompleteReservationCommandHandler', () => {
   it('should throw SIMPLE_ERROR if domain logic throws CompletingReservationError', async () => {
     const userId = randomUUID();
     const reservation = Reservation.create(
+      randomUUID(),
       randomUUID(),
       randomUUID(),
       userId,
@@ -144,6 +147,7 @@ describe('CompleteReservationCommandHandler', () => {
   it('should throw CONCURRENCY if repository.save throws ConcurrencyError', async () => {
     const userId = randomUUID();
     const reservation = Reservation.create(
+      randomUUID(),
       randomUUID(),
       randomUUID(),
       userId,

@@ -4,5 +4,6 @@ export class ParkingDeactivatedEvent implements IEvent {
   constructor(
     public readonly id: string,
     public readonly version: number,
+    public readonly updatedAt: Date,
   ) {}
 }

@@ -19,6 +19,9 @@ import { ReservationCreatedEvent } from './events/reservation-created.event';
 import { ReservationUpdatedEvent } from './events/reservation-updated.event';
 import { ReservationAddon } from './value-objects/reservation-addon';
 import { ReservationCompletedEvent } from './events/reservation-completed.event';
+import { CancellationService } from './services/cancellation.service';
+import { UpdatingService } from './services/updating.service';
+import { ParkingId } from './value-objects/parking-id';
 
 export class Reservation extends AggregateRoot {
   private readonly id: ReservationId;
@@ -34,10 +37,12 @@ export class Reservation extends AggregateRoot {
   private readonly createdAt: Date;
   private updatedAt: Date;
   private readonly addons: ReservationAddon[];
+  private readonly parkingId: ParkingId;
 
   private constructor(
     id: ReservationId,
     cartId: CartId,
+    parkingId: ParkingId,
     parkingSpotId: ParkingSpotId,
     userId: UserId,
     dateRange: ReservationDateRange,
@@ -53,6 +58,7 @@ export class Reservation extends AggregateRoot {
     super();
     this.id = id;
     this.cartId = cartId;
+    this.parkingId = parkingId;
     this.parkingSpotId = parkingSpotId;
     this.userId = userId;
     this.dateRange = dateRange;
@@ -69,6 +75,7 @@ export class Reservation extends AggregateRoot {
   static reconstruct(
     id: ReservationId,
     cartId: CartId,
+    parkingId: ParkingId,
     parkingSpotId: ParkingSpotId,
     userId: UserId,
     dateRange: ReservationDateRange,
@@ -84,6 +91,7 @@ export class Reservation extends AggregateRoot {
     return new Reservation(
       id,
       cartId,
+      parkingId,
       parkingSpotId,
       userId,
       dateRange,
@@ -100,6 +108,7 @@ export class Reservation extends AggregateRoot {
 
   static create(
     cartId: string,
+    parkingId: string,
     parkingSpotId: string,
     userId: string,
     arrivalDate: number,
@@ -124,6 +133,7 @@ export class Reservation extends AggregateRoot {
     );
     const _registrationNumber =
       RegistrationNumber.fromString(registrationNumber);
+    const _parkingId = ParkingId.fromString(parkingId);
 
     const version = AggregateVersion.one();
 
@@ -134,6 +144,7 @@ export class Reservation extends AggregateRoot {
     const reservation = new Reservation(
       id,
       _cartId,
+      _parkingId,
       _parkingSpotId,
       _userId,
       _dateRange,
@@ -150,6 +161,7 @@ export class Reservation extends AggregateRoot {
     reservation.apply(
       new ReservationCreatedEvent(
         id.value,
+        _parkingId.value,
         _cartId.value,
         _parkingSpotId.value,
         _userId.value,
@@ -173,31 +185,14 @@ export class Reservation extends AggregateRoot {
   }
 
   cancel() {
-    if (
-      this.status.equals(ReservationStatus.cancelled()) ||
-      this.status.equals(ReservationStatus.completed())
-    ) {
-      throw new CancellingReservationError('Reservation is already cancelled.');
-    }
-
-    const canCancel15MinutesBefore = this.addons.find((addon) =>
-      addon.equals(ReservationAddon.canCancel15MinutesBefore()),
+    const canCancel = CancellationService.canCancel(
+      this.dateRange,
+      this.status,
+      [...this.addons],
     );
 
-    if (canCancel15MinutesBefore) {
-      const now = Date.now();
-      const arrival = this.dateRange.arrival;
-      const diff = arrival - now;
-      if (diff < 15 * 60 * 1000) {
-        throw new CancellingReservationError();
-      }
-    } else {
-      const now = Date.now();
-      const arrival = this.dateRange.arrival;
-      const diff = arrival - now;
-      if (diff < 24 * 60 * 60 * 1000) {
-        throw new CancellingReservationError();
-      }
+    if (!canCancel) {
+      throw new CancellingReservationError('Reservation cannot be cancelled.');
     }
 
     this.status = ReservationStatus.cancelled();
@@ -237,11 +232,10 @@ export class Reservation extends AggregateRoot {
   }
 
   update(registrationNumber: string) {
-    if (
-      this.status.equals(ReservationStatus.cancelled()) ||
-      this.status.equals(ReservationStatus.completed())
-    ) {
-      throw new UpdateReservationError();
+    const canUpdate = UpdatingService.canUpdate(this.status);
+
+    if (!canUpdate) {
+      throw new UpdateReservationError('Reservation cannot be updated.');
     }
 
     this.registrationNumber = RegistrationNumber.fromString(registrationNumber);
@@ -251,6 +245,7 @@ export class Reservation extends AggregateRoot {
     this.apply(
       new ReservationUpdatedEvent(
         this.id.value,
+        this.parkingId.value,
         this.cartId.value,
         this.parkingSpotId.value,
         this.userId.value,
@@ -321,5 +316,9 @@ export class Reservation extends AggregateRoot {
 
   getAddons() {
     return [...this.addons];
+  }
+
+  getParkingId() {
+    return this.parkingId;
   }
 }

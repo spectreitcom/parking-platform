@@ -36,6 +36,9 @@ import { GetParkingFeatureListForAdminTotalQuery } from './queries/get-parking-f
 import { GetPlaceTypeListQuery } from './queries/get-place-type-list.query';
 import { PlaceTypeListItemReadModel } from './query-handlers/read-models/place-type-list-item.read-model';
 import { GetPlaceTypeListTotalQuery } from './queries/get-place-type-list-total.query';
+import { GetParkingByIdsQuery } from './queries/get-parking-by-ids.query';
+import { ParkingItemReadModel } from './query-handlers/read-models/parking-item.read-model';
+import { GetParkingByParkingSpotIdQuery } from './queries/get-parking-by-parking-spot-id.query';
 
 @Injectable()
 export class ParkingFacade {
@@ -376,5 +379,21 @@ export class ParkingFacade {
     return await this.queryBus.execute<GetPlaceTypeListTotalQuery, number>(
       query,
     );
+  }
+
+  async getParkingByIds(ids: string[]) {
+    const query = new GetParkingByIdsQuery(ids);
+    return await this.queryBus.execute<
+      GetParkingByIdsQuery,
+      ParkingItemReadModel[]
+    >(query);
+  }
+
+  async getParkingByParkingSpotId(parkingSpotId: string) {
+    const query = new GetParkingByParkingSpotIdQuery(parkingSpotId);
+    return await this.queryBus.execute<
+      GetParkingByParkingSpotIdQuery,
+      ParkingItemReadModel | null
+    >(query);
   }
 }

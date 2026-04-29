@@ -11,7 +11,7 @@ export class ParkingActivatedEventHandler implements IEventHandler<ParkingActiva
 
   async handle(event: ParkingActivatedEvent) {
     this.logger.log(`Parking activated: ${event.id}`);
-    const { id, version } = event;
+    const { id, version, updatedAt } = event;
 
     await this.prismaService.parkingListForAdminRead.updateMany({
       where: {
@@ -20,6 +20,17 @@ export class ParkingActivatedEventHandler implements IEventHandler<ParkingActiva
       data: {
         parkingActive: true,
         version,
+      },
+    });
+
+    await this.prismaService.parkingRead.updateMany({
+      where: {
+        parkingId: id,
+      },
+      data: {
+        active: true,
+        version,
+        updatedAt,
       },
     });
   }

@@ -3,6 +3,7 @@ import { IEvent } from '@nestjs/cqrs';
 export class ReservationUpdatedEvent implements IEvent {
   constructor(
     public readonly reservationId: string,
+    public readonly parkingId: string,
     public readonly cartId: string,
     public readonly parkingSpotId: string,
     public readonly userId: string,

@@ -5,8 +5,11 @@ import { UpdateReservationCommand } from './commands/update-reservation.command'
 import { CancelReservationCommand } from './commands/cancel-reservation.command';
 import { GetReservationsListQuery } from './queries/get-reservations-list.query';
 import { GetReservationsListTotalQuery } from './queries/get-reservations-list-total.query';
+import { GetUserReservationsListQuery } from './queries/get-user-reservations-list.query';
+import { GetUserReservationsListTotalQuery } from './queries/get-user-reservations-list-total.query';
 import { ReservationListItemReadModel } from './query-handlers/read-models/reservation-list-item.read-model';
 import { CompleteReservationCommand } from './commands/complete-reservation.command';
+import { UserReservationListItemReadModel } from './query-handlers/read-models/user-reservation-list-item.read-model';
 
 @Injectable()
 export class ReservationFacade {
@@ -18,6 +21,7 @@ export class ReservationFacade {
   async createReservation(
     cartId: string,
     userId: string,
+    parkingId: string,
     parkingSpotId: string,
     startDate: number,
     endDate: number,
@@ -29,6 +33,7 @@ export class ReservationFacade {
       new CreateReservationCommand(
         cartId,
         userId,
+        parkingId,
         parkingSpotId,
         startDate,
         endDate,
@@ -90,5 +95,27 @@ export class ReservationFacade {
     return await this.queryBus.execute<GetReservationsListTotalQuery, number>(
       new GetReservationsListTotalQuery(search),
     );
+  }
+
+  async getUserReservationsList(
+    userId: string,
+    page: number,
+    limit: number,
+    search?: string,
+  ): Promise<UserReservationListItemReadModel[]> {
+    return await this.queryBus.execute<
+      GetUserReservationsListQuery,
+      UserReservationListItemReadModel[]
+    >(new GetUserReservationsListQuery(userId, page, limit, search));
+  }
+
+  async getUserReservationsListTotal(
+    userId: string,
+    search?: string,
+  ): Promise<number> {
+    return await this.queryBus.execute<
+      GetUserReservationsListTotalQuery,
+      number
+    >(new GetUserReservationsListTotalQuery(userId, search));
   }
 }

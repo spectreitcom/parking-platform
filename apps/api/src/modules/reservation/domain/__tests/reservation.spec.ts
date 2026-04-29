@@ -11,6 +11,7 @@ import { ReservationAddon } from '../value-objects/reservation-addon';
 import { AggregateVersion } from 'src/shared/value-objects/aggregate-version';
 import { Money } from 'src/shared/value-objects/money';
 import { ReservationLine } from '../value-objects/reservation-line';
+import { ParkingId } from '../value-objects/parking-id';
 import { ReservationCreatedEvent } from '../events/reservation-created.event';
 import {
   CancellingReservationError,
@@ -23,14 +24,97 @@ import { ReservationCompletedEvent } from '../events/reservation-completed.event
 import { ADDON_CAN_CANCEL_15_MINUTES_BEFORE } from '../constants';
 
 describe('Reservation', () => {
-  const cartId = randomUUID();
-  const parkingSpotId = randomUUID();
-  const userId = randomUUID();
-  const arrivalDate = Date.now() + 2 * 24 * 60 * 60 * 1000; // 2 days from now
-  const departureDate = arrivalDate + 2 * 60 * 60 * 1000; // 2 hours later
-  const lines = [{ title: 'Parking', price: 100 }];
-  const registrationNumber = 'XYZ-123';
-  const addons: string[] = [];
+  const defaultCartId = randomUUID();
+  const defaultParkingId = randomUUID();
+  const defaultParkingSpotId = randomUUID();
+  const defaultUserId = randomUUID();
+  const defaultArrivalDate = Date.now() + 2 * 24 * 60 * 60 * 1000;
+  const defaultDepartureDate = defaultArrivalDate + 2 * 60 * 60 * 1000;
+  const defaultLines = [{ title: 'Parking', price: 100 }];
+  const defaultRegistrationNumber = 'XYZ-123';
+  const defaultAddons: string[] = [];
+
+  class ReservationBuilder {
+    private cartId: string = defaultCartId;
+    private parkingId: string = defaultParkingId;
+    private parkingSpotId: string = defaultParkingSpotId;
+    private userId: string = defaultUserId;
+    private arrivalDate = defaultArrivalDate;
+    private departureDate = defaultDepartureDate;
+    private lines = [...defaultLines];
+    private registrationNumber: string = defaultRegistrationNumber;
+    private addons = [...defaultAddons];
+    private status: ReservationStatus | null = null;
+
+    withArrival(date: number) {
+      this.arrivalDate = date;
+      return this;
+    }
+
+    withDeparture(date: number) {
+      this.departureDate = date;
+      return this;
+    }
+
+    withLines(lines: { title: string; price: number }[]) {
+      this.lines = lines;
+      return this;
+    }
+
+    withRegistrationNumber(registrationNumber: string) {
+      this.registrationNumber = registrationNumber;
+      return this;
+    }
+
+    withParkingId(parkingId: string) {
+      this.parkingId = parkingId;
+      return this;
+    }
+
+    withAddons(addons: string[]) {
+      this.addons = addons;
+      return this;
+    }
+
+    withStatus(status: ReservationStatus) {
+      this.status = status;
+      return this;
+    }
+
+    build() {
+      if (this.status) {
+        return Reservation.reconstruct(
+          ReservationId.create(),
+          CartId.fromString(this.cartId),
+          ParkingId.fromString(this.parkingId),
+          ParkingSpotId.fromString(this.parkingSpotId),
+          UserId.fromString(this.userId),
+          ReservationDateRange.fromValues(this.arrivalDate, this.departureDate),
+          this.lines.map((l) => ReservationLine.create(l.title, l.price)),
+          Money.fromNumber(this.lines.reduce((acc, l) => acc + l.price, 0)),
+          AggregateVersion.one(),
+          this.status,
+          RegistrationNumber.fromString(this.registrationNumber),
+          this.addons.map((a) => ReservationAddon.fromString(a)),
+          new Date(),
+          new Date(),
+        );
+      }
+      return Reservation.create(
+        this.cartId,
+        this.parkingId,
+        this.parkingSpotId,
+        this.userId,
+        this.arrivalDate,
+        this.departureDate,
+        this.lines,
+        this.registrationNumber,
+        this.addons,
+      );
+    }
+  }
+
+  const aReservation = () => new ReservationBuilder();
 
   describe('create', () => {
     it('should create a reservation and apply ReservationCreatedEvent', () => {
@@ -40,30 +124,24 @@ describe('Reservation', () => {
       ];
       const complexAddons = [ADDON_CAN_CANCEL_15_MINUTES_BEFORE];
 
-      const reservation = Reservation.create(
-        cartId,
-        parkingSpotId,
-        userId,
-        arrivalDate,
-        departureDate,
-        complexLines,
-        registrationNumber,
-        complexAddons,
-      );
+      const reservation = aReservation()
+        .withLines(complexLines)
+        .withAddons(complexAddons)
+        .build();
 
       expect(reservation.getId()).toBeDefined();
-      expect(reservation.getCartId().value).toBe(cartId);
-      expect(reservation.getParkingSpotId().value).toBe(parkingSpotId);
-      expect(reservation.getUserId().value).toBe(userId);
-      expect(reservation.getDateRange().arrival).toBe(arrivalDate);
-      expect(reservation.getDateRange().departure).toBe(departureDate);
+      expect(reservation.getCartId().value).toBe(defaultCartId);
+      expect(reservation.getParkingSpotId().value).toBe(defaultParkingSpotId);
+      expect(reservation.getUserId().value).toBe(defaultUserId);
+      expect(reservation.getDateRange().arrival).toBe(defaultArrivalDate);
+      expect(reservation.getDateRange().departure).toBe(defaultDepartureDate);
       expect(reservation.getLines()).toHaveLength(2);
       expect(reservation.getTotal().value).toBe(150);
       expect(reservation.getStatus().value).toBe(
         ReservationStatus.created().value,
       );
       expect(reservation.getRegistrationNumber().value).toBe(
-        registrationNumber,
+        defaultRegistrationNumber,
       );
       expect(reservation.getAddons()).toHaveLength(1);
       expect(reservation.getVersion().value).toBe(1);
@@ -73,36 +151,58 @@ describe('Reservation', () => {
       const event = events[0] as ReservationCreatedEvent;
       expect(event).toBeInstanceOf(ReservationCreatedEvent);
       expect(event.reservationId).toBe(reservation.getId().value);
-      expect(event.cartId).toBe(cartId);
-      expect(event.parkingSpotId).toBe(parkingSpotId);
-      expect(event.userId).toBe(userId);
-      expect(event.startDate).toBe(arrivalDate);
-      expect(event.endDate).toBe(departureDate);
+      expect(event.cartId).toBe(defaultCartId);
+      expect(event.parkingSpotId).toBe(defaultParkingSpotId);
+      expect(event.userId).toBe(defaultUserId);
+      expect(event.startDate).toBe(defaultArrivalDate);
+      expect(event.endDate).toBe(defaultDepartureDate);
       expect(event.lines).toEqual(complexLines);
       expect(event.total).toBe(150);
       expect(event.status).toBe(ReservationStatus.created().value);
-      expect(event.registrationNumber).toBe(registrationNumber);
+      expect(event.registrationNumber).toBe(defaultRegistrationNumber);
       expect(event.addons).toEqual(complexAddons);
       expect(event.version).toBe(1);
+    });
+
+    it('should throw error if arrival date is after departure date', () => {
+      expect(() =>
+        aReservation()
+          .withArrival(defaultDepartureDate)
+          .withDeparture(defaultArrivalDate)
+          .build(),
+      ).toThrow('Departure must be after arrival');
+    });
+
+    it('should calculate total correctly with multiple lines', () => {
+      const complexLines = [
+        { title: 'Parking', price: 100 },
+        { title: 'Cleaning', price: 50 },
+        { title: 'Tax', price: 10 },
+      ];
+      const reservation = aReservation().withLines(complexLines).build();
+
+      expect(reservation.getTotal().value).toBe(160);
     });
   });
 
   describe('reconstruct', () => {
     it('should reconstruct a reservation correctly', () => {
       const id = ReservationId.create();
-      const _cartId = CartId.fromString(cartId);
-      const _parkingSpotId = ParkingSpotId.fromString(parkingSpotId);
-      const _userId = UserId.fromString(userId);
+      const _cartId = CartId.fromString(defaultCartId);
+      const _parkingId = ParkingId.fromString(defaultParkingId);
+      const _parkingSpotId = ParkingSpotId.fromString(defaultParkingSpotId);
+      const _userId = UserId.fromString(defaultUserId);
       const _dateRange = ReservationDateRange.fromValues(
-        arrivalDate,
-        departureDate,
+        defaultArrivalDate,
+        defaultDepartureDate,
       );
       const _lines = [ReservationLine.create('Parking', 100)];
       const total = Money.fromNumber(100);
       const version = AggregateVersion.one();
       const status = ReservationStatus.created();
-      const _registrationNumber =
-        RegistrationNumber.fromString(registrationNumber);
+      const _registrationNumber = RegistrationNumber.fromString(
+        defaultRegistrationNumber,
+      );
       const _addons: ReservationAddon[] = [];
       const createdAt = new Date();
       const updatedAt = new Date();
@@ -110,6 +210,7 @@ describe('Reservation', () => {
       const reservation = Reservation.reconstruct(
         id,
         _cartId,
+        _parkingId,
         _parkingSpotId,
         _userId,
         _dateRange,
@@ -125,6 +226,7 @@ describe('Reservation', () => {
 
       expect(reservation.getId()).toBe(id);
       expect(reservation.getCartId()).toBe(_cartId);
+      expect(reservation.getParkingId()).toBe(_parkingId);
       expect(reservation.getParkingSpotId()).toBe(_parkingSpotId);
       expect(reservation.getUserId()).toBe(_userId);
       expect(reservation.getDateRange()).toBe(_dateRange);
@@ -154,16 +256,7 @@ describe('Reservation', () => {
       jest.setSystemTime(now);
 
       const arrival = now.getTime() + 25 * 60 * 60 * 1000; // 25 hours later
-      const reservation = Reservation.create(
-        cartId,
-        parkingSpotId,
-        userId,
-        arrival,
-        arrival + 3600,
-        lines,
-        registrationNumber,
-        [],
-      );
+      const reservation = aReservation().withArrival(arrival).build();
 
       reservation.cancel();
 
@@ -187,16 +280,7 @@ describe('Reservation', () => {
       jest.setSystemTime(now);
 
       const arrival = now.getTime() + 24 * 60 * 60 * 1000; // exactly 24 hours later
-      const reservation = Reservation.create(
-        cartId,
-        parkingSpotId,
-        userId,
-        arrival,
-        arrival + 3600,
-        lines,
-        registrationNumber,
-        [],
-      );
+      const reservation = aReservation().withArrival(arrival).build();
 
       reservation.cancel();
 
@@ -210,16 +294,7 @@ describe('Reservation', () => {
       jest.setSystemTime(now);
 
       const arrival = now.getTime() + 23 * 60 * 60 * 1000; // 23 hours later
-      const reservation = Reservation.create(
-        cartId,
-        parkingSpotId,
-        userId,
-        arrival,
-        arrival + 3600,
-        lines,
-        registrationNumber,
-        [],
-      );
+      const reservation = aReservation().withArrival(arrival).build();
 
       expect(() => reservation.cancel()).toThrow(CancellingReservationError);
     });
@@ -229,16 +304,10 @@ describe('Reservation', () => {
       jest.setSystemTime(now);
 
       const arrival = now.getTime() + 16 * 60 * 1000; // 16 minutes later
-      const reservation = Reservation.create(
-        cartId,
-        parkingSpotId,
-        userId,
-        arrival,
-        arrival + 3600,
-        lines,
-        registrationNumber,
-        [ADDON_CAN_CANCEL_15_MINUTES_BEFORE],
-      );
+      const reservation = aReservation()
+        .withArrival(arrival)
+        .withAddons([ADDON_CAN_CANCEL_15_MINUTES_BEFORE])
+        .build();
 
       reservation.cancel();
 
@@ -252,16 +321,10 @@ describe('Reservation', () => {
       jest.setSystemTime(now);
 
       const arrival = now.getTime() + 14 * 60 * 1000; // 14 minutes later
-      const reservation = Reservation.create(
-        cartId,
-        parkingSpotId,
-        userId,
-        arrival,
-        arrival + 3600,
-        lines,
-        registrationNumber,
-        [ADDON_CAN_CANCEL_15_MINUTES_BEFORE],
-      );
+      const reservation = aReservation()
+        .withArrival(arrival)
+        .withAddons([ADDON_CAN_CANCEL_15_MINUTES_BEFORE])
+        .build();
 
       expect(() => reservation.cancel()).toThrow(CancellingReservationError);
     });
@@ -271,16 +334,10 @@ describe('Reservation', () => {
       jest.setSystemTime(now);
 
       const arrival = now.getTime() + 15 * 60 * 1000; // exactly 15 minutes later
-      const reservation = Reservation.create(
-        cartId,
-        parkingSpotId,
-        userId,
-        arrival,
-        arrival + 3600,
-        lines,
-        registrationNumber,
-        [ADDON_CAN_CANCEL_15_MINUTES_BEFORE],
-      );
+      const reservation = aReservation()
+        .withArrival(arrival)
+        .withAddons([ADDON_CAN_CANCEL_15_MINUTES_BEFORE])
+        .build();
 
       reservation.cancel();
 
@@ -293,39 +350,18 @@ describe('Reservation', () => {
       const now = new Date('2026-04-24T12:00:00Z');
       jest.setSystemTime(now);
       const arrival = now.getTime() + 48 * 60 * 60 * 1000;
-      const reservation = Reservation.create(
-        cartId,
-        parkingSpotId,
-        userId,
-        arrival,
-        arrival + 3600,
-        lines,
-        registrationNumber,
-        [],
-      );
+      const reservation = aReservation().withArrival(arrival).build();
 
       reservation.cancel();
       expect(() => reservation.cancel()).toThrow(
-        'Reservation is already cancelled.',
+        'Reservation cannot be cancelled.',
       );
     });
 
     it('should throw CancellingReservationError if already completed', () => {
-      const reservation = Reservation.reconstruct(
-        ReservationId.create(),
-        CartId.fromString(cartId),
-        ParkingSpotId.fromString(parkingSpotId),
-        UserId.fromString(userId),
-        ReservationDateRange.fromValues(Date.now(), Date.now() + 3600),
-        [],
-        Money.zero(),
-        AggregateVersion.one(),
-        ReservationStatus.completed(),
-        RegistrationNumber.fromString(registrationNumber),
-        [],
-        new Date(),
-        new Date(),
-      );
+      const reservation = aReservation()
+        .withStatus(ReservationStatus.completed())
+        .build();
 
       expect(() => reservation.cancel()).toThrow(CancellingReservationError);
     });
@@ -333,16 +369,7 @@ describe('Reservation', () => {
 
   describe('complete', () => {
     it('should complete a reservation and apply ReservationCompletedEvent', () => {
-      const reservation = Reservation.create(
-        cartId,
-        parkingSpotId,
-        userId,
-        arrivalDate,
-        departureDate,
-        lines,
-        registrationNumber,
-        addons,
-      );
+      const reservation = aReservation().build();
 
       reservation.complete();
 
@@ -361,18 +388,7 @@ describe('Reservation', () => {
     });
 
     it('should throw CompletingReservationError if already cancelled', () => {
-      const now = Date.now();
-      const arrival = now + 48 * 60 * 60 * 1000;
-      const reservation = Reservation.create(
-        cartId,
-        parkingSpotId,
-        userId,
-        arrival,
-        arrival + 3600,
-        lines,
-        registrationNumber,
-        [],
-      );
+      const reservation = aReservation().build();
 
       reservation.cancel();
 
@@ -380,21 +396,9 @@ describe('Reservation', () => {
     });
 
     it('should throw CompletingReservationError if already completed', () => {
-      const reservation = Reservation.reconstruct(
-        ReservationId.create(),
-        CartId.fromString(cartId),
-        ParkingSpotId.fromString(parkingSpotId),
-        UserId.fromString(userId),
-        ReservationDateRange.fromValues(Date.now(), Date.now() + 3600),
-        [],
-        Money.zero(),
-        AggregateVersion.one(),
-        ReservationStatus.completed(),
-        RegistrationNumber.fromString(registrationNumber),
-        [],
-        new Date(),
-        new Date(),
-      );
+      const reservation = aReservation()
+        .withStatus(ReservationStatus.completed())
+        .build();
 
       expect(() => reservation.complete()).toThrow(CompletingReservationError);
     });
@@ -402,16 +406,7 @@ describe('Reservation', () => {
 
   describe('update', () => {
     it('should update registration number and apply ReservationUpdatedEvent', () => {
-      const reservation = Reservation.create(
-        cartId,
-        parkingSpotId,
-        userId,
-        arrivalDate,
-        departureDate,
-        lines,
-        registrationNumber,
-        addons,
-      );
+      const reservation = aReservation().build();
 
       const newRegNumber = 'ABC-999';
       reservation.update(newRegNumber);
@@ -425,19 +420,21 @@ describe('Reservation', () => {
       expect(event.reservationId).toBe(reservation.getId().value);
       expect(event.registrationNumber).toBe(newRegNumber);
       expect(event.version).toBe(2);
+      expect(event.cartId).toBe(defaultCartId);
+      expect(event.parkingSpotId).toBe(defaultParkingSpotId);
+      expect(event.userId).toBe(defaultUserId);
+      expect(event.startDate).toBe(defaultArrivalDate);
+      expect(event.endDate).toBe(defaultDepartureDate);
+      expect(event.lines).toEqual(defaultLines);
+      expect(event.total).toBe(100);
+      expect(event.status).toBe(ReservationStatus.created().value);
+      expect(event.addons).toEqual(defaultAddons);
+      expect(event.createdAt).toBeDefined();
+      expect(event.updatedAt).toBeDefined();
     });
 
     it('should allow multiple updates and increment version', () => {
-      const reservation = Reservation.create(
-        cartId,
-        parkingSpotId,
-        userId,
-        arrivalDate,
-        departureDate,
-        lines,
-        registrationNumber,
-        addons,
-      );
+      const reservation = aReservation().build();
 
       reservation.update('REG-1');
       reservation.update('REG-2');
@@ -449,18 +446,7 @@ describe('Reservation', () => {
     });
 
     it('should throw UpdateReservationError if reservation is cancelled', () => {
-      const now = Date.now();
-      const arrival = now + 48 * 60 * 60 * 1000;
-      const reservation = Reservation.create(
-        cartId,
-        parkingSpotId,
-        userId,
-        arrival,
-        arrival + 3600,
-        lines,
-        registrationNumber,
-        [],
-      );
+      const reservation = aReservation().build();
 
       reservation.cancel();
 
@@ -470,21 +456,9 @@ describe('Reservation', () => {
     });
 
     it('should throw UpdateReservationError if reservation is completed', () => {
-      const reservation = Reservation.reconstruct(
-        ReservationId.create(),
-        CartId.fromString(cartId),
-        ParkingSpotId.fromString(parkingSpotId),
-        UserId.fromString(userId),
-        ReservationDateRange.fromValues(Date.now(), Date.now() + 3600),
-        [],
-        Money.zero(),
-        AggregateVersion.one(),
-        ReservationStatus.completed(),
-        RegistrationNumber.fromString(registrationNumber),
-        [],
-        new Date(),
-        new Date(),
-      );
+      const reservation = aReservation()
+        .withStatus(ReservationStatus.completed())
+        .build();
 
       expect(() => reservation.update('NEW-123')).toThrow(
         UpdateReservationError,
@@ -498,6 +472,7 @@ describe('Reservation', () => {
       const reservation = Reservation.reconstruct(
         ReservationId.create(),
         CartId.fromString(randomUUID()),
+        ParkingId.fromString(randomUUID()),
         ParkingSpotId.fromString(randomUUID()),
         UserId.fromString(randomUUID()),
         ReservationDateRange.fromValues(Date.now(), Date.now() + 3600),
@@ -519,6 +494,7 @@ describe('Reservation', () => {
       const reservation = Reservation.reconstruct(
         ReservationId.create(),
         CartId.fromString(randomUUID()),
+        ParkingId.fromString(randomUUID()),
         ParkingSpotId.fromString(randomUUID()),
         UserId.fromString(randomUUID()),
         ReservationDateRange.fromValues(Date.now(), Date.now() + 3600),
@@ -542,6 +518,7 @@ describe('Reservation', () => {
       const reservation = Reservation.reconstruct(
         ReservationId.create(),
         CartId.fromString(randomUUID()),
+        ParkingId.fromString(randomUUID()),
         ParkingSpotId.fromString(randomUUID()),
         UserId.fromString(randomUUID()),
         ReservationDateRange.fromValues(Date.now(), Date.now() + 3600),
@@ -565,6 +542,7 @@ describe('Reservation', () => {
       const reservation = Reservation.reconstruct(
         ReservationId.create(),
         CartId.fromString(randomUUID()),
+        ParkingId.fromString(randomUUID()),
         ParkingSpotId.fromString(randomUUID()),
         UserId.fromString(randomUUID()),
         ReservationDateRange.fromValues(Date.now(), Date.now() + 3600),
@@ -586,6 +564,7 @@ describe('Reservation', () => {
       const reservation = Reservation.reconstruct(
         ReservationId.create(),
         CartId.fromString(randomUUID()),
+        ParkingId.fromString(randomUUID()),
         ParkingSpotId.fromString(randomUUID()),
         UserId.fromString(randomUUID()),
         ReservationDateRange.fromValues(Date.now(), Date.now() + 3600),
@@ -611,6 +590,7 @@ describe('Reservation', () => {
       const reservation = Reservation.reconstruct(
         ReservationId.create(),
         CartId.fromString(randomUUID()),
+        ParkingId.fromString(randomUUID()),
         ParkingSpotId.fromString(randomUUID()),
         UserId.fromString(randomUUID()),
         ReservationDateRange.fromValues(Date.now(), Date.now() + 3600),
@@ -637,6 +617,7 @@ describe('Reservation', () => {
       const reservation = Reservation.reconstruct(
         ReservationId.create(),
         CartId.fromString(randomUUID()),
+        ParkingId.fromString(randomUUID()),
         ParkingSpotId.fromString(randomUUID()),
         UserId.fromString(randomUUID()),
         ReservationDateRange.fromValues(Date.now(), Date.now() + 3600),
