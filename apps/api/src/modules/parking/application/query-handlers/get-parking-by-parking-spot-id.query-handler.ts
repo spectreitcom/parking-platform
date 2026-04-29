@@ -17,12 +17,12 @@ export class GetParkingByParkingSpotIdQueryHandler implements IQueryHandler<
 
     const parkingSpot = await this.prismaService.parkingSpot.findUnique({
       where: { id: parkingSpotId },
-      include: { parking: true },
+      select: { parkingId: true },
     });
 
     const parkingRead = await this.prismaService.parkingRead.findUnique({
       where: {
-        parkingId: parkingSpot?.parking.id,
+        parkingId: parkingSpot?.parkingId,
       },
     });
 

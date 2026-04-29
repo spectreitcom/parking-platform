@@ -14,7 +14,7 @@ export class GetParkingByIdsQueryHandler implements IQueryHandler<
     const { ids } = query;
 
     const records = await this.prismaService.parkingRead.findMany({
-      where: { id: { in: ids } },
+      where: { parkingId: { in: ids } },
     });
 
     return records.map(

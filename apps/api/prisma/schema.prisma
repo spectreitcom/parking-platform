@@ -204,8 +204,8 @@ model ParkingRead {
 
   assetIds String[] @default([]) @db.Uuid
 
-  parkingFeatureIds String[] @default([])
-  parkingAddonIds   String[] @default([])
+  parkingFeatureIds String[] @default([]) @db.Uuid
+  parkingAddonIds   String[] @default([]) @db.Uuid
 
   placeId String @db.Uuid
 

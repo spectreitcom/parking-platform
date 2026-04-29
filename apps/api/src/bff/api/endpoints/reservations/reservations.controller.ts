@@ -194,13 +194,13 @@ export class ReservationsController {
     const parkingMap = new Map(parkings.map((p) => [p.id, p]));
 
     const data: ((typeof reservations)[0] & {
-      parking: { id: string; name: string };
+      parking: { id: string; name: string } | null;
     })[] = [];
 
     for (const reservation of reservations) {
       data.push({
         ...reservation,
-        parking: parkingMap.get(reservation.parkingId)!,
+        parking: parkingMap.get(reservation.parkingId) ?? null,
       });
     }
 
