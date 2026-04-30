@@ -2,13 +2,13 @@ import { EventsHandler, IEventHandler } from '@nestjs/cqrs';
 import { IntegrationEvent } from 'src/shared/outbox/outbox.types';
 import { Logger } from '@nestjs/common';
 import { EmailService } from '../../ports/email.service';
-import {
-  AdminIamAdminUserInvitedV1Payload,
-  AdminIamIntegrationEventTypes,
-} from 'src/modules/admin-iam/application/contracts/integration-events';
 import { AdminWelcomeEmail } from 'src/modules/email-notification/application/email/admin-welcome.email';
 import { AdminIamFacade } from 'src/modules/admin-iam/application/admin-iam.facade';
 import { OutboxService } from 'src/shared/outbox/outbox.service';
+import {
+  AdminIamAdminUserInvitedV1Payload,
+  AdminIamIntegrationEventTypes,
+} from '@repo/api-contracts';
 
 @EventsHandler(IntegrationEvent)
 export class AdminIamInvitedIEHandler implements IEventHandler<IntegrationEvent> {
