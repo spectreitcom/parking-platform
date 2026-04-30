@@ -9,7 +9,7 @@ import { IntegrationEvent } from 'src/shared/outbox/outbox.types';
 import {
   AdminIamAdminUserInvitedV1Payload,
   AdminIamIntegrationEventTypes,
-} from '../contracts/integration-events';
+} from '@repo/api-contracts';
 
 @CommandHandler(InviteAdminUserCommand)
 export class InviteAdminUserCommandHandler implements ICommandHandler<

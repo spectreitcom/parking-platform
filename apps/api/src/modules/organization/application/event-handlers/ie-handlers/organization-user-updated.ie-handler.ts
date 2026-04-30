@@ -1,11 +1,11 @@
 import { EventsHandler, IEventHandler } from '@nestjs/cqrs';
-import { IntegrationEvent } from '../../../../../shared/outbox/outbox.types';
+import { IntegrationEvent } from 'src/shared/outbox/outbox.types';
+import { Logger } from '@nestjs/common';
+import { PrismaService } from 'src/shared/prisma/prisma.service';
 import {
   OrganizationUserIamIntegrationEventTypes,
   OrganizationUserIamUpdatedV1Payload,
-} from '../../../../organization-user-iam/application/contracts/integration-events';
-import { Logger } from '@nestjs/common';
-import { PrismaService } from '../../../../../shared/prisma/prisma.service';
+} from '@repo/api-contracts';
 
 type Event = IntegrationEvent<
   OrganizationUserIamUpdatedV1Payload,

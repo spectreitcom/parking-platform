@@ -7,7 +7,7 @@ import { IntegrationEvent } from 'src/shared/outbox/outbox.types';
 import {
   OrganizationUserIamIntegrationEventTypes,
   OrganizationUserIamRequestedResetPasswordV1Payload,
-} from '../contracts/integration-events';
+} from '@repo/api-contracts';
 
 @CommandHandler(RequestResetPasswordCommand)
 export class RequestResetPasswordCommandHandler implements ICommandHandler<

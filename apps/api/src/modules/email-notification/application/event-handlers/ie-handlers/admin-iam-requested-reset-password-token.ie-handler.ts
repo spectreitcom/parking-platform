@@ -1,14 +1,14 @@
 import { EventsHandler, IEventHandler } from '@nestjs/cqrs';
 import { IntegrationEvent } from 'src/shared/outbox/outbox.types';
-import {
-  AdminIamIntegrationEventTypes,
-  AdminIamRequestedResetPasswordV1Payload,
-} from 'src/modules/admin-iam/application/contracts/integration-events';
 import { Logger } from '@nestjs/common';
 import { EmailService } from 'src/modules/email-notification/application/ports/email.service';
 import { AdminIamFacade } from 'src/modules/admin-iam/application/admin-iam.facade';
 import { ResetPasswordEmail } from 'src/modules/email-notification/application/email/reset-password.email';
 import { OutboxService } from 'src/shared/outbox/outbox.service';
+import {
+  AdminIamIntegrationEventTypes,
+  AdminIamRequestedResetPasswordV1Payload,
+} from '@repo/api-contracts';
 
 @EventsHandler(IntegrationEvent)
 export class AdminIamRequestedResetPasswordTokenIeHandler implements IEventHandler<IntegrationEvent> {

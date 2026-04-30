@@ -1,15 +1,15 @@
 import { CommandHandler, EventPublisher, ICommandHandler } from '@nestjs/cqrs';
 import { InviteOrganizationUserCommand } from '../commands/invite-organization-user.command';
 import { OrganizationUserRepository } from '../ports/organization-user.repository';
-import { OutboxService } from '../../../../shared/outbox/outbox.service';
-import { TransactionRunner } from '../../../../shared/prisma/transaction-runner';
-import { IntegrationEvent } from '../../../../shared/outbox/outbox.types';
+import { OutboxService } from 'src/shared/outbox/outbox.service';
+import { TransactionRunner } from 'src/shared/prisma/transaction-runner';
+import { IntegrationEvent } from 'src/shared/outbox/outbox.types';
+import { OrganizationUser } from '../../domain/organization-user';
+import { AppError } from 'src/shared/errors';
 import {
   OrganizationUserIamIntegrationEventTypes,
   OrganizationUserIamOrganizationUserInvitedV1Payload,
-} from '../contracts/integration-events';
-import { OrganizationUser } from '../../domain/organization-user';
-import { AppError } from '../../../../shared/errors';
+} from '@repo/api-contracts';
 
 @CommandHandler(InviteOrganizationUserCommand)
 export class InviteOrganizationUserCommandHandler implements ICommandHandler<

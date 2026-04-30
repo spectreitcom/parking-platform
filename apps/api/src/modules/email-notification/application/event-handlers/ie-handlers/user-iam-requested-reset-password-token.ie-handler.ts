@@ -4,11 +4,11 @@ import { Logger } from '@nestjs/common';
 import { EmailService } from 'src/modules/email-notification/application/ports/email.service';
 import { ResetPasswordEmail } from 'src/modules/email-notification/application/email/reset-password.email';
 import { UserIamFacade } from 'src/modules/user-iam/application/user-iam.facade';
+import { OutboxService } from 'src/shared/outbox/outbox.service';
 import {
   UserIamIntegrationEventTypes,
   UserIamRequestedResetPasswordV1Payload,
-} from 'src/modules/user-iam/application/contracts/integration-events';
-import { OutboxService } from 'src/shared/outbox/outbox.service';
+} from '@repo/api-contracts';
 
 @EventsHandler(IntegrationEvent)
 export class UserIamRequestedResetPasswordTokenIeHandler implements IEventHandler<IntegrationEvent> {

@@ -4,11 +4,11 @@ import { UserRepository } from '../ports/user.repository';
 import { TransactionRunner } from 'src/shared/prisma/transaction-runner';
 import { OutboxService } from 'src/shared/outbox/outbox.service';
 import { IntegrationEvent } from 'src/shared/outbox/outbox.types';
+import { LoginProvider } from 'src/modules/user-iam/domain/value-objects/login-provider';
 import {
   UserIamIntegrationEventTypes,
   UserIamRequestedResetPasswordV1Payload,
-} from '../contracts/integration-events';
-import { LoginProvider } from 'src/modules/user-iam/domain/value-objects/login-provider';
+} from '@repo/api-contracts';
 
 @CommandHandler(RequestResetPasswordCommand)
 export class RequestResetPasswordCommandHandler implements ICommandHandler<
