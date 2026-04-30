@@ -7,8 +7,7 @@ import type { SignInSchema } from '#/features/auth/schemas';
 import { env } from '#/env.ts';
 import { useAppSession } from '#/lib/session.ts';
 import { redirect } from '@tanstack/react-router';
-import { authFetch } from '#/lib/auth-fetch.ts';
-import { apiErrorSchema } from '#/lib/schemas.ts';
+import { authFetch, genericApiErrorHandler } from '#/lib/auth-fetch.ts';
 
 /**
  * The `signIn` function provides a server-side implementation of the sign-in process.
@@ -40,14 +39,7 @@ export const signIn = createServerFn()
       body: JSON.stringify({ email, password }),
     });
 
-    if (!response.ok) {
-      const error = await response.json();
-      const validationResult = apiErrorSchema.safeParse(error);
-      if (!validationResult.success) {
-        throw new Error('Failed to sign in');
-      }
-      throw new Error(validationResult.data.detail);
-    }
+    await genericApiErrorHandler(response);
 
     const data = await response.json();
 
@@ -84,14 +76,7 @@ export const signOut = createServerFn().handler(async () => {
     method: 'POST',
   });
 
-  if (!response.ok) {
-    const error = await response.json();
-    const validationResult = apiErrorSchema.safeParse(error);
-    if (!validationResult.success) {
-      throw new Error('Failed to sign out');
-    }
-    throw new Error(validationResult.data.detail);
-  }
+  await genericApiErrorHandler(response);
 
   const session = await useAppSession();
   await session.clear();
@@ -116,11 +101,7 @@ export const getMe = createServerFn().handler(async () => {
     method: 'GET',
   });
 
-  if (!response.ok && response.status === 401) {
-    throw redirect({ to: '/auth/sign-in' });
-  } else if (!response.ok) {
-    throw new Error('Failed to get me');
-  }
+  await genericApiErrorHandler(response);
 
   const data = await response.json();
 

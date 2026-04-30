@@ -4,7 +4,7 @@ import {
   parkingListSchema,
 } from '#/features/parkings/schemas';
 import { createSearchParams } from '#/lib/utils.ts';
-import { authFetch } from '#/lib/auth-fetch.ts';
+import { authFetch, genericApiErrorHandler } from '#/lib/auth-fetch.ts';
 import { env } from '#/env.ts';
 
 /**
@@ -34,9 +34,7 @@ export const getParkingList = createServerFn()
       },
     );
 
-    if (!response.ok) {
-      throw new Error('Failed to fetch parking list');
-    }
+    await genericApiErrorHandler(response);
 
     const responseData = await response.json();
 

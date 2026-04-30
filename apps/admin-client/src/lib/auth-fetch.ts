@@ -7,6 +7,7 @@ import {
 import type { RefreshTokenSchema } from '#/features/auth/schemas';
 import { env } from '#/env.ts';
 import { redirect } from '@tanstack/react-router';
+import { apiErrorSchema } from '#/lib/schemas.ts';
 
 type FetchParameter = Parameters<typeof fetch>;
 
@@ -86,3 +87,27 @@ export const authFetch = async (...args: FetchParameter) => {
 
   return response;
 };
+
+export async function genericApiErrorHandler(
+  response: Response,
+  fallbackMessage = 'Something went wrong. Please try again later.',
+) {
+  if (!response.ok) {
+    if (response.status === 401) {
+      throw redirect({ to: '/auth/sign-in' });
+    }
+
+    let error: unknown;
+    try {
+      error = await response.json();
+    } catch {
+      throw new Error(fallbackMessage);
+    }
+
+    const validationSchema = apiErrorSchema.safeParse(error);
+    if (!validationSchema.success) {
+      throw new Error(fallbackMessage);
+    }
+    throw new Error(validationSchema.data.detail);
+  }
+}
