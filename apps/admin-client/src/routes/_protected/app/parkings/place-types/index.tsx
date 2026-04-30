@@ -11,7 +11,7 @@ import { Input } from '#/components/ui/input.tsx';
 import { Pagination } from '#/components/pagination.tsx';
 import { PlaceTypesList } from '#/features/parkings/components/place-types-list.tsx';
 import { Button } from '#/components/ui/button.tsx';
-import { Plus } from 'lucide-react';
+import { AlertTriangle, Map, Plus, Search } from 'lucide-react';
 import { useState } from 'react';
 import { CreatePlaceTypeModal } from '#/features/parkings/components/create-place-type-modal.tsx';
 import { EditPlaceTypeModal } from '#/features/parkings/components/edit-place-type-modal.tsx';
@@ -19,6 +19,7 @@ import { ConfirmDialog } from '#/components/confirm-dialog.tsx';
 import { useServerFn } from '@tanstack/react-start';
 import { toast } from 'sonner';
 import type { PlaceTypesListItemSchema } from '#/features/parkings/schemas';
+import { EmptyState, PageShell, Toolbar } from '#/components/page-shell';
 
 const DEFAULT_LIMIT = 20;
 const DEFAULT_PAGE = 1;
@@ -132,50 +133,62 @@ function RouteComponent() {
 
   if (error) {
     return (
-      <div className={'mt-8'}>
-        <h1 className={'text-2xl font-bold'}>Place Types</h1>
-        <p className={'mt-4 text-destructive'}>{error}</p>
-      </div>
+      <PageShell
+        eyebrow="Parking"
+        title="Place Types"
+        description="Create and maintain the place type catalog used by parking layouts."
+      >
+        <EmptyState
+          icon={<AlertTriangle className="size-5" />}
+          title="Could not load place types"
+          description={error}
+        />
+      </PageShell>
     );
   }
 
   return (
-    <div>
-      <div className={'flex items-center justify-between'}>
-        <h1 className={'text-2xl font-bold'}>Place Types</h1>
+    <PageShell
+      eyebrow="Parking"
+      title="Place Types"
+      description="Maintain reusable place type labels for parking configuration and operational workflows."
+      action={
         <Button onClick={() => setIsCreateModalOpen(true)}>
           <Plus className={'mr-2 size-4'} />
           Add Place Type
         </Button>
-      </div>
-
-      <div className={'mt-8'}>
-        <div className={'max-w-md'}>
-          <Input
-            placeholder={'Search by name...'}
-            onChange={(e) => debouncedSearch(e.target.value)}
-          />
-        </div>
+      }
+    >
+      <div className="space-y-4">
+        <Toolbar
+          aside={
+            <Pagination
+              total={total}
+              page={currentPage}
+              pageSize={limit}
+              onPageChange={handlePageChange}
+            />
+          }
+        >
+          <div className="relative max-w-md">
+            <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              placeholder={'Search by name...'}
+              className="pl-9"
+              onChange={(e) => debouncedSearch(e.target.value)}
+            />
+          </div>
+        </Toolbar>
         {items.length === 0 ? (
           <NoPlaceTypes onAddClick={() => setIsCreateModalOpen(true)} />
         ) : (
-          <div>
-            <div className={'mt-4 flex justify-end'}>
-              <Pagination
-                total={total}
-                page={currentPage}
-                pageSize={limit}
-                onPageChange={handlePageChange}
-              />
-            </div>
-            <div className={'mt-4'}>
-              <PlaceTypesList
-                items={items}
-                onEdit={handleEdit}
-                onDelete={handleDeleteClick}
-              />
-            </div>
-            <div className={'mt-4 flex justify-end'}>
+          <div className="space-y-4">
+            <PlaceTypesList
+              items={items}
+              onEdit={handleEdit}
+              onDelete={handleDeleteClick}
+            />
+            <div className="flex justify-end">
               <Pagination
                 total={total}
                 page={currentPage}
@@ -208,25 +221,22 @@ function RouteComponent() {
         isLoading={isDeleting}
         confirmText={'Delete'}
       />
-    </div>
+    </PageShell>
   );
 }
 
 function NoPlaceTypes({ onAddClick }: { onAddClick: () => void }) {
   return (
-    <div
-      className={
-        'flex h-full w-full flex-col items-center justify-center py-20'
+    <EmptyState
+      icon={<Map className="size-5" />}
+      title="No place types found"
+      description="There are no place types matching the current search criteria."
+      action={
+        <Button variant={'outline'} className={'mt-6'} onClick={onAddClick}>
+          <Plus className={'mr-2 size-4'} />
+          Add your first place type
+        </Button>
       }
-    >
-      <h2 className={'text-xl font-semibold'}>No place types found</h2>
-      <p className={'mt-2 text-muted-foreground'}>
-        There are no place types in the system matching the criteria.
-      </p>
-      <Button variant={'outline'} className={'mt-6'} onClick={onAddClick}>
-        <Plus className={'mr-2 size-4'} />
-        Add your first place type
-      </Button>
-    </div>
+    />
   );
 }

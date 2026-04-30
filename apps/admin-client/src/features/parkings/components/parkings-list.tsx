@@ -7,9 +7,9 @@ import {
   TableHeader,
   TableRow,
 } from '#/components/ui/table.tsx';
-import { MoreHorizontal, Circle, MapPin, Building2 } from 'lucide-react';
+import { MoreHorizontal, MapPin, Building2, ParkingCircle } from 'lucide-react';
 import { Button } from '#/components/ui/button.tsx';
-import { cn } from '#/lib/utils';
+import { StatusBadge } from '#/components/status-badge';
 
 type Props = Readonly<{
   items: ParkingListItemSchema[];
@@ -34,7 +34,12 @@ export function ParkingsList({ items }: Props) {
             className="group transition-colors hover:bg-muted/50"
           >
             <TableCell className="font-medium">
-              <span className="truncate">{parking.name}</span>
+              <div className="flex items-center gap-3">
+                <div className="flex size-9 shrink-0 items-center justify-center rounded-md border bg-background text-primary shadow-xs">
+                  <ParkingCircle className="size-4" />
+                </div>
+                <span className="truncate text-foreground">{parking.name}</span>
+              </div>
             </TableCell>
             <TableCell>
               <div className="flex items-center gap-2 text-muted-foreground">
@@ -49,22 +54,9 @@ export function ParkingsList({ items }: Props) {
               </div>
             </TableCell>
             <TableCell>
-              <span
-                className={cn(
-                  'inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-medium border',
-                  parking.active
-                    ? 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20'
-                    : 'bg-red-50 text-red-700 border-red-200 dark:bg-red-500/10 dark:text-red-400 dark:border-red-500/20',
-                )}
-              >
-                <Circle
-                  className={cn(
-                    'h-1.5 w-1.5 fill-current',
-                    parking.active ? 'text-emerald-500' : 'text-red-500',
-                  )}
-                />
+              <StatusBadge tone={parking.active ? 'positive' : 'negative'}>
                 {parking.active ? 'Active' : 'Inactive'}
-              </span>
+              </StatusBadge>
             </TableCell>
             <TableCell className="text-right">
               <Button

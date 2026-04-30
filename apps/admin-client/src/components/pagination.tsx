@@ -15,21 +15,21 @@ export function Pagination({ total, page, pageSize, onPageChange }: Props) {
   if (totalPages <= 1) return null;
 
   return (
-    <div className={'flex items-center gap-2'}>
+    <div className="flex items-center gap-2">
       <Button
         variant="outline"
-        size="xs"
+        size="icon-sm"
         onClick={() => onPageChange(page - 1)}
         disabled={page <= 1}
       >
         <ChevronLeft className="size-4" />
       </Button>
-      <span>
+      <span className="min-w-20 text-center text-sm font-medium text-muted-foreground">
         {page} of {totalPages}
       </span>
       <Button
         variant="outline"
-        size="xs"
+        size="icon-sm"
         onClick={() => onPageChange(page + 1)}
         disabled={page >= totalPages}
       >

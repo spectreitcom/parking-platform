@@ -6,6 +6,8 @@ import { useDebounceCallback } from 'usehooks-ts';
 import { Input } from '#/components/ui/input.tsx';
 import { Pagination } from '#/components/pagination.tsx';
 import { ParkingsList } from '#/features/parkings/components/parkings-list.tsx';
+import { EmptyState, PageShell, Toolbar } from '#/components/page-shell';
+import { AlertTriangle, CarFront, Search } from 'lucide-react';
 
 const DEFAULT_LIMIT = 20;
 const DEFAULT_PAGE = 1;
@@ -79,37 +81,52 @@ function RouteComponent() {
 
   if (error) {
     return (
-      <div className={'mt-8'}>
-        <h1 className={'text-2xl font-bold'}>Parkings</h1>
-        <p className={'mt-4 text-destructive'}>{error}</p>
-      </div>
+      <PageShell
+        eyebrow="Parking"
+        title="Parkings"
+        description="Browse and monitor parking locations connected to organizations and places."
+      >
+        <EmptyState
+          icon={<AlertTriangle className="size-5" />}
+          title="Could not load parkings"
+          description={error}
+        />
+      </PageShell>
     );
   }
 
   return (
-    <div>
-      <h1 className={'text-2xl font-bold'}>Parkings</h1>
-      <div className={'mt-8'}>
-        <div>
-          <Input
-            placeholder={'Search'}
-            onChange={(e) => debouncedSearch(e.target.value)}
-          />
-        </div>
+    <PageShell
+      eyebrow="Parking"
+      title="Parkings"
+      description="Browse parking locations, their assigned organizations, places, and current operational status."
+    >
+      <div className="space-y-4">
+        <Toolbar
+          aside={
+            <Pagination
+              total={total}
+              page={currentPage}
+              pageSize={limit}
+              onPageChange={handlePageChange}
+            />
+          }
+        >
+          <div className="relative max-w-md">
+            <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              placeholder={'Search'}
+              className="pl-9"
+              onChange={(e) => debouncedSearch(e.target.value)}
+            />
+          </div>
+        </Toolbar>
         {items.length === 0 ? (
           <NoParkings />
         ) : (
-          <div>
-            <div className={'mt-4 flex justify-end'}>
-              <Pagination
-                total={total}
-                page={currentPage}
-                pageSize={limit}
-                onPageChange={handlePageChange}
-              />
-            </div>
+          <div className="space-y-4">
             <ParkingsList items={items} />
-            <div className={'mt-4 flex justify-end'}>
+            <div className="flex justify-end">
               <Pagination
                 total={total}
                 page={currentPage}
@@ -120,21 +137,16 @@ function RouteComponent() {
           </div>
         )}
       </div>
-    </div>
+    </PageShell>
   );
 }
 
 function NoParkings() {
   return (
-    <div
-      className={
-        'flex h-full w-full flex-col items-center justify-center py-20'
-      }
-    >
-      <h2 className={'text-xl font-semibold'}>No parkings found</h2>
-      <p className={'text-muted-foreground'}>
-        There are no parkings in the system matching the criteria.
-      </p>
-    </div>
+    <EmptyState
+      icon={<CarFront className="size-5" />}
+      title="No parkings found"
+      description="There are no parking locations matching the current search criteria."
+    />
   );
 }
