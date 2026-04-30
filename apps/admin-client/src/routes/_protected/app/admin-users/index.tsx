@@ -6,6 +6,8 @@ import { AdminUsersList } from '#/features/admins/components/admin-users-list.ts
 import { Pagination } from '#/components/pagination.tsx';
 import { Input } from '#/components/ui/input.tsx';
 import { useDebounceCallback } from 'usehooks-ts';
+import { EmptyState, PageShell, Toolbar } from '#/components/page-shell';
+import { AlertTriangle, Search, ShieldCheck } from 'lucide-react';
 
 const DEFAULT_LIMIT = 20;
 const DEFAULT_PAGE = 1;
@@ -80,37 +82,52 @@ function RouteComponent() {
 
   if (error) {
     return (
-      <div className={'mt-8'}>
-        <h1 className={'text-2xl'}>Admin Users</h1>
-        <p className={'mt-4 text-destructive'}>{error}</p>
-      </div>
+      <PageShell
+        eyebrow="Access"
+        title="Admin Users"
+        description="Review administrator accounts and their account status."
+      >
+        <EmptyState
+          icon={<AlertTriangle className="size-5" />}
+          title="Could not load administrators"
+          description={error}
+        />
+      </PageShell>
     );
   }
 
   return (
-    <div>
-      <h1 className={'text-2xl font-bold'}>Admin Users</h1>
-      <div className={'mt-8'}>
-        <div>
-          <Input
-            placeholder={'Search'}
-            onChange={(e) => debouncedSearch(e.target.value)}
-          />
-        </div>
+    <PageShell
+      eyebrow="Access"
+      title="Admin Users"
+      description="Review administrator accounts, email identities, and lifecycle status."
+    >
+      <div className="space-y-4">
+        <Toolbar
+          aside={
+            <Pagination
+              total={total}
+              page={currentPage}
+              pageSize={limit}
+              onPageChange={handlePageChange}
+            />
+          }
+        >
+          <div className="relative max-w-md">
+            <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              placeholder={'Search'}
+              className="pl-9"
+              onChange={(e) => debouncedSearch(e.target.value)}
+            />
+          </div>
+        </Toolbar>
         {adminUsers.length === 0 ? (
           <NoAdminUsers />
         ) : (
-          <div>
-            <div className={'mt-4 flex justify-end'}>
-              <Pagination
-                total={total}
-                page={currentPage}
-                pageSize={limit}
-                onPageChange={handlePageChange}
-              />
-            </div>
+          <div className="space-y-4">
             <AdminUsersList items={adminUsers} />
-            <div className={'mt-4 flex justify-end'}>
+            <div className="flex justify-end">
               <Pagination
                 total={total}
                 page={currentPage}
@@ -121,21 +138,16 @@ function RouteComponent() {
           </div>
         )}
       </div>
-    </div>
+    </PageShell>
   );
 }
 
 function NoAdminUsers() {
   return (
-    <div
-      className={
-        'flex h-full w-full flex-col items-center justify-center py-20'
-      }
-    >
-      <h2 className={'text-xl font-semibold'}>No administrators found</h2>
-      <p className={'text-muted-foreground'}>
-        There are no administrators in the system matching the criteria.
-      </p>
-    </div>
+    <EmptyState
+      icon={<ShieldCheck className="size-5" />}
+      title="No administrators found"
+      description="There are no administrator accounts matching the current search criteria."
+    />
   );
 }

@@ -7,24 +7,21 @@ import {
   TableHeader,
   TableRow,
 } from '#/components/ui/table.tsx';
-import { Mail, MoreHorizontal, Circle } from 'lucide-react';
+import { Mail, MoreHorizontal, ShieldCheck } from 'lucide-react';
 import { Button } from '#/components/ui/button.tsx';
-import { cn } from '#/lib/utils';
+import { StatusBadge } from '#/components/status-badge';
 
 type Props = Readonly<{
   items: AdminListItemSchema[];
 }>;
 
-const statusStyles: Record<string, string> = {
-  Active:
-    'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20',
-  Suspended:
-    'bg-red-50 text-red-700 border-red-200 dark:bg-red-500/10 dark:text-red-400 dark:border-red-500/20',
-  Invited:
-    'bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-500/10 dark:text-blue-400 dark:border-blue-500/20',
-  Created:
-    'bg-slate-50 text-slate-700 border-slate-200 dark:bg-slate-500/10 dark:text-slate-400 dark:border-slate-500/20',
-};
+const statusTone: Record<string, 'positive' | 'negative' | 'info' | 'neutral'> =
+  {
+    Active: 'positive',
+    Suspended: 'negative',
+    Invited: 'info',
+    Created: 'neutral',
+  };
 
 export function AdminUsersList({ items }: Props) {
   return (
@@ -44,7 +41,14 @@ export function AdminUsersList({ items }: Props) {
             className="group transition-colors hover:bg-muted/50"
           >
             <TableCell className="font-medium">
-              <span className="truncate">{admin.displayName}</span>
+              <div className="flex items-center gap-3">
+                <div className="flex size-9 shrink-0 items-center justify-center rounded-md border bg-background text-primary shadow-xs">
+                  <ShieldCheck className="size-4" />
+                </div>
+                <span className="truncate text-foreground">
+                  {admin.displayName}
+                </span>
+              </div>
             </TableCell>
             <TableCell>
               <div className="flex items-center gap-2 text-muted-foreground">
@@ -53,21 +57,9 @@ export function AdminUsersList({ items }: Props) {
               </div>
             </TableCell>
             <TableCell>
-              <span
-                className={cn(
-                  'inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-medium border',
-                  statusStyles[admin.statusText] ||
-                    'bg-secondary text-secondary-foreground',
-                )}
-              >
-                <Circle
-                  className={cn(
-                    'h-1.5 w-1.5 fill-current',
-                    !statusStyles[admin.statusText] && 'text-muted-foreground',
-                  )}
-                />
+              <StatusBadge tone={statusTone[admin.statusText] ?? 'neutral'}>
                 {admin.statusText}
-              </span>
+              </StatusBadge>
             </TableCell>
             <TableCell className="text-right">
               <Button

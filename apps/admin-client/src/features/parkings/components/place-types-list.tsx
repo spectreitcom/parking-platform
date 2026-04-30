@@ -7,7 +7,7 @@ import {
   TableHeader,
   TableRow,
 } from '#/components/ui/table.tsx';
-import { MoreHorizontal, Pencil, Trash2 } from 'lucide-react';
+import { MoreHorizontal, Pencil, Trash2, Map } from 'lucide-react';
 import { Button } from '#/components/ui/button.tsx';
 import {
   DropdownMenu,
@@ -38,7 +38,14 @@ export function PlaceTypesList({ items, onEdit, onDelete }: Props) {
             className="group transition-colors hover:bg-muted/50"
           >
             <TableCell className="font-medium">
-              <span className="truncate">{placeType.name}</span>
+              <div className="flex items-center gap-3">
+                <div className="flex size-9 shrink-0 items-center justify-center rounded-md border bg-background text-primary shadow-xs">
+                  <Map className="size-4" />
+                </div>
+                <span className="truncate text-foreground">
+                  {placeType.name}
+                </span>
+              </div>
             </TableCell>
             <TableCell className="text-right">
               <DropdownMenu>

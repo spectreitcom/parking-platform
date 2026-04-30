@@ -9,6 +9,7 @@ import { signIn } from '#/features/auth/api';
 import { useForm } from '@tanstack/react-form';
 import { signInSchema } from '#/features/auth/schemas';
 import { isRedirect } from '@tanstack/react-router';
+import { LockKeyhole, Mail } from 'lucide-react';
 
 export function SignInForm() {
   const [hasError, setHasError] = useState(false);
@@ -44,7 +45,7 @@ export function SignInForm() {
 
   return (
     <form
-      className={'space-y-8'}
+      className={'space-y-5'}
       onSubmit={async (e) => {
         e.preventDefault();
         await form.handleSubmit();
@@ -68,15 +69,19 @@ export function SignInForm() {
           return (
             <Field data-invalid={isInvalid}>
               <FieldLabel htmlFor={field.name}>Adres email</FieldLabel>
-              <Input
-                id={field.name}
-                name={field.name}
-                value={field.state.value}
-                onBlur={field.handleBlur}
-                onChange={(e) => field.handleChange(e.target.value)}
-                autoComplete={'off'}
-                aria-invalid={isInvalid}
-              />
+              <div className="relative">
+                <Mail className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+                <Input
+                  id={field.name}
+                  name={field.name}
+                  value={field.state.value}
+                  onBlur={field.handleBlur}
+                  onChange={(e) => field.handleChange(e.target.value)}
+                  autoComplete={'email'}
+                  aria-invalid={isInvalid}
+                  className="pl-9"
+                />
+              </div>
               {isInvalid && <FieldError errors={field.state.meta.errors} />}
             </Field>
           );
@@ -92,16 +97,20 @@ export function SignInForm() {
           return (
             <Field data-invalid={isInvalid}>
               <FieldLabel htmlFor={field.name}>Hasło</FieldLabel>
-              <Input
-                id={field.name}
-                type={'password'}
-                name={field.name}
-                value={field.state.value}
-                onBlur={field.handleBlur}
-                onChange={(e) => field.handleChange(e.target.value)}
-                autoComplete={'off'}
-                aria-invalid={isInvalid}
-              />
+              <div className="relative">
+                <LockKeyhole className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+                <Input
+                  id={field.name}
+                  type={'password'}
+                  name={field.name}
+                  value={field.state.value}
+                  onBlur={field.handleBlur}
+                  onChange={(e) => field.handleChange(e.target.value)}
+                  autoComplete={'current-password'}
+                  aria-invalid={isInvalid}
+                  className="pl-9"
+                />
+              </div>
               {isInvalid && <FieldError errors={field.state.meta.errors} />}
             </Field>
           );
@@ -110,7 +119,7 @@ export function SignInForm() {
 
       <Button
         type={'submit'}
-        className={'w-full'}
+        className={'h-11 w-full'}
         disabled={isFormSubmitting || form.state.isSubmitting}
       >
         {(isFormSubmitting || form.state.isSubmitting) && <Spinner />}
