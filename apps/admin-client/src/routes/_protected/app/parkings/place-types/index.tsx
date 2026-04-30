@@ -168,7 +168,7 @@ function RouteComponent() {
                 onPageChange={handlePageChange}
               />
             </div>
-            <div className={'mt-4 rounded-md border bg-card'}>
+            <div className={'mt-4'}>
               <PlaceTypesList
                 items={items}
                 onEdit={handleEdit}

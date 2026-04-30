@@ -8,6 +8,7 @@ import { env } from '#/env.ts';
 import { useAppSession } from '#/lib/session.ts';
 import { redirect } from '@tanstack/react-router';
 import { authFetch } from '#/lib/auth-fetch.ts';
+import { apiErrorSchema } from '#/lib/schemas.ts';
 
 /**
  * The `signIn` function provides a server-side implementation of the sign-in process.
@@ -40,7 +41,12 @@ export const signIn = createServerFn()
     });
 
     if (!response.ok) {
-      throw new Error('Failed to sign in');
+      const error = await response.json();
+      const validationResult = apiErrorSchema.safeParse(error);
+      if (!validationResult.success) {
+        throw new Error('Failed to sign in');
+      }
+      throw new Error(validationResult.data.detail);
     }
 
     const data = await response.json();
@@ -79,7 +85,12 @@ export const signOut = createServerFn().handler(async () => {
   });
 
   if (!response.ok) {
-    throw new Error('Failed to sign out');
+    const error = await response.json();
+    const validationResult = apiErrorSchema.safeParse(error);
+    if (!validationResult.success) {
+      throw new Error('Failed to sign out');
+    }
+    throw new Error(validationResult.data.detail);
   }
 
   const session = await useAppSession();
@@ -101,7 +112,9 @@ export const signOut = createServerFn().handler(async () => {
  * @returns {Promise<Object>} A promise that resolves to the validated user data.
  */
 export const getMe = createServerFn().handler(async () => {
-  const response = await authFetch(`${env.SERVER_URL}/auth/me`, {});
+  const response = await authFetch(`${env.SERVER_URL}/auth/me`, {
+    method: 'GET',
+  });
 
   if (!response.ok && response.status === 401) {
     throw redirect({ to: '/auth/sign-in' });

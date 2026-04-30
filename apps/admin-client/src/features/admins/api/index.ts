@@ -7,6 +7,7 @@ import type { AdminListInputSchema } from '#/features/admins/schemas';
 import { authFetch } from '#/lib/auth-fetch.ts';
 import { env } from '#/env.ts';
 import { createSearchParams } from '#/lib/utils.ts';
+import { apiErrorSchema } from '#/lib/schemas.ts';
 
 /**
  * Retrieves a list of admin users from the server.
@@ -43,7 +44,12 @@ export const getAdminsList = createServerFn()
     );
 
     if (!response.ok) {
-      throw new Error('Failed to fetch admins');
+      const error = await response.json();
+      const validationSchema = apiErrorSchema.safeParse(error);
+      if (!validationSchema.success) {
+        throw new Error('Failed to fetch admins');
+      }
+      throw new Error(validationSchema.data.detail);
     }
 
     const responseData = await response.json();

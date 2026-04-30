@@ -51,7 +51,11 @@ export function EditPlaceTypeModal({
         form.reset();
         await router.invalidate();
       } catch (error) {
-        toast.error('Failed to update place type');
+        if (error instanceof Error) {
+          toast.error(error.message);
+        } else {
+          toast.error('Failed to update place type');
+        }
       }
     },
   });

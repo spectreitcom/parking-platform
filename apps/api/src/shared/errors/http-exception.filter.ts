@@ -30,7 +30,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
 
       if (status === HttpStatus.UNAUTHORIZED) {
         return res.status(HttpStatus.UNAUTHORIZED).json({
-          title: 'UNAUTHORIZED',
+          code: 'UNAUTHORIZED',
           detail: 'Unauthorized',
           status: HttpStatus.UNAUTHORIZED,
         });
@@ -38,7 +38,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
 
       if (status === HttpStatus.FORBIDDEN) {
         return res.status(HttpStatus.FORBIDDEN).json({
-          title: 'FORBIDDEN',
+          code: 'FORBIDDEN',
           detail: 'Forbidden',
           status: HttpStatus.FORBIDDEN,
         });
@@ -46,14 +46,14 @@ export class HttpExceptionFilter implements ExceptionFilter {
 
       if (status >= HttpStatus.INTERNAL_SERVER_ERROR) {
         return res.status(status).json({
-          title: 'SERVER_ERROR',
+          code: 'INTERNAL_SERVER_ERROR',
           detail: 'Internal server error',
           status,
         });
       }
 
       return res.status(status).json({
-        title: status.toString(),
+        code: status.toString(),
         detail: exception.message,
         status,
       });
@@ -62,7 +62,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
     if (exception?.code && codeToStatus[exception.code]) {
       const status = codeToStatus[exception.code];
       return res.status(status).json({
-        title: exception.code,
+        code: exception.code,
         detail: exception.message,
         status,
       });
@@ -71,7 +71,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
     captureException(exception);
 
     return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
-      title: 'SERVER_ERROR',
+      code: 'INTERNAL_SERVER_ERROR',
       detail: 'Internal server error',
       status: HttpStatus.INTERNAL_SERVER_ERROR,
     });

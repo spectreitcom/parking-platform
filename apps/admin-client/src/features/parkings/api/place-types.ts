@@ -10,6 +10,7 @@ import {
 import { createSearchParams } from '#/lib/utils.ts';
 import { authFetch } from '#/lib/auth-fetch.ts';
 import { env } from '#/env.ts';
+import { apiErrorSchema } from '#/lib/schemas.ts';
 
 /**
  * Fetches a list of place types from the server based on the provided input data.
@@ -92,7 +93,12 @@ export const createPlaceType = createServerFn()
     });
 
     if (!response.ok) {
-      throw new Error('Failed to create place type');
+      const error = await response.json();
+      const validationSchema = apiErrorSchema.safeParse(error);
+      if (!validationSchema.success) {
+        throw new Error('Failed to create place type');
+      }
+      throw new Error(validationSchema.data.detail);
     }
 
     const responseData = await response.json();
@@ -134,7 +140,12 @@ export const updatePlaceType = createServerFn()
     );
 
     if (!response.ok) {
-      throw new Error('Failed to update place type');
+      const error = await response.json();
+      const validationSchema = apiErrorSchema.safeParse(error);
+      if (!validationSchema.success) {
+        throw new Error('Failed to update place type');
+      }
+      throw new Error(validationSchema.data.detail);
     }
 
     const responseData = await response.json();
@@ -143,7 +154,7 @@ export const updatePlaceType = createServerFn()
       createPlaceTypeResponseSchema.safeParse(responseData);
 
     if (!validationResult.success) {
-      throw new Error('Invalid response from server');
+      throw new Error('Failed to update place type');
     }
 
     return validationResult.data;
@@ -186,7 +197,12 @@ export const deletePlaceType = createServerFn()
     );
 
     if (!response.ok) {
-      throw new Error('Failed to delete place type');
+      const error = await response.json();
+      const validationSchema = apiErrorSchema.safeParse(error);
+      if (!validationSchema.success) {
+        throw new Error('Failed to delete place type');
+      }
+      throw new Error(validationSchema.data.detail);
     }
 
     const responseData = await response.json();
