@@ -20,9 +20,6 @@ Infrastructure layer:
 - Contains Prisma repositories, RabbitMQ publishers, Redis adapters, S3 adapters and external API clients.
 - Implements ports defined by application/domain.
 
-Presentation layer:
-- Contains controllers, DTOs, pipes, guards and HTTP-specific mappings.
-
 ## CQRS rules
 
 - Commands mutate state.

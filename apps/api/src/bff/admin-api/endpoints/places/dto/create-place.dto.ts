@@ -1,5 +1,4 @@
 import {
-  IsBoolean,
   IsLatitude,
   IsLongitude,
   IsNotEmpty,
@@ -56,15 +55,6 @@ export class CreatePlaceDto {
   readonly placeTypeId: string;
 
   @ApiProperty({
-    description: 'Whether the place is active',
-    example: true,
-    required: true,
-  })
-  @IsBoolean()
-  @IsNotEmpty()
-  readonly active: boolean;
-
-  @ApiProperty({
     description: 'The address of the place',
     example: '123 Main St, Gdańsk',
     required: true,
@@ -80,14 +70,12 @@ export class CreatePlaceDto {
     latitude: number,
     longitude: number,
     placeTypeId: string,
-    active: boolean,
     address: string,
   ) {
     this.name = name;
     this.latitude = latitude;
     this.longitude = longitude;
     this.placeTypeId = placeTypeId;
-    this.active = active;
     this.address = address;
   }
 }

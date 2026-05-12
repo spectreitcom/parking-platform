@@ -45,7 +45,6 @@ describe('DeactivatePlaceCommandHandler', () => {
       'Place 1',
       { latitude: 52.0, longitude: 21.0 },
       'Address 1',
-      true,
       randomUUID(),
     );
     repository.findById.mockResolvedValue(place);
@@ -78,7 +77,6 @@ describe('DeactivatePlaceCommandHandler', () => {
       'Place 1',
       { latitude: 52.0, longitude: 21.0 },
       'Address 1',
-      true,
       randomUUID(),
     );
     repository.findById.mockResolvedValue(place);

@@ -14,10 +14,10 @@ export class CreatePlaceCommandHandler implements ICommandHandler<
   ) {}
 
   async execute(command: CreatePlaceCommand): Promise<string> {
-    const { name, latitude, longitude, placeTypeId, active, address } = command;
+    const { name, latitude, longitude, placeTypeId, address } = command;
 
     const place = this.eventPublisher.mergeObjectContext(
-      Place.create(name, { latitude, longitude }, address, active, placeTypeId),
+      Place.create(name, { latitude, longitude }, address, placeTypeId),
     );
 
     await this.placeRepository.save(place, { isNew: true });

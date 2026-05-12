@@ -43,7 +43,6 @@ describe('UpdatePlaceCommandHandler', () => {
       'Old Name',
       { latitude: 52.0, longitude: 21.0 },
       'Old Address',
-      true,
       randomUUID(),
     );
     repository.findById.mockResolvedValue(place);
@@ -93,7 +92,6 @@ describe('UpdatePlaceCommandHandler', () => {
       'Name',
       { latitude: 52.0, longitude: 21.0 },
       'Address',
-      true,
       randomUUID(),
     );
     repository.findById.mockResolvedValue(place);

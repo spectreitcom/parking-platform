@@ -8,7 +8,11 @@ import {
   updatePlaceTypeInputSchema,
 } from '#/features/parkings/schemas';
 import { createSearchParams } from '#/lib/utils.ts';
-import { authFetch, genericApiErrorHandler } from '#/lib/auth-fetch.ts';
+import {
+  authFetch,
+  defaultServerError,
+  genericApiErrorHandler,
+} from '#/lib/auth-fetch.ts';
 import { env } from '#/env.ts';
 
 /**
@@ -45,7 +49,7 @@ export const getPlaceTypes = createServerFn()
     const validationResult = placeTypesListSchema.safeParse(responseData);
 
     if (!validationResult.success) {
-      throw new Error('Invalid response from server');
+      throw defaultServerError;
     }
 
     return validationResult.data;
@@ -97,7 +101,7 @@ export const createPlaceType = createServerFn()
       createPlaceTypeResponseSchema.safeParse(responseData);
 
     if (!validationResult.success) {
-      throw new Error('Invalid response from server');
+      throw defaultServerError;
     }
 
     return validationResult.data;
@@ -137,7 +141,7 @@ export const updatePlaceType = createServerFn()
       createPlaceTypeResponseSchema.safeParse(responseData);
 
     if (!validationResult.success) {
-      throw new Error('Failed to update place type');
+      throw defaultServerError;
     }
 
     return validationResult.data;
@@ -187,7 +191,7 @@ export const deletePlaceType = createServerFn()
       createPlaceTypeResponseSchema.safeParse(responseData);
 
     if (!validationResult.success) {
-      throw new Error('Invalid response from server');
+      throw defaultServerError;
     }
 
     return validationResult.data;

@@ -1,8 +1,8 @@
 import { CommandHandler, EventPublisher, ICommandHandler } from '@nestjs/cqrs';
 import { DeactivatePlaceCommand } from '../commands/deactivate-place.command';
 import { PlaceRepository } from '../ports/place.repository';
-import { AppError } from '../../../../shared/errors';
-import { AggregateVersion } from '../../../../shared/value-objects/aggregate-version';
+import { AppError } from 'src/shared/errors';
+import { AggregateVersion } from 'src/shared/value-objects/aggregate-version';
 
 @CommandHandler(DeactivatePlaceCommand)
 export class DeactivatePlaceCommandHandler implements ICommandHandler<

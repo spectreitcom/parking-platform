@@ -92,6 +92,39 @@ export class PlacesController {
     };
   }
 
+  @Get(':placeId')
+  @ApiOperation({ summary: 'Get place for editing' })
+  @ApiOkResponse({
+    schema: {
+      type: 'object',
+      properties: {
+        placeId: { type: 'string', format: 'uuid' },
+        name: { type: 'string' },
+        latitude: { type: 'number', format: 'float' },
+        longitude: { type: 'number', format: 'float' },
+        placeTypeId: { type: 'string', format: 'uuid' },
+        placeTypeName: { type: 'string' },
+        address: { type: 'string' },
+        active: { type: 'boolean' },
+        version: { type: 'number', format: 'int32', example: 1 },
+      },
+    },
+  })
+  @ApiUnauthorizedResponse({
+    description: 'Unauthorized',
+  })
+  @ApiBadRequestResponse({
+    description: 'Validation errors',
+  })
+  @ApiNotFoundResponse({
+    description: 'Place not found',
+  })
+  async getPlaceForEditing(
+    @Param('placeId', new ParseUUIDPipe()) placeId: string,
+  ) {
+    return await this.parkingFacade.getPlaceForEditing(placeId);
+  }
+
   @Post()
   @ApiOperation({ summary: 'Create a new place' })
   @ApiCreatedResponse({
@@ -117,7 +150,6 @@ export class PlacesController {
       createPlaceDto.latitude,
       createPlaceDto.longitude,
       createPlaceDto.placeTypeId,
-      createPlaceDto.active,
       createPlaceDto.address,
     );
     return { id };

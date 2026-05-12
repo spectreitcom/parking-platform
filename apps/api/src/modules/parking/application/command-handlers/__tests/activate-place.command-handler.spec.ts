@@ -45,9 +45,9 @@ describe('ActivatePlaceCommandHandler', () => {
       'Place 1',
       { latitude: 52.0, longitude: 21.0 },
       'Address 1',
-      false,
       randomUUID(),
     );
+    place.deactivate();
     repository.findById.mockResolvedValue(place);
 
     const command = new ActivatePlaceCommand(id, place.getVersion().value);
@@ -78,9 +78,9 @@ describe('ActivatePlaceCommandHandler', () => {
       'Place 1',
       { latitude: 52.0, longitude: 21.0 },
       'Address 1',
-      false,
       randomUUID(),
     );
+    place.deactivate();
     repository.findById.mockResolvedValue(place);
 
     const command = new ActivatePlaceCommand(id, -1);

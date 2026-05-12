@@ -10,6 +10,7 @@ import { GetPlaceTypeListQueryHandler } from './get-place-type-list.query-handle
 import { GetPlaceTypeListTotalQueryHandler } from './get-place-type-list-total.query-handler';
 import { GetParkingByIdsQueryHandler } from './get-parking-by-ids.query-handler';
 import { GetParkingByParkingSpotIdQueryHandler } from './get-parking-by-parking-spot-id.query-handler';
+import { GetPlaceForEditingQueryHandler } from './get-place-for-editing.query-handler';
 
 export const queryHandlers = [
   GetPlacesListForAdminQueryHandler,
@@ -24,4 +25,5 @@ export const queryHandlers = [
   GetPlaceTypeListTotalQueryHandler,
   GetParkingByIdsQueryHandler,
   GetParkingByParkingSpotIdQueryHandler,
+  GetPlaceForEditingQueryHandler,
 ];
