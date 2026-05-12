@@ -5,7 +5,7 @@ import { DeactivatePlaceCommand } from '../../commands/deactivate-place.command'
 import { PlaceRepository } from '../../ports/place.repository';
 import { Place } from '../../../domain/place';
 import { randomUUID } from 'node:crypto';
-import { AppError } from '../../../../../shared/errors';
+import { AppError } from 'src/shared/errors';
 
 describe('DeactivatePlaceCommandHandler', () => {
   let handler: DeactivatePlaceCommandHandler;
