@@ -24,7 +24,7 @@ export const placesListSchema = z.object({
 });
 
 export const createPlaceInputSchema = z.object({
-  name: z.string().min(1).max(255),
+  name: z.string().trim().min(1).max(255),
   latitude: z.coerce
     .number()
     .min(-90, 'Latitude must be between -90 and 90')
@@ -34,7 +34,7 @@ export const createPlaceInputSchema = z.object({
     .min(-180, 'Longitude must be between -180 and 180')
     .max(180, 'Longitude must be between -180 and 180'),
   placeTypeId: z.uuid('Place Type is required'),
-  address: z.string().min(1).max(255),
+  address: z.string().trim().min(1).max(255),
 });
 
 export const updatePlaceInputSchema = createPlaceInputSchema.extend({

@@ -57,7 +57,9 @@ export function PlaceGenericForm({ placeTypes, place, onOpenChange }: Props) {
           await createPlaceFn({ data: value });
         }
 
-        toast.success('Place created successfully');
+        toast.success(
+          place ? 'Place updated successfully' : 'Place created successfully',
+        );
         onOpenChange(false);
         form.reset();
         await router.invalidate();
@@ -173,7 +175,7 @@ export function PlaceGenericForm({ placeTypes, place, onOpenChange }: Props) {
                 <Input
                   id={field.name}
                   name={field.name}
-                  // type="number"
+                  type="number"
                   value={field.state.value}
                   onBlur={field.handleBlur}
                   onChange={(e) => field.handleChange(Number(e.target.value))}

@@ -36,6 +36,7 @@ export function EditPlaceModal({
 
   useEffect(() => {
     if (placeId) {
+      setPlace(null);
       setIsFetching(true);
       getPlaceForEditingFn({ data: { placeId } })
         .then((placeForEditing) => {
