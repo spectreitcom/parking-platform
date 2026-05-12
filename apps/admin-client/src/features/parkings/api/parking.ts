@@ -4,7 +4,11 @@ import {
   parkingListSchema,
 } from '#/features/parkings/schemas';
 import { createSearchParams } from '#/lib/utils.ts';
-import { authFetch, genericApiErrorHandler } from '#/lib/auth-fetch.ts';
+import {
+  authFetch,
+  defaultServerError,
+  genericApiErrorHandler,
+} from '#/lib/auth-fetch.ts';
 import { env } from '#/env.ts';
 
 /**
@@ -41,7 +45,7 @@ export const getParkingList = createServerFn()
     const validationResult = parkingListSchema.safeParse(responseData);
 
     if (!validationResult.success) {
-      throw new Error('Invalid response from server');
+      throw defaultServerError;
     }
 
     return validationResult.data;

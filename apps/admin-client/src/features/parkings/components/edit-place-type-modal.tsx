@@ -20,17 +20,13 @@ import { useRouter } from '@tanstack/react-router';
 import type { PlaceTypesListItemSchema } from '#/features/parkings/schemas';
 import { useEffect } from 'react';
 
-interface EditPlaceTypeModalProps {
+type Props = Readonly<{
   open: boolean;
   onOpenChange: (open: boolean) => void;
   placeType: PlaceTypesListItemSchema | null;
-}
+}>;
 
-export function EditPlaceTypeModal({
-  open,
-  onOpenChange,
-  placeType,
-}: EditPlaceTypeModalProps) {
+export function EditPlaceTypeModal({ open, onOpenChange, placeType }: Props) {
   const updatePlaceTypeFn = useServerFn(updatePlaceType);
   const router = useRouter();
 

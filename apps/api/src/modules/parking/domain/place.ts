@@ -54,7 +54,6 @@ export class Place extends AggregateRoot {
     name: string,
     coordsObject: { longitude: number; latitude: number },
     address: string,
-    active: boolean,
     placeTypeId: string,
   ) {
     const _version = AggregateVersion.one();
@@ -64,7 +63,7 @@ export class Place extends AggregateRoot {
       PlaceName.fromString(name),
       Coords.fromNumbers(coordsObject.latitude, coordsObject.longitude),
       Address.fromString(address),
-      active,
+      true,
       PlaceTypeId.fromString(placeTypeId),
       _version,
     );

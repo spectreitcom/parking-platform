@@ -41,7 +41,6 @@ describe('CreatePlaceCommandHandler', () => {
       52.2297,
       21.0122,
       randomUUID(),
-      true,
       'Main Street 1',
     );
 
@@ -63,7 +62,7 @@ describe('CreatePlaceCommandHandler', () => {
     expect(savedPlace.getCoords().latitude).toBe(command.latitude);
     expect(savedPlace.getCoords().longitude).toBe(command.longitude);
     expect(savedPlace.getAddress().value).toBe(command.address);
-    expect(savedPlace.isActive()).toBe(command.active);
+    expect(savedPlace.isActive()).toBe(true);
     expect(savedPlace.getPlaceTypeId().value).toBe(command.placeTypeId);
   });
 });

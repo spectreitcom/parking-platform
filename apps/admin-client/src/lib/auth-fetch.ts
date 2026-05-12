@@ -11,6 +11,10 @@ import { apiErrorSchema } from '#/lib/schemas.ts';
 
 type FetchParameter = Parameters<typeof fetch>;
 
+export const defaultServerError = new Error(
+  'Something went wrong. Please try again later.',
+);
+
 const refreshToken = createServerFn()
   .inputValidator((data: RefreshTokenSchema) => {
     const validationResult = refreshTokenSchema.safeParse(data);
@@ -40,7 +44,7 @@ const refreshToken = createServerFn()
     const validationResult = signInResponseSchema.safeParse(responseData);
 
     if (!validationResult.success) {
-      throw new Error('Invalid refresh token response');
+      throw defaultServerError;
     }
 
     await session.update({
@@ -105,6 +109,7 @@ export async function genericApiErrorHandler(
     }
 
     const validationSchema = apiErrorSchema.safeParse(error);
+
     if (!validationSchema.success) {
       throw new Error(fallbackMessage);
     }

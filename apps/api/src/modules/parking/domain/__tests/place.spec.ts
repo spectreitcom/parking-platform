@@ -22,7 +22,6 @@ describe('Place', () => {
         latitude: defaultParams.coords.latitude,
       },
       defaultParams.address,
-      defaultParams.active,
       defaultParams.placeTypeId,
     );
 
@@ -55,7 +54,6 @@ describe('Place', () => {
         latitude: defaultParams.coords.latitude,
       },
       defaultParams.address,
-      true,
       defaultParams.placeTypeId,
     );
     place.commit();
@@ -77,9 +75,9 @@ describe('Place', () => {
         latitude: defaultParams.coords.latitude,
       },
       defaultParams.address,
-      false,
       defaultParams.placeTypeId,
     );
+    place.deactivate();
     place.commit();
 
     place.deactivate();
@@ -96,9 +94,9 @@ describe('Place', () => {
         latitude: defaultParams.coords.latitude,
       },
       defaultParams.address,
-      false,
       defaultParams.placeTypeId,
     );
+    place.deactivate();
     place.commit();
 
     place.activate();
@@ -118,7 +116,6 @@ describe('Place', () => {
         latitude: defaultParams.coords.latitude,
       },
       defaultParams.address,
-      true,
       defaultParams.placeTypeId,
     );
     place.commit();
@@ -137,7 +134,6 @@ describe('Place', () => {
         latitude: defaultParams.coords.latitude,
       },
       defaultParams.address,
-      defaultParams.active,
       defaultParams.placeTypeId,
     );
     place.commit();

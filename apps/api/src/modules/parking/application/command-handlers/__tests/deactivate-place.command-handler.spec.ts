@@ -5,7 +5,7 @@ import { DeactivatePlaceCommand } from '../../commands/deactivate-place.command'
 import { PlaceRepository } from '../../ports/place.repository';
 import { Place } from '../../../domain/place';
 import { randomUUID } from 'node:crypto';
-import { AppError } from '../../../../../shared/errors';
+import { AppError } from 'src/shared/errors';
 
 describe('DeactivatePlaceCommandHandler', () => {
   let handler: DeactivatePlaceCommandHandler;
@@ -45,7 +45,6 @@ describe('DeactivatePlaceCommandHandler', () => {
       'Place 1',
       { latitude: 52.0, longitude: 21.0 },
       'Address 1',
-      true,
       randomUUID(),
     );
     repository.findById.mockResolvedValue(place);
@@ -78,7 +77,6 @@ describe('DeactivatePlaceCommandHandler', () => {
       'Place 1',
       { latitude: 52.0, longitude: 21.0 },
       'Address 1',
-      true,
       randomUUID(),
     );
     repository.findById.mockResolvedValue(place);

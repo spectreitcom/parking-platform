@@ -18,15 +18,12 @@ import { createPlaceTypeInputSchema } from '#/features/parkings/schemas';
 import { Spinner } from '#/components/ui/spinner';
 import { useRouter } from '@tanstack/react-router';
 
-interface CreatePlaceTypeModalProps {
+type Props = Readonly<{
   open: boolean;
   onOpenChange: (open: boolean) => void;
-}
+}>;
 
-export function CreatePlaceTypeModal({
-  open,
-  onOpenChange,
-}: CreatePlaceTypeModalProps) {
+export function CreatePlaceTypeModal({ open, onOpenChange }: Props) {
   const createPlaceTypeFn = useServerFn(createPlaceType);
   const router = useRouter();
 

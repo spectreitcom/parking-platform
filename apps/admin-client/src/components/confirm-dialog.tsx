@@ -1,6 +1,5 @@
 'use client';
 
-import * as React from 'react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -11,6 +10,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '#/components/ui/alert-dialog';
+import { Spinner } from '#/components/ui/spinner';
 
 interface ConfirmDialogProps {
   open: boolean;
@@ -60,7 +60,7 @@ export function ConfirmDialog({
                 : ''
             }
           >
-            {isLoading ? 'Loading...' : confirmText}
+            {isLoading ? <Spinner /> : confirmText}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

@@ -2,9 +2,9 @@ import { Injectable } from '@nestjs/common';
 import { PlaceRepository } from '../../application/ports/place.repository';
 import { PrismaTx } from 'src/shared/prisma/types';
 import { Place } from '../../domain/place';
-import { PrismaService } from '../../../../shared/prisma/prisma.service';
-import { ConcurrencyError } from '../../../../shared/errors';
-import { RepositorySaveOptions } from '../../../../shared/types';
+import { PrismaService } from 'src/shared/prisma/prisma.service';
+import { ConcurrencyError } from 'src/shared/errors';
+import { RepositorySaveOptions } from 'src/shared/types';
 import { PlaceMapper } from './place.mapper';
 
 @Injectable()
@@ -57,7 +57,7 @@ export class PrismaPlaceRepository implements PlaceRepository {
       await prisma.place.update({
         where: {
           id,
-          version: currentVersion,
+          version: currentVersion - 1,
         },
         data: {
           name,

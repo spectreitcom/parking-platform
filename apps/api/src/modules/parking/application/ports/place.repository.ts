@@ -1,6 +1,6 @@
 import { Place } from '../../domain/place';
-import { PrismaTx } from '../../../../shared/prisma/types';
-import { RepositorySaveOptions } from '../../../../shared/types';
+import { PrismaTx } from 'src/shared/prisma/types';
+import { RepositorySaveOptions } from 'src/shared/types';
 
 export abstract class PlaceRepository {
   abstract save(place: Place, options?: RepositorySaveOptions): Promise<void>;
