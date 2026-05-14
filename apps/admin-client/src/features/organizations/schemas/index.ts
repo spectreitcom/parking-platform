@@ -17,6 +17,10 @@ export const organizationListItemSchema = z.object({
   ),
 });
 
+export type OrganizationListItemSchema = z.infer<
+  typeof organizationListItemSchema
+>;
+
 export const organizationListSchema = z.object({
   data: z.array(organizationListItemSchema),
   total: z.number().int().nonnegative(),
@@ -51,4 +55,8 @@ export const addMemberToOrganizationInputSchema = z.object({
 export const removeMemberFromOrganizationInputSchema = z.object({
   organizationId: z.uuid(),
   memberId: z.uuid(),
+});
+
+export const getOrganizationForEditingInputSchema = z.object({
+  organizationId: z.uuid(),
 });

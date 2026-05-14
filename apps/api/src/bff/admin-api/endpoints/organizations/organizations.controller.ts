@@ -103,6 +103,50 @@ export class OrganizationsController {
   }
 
   @ApiOperation({
+    summary: 'Get organization by id',
+  })
+  @ApiOkResponse({
+    description: 'The organization has been successfully retrieved.',
+    schema: {
+      type: 'object',
+      properties: {
+        id: { type: 'string', format: 'uuid' },
+        name: { type: 'string' },
+        address: { type: 'string' },
+        taxId: { type: 'string' },
+        version: { type: 'number', example: 1 },
+        members: {
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: {
+              id: { type: 'string', format: 'uuid' },
+              isRoot: { type: 'boolean' },
+              organizationUserId: { type: 'string', format: 'uuid' },
+              displayName: { type: 'string' },
+              email: { type: 'string' },
+            },
+          },
+        },
+      },
+    },
+  })
+  @ApiUnauthorizedResponse({
+    description: 'Unauthorized',
+  })
+  @ApiNotFoundResponse({
+    description: 'Organization not found',
+  })
+  @Get(':organizationId')
+  async getOrganizationById(
+    @Param('organizationId', new ParseUUIDPipe()) organizationId: string,
+  ) {
+    return await this.organizationFacade.getOrganizationByIdForAdmin(
+      organizationId,
+    );
+  }
+
+  @ApiOperation({
     summary: 'Create a new organization',
   })
   @ApiCreatedResponse({

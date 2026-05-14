@@ -2,6 +2,8 @@ import { createServerFn } from '@tanstack/react-start';
 import {
   addMemberToOrganizationInputSchema,
   createOrganizationInputSchema,
+  getOrganizationForEditingInputSchema,
+  organizationListItemSchema,
   organizationListSchema,
   organizationsListInputSchema,
   removeMemberFromOrganizationInputSchema,
@@ -222,6 +224,41 @@ export const removeMemberFromOrganization = createServerFn()
     const responseData = await response.json();
 
     const validationResult = genericResponseSchema.safeParse(responseData);
+
+    if (!validationResult.success) {
+      throw defaultServerError;
+    }
+
+    return validationResult.data;
+  });
+
+/**
+ * Fetches organization information for editing purposes.
+ *
+ * This function is responsible for retrieving the details of an organization
+ * identified by the provided `organizationId`. The input is validated against
+ * a predefined schema, and the response is processed to ensure it matches
+ * the expected format. If any errors occur, appropriate error handling is
+ * applied, including triggering a generic API error handler or throwing
+ * a default server error.
+ *
+ * @type {function} getOrganization
+ * @returns {Promise<object>} Returns the organization data if the process is successful.
+ * @throws {Error} Throws an error if the input validation fails, API call fails,
+ *                 or the response data does not match the expected schema.
+ */
+export const getOrganization = createServerFn()
+  .inputValidator(getOrganizationForEditingInputSchema)
+  .handler(async ({ data }) => {
+    const response = await authFetch(
+      `${env.SERVER_URL}/organizations/${data.organizationId}`,
+    );
+
+    await genericApiErrorHandler(response);
+
+    const responseData = await response.json();
+
+    const validationResult = organizationListItemSchema.safeParse(responseData);
 
     if (!validationResult.success) {
       throw defaultServerError;
