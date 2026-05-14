@@ -26,3 +26,8 @@ export const organizationUsersListInputSchema = z.object({
 export const getOrganizationUserByIdInputSchema = z.object({
   organizationUserId: z.uuid(),
 });
+
+export const inviteOrganizationUserInputSchema = z.object({
+  email: z.email(),
+  displayName: z.string().min(1).max(120),
+});
