@@ -1,4 +1,5 @@
 import type { OrganizationListItemSchema } from '#/features/organizations/schemas';
+import { Link } from '@tanstack/react-router';
 import {
   Table,
   TableBody,
@@ -20,6 +21,7 @@ import {
   MapPin,
   MoreHorizontal,
   Pencil,
+  SquareArrowOutUpRight,
   Users,
 } from 'lucide-react';
 
@@ -52,7 +54,13 @@ export function OrganizationsList({ items, onEdit }: Props) {
                   <Building2 className="size-4" />
                 </div>
                 <span className="truncate text-foreground">
-                  {organization.name}
+                  <Link
+                    to="/app/organizations/$organizationId"
+                    params={{ organizationId: organization.id }}
+                    className="rounded-sm outline-none hover:text-primary hover:underline focus-visible:ring-[3px] focus-visible:ring-ring/25"
+                  >
+                    {organization.name}
+                  </Link>
                 </span>
               </div>
             </TableCell>
@@ -87,6 +95,15 @@ export function OrganizationsList({ items, onEdit }: Props) {
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
+                  <DropdownMenuItem asChild>
+                    <Link
+                      to="/app/organizations/$organizationId"
+                      params={{ organizationId: organization.id }}
+                    >
+                      <SquareArrowOutUpRight className="mr-2 h-4 w-4" />
+                      View details
+                    </Link>
+                  </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => onEdit(organization)}>
                     <Pencil className="mr-2 h-4 w-4" />
                     Edit
