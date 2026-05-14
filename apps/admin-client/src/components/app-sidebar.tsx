@@ -90,7 +90,11 @@ export function AppSidebar() {
               label="Organizations"
               to={'/app/organizations'}
             />
-            <DisabledItem icon={<Users />} label="Organization Users" />
+            <NavItem
+              icon={<Users />}
+              label="Organization Users"
+              to={'/app/organizations/organization-users'}
+            />
           </SidebarMenu>
         </SidebarGroup>
         <SidebarGroup title="Users">

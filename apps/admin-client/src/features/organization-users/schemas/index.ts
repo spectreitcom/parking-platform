@@ -7,6 +7,10 @@ export const organizationUserListItemSchema = z.object({
   statusText: z.string(),
 });
 
+export type OrganizationUserListItemSchema = z.infer<
+  typeof organizationUserListItemSchema
+>;
+
 export const organizationUserListSchema = z.object({
   data: z.array(organizationUserListItemSchema),
   total: z.number().int().nonnegative(),
