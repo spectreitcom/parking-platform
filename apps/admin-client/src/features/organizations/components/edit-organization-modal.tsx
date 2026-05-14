@@ -29,7 +29,8 @@ export function EditOrganizationModal({
     useState<OrganizationListItemSchema | null>(null);
 
   useEffect(() => {
-    if (organizationId) {
+    if (organizationId && open) {
+      setOrganization(null);
       getOrganizationFn({ data: { organizationId } })
         .then((organizationDetails) => setOrganization(organizationDetails))
         .catch((error) => {
