@@ -1,13 +1,16 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
+import { useState } from 'react';
 import { useDebounceCallback } from 'usehooks-ts';
 import { EmptyState, PageShell, Toolbar } from '#/components/page-shell';
 import { Pagination } from '#/components/pagination.tsx';
+import { Button } from '#/components/ui/button.tsx';
 import { Input } from '#/components/ui/input.tsx';
 import { Spinner } from '#/components/ui/spinner.tsx';
 import { getOrganizationUsers } from '#/features/organization-users/api';
+import { InviteOrganizationUserModal } from '#/features/organization-users/components/invite-organization-user-modal.tsx';
 import { OrganizationUsersList } from '#/features/organization-users/components/organization-users-list.tsx';
 import { organizationUsersListInputSchema } from '#/features/organization-users/schemas';
-import { AlertTriangle, Search, Users } from 'lucide-react';
+import { AlertTriangle, Plus, Search, Users } from 'lucide-react';
 
 const DEFAULT_LIMIT = 20;
 const DEFAULT_PAGE = 1;
@@ -59,6 +62,7 @@ export const Route = createFileRoute(
 function RouteComponent() {
   const { items, total, currentPage, limit, error } = Route.useLoaderData();
   const navigate = useNavigate({ from: Route.fullPath });
+  const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
 
   const handlePageChange = async (page: number) => {
     await navigate({
@@ -102,6 +106,12 @@ function RouteComponent() {
       eyebrow="Organizations"
       title="Organization Users"
       description="Review organization user identities, email addresses, and lifecycle status."
+      action={
+        <Button onClick={() => setIsInviteModalOpen(true)}>
+          <Plus className={'mr-2 size-4'} />
+          Invite User
+        </Button>
+      }
     >
       <div className="space-y-4">
         <Toolbar
@@ -124,7 +134,9 @@ function RouteComponent() {
           </div>
         </Toolbar>
         {items.length === 0 ? (
-          <NoOrganizationUsers />
+          <NoOrganizationUsers
+            onInviteClick={() => setIsInviteModalOpen(true)}
+          />
         ) : (
           <div className="space-y-4">
             <OrganizationUsersList items={items} />
@@ -139,16 +151,31 @@ function RouteComponent() {
           </div>
         )}
       </div>
+
+      <InviteOrganizationUserModal
+        open={isInviteModalOpen}
+        onOpenChange={setIsInviteModalOpen}
+      />
     </PageShell>
   );
 }
 
-function NoOrganizationUsers() {
+function NoOrganizationUsers({
+  onInviteClick,
+}: {
+  onInviteClick: () => void;
+}) {
   return (
     <EmptyState
       icon={<Users className="size-5" />}
       title="No organization users found"
       description="There are no organization users matching the current search criteria."
+      action={
+        <Button variant={'outline'} className={'mt-6'} onClick={onInviteClick}>
+          <Plus className={'mr-2 size-4'} />
+          Invite your first user
+        </Button>
+      }
     />
   );
 }

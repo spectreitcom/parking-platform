@@ -4,10 +4,10 @@ import { InviteOrganizationUserCommandHandler } from '../invite-organization-use
 import { OrganizationUserRepository } from '../../ports/organization-user.repository';
 import { InviteOrganizationUserCommand } from '../../commands/invite-organization-user.command';
 import { OrganizationUser } from '../../../domain/organization-user';
-import { AppError } from '../../../../../shared/errors';
-import { TransactionRunner } from '../../../../../shared/prisma/transaction-runner';
-import { OutboxService } from '../../../../../shared/outbox/outbox.service';
-import { IntegrationEvent } from '../../../../../shared/outbox/outbox.types';
+import { AppError } from 'src/shared/errors';
+import { TransactionRunner } from 'src/shared/prisma/transaction-runner';
+import { OutboxService } from 'src/shared/outbox/outbox.service';
+import { IntegrationEvent } from 'src/shared/outbox/outbox.types';
 import { OrganizationUserStatus } from '../../../domain/value-objects/organization-user-status';
 
 describe('InviteOrganizationUserCommandHandler', () => {
@@ -74,9 +74,11 @@ describe('InviteOrganizationUserCommandHandler', () => {
     organizationUserRepository.findByEmail.mockResolvedValue(null);
 
     // When
-    await handler.execute(command);
+    const result = await handler.execute(command);
 
     // Then
+    expect(result).toBeDefined();
+    expect(typeof result).toBe('string');
     expect(organizationUserRepository.findByEmail).toHaveBeenCalledWith(
       command.email,
       'prisma-tx',

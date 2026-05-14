@@ -1,6 +1,7 @@
 import { createServerFn } from '@tanstack/react-start';
 import {
   getOrganizationUserByIdInputSchema,
+  inviteOrganizationUserInputSchema,
   organizationUserListItemSchema,
   organizationUserListSchema,
   organizationUsersListInputSchema,
@@ -12,6 +13,7 @@ import {
   genericApiErrorHandler,
 } from '#/lib/auth-fetch.ts';
 import { env } from '#/env.ts';
+import { genericResponseSchema } from '#/lib/schemas.ts';
 
 /**
  * Fetches and returns a list of organization users from the server.
@@ -85,6 +87,41 @@ export const getOrganizationUser = createServerFn()
 
     const validationResult =
       organizationUserListItemSchema.safeParse(responseData);
+
+    if (!validationResult.success) {
+      throw defaultServerError;
+    }
+
+    return validationResult.data;
+  });
+
+/**
+ * A server-side function used to handle the invitation of a user to an organization.
+ * This function validates the input, sends a request to the server to create the organization
+ * user, handles potential errors, and validates the server's response.
+ *
+ * The function performs the following steps:
+ * 1. Validates the input using `inviteOrganizationUserInputSchema`.
+ * 2. Sends a POST request to the server to invite the user to the organization.
+ * 3. Handles API errors using `genericApiErrorHandler`.
+ * 4. Parses and validates the response using `genericResponseSchema`.
+ * 5. Throws appropriate errors or returns the validated response data.
+ */
+export const inviteOrganizationUser = createServerFn()
+  .inputValidator(inviteOrganizationUserInputSchema)
+  .handler(async ({ data }) => {
+    const response = await authFetch(`${env.SERVER_URL}/organization-users`, {
+      method: 'POST',
+      body: JSON.stringify({
+        ...data,
+      }),
+    });
+
+    await genericApiErrorHandler(response);
+
+    const responseData = await response.json();
+
+    const validationResult = genericResponseSchema.safeParse(responseData);
 
     if (!validationResult.success) {
       throw defaultServerError;
