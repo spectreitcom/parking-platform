@@ -74,9 +74,11 @@ describe('InviteOrganizationUserCommandHandler', () => {
     organizationUserRepository.findByEmail.mockResolvedValue(null);
 
     // When
-    await handler.execute(command);
+    const result = await handler.execute(command);
 
     // Then
+    expect(result).toBeDefined();
+    expect(typeof result).toBe('string');
     expect(organizationUserRepository.findByEmail).toHaveBeenCalledWith(
       command.email,
       'prisma-tx',

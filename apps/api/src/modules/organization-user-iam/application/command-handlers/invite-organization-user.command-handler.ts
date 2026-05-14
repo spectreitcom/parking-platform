@@ -14,7 +14,7 @@ import {
 @CommandHandler(InviteOrganizationUserCommand)
 export class InviteOrganizationUserCommandHandler implements ICommandHandler<
   InviteOrganizationUserCommand,
-  void
+  string
 > {
   constructor(
     private readonly organizationUserRepository: OrganizationUserRepository,
@@ -23,8 +23,8 @@ export class InviteOrganizationUserCommandHandler implements ICommandHandler<
     private readonly transactionRunner: TransactionRunner,
   ) {}
 
-  async execute(command: InviteOrganizationUserCommand): Promise<void> {
-    await this.transactionRunner.runInTransaction(async (prisma) => {
+  async execute(command: InviteOrganizationUserCommand): Promise<string> {
+    return await this.transactionRunner.runInTransaction(async (prisma) => {
       const { email, displayName } = command;
 
       const existingUser = await this.organizationUserRepository.findByEmail(
@@ -66,6 +66,8 @@ export class InviteOrganizationUserCommandHandler implements ICommandHandler<
       await this.outboxService.enqueue(event, { deduplicate: true }, prisma);
 
       organizationUser.commit();
+
+      return organizationUser.getId().value;
     });
   }
 }

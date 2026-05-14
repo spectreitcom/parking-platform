@@ -68,9 +68,9 @@ export class OrganizationUserIamFacade {
   async inviteOrganizationUser(
     email: string,
     displayName: string,
-  ): Promise<void> {
+  ): Promise<string> {
     const command = new InviteOrganizationUserCommand(email, displayName);
-    return await this.commandBus.execute<InviteOrganizationUserCommand, void>(
+    return await this.commandBus.execute<InviteOrganizationUserCommand, string>(
       command,
     );
   }
