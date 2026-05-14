@@ -7,6 +7,7 @@ import { RemoveMemberCommand } from './commands/remove-member.command';
 import { GetOrganizationListForAdminQuery } from './queries/get-organization-list-for-admin.query';
 import { OrganizationListForAdminItemReadModel } from './query-handlers/read-models/organization-list-for-admin-item.read-model';
 import { GetOrganizationListForAdminTotalQuery } from './queries/get-organization-list-for-admin-total.query';
+import { GetOrganizationByIdForAdminQuery } from './queries/get-organization-by-id-for-admin.query';
 
 @Injectable()
 export class OrganizationFacade {
@@ -81,6 +82,14 @@ export class OrganizationFacade {
     return await this.queryBus.execute<
       GetOrganizationListForAdminTotalQuery,
       number
+    >(query);
+  }
+
+  async getOrganizationByIdForAdmin(organizationId: string) {
+    const query = new GetOrganizationByIdForAdminQuery(organizationId);
+    return await this.queryBus.execute<
+      GetOrganizationByIdForAdminQuery,
+      OrganizationListForAdminItemReadModel
     >(query);
   }
 }

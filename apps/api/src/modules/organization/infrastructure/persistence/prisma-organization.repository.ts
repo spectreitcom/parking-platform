@@ -98,7 +98,7 @@ export class PrismaOrganizationRepository implements OrganizationRepository {
       });
 
       await tx.organization.update({
-        where: { id, version: currentVersion },
+        where: { id, version: currentVersion - 1 },
         data: {
           name,
           address,

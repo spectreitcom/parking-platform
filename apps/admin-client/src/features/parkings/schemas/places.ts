@@ -47,10 +47,6 @@ export const activatePlaceInputSchema = z.object({
   version: z.number().int().positive(),
 });
 
-export const genericResponseSchema = z.object({
-  id: z.uuid(),
-});
-
 export const getPlaceForEditingInputSchema = z.object({
   placeId: z.uuid(),
 });

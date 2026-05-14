@@ -2,7 +2,6 @@ import { createServerFn } from '@tanstack/react-start';
 import {
   activatePlaceInputSchema,
   createPlaceInputSchema,
-  genericResponseSchema,
   getPlaceForEditingInputSchema,
   getPlaceForEditingResponseSchema,
   placesListBaseInputSchema,
@@ -16,6 +15,7 @@ import {
   genericApiErrorHandler,
 } from '#/lib/auth-fetch.ts';
 import { env } from '#/env.ts';
+import { genericResponseSchema } from '#/lib/schemas.ts';
 
 /**
  * Retrieves a list of places from the server based on the provided input parameters.
