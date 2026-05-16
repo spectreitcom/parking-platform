@@ -55,8 +55,25 @@ export const addMemberToOrganizationInputSchema = z.object({
 export const removeMemberFromOrganizationInputSchema = z.object({
   organizationId: z.uuid(),
   memberId: z.uuid(),
+  version: z.number().int().positive(),
 });
 
 export const getOrganizationForEditingInputSchema = z.object({
   organizationId: z.uuid(),
+});
+
+export const searchedOrganizationUser = z.object({
+  organizationUserId: z.uuid(),
+  email: z.string(),
+  displayName: z.string(),
+});
+
+export type SearchedOrganizationUser = z.infer<typeof searchedOrganizationUser>;
+
+export const searchedOrganizationUsersResponseSchema = z.array(
+  searchedOrganizationUser,
+);
+
+export const searchOrganizationUsersInputSchema = z.object({
+  search: z.string().optional(),
 });

@@ -7,6 +7,8 @@ import {
   organizationListSchema,
   organizationsListInputSchema,
   removeMemberFromOrganizationInputSchema,
+  searchedOrganizationUsersResponseSchema,
+  searchOrganizationUsersInputSchema,
   updateOrganizationInputSchema,
 } from '#/features/organizations/schemas';
 import { createSearchParams } from '#/lib/utils.ts';
@@ -210,10 +212,14 @@ export const addMemberToOrganization = createServerFn()
 export const removeMemberFromOrganization = createServerFn()
   .inputValidator(removeMemberFromOrganizationInputSchema)
   .handler(async ({ data }) => {
-    const { organizationId, memberId } = data;
+    const { organizationId, memberId, version } = data;
+
+    const searchParams = createSearchParams({
+      version,
+    });
 
     const response = await authFetch(
-      `${env.SERVER_URL}/organizations/${organizationId}/members/${memberId}`,
+      `${env.SERVER_URL}/organizations/${organizationId}/members/${memberId}?${searchParams.toString()}`,
       {
         method: 'DELETE',
       },
@@ -259,6 +265,48 @@ export const getOrganization = createServerFn()
     const responseData = await response.json();
 
     const validationResult = organizationListItemSchema.safeParse(responseData);
+
+    if (!validationResult.success) {
+      throw defaultServerError;
+    }
+
+    return validationResult.data;
+  });
+
+/**
+ * Searches for users within an organization based on specific parameters provided in the input.
+ *
+ * This function sends a GET request to the server to retrieve a list of users belonging to the organization
+ * that match the search criteria. The input parameters are validated before sending the request, and the
+ * server's response is processed and validated to ensure it meets the expected schema.
+ *
+ * Validation errors, server errors, or schema mismatches will trigger appropriate error handling.
+ *
+ * The response, if successful, contains a list of users that match the provided search parameters.
+ *
+ * The input schema and response schema must adhere to the pre-defined structures to ensure consistency.
+ *
+ * @constant
+ * @type {function}
+ */
+export const searchOrganizationUsers = createServerFn()
+  .inputValidator(searchOrganizationUsersInputSchema)
+  .handler(async ({ data }) => {
+    const searchParams = createSearchParams({ ...data });
+
+    const response = await authFetch(
+      `${env.SERVER_URL}/organizations/users/search?${searchParams.toString()}`,
+      {
+        method: 'GET',
+      },
+    );
+
+    await genericApiErrorHandler(response);
+
+    const responseData = await response.json();
+
+    const validationResult =
+      searchedOrganizationUsersResponseSchema.safeParse(responseData);
 
     if (!validationResult.success) {
       throw defaultServerError;

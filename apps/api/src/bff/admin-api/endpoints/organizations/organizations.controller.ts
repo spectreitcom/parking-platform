@@ -27,6 +27,7 @@ import { AddMemberToOrganizationDto } from 'src/bff/admin-api/endpoints/organiza
 import { RemoveMemberFromOrganizationQueryParamsDto } from 'src/bff/admin-api/endpoints/organizations/dto/remove-member-from-organization-query-params.dto';
 import { GetOrganizationListQueryParamsDto } from 'src/bff/admin-api/endpoints/organizations/dto/get-organization-list-query-params.dto';
 import { DEFAULT_PAGE_SIZE } from 'src/bff/admin-api/constants';
+import { SearchOrganizationUsersQueryParamsDto } from 'src/bff/admin-api/endpoints/organizations/dto/search-organization-users-query-params.dto';
 import { JwtAuthGuard } from 'src/bff/admin-api/auth/guards/jwt-auth.guard';
 
 @UseGuards(JwtAuthGuard)
@@ -35,6 +36,36 @@ import { JwtAuthGuard } from 'src/bff/admin-api/auth/guards/jwt-auth.guard';
 @Controller('admin/organizations')
 export class OrganizationsController {
   constructor(private readonly organizationFacade: OrganizationFacade) {}
+
+  @ApiOperation({
+    summary: 'Search organization users',
+  })
+  @ApiOkResponse({
+    description:
+      'The list of organization users has been successfully retrieved.',
+    schema: {
+      type: 'array',
+      items: {
+        type: 'object',
+        properties: {
+          organizationUserId: { type: 'string', format: 'uuid' },
+          email: { type: 'string' },
+          displayName: { type: 'string' },
+        },
+      },
+    },
+  })
+  @ApiUnauthorizedResponse({
+    description: 'Unauthorized',
+  })
+  @Get('users/search')
+  async searchOrganizationUsers(
+    @Query() queryParams: SearchOrganizationUsersQueryParamsDto,
+  ) {
+    return await this.organizationFacade.searchOrganizationUsers(
+      queryParams.search,
+    );
+  }
 
   @ApiOperation({
     summary: 'Get a list of organizations',

@@ -10,8 +10,13 @@ import {
   AdminIamIntegrationEventTypes,
 } from '@repo/api-contracts';
 
+type Event = IntegrationEvent<
+  AdminIamAdminUserInvitedV1Payload,
+  AdminIamIntegrationEventTypes
+>;
+
 @EventsHandler(IntegrationEvent)
-export class AdminIamInvitedIEHandler implements IEventHandler<IntegrationEvent> {
+export class AdminIamInvitedIEHandler implements IEventHandler<Event> {
   private readonly logger = new Logger(AdminIamInvitedIEHandler.name);
 
   constructor(
@@ -20,12 +25,7 @@ export class AdminIamInvitedIEHandler implements IEventHandler<IntegrationEvent>
     private readonly outboxService: OutboxService,
   ) {}
 
-  async handle(
-    event: IntegrationEvent<
-      AdminIamAdminUserInvitedV1Payload,
-      AdminIamIntegrationEventTypes
-    >,
-  ) {
+  async handle(event: Event) {
     if (event.type !== 'admin-iam.admin-user.invited.v1') return;
     this.logger.log('Handling admin-iam.admin-user.invited.v1 event');
 

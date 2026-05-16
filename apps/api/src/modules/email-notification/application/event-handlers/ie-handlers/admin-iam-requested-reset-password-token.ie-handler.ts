@@ -10,8 +10,13 @@ import {
   AdminIamRequestedResetPasswordV1Payload,
 } from '@repo/api-contracts';
 
+export type Event = IntegrationEvent<
+  AdminIamRequestedResetPasswordV1Payload,
+  AdminIamIntegrationEventTypes
+>;
+
 @EventsHandler(IntegrationEvent)
-export class AdminIamRequestedResetPasswordTokenIeHandler implements IEventHandler<IntegrationEvent> {
+export class AdminIamRequestedResetPasswordTokenIeHandler implements IEventHandler<Event> {
   private readonly logger = new Logger(
     AdminIamRequestedResetPasswordTokenIeHandler.name,
   );
@@ -22,12 +27,7 @@ export class AdminIamRequestedResetPasswordTokenIeHandler implements IEventHandl
     private readonly outboxService: OutboxService,
   ) {}
 
-  async handle(
-    event: IntegrationEvent<
-      AdminIamRequestedResetPasswordV1Payload,
-      AdminIamIntegrationEventTypes
-    >,
-  ) {
+  async handle(event: Event) {
     if (event.type !== 'admin-iam.admin-user.requested-reset-password.v1')
       return;
     this.logger.log(

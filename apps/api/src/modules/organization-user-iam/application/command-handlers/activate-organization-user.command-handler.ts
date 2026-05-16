@@ -1,9 +1,9 @@
 import { CommandHandler, EventPublisher, ICommandHandler } from '@nestjs/cqrs';
 import { ActivateOrganizationUserCommand } from '../commands/activate-organization-user.command';
 import { OrganizationUserRepository } from '../ports/organization-user.repository';
-import { AppError } from '../../../../shared/errors';
-import { TransactionRunner } from '../../../../shared/prisma/transaction-runner';
-import { AggregateVersion } from '../../../../shared/value-objects/aggregate-version';
+import { AppError } from 'src/shared/errors';
+import { TransactionRunner } from 'src/shared/prisma/transaction-runner';
+import { AggregateVersion } from 'src/shared/value-objects/aggregate-version';
 
 @CommandHandler(ActivateOrganizationUserCommand)
 export class ActivateOrganizationUserCommandHandler implements ICommandHandler<

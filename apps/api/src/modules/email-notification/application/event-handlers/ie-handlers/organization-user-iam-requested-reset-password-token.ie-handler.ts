@@ -10,8 +10,13 @@ import {
   OrganizationUserIamRequestedResetPasswordV1Payload,
 } from '@repo/api-contracts';
 
+type Event = IntegrationEvent<
+  OrganizationUserIamRequestedResetPasswordV1Payload,
+  OrganizationUserIamIntegrationEventTypes
+>;
+
 @EventsHandler(IntegrationEvent)
-export class OrganizationUserIamRequestedResetPasswordTokenIeHandler implements IEventHandler<IntegrationEvent> {
+export class OrganizationUserIamRequestedResetPasswordTokenIeHandler implements IEventHandler<Event> {
   private readonly logger = new Logger(
     OrganizationUserIamRequestedResetPasswordTokenIeHandler.name,
   );
@@ -22,12 +27,7 @@ export class OrganizationUserIamRequestedResetPasswordTokenIeHandler implements 
     private readonly outboxService: OutboxService,
   ) {}
 
-  async handle(
-    event: IntegrationEvent<
-      OrganizationUserIamRequestedResetPasswordV1Payload,
-      OrganizationUserIamIntegrationEventTypes
-    >,
-  ) {
+  async handle(event: Event) {
     if (
       event.type !==
       'organization-user-iam.organization-user.requested-reset-password.v1'
