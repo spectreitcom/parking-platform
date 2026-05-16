@@ -1,7 +1,7 @@
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { GetParkingFeatureListForAdminQuery } from '../queries/get-parking-feature-list-for-admin.query';
-import { ParkingFeatureListForAdminItemReadModel } from './read-models/parking-feature-list-for-admin-item.read-model';
-import { PrismaService } from '../../../../shared/prisma/prisma.service';
+import { ParkingFeatureItemReadModel } from './read-models/parking-feature-item.read-model';
+import { PrismaService } from 'src/shared/prisma/prisma.service';
 import { Prisma } from '@prisma/client';
 
 export const getParkingFeatureListForAdminQueryWhere: (
@@ -23,13 +23,13 @@ export const getParkingFeatureListForAdminQueryWhere: (
 @QueryHandler(GetParkingFeatureListForAdminQuery)
 export class GetParkingFeatureListForAdminQueryHandler implements IQueryHandler<
   GetParkingFeatureListForAdminQuery,
-  ParkingFeatureListForAdminItemReadModel[]
+  ParkingFeatureItemReadModel[]
 > {
   constructor(private readonly prismaService: PrismaService) {}
 
   async execute(
     query: GetParkingFeatureListForAdminQuery,
-  ): Promise<ParkingFeatureListForAdminItemReadModel[]> {
+  ): Promise<ParkingFeatureItemReadModel[]> {
     const { search, page, limit } = query;
 
     const records = await this.prismaService.parkingFeatureRead.findMany({
@@ -43,7 +43,7 @@ export class GetParkingFeatureListForAdminQueryHandler implements IQueryHandler<
 
     return records.map(
       (record) =>
-        new ParkingFeatureListForAdminItemReadModel(
+        new ParkingFeatureItemReadModel(
           record.parkingFeatureId,
           record.name,
           record.levels,

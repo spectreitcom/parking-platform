@@ -14,6 +14,7 @@ import {
   ApiBadRequestResponse,
   ApiBearerAuth,
   ApiCreatedResponse,
+  ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
   ApiTags,
@@ -105,6 +106,51 @@ export class ParkingFeaturesController {
       total,
       currentPage: queryParams.page ?? 1,
     };
+  }
+
+  @ApiOperation({
+    summary: 'Get parking feature by ID',
+  })
+  @ApiOkResponse({
+    description: 'The parking feature has been successfully retrieved.',
+    schema: {
+      type: 'object',
+      properties: {
+        id: {
+          type: 'string',
+          description: 'The ID of the parking feature',
+          format: 'uuid',
+        },
+        name: {
+          type: 'string',
+        },
+        levels: {
+          type: 'array',
+          items: {
+            type: 'string',
+          },
+        },
+        version: {
+          type: 'number',
+          example: 1,
+        },
+      },
+    },
+  })
+  @ApiUnauthorizedResponse({
+    description: 'Unauthorized',
+  })
+  @ApiNotFoundResponse({
+    description: 'Parking feature not found',
+  })
+  @ApiBadRequestResponse({
+    description: 'Validation errors',
+  })
+  @Get(':parkingFeatureId')
+  async getParkingFeatureById(
+    @Param('parkingFeatureId', new ParseUUIDPipe()) parkingFeatureId: string,
+  ) {
+    return await this.parkingFacade.getParkingFeatureById(parkingFeatureId);
   }
 
   @ApiOperation({

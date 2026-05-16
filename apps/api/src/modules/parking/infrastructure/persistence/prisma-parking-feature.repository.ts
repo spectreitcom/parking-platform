@@ -2,9 +2,9 @@ import { Injectable } from '@nestjs/common';
 import { ParkingFeatureRepository } from '../../application/ports/parking-feature.repository';
 import { PrismaTx } from 'src/shared/prisma/types';
 import { ParkingFeature } from '../../domain/parking-feature';
-import { PrismaService } from '../../../../shared/prisma/prisma.service';
-import { ConcurrencyError } from '../../../../shared/errors';
-import { RepositorySaveOptions } from '../../../../shared/types';
+import { PrismaService } from 'src/shared/prisma/prisma.service';
+import { ConcurrencyError } from 'src/shared/errors';
+import { RepositorySaveOptions } from 'src/shared/types';
 import { ParkingFeatureMapper } from './parking-feature.mapper';
 
 @Injectable()
@@ -64,7 +64,7 @@ export class PrismaParkingFeatureRepository implements ParkingFeatureRepository 
       await prisma.parkingFeature.update({
         where: {
           id,
-          version: currentVersion,
+          version: currentVersion - 1,
         },
         data: {
           name,

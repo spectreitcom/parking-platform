@@ -89,14 +89,14 @@ export function AddMemberModal({
       setOrganizationUsersError(null);
 
       try {
-        const organizationUsers = await getOrganizationUsersFn({
+        const fetchedOrganizationUsers = await getOrganizationUsersFn({
           data: {
             search: organizationUserSearchQuery || undefined,
           },
         });
 
         if (!ignoreResponse) {
-          setOrganizationUsers(organizationUsers);
+          setOrganizationUsers(fetchedOrganizationUsers);
         }
       } catch (error) {
         if (!ignoreResponse) {

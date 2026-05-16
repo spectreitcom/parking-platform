@@ -31,7 +31,7 @@ import { GetParkingAddonListForAdminQuery } from './queries/get-parking-addon-li
 import { ParkingAddonListForAdminItemReadModel } from './query-handlers/read-models/parking-addon-list-for-admin-item.read-model';
 import { GetParkingAddonListForAdminTotalQuery } from './queries/get-parking-addon-list-for-admin-total.query';
 import { GetParkingFeatureListForAdminQuery } from './queries/get-parking-feature-list-for-admin.query';
-import { ParkingFeatureListForAdminItemReadModel } from './query-handlers/read-models/parking-feature-list-for-admin-item.read-model';
+import { ParkingFeatureItemReadModel } from './query-handlers/read-models/parking-feature-item.read-model';
 import { GetParkingFeatureListForAdminTotalQuery } from './queries/get-parking-feature-list-for-admin-total.query';
 import { GetPlaceTypeListQuery } from './queries/get-place-type-list.query';
 import { PlaceTypeListItemReadModel } from './query-handlers/read-models/place-type-list-item.read-model';
@@ -39,6 +39,7 @@ import { GetPlaceTypeListTotalQuery } from './queries/get-place-type-list-total.
 import { GetParkingByIdsQuery } from './queries/get-parking-by-ids.query';
 import { ParkingItemReadModel } from './query-handlers/read-models/parking-item.read-model';
 import { GetParkingByParkingSpotIdQuery } from './queries/get-parking-by-parking-spot-id.query';
+import { GetParkingFeatureByIdQuery } from './queries/get-parking-feature-by-id.query';
 import { GetPlaceForEditingQuery } from 'src/modules/parking/application/queries/get-place-for-editing.query';
 import { PlaceReadReadModel } from './query-handlers/read-models/place-read.read-model';
 
@@ -354,7 +355,7 @@ export class ParkingFacade {
     const query = new GetParkingFeatureListForAdminQuery(page, limit, search);
     return await this.queryBus.execute<
       GetParkingFeatureListForAdminQuery,
-      ParkingFeatureListForAdminItemReadModel[]
+      ParkingFeatureItemReadModel[]
     >(query);
   }
 
@@ -402,6 +403,14 @@ export class ParkingFacade {
     return await this.queryBus.execute<
       GetPlaceForEditingQuery,
       PlaceReadReadModel
+    >(query);
+  }
+
+  async getParkingFeatureById(id: string) {
+    const query = new GetParkingFeatureByIdQuery(id);
+    return await this.queryBus.execute<
+      GetParkingFeatureByIdQuery,
+      ParkingFeatureItemReadModel
     >(query);
   }
 }

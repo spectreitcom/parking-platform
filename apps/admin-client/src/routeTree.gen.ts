@@ -20,6 +20,7 @@ import { Route as ProtectedAppAdminUsersIndexRouteImport } from './routes/_prote
 import { Route as ProtectedAppOrganizationsOrganizationIdRouteImport } from './routes/_protected/app/organizations/$organizationId'
 import { Route as ProtectedAppParkingsPlacesIndexRouteImport } from './routes/_protected/app/parkings/places/index'
 import { Route as ProtectedAppParkingsPlaceTypesIndexRouteImport } from './routes/_protected/app/parkings/place-types/index'
+import { Route as ProtectedAppParkingsParkingFeaturesIndexRouteImport } from './routes/_protected/app/parkings/parking-features/index'
 import { Route as ProtectedAppOrganizationsOrganizationUsersIndexRouteImport } from './routes/_protected/app/organizations/organization-users/index'
 
 const AuthRouteRoute = AuthRouteRouteImport.update({
@@ -82,6 +83,12 @@ const ProtectedAppParkingsPlaceTypesIndexRoute =
     path: '/app/parkings/place-types/',
     getParentRoute: () => ProtectedRouteRoute,
   } as any)
+const ProtectedAppParkingsParkingFeaturesIndexRoute =
+  ProtectedAppParkingsParkingFeaturesIndexRouteImport.update({
+    id: '/app/parkings/parking-features/',
+    path: '/app/parkings/parking-features/',
+    getParentRoute: () => ProtectedRouteRoute,
+  } as any)
 const ProtectedAppOrganizationsOrganizationUsersIndexRoute =
   ProtectedAppOrganizationsOrganizationUsersIndexRouteImport.update({
     id: '/app/organizations/organization-users/',
@@ -99,6 +106,7 @@ export interface FileRoutesByFullPath {
   '/app/organizations/': typeof ProtectedAppOrganizationsIndexRoute
   '/app/parkings/': typeof ProtectedAppParkingsIndexRoute
   '/app/organizations/organization-users/': typeof ProtectedAppOrganizationsOrganizationUsersIndexRoute
+  '/app/parkings/parking-features/': typeof ProtectedAppParkingsParkingFeaturesIndexRoute
   '/app/parkings/place-types/': typeof ProtectedAppParkingsPlaceTypesIndexRoute
   '/app/parkings/places/': typeof ProtectedAppParkingsPlacesIndexRoute
 }
@@ -112,6 +120,7 @@ export interface FileRoutesByTo {
   '/app/organizations': typeof ProtectedAppOrganizationsIndexRoute
   '/app/parkings': typeof ProtectedAppParkingsIndexRoute
   '/app/organizations/organization-users': typeof ProtectedAppOrganizationsOrganizationUsersIndexRoute
+  '/app/parkings/parking-features': typeof ProtectedAppParkingsParkingFeaturesIndexRoute
   '/app/parkings/place-types': typeof ProtectedAppParkingsPlaceTypesIndexRoute
   '/app/parkings/places': typeof ProtectedAppParkingsPlacesIndexRoute
 }
@@ -127,6 +136,7 @@ export interface FileRoutesById {
   '/_protected/app/organizations/': typeof ProtectedAppOrganizationsIndexRoute
   '/_protected/app/parkings/': typeof ProtectedAppParkingsIndexRoute
   '/_protected/app/organizations/organization-users/': typeof ProtectedAppOrganizationsOrganizationUsersIndexRoute
+  '/_protected/app/parkings/parking-features/': typeof ProtectedAppParkingsParkingFeaturesIndexRoute
   '/_protected/app/parkings/place-types/': typeof ProtectedAppParkingsPlaceTypesIndexRoute
   '/_protected/app/parkings/places/': typeof ProtectedAppParkingsPlacesIndexRoute
 }
@@ -142,6 +152,7 @@ export interface FileRouteTypes {
     | '/app/organizations/'
     | '/app/parkings/'
     | '/app/organizations/organization-users/'
+    | '/app/parkings/parking-features/'
     | '/app/parkings/place-types/'
     | '/app/parkings/places/'
   fileRoutesByTo: FileRoutesByTo
@@ -155,6 +166,7 @@ export interface FileRouteTypes {
     | '/app/organizations'
     | '/app/parkings'
     | '/app/organizations/organization-users'
+    | '/app/parkings/parking-features'
     | '/app/parkings/place-types'
     | '/app/parkings/places'
   id:
@@ -169,6 +181,7 @@ export interface FileRouteTypes {
     | '/_protected/app/organizations/'
     | '/_protected/app/parkings/'
     | '/_protected/app/organizations/organization-users/'
+    | '/_protected/app/parkings/parking-features/'
     | '/_protected/app/parkings/place-types/'
     | '/_protected/app/parkings/places/'
   fileRoutesById: FileRoutesById
@@ -258,6 +271,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProtectedAppParkingsPlaceTypesIndexRouteImport
       parentRoute: typeof ProtectedRouteRoute
     }
+    '/_protected/app/parkings/parking-features/': {
+      id: '/_protected/app/parkings/parking-features/'
+      path: '/app/parkings/parking-features'
+      fullPath: '/app/parkings/parking-features/'
+      preLoaderRoute: typeof ProtectedAppParkingsParkingFeaturesIndexRouteImport
+      parentRoute: typeof ProtectedRouteRoute
+    }
     '/_protected/app/organizations/organization-users/': {
       id: '/_protected/app/organizations/organization-users/'
       path: '/app/organizations/organization-users'
@@ -275,6 +295,7 @@ interface ProtectedRouteRouteChildren {
   ProtectedAppOrganizationsIndexRoute: typeof ProtectedAppOrganizationsIndexRoute
   ProtectedAppParkingsIndexRoute: typeof ProtectedAppParkingsIndexRoute
   ProtectedAppOrganizationsOrganizationUsersIndexRoute: typeof ProtectedAppOrganizationsOrganizationUsersIndexRoute
+  ProtectedAppParkingsParkingFeaturesIndexRoute: typeof ProtectedAppParkingsParkingFeaturesIndexRoute
   ProtectedAppParkingsPlaceTypesIndexRoute: typeof ProtectedAppParkingsPlaceTypesIndexRoute
   ProtectedAppParkingsPlacesIndexRoute: typeof ProtectedAppParkingsPlacesIndexRoute
 }
@@ -288,6 +309,8 @@ const ProtectedRouteRouteChildren: ProtectedRouteRouteChildren = {
   ProtectedAppParkingsIndexRoute: ProtectedAppParkingsIndexRoute,
   ProtectedAppOrganizationsOrganizationUsersIndexRoute:
     ProtectedAppOrganizationsOrganizationUsersIndexRoute,
+  ProtectedAppParkingsParkingFeaturesIndexRoute:
+    ProtectedAppParkingsParkingFeaturesIndexRoute,
   ProtectedAppParkingsPlaceTypesIndexRoute:
     ProtectedAppParkingsPlaceTypesIndexRoute,
   ProtectedAppParkingsPlacesIndexRoute: ProtectedAppParkingsPlacesIndexRoute,
