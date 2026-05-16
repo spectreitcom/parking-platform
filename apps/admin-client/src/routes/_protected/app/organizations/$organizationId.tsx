@@ -1,6 +1,9 @@
-import { createFileRoute, Link } from '@tanstack/react-router';
+import { createFileRoute, Link, useRouter } from '@tanstack/react-router';
+import { useServerFn } from '@tanstack/react-start';
 import { useState } from 'react';
 import type { ReactNode } from 'react';
+import { toast } from 'sonner';
+import { ConfirmDialog } from '#/components/confirm-dialog.tsx';
 import { EmptyState, PageShell } from '#/components/page-shell';
 import { Button } from '#/components/ui/button.tsx';
 import {
@@ -10,17 +13,12 @@ import {
   CardHeader,
   CardTitle,
 } from '#/components/ui/card.tsx';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '#/components/ui/table.tsx';
 import { Spinner } from '#/components/ui/spinner.tsx';
-import { StatusBadge } from '#/components/status-badge';
-import { getOrganization } from '#/features/organizations/api';
+import { getOrganizationUsers } from '#/features/organization-users/api';
+import {
+  getOrganization,
+  removeMemberFromOrganization,
+} from '#/features/organizations/api';
 import { EditOrganizationModal } from '#/features/organizations/components/edit-organization-modal.tsx';
 import type { OrganizationListItemSchema } from '#/features/organizations/schemas';
 import {
@@ -28,13 +26,14 @@ import {
   ArrowLeft,
   Building2,
   Hash,
-  Mail,
   MapPin,
   Pencil,
+  Plus,
   ShieldCheck,
-  UserRound,
   Users,
 } from 'lucide-react';
+import { AddMemberModal } from '#/features/organizations/components/add-member-modal.tsx';
+import { MembersTable } from '#/features/organizations/components/members-table.tsx';
 
 export const Route = createFileRoute(
   '/_protected/app/organizations/$organizationId',
@@ -53,13 +52,22 @@ export const Route = createFileRoute(
         },
       });
 
+      const organizationUsersResponse = await getOrganizationUsers({
+        data: {
+          page: 1,
+          limit: 100,
+        },
+      });
+
       return {
         organization,
+        organizationUsers: organizationUsersResponse.data,
         error: null,
       };
     } catch (error) {
       return {
         organization: null,
+        organizationUsers: [],
         error: 'Failed to fetch organization details.',
       };
     }
@@ -67,8 +75,17 @@ export const Route = createFileRoute(
 });
 
 function RouteComponent() {
-  const { organization, error } = Route.useLoaderData();
+  const { organization, organizationUsers, error } = Route.useLoaderData();
+  const router = useRouter();
+  const removeMemberFromOrganizationFn = useServerFn(
+    removeMemberFromOrganization,
+  );
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isAddMemberModalOpen, setIsAddMemberModalOpen] = useState(false);
+  const [memberToRemove, setMemberToRemove] = useState<
+    OrganizationListItemSchema['members'][number] | null
+  >(null);
+  const [isRemovingMember, setIsRemovingMember] = useState(false);
 
   if (error || !organization) {
     return (
@@ -87,6 +104,40 @@ function RouteComponent() {
     );
   }
 
+  const assignedOrganizationUserIds = new Set(
+    organization.members.map((member) => member.organizationUserId),
+  );
+  const availableOrganizationUsers = organizationUsers.filter(
+    (organizationUser) =>
+      !assignedOrganizationUserIds.has(organizationUser.organizationUserId),
+  );
+
+  const handleConfirmRemoveMember = async () => {
+    if (!memberToRemove) return;
+
+    setIsRemovingMember(true);
+    try {
+      await removeMemberFromOrganizationFn({
+        data: {
+          organizationId: organization.id,
+          memberId: memberToRemove.id,
+          version: organization.version,
+        },
+      });
+      toast.success('Member removed successfully');
+      setMemberToRemove(null);
+      await router.invalidate();
+    } catch (error) {
+      if (error instanceof Error) {
+        toast.error(error.message);
+      } else {
+        toast.error('Failed to remove member');
+      }
+    } finally {
+      setIsRemovingMember(false);
+    }
+  };
+
   return (
     <PageShell
       eyebrow="Organizations"
@@ -99,6 +150,10 @@ function RouteComponent() {
             <Pencil className="size-4" />
             Edit Organization
           </Button>
+          <Button onClick={() => setIsAddMemberModalOpen(true)}>
+            <Plus className="size-4" />
+            Add Member
+          </Button>
         </div>
       }
     >
@@ -107,12 +162,37 @@ function RouteComponent() {
         <OrganizationStats organization={organization} />
       </div>
 
-      <MembersTable members={organization.members} />
+      <MembersTable
+        members={organization.members}
+        onRemoveMember={setMemberToRemove}
+      />
 
       <EditOrganizationModal
         open={isEditModalOpen}
         onOpenChange={setIsEditModalOpen}
         organizationId={organization.id}
+      />
+
+      <AddMemberModal
+        open={isAddMemberModalOpen}
+        onOpenChange={setIsAddMemberModalOpen}
+        organization={organization}
+        organizationUsers={availableOrganizationUsers}
+      />
+
+      <ConfirmDialog
+        open={memberToRemove !== null}
+        onOpenChange={(open) => {
+          if (!open) {
+            setMemberToRemove(null);
+          }
+        }}
+        title="Remove Member"
+        description={`Are you sure you want to remove "${memberToRemove?.displayName}" from this organization?`}
+        onConfirm={handleConfirmRemoveMember}
+        variant="destructive"
+        isLoading={isRemovingMember}
+        confirmText="Remove"
       />
     </PageShell>
   );
@@ -236,64 +316,5 @@ function MetricCard({
         </div>
       </CardContent>
     </Card>
-  );
-}
-
-function MembersTable({
-  members,
-}: Readonly<{
-  members: OrganizationListItemSchema['members'];
-}>) {
-  if (members.length === 0) {
-    return (
-      <EmptyState
-        icon={<Users className="size-5" />}
-        title="No members assigned"
-        description="This organization does not have any assigned members yet."
-      />
-    );
-  }
-
-  return (
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead className="w-[280px]">Member</TableHead>
-          <TableHead>Email</TableHead>
-          <TableHead>Organization User ID</TableHead>
-          <TableHead>Role</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {members.map((member) => (
-          <TableRow key={member.id}>
-            <TableCell className="font-medium">
-              <div className="flex items-center gap-3">
-                <div className="flex size-9 shrink-0 items-center justify-center rounded-md border bg-background text-primary shadow-xs">
-                  <UserRound className="size-4" />
-                </div>
-                <span className="truncate text-foreground">
-                  {member.displayName}
-                </span>
-              </div>
-            </TableCell>
-            <TableCell>
-              <div className="flex items-center gap-2 text-muted-foreground">
-                <Mail className="size-4 shrink-0" />
-                <span className="truncate">{member.email}</span>
-              </div>
-            </TableCell>
-            <TableCell className="font-mono text-xs text-muted-foreground">
-              {member.organizationUserId}
-            </TableCell>
-            <TableCell>
-              <StatusBadge tone={member.isRoot ? 'positive' : 'neutral'}>
-                {member.isRoot ? 'Root' : 'Member'}
-              </StatusBadge>
-            </TableCell>
-          </TableRow>
-        ))}
-      </TableBody>
-    </Table>
   );
 }

@@ -210,10 +210,14 @@ export const addMemberToOrganization = createServerFn()
 export const removeMemberFromOrganization = createServerFn()
   .inputValidator(removeMemberFromOrganizationInputSchema)
   .handler(async ({ data }) => {
-    const { organizationId, memberId } = data;
+    const { organizationId, memberId, version } = data;
+
+    const searchParams = createSearchParams({
+      version,
+    });
 
     const response = await authFetch(
-      `${env.SERVER_URL}/organizations/${organizationId}/members/${memberId}`,
+      `${env.SERVER_URL}/organizations/${organizationId}/members/${memberId}?${searchParams.toString()}`,
       {
         method: 'DELETE',
       },

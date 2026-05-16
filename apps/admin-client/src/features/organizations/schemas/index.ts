@@ -55,6 +55,7 @@ export const addMemberToOrganizationInputSchema = z.object({
 export const removeMemberFromOrganizationInputSchema = z.object({
   organizationId: z.uuid(),
   memberId: z.uuid(),
+  version: z.number().int().positive(),
 });
 
 export const getOrganizationForEditingInputSchema = z.object({
