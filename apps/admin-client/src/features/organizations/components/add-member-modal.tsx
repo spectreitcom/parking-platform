@@ -1,10 +1,14 @@
 import { useRouter } from '@tanstack/react-router';
 import { addMemberToOrganizationInputSchema } from '#/features/organizations/schemas';
-import type { OrganizationListItemSchema } from '#/features/organizations/schemas';
-import type { OrganizationUserListItemSchema } from '#/features/organization-users/schemas';
+import type {
+  SearchedOrganizationUser,
+  OrganizationListItemSchema,
+} from '#/features/organizations/schemas';
 import { useServerFn } from '@tanstack/react-start';
-import { addMemberToOrganization } from '#/features/organizations/api';
-import { getOrganizationUsers } from '#/features/organization-users/api';
+import {
+  addMemberToOrganization,
+  searchOrganizationUsers,
+} from '#/features/organizations/api';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useForm } from '@tanstack/react-form';
 import { toast } from 'sonner';
@@ -34,13 +38,13 @@ export function AddMemberModal({
 }>) {
   const router = useRouter();
   const addMemberToOrganizationFn = useServerFn(addMemberToOrganization);
-  const getOrganizationUsersFn = useServerFn(getOrganizationUsers);
+  const getOrganizationUsersFn = useServerFn(searchOrganizationUsers);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [organizationUsers, setOrganizationUsers] = useState<
-    OrganizationUserListItemSchema[]
+    SearchedOrganizationUser[]
   >([]);
   const [selectedOrganizationUser, setSelectedOrganizationUser] =
-    useState<OrganizationUserListItemSchema | null>(null);
+    useState<SearchedOrganizationUser | null>(null);
   const [organizationUserSearch, setOrganizationUserSearch] = useState('');
   const [organizationUserSearchQuery, setOrganizationUserSearchQuery] =
     useState('');
@@ -85,16 +89,14 @@ export function AddMemberModal({
       setOrganizationUsersError(null);
 
       try {
-        const response = await getOrganizationUsersFn({
+        const organizationUsers = await getOrganizationUsersFn({
           data: {
-            page: 1,
-            limit: 20,
             search: organizationUserSearchQuery || undefined,
           },
         });
 
         if (!ignoreResponse) {
-          setOrganizationUsers(response.data);
+          setOrganizationUsers(organizationUsers);
         }
       } catch (error) {
         if (!ignoreResponse) {
@@ -291,14 +293,14 @@ function OrganizationUserSearchableDropdown({
 }: Readonly<{
   id: string;
   value: string;
-  selectedOrganizationUser: OrganizationUserListItemSchema | null;
-  organizationUsers: OrganizationUserListItemSchema[];
+  selectedOrganizationUser: SearchedOrganizationUser | null;
+  organizationUsers: SearchedOrganizationUser[];
   search: string;
   isInvalid: boolean;
   isLoading: boolean;
   error: string | null;
   onSearchChange: (search: string) => void;
-  onChange: (organizationUser: OrganizationUserListItemSchema) => void;
+  onChange: (organizationUser: SearchedOrganizationUser) => void;
 }>) {
   const [isOpen, setIsOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
