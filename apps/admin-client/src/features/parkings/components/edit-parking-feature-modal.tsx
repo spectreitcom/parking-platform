@@ -86,15 +86,14 @@ export function EditParkingFeatureModal({
   useEffect(() => {
     if (parkingFeatureId && open) {
       getParkingFeatureByIdFn({ data: { parkingFeatureId } })
-        .then((parkingFeature) => {
-          setParkingFeature(parkingFeature);
-          console.log(parkingFeature); // todo;
+        .then((fetchedParkingFeature) => {
+          setParkingFeature(fetchedParkingFeature);
 
           form.reset({
-            name: parkingFeature.name,
-            levels: parkingFeature.levels,
-            version: parkingFeature.version,
-            parkingFeatureId: parkingFeature.id,
+            name: fetchedParkingFeature.name,
+            levels: fetchedParkingFeature.levels,
+            version: fetchedParkingFeature.version,
+            parkingFeatureId: fetchedParkingFeature.id,
           });
         })
         .catch((error) => {
