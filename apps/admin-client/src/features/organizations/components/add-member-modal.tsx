@@ -252,7 +252,7 @@ export function AddMemberModal({
               variant="outline"
               onClick={() => {
                 onOpenChange(false);
-                form.reset();
+                resetForm();
               }}
             >
               Cancel

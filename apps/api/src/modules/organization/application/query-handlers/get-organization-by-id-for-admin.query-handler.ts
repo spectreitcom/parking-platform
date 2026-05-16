@@ -34,7 +34,7 @@ export class GetOrganizationByIdForAdminQueryHandler implements IQueryHandler<
     const organizationUserIds = members.map((m) => m.organizationUserId);
 
     const organizationUsers =
-      await this.prismaService.organizationUserRead.findMany({
+      await this.prismaService.organizationOrganizationUser.findMany({
         where: {
           organizationUserId: {
             in: organizationUserIds,

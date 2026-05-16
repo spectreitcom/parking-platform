@@ -4,11 +4,12 @@ import { commandHandlers } from './command-handlers';
 import { queryHandlers } from './query-handlers';
 import { eventHandlers } from './event-handlers';
 import { OrganizationFacade } from './organization.facade';
-import { PrismaModule } from '../../../shared/prisma/prisma.module';
+import { PrismaModule } from 'src/shared/prisma/prisma.module';
 import { ieHandlers } from './event-handlers/ie-handlers';
+import { OutboxModule } from 'src/shared/outbox/outbox.module';
 
 @Module({
-  imports: [InfrastructureModule, PrismaModule],
+  imports: [InfrastructureModule, PrismaModule, OutboxModule],
   providers: [
     ...commandHandlers,
     ...queryHandlers,
