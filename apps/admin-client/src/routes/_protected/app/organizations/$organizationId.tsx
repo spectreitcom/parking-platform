@@ -14,7 +14,6 @@ import {
   CardTitle,
 } from '#/components/ui/card.tsx';
 import { Spinner } from '#/components/ui/spinner.tsx';
-import { getOrganizationUsers } from '#/features/organization-users/api';
 import {
   getOrganization,
   removeMemberFromOrganization,
@@ -52,22 +51,13 @@ export const Route = createFileRoute(
         },
       });
 
-      const organizationUsersResponse = await getOrganizationUsers({
-        data: {
-          page: 1,
-          limit: 100,
-        },
-      });
-
       return {
         organization,
-        organizationUsers: organizationUsersResponse.data,
         error: null,
       };
     } catch (error) {
       return {
         organization: null,
-        organizationUsers: [],
         error: 'Failed to fetch organization details.',
       };
     }
@@ -75,7 +65,7 @@ export const Route = createFileRoute(
 });
 
 function RouteComponent() {
-  const { organization, organizationUsers, error } = Route.useLoaderData();
+  const { organization, error } = Route.useLoaderData();
   const router = useRouter();
   const removeMemberFromOrganizationFn = useServerFn(
     removeMemberFromOrganization,
@@ -104,14 +94,6 @@ function RouteComponent() {
     );
   }
 
-  const assignedOrganizationUserIds = new Set(
-    organization.members.map((member) => member.organizationUserId),
-  );
-  const availableOrganizationUsers = organizationUsers.filter(
-    (organizationUser) =>
-      !assignedOrganizationUserIds.has(organizationUser.organizationUserId),
-  );
-
   const handleConfirmRemoveMember = async () => {
     if (!memberToRemove) return;
 
@@ -127,9 +109,9 @@ function RouteComponent() {
       toast.success('Member removed successfully');
       setMemberToRemove(null);
       await router.invalidate();
-    } catch (error) {
-      if (error instanceof Error) {
-        toast.error(error.message);
+    } catch (removeMemberError) {
+      if (removeMemberError instanceof Error) {
+        toast.error(removeMemberError.message);
       } else {
         toast.error('Failed to remove member');
       }
@@ -177,7 +159,6 @@ function RouteComponent() {
         open={isAddMemberModalOpen}
         onOpenChange={setIsAddMemberModalOpen}
         organization={organization}
-        organizationUsers={availableOrganizationUsers}
       />
 
       <ConfirmDialog

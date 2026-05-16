@@ -42,7 +42,7 @@ export function EditOrganizationModal({
         })
         .finally(() => setIsFetching(false));
     }
-  }, [organizationId, getOrganizationFn]);
+  }, [organizationId, getOrganizationFn, open]);
 
   return (
     <Dialog
