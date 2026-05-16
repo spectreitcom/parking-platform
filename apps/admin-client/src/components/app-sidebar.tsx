@@ -69,7 +69,11 @@ export function AppSidebar() {
           <SidebarMenu>
             <NavItem to="/app/parkings" icon={<CarFront />} label="Parkings" />
             <DisabledItem icon={<Sparkles />} label="Parking Addons" />
-            <DisabledItem icon={<ShieldCheck />} label="Parking Features" />
+            <NavItem
+              icon={<ShieldCheck />}
+              label="Parking Features"
+              to={'/app/parkings/parking-features'}
+            />
             <NavItem
               icon={<MapPinned />}
               label="Places"

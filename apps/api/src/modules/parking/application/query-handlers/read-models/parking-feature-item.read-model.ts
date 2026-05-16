@@ -1,4 +1,4 @@
-export class ParkingFeatureListForAdminItemReadModel {
+export class ParkingFeatureItemReadModel {
   constructor(
     public readonly id: string,
     public readonly name: string,
