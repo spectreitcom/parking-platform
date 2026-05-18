@@ -1,5 +1,6 @@
 import { createServerFn } from '@tanstack/react-start';
 import {
+  changePasswordInputSchema,
   getMeResponseSchema,
   signInResponseSchema,
 } from '#/features/auth/schemas';
@@ -113,3 +114,26 @@ export const getMe = createServerFn().handler(async () => {
 
   return validationResult.data;
 });
+
+/**
+ * A server-side function to handle password change requests.
+ *
+ * The `changePassword` function validates the input data using the
+ * `changePasswordInputSchema` and processes the password change request
+ * by making an authenticated POST request to the server's `/auth/change-password` endpoint.
+ *
+ * On receiving a response, it utilizes a generic API error handler
+ * to process any potential errors in the response.
+ *
+ * This function is intended for secure user password management operations.
+ */
+export const changePassword = createServerFn()
+  .inputValidator(changePasswordInputSchema)
+  .handler(async ({ data }) => {
+    const response = await authFetch(`${env.SERVER_URL}/auth/change-password`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+
+    await genericApiErrorHandler(response);
+  });
