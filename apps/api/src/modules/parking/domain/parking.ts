@@ -16,7 +16,7 @@ import { ParkingDeactivatedEvent } from './events/parking-deactivated.event';
 
 export class Parking extends AggregateRoot {
   private readonly id: ParkingId;
-  private readonly organizationId: OrganizationId;
+  private organizationId: OrganizationId;
   private name: ParkingName;
   private description?: string;
   private active: boolean;
@@ -27,7 +27,7 @@ export class Parking extends AggregateRoot {
   private parkingFeatureIds: ParkingFeatureId[];
   private version: AggregateVersion;
   private parkingAddonIds: ParkingAddonId[];
-  private readonly placeId: PlaceId;
+  private placeId: PlaceId;
   private readonly createdAt: Date;
   private updatedAt: Date;
 
@@ -167,6 +167,8 @@ export class Parking extends AggregateRoot {
     assetIds: readonly string[],
     parkingFeatureIds: readonly string[],
     parkingAddonIds: readonly string[],
+    placeId: string,
+    organizationId: string,
     description?: string,
     statute?: string,
   ) {
@@ -180,6 +182,8 @@ export class Parking extends AggregateRoot {
     this.parkingAddonIds = parkingAddonIds.map((id) =>
       ParkingAddonId.fromString(id),
     );
+    this.placeId = PlaceId.fromString(placeId);
+    this.organizationId = OrganizationId.fromString(organizationId);
     this.description = description;
     this.statute = statute;
     this.version = this.version.increment();

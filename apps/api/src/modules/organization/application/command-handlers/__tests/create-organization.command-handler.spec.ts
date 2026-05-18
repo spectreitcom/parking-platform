@@ -4,11 +4,15 @@ import { CreateOrganizationCommandHandler } from '../create-organization.command
 import { CreateOrganizationCommand } from '../../commands/create-organization.command';
 import { OrganizationRepository } from '../../ports/organization.repository';
 import { Organization } from '../../../domain/organization';
+import { OutboxService } from 'src/shared/outbox/outbox.service';
+import { TransactionRunner } from 'src/shared/prisma/transaction-runner';
+import { PrismaTx } from 'src/shared/prisma/types';
 
 describe('CreateOrganizationCommandHandler', () => {
   let handler: CreateOrganizationCommandHandler;
   let organizationRepository: jest.Mocked<OrganizationRepository>;
   let eventPublisher: jest.Mocked<EventPublisher>;
+  let outboxService: jest.Mocked<OutboxService>;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -26,6 +30,23 @@ describe('CreateOrganizationCommandHandler', () => {
             mergeObjectContext: jest.fn(<T>(obj: T) => obj),
           },
         },
+        {
+          provide: OutboxService,
+          useValue: {
+            enqueue: jest.fn(),
+          },
+        },
+        {
+          provide: TransactionRunner,
+          useValue: {
+            runInTransaction: jest
+              .fn()
+              .mockImplementation(
+                (callback: (prisma: PrismaTx) => Promise<unknown>) =>
+                  callback({} as PrismaTx),
+              ),
+          },
+        },
       ],
     }).compile();
 
@@ -34,6 +55,7 @@ describe('CreateOrganizationCommandHandler', () => {
     );
     organizationRepository = module.get(OrganizationRepository);
     eventPublisher = module.get(EventPublisher);
+    outboxService = module.get(OutboxService);
   });
 
   it('should create an organization', async () => {
@@ -48,8 +70,9 @@ describe('CreateOrganizationCommandHandler', () => {
     expect(result).toBeDefined();
     expect(organizationRepository.save).toHaveBeenCalledWith(
       expect.any(Organization),
-      { isNew: true },
+      expect.objectContaining({ isNew: true }),
     );
+    expect(outboxService.enqueue).toHaveBeenCalled();
     expect(eventPublisher.mergeObjectContext).toHaveBeenCalled();
   });
 });

@@ -79,6 +79,8 @@ describe('Parking', () => {
       assetIds,
       featureIds,
       addonIds,
+      placeId,
+      organizationId,
       description,
       statute,
     );

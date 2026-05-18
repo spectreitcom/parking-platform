@@ -13,6 +13,8 @@ import { GetParkingByParkingSpotIdQueryHandler } from './get-parking-by-parking-
 import { GetPlaceForEditingQueryHandler } from './get-place-for-editing.query-handler';
 import { GetParkingFeatureByIdQueryHandler } from './get-parking-feature-by-id.query-handler';
 import { GetParkingByIdQueryHandler } from './get-parking-by-id.query-handler';
+import { GetParkingAddonByIdsQueryHandler } from './get-parking-addon-by-ids.query-handler';
+import { GetParkingFeatureByIdsQueryHandler } from './get-parking-feature-by-ids.query-handler';
 
 export const queryHandlers = [
   GetPlacesListForAdminQueryHandler,
@@ -30,4 +32,6 @@ export const queryHandlers = [
   GetPlaceForEditingQueryHandler,
   GetParkingFeatureByIdQueryHandler,
   GetParkingByIdQueryHandler,
+  GetParkingAddonByIdsQueryHandler,
+  GetParkingFeatureByIdsQueryHandler,
 ];

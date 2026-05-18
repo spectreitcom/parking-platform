@@ -13,5 +13,7 @@ export class UpdateParkingCommand implements ICommand {
     public readonly description: string,
     public readonly statute: string,
     public readonly version: number,
+    public readonly placeId: string,
+    public readonly organizationId: string,
   ) {}
 }

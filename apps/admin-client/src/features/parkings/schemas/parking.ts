@@ -37,3 +37,65 @@ export const createParkingInputSchema = z.object({
   organizationId: z.uuid(),
   placeId: z.uuid(),
 });
+
+export const getParkingDetailsInputSchema = z.object({
+  parkingId: z.uuid(),
+});
+
+export const parkingDetailsSchema = z.object({
+  id: z.uuid(),
+  name: z.string(),
+  address: z.string(),
+  active: z.boolean(),
+  longitude: z.number().min(-180).max(180),
+  latitude: z.number().min(-90).max(90),
+  statute: z.string(),
+  description: z.string(),
+  assetIds: z.array(z.uuid()),
+  parkingFeatures: z.array(
+    z.object({
+      id: z.uuid(),
+      name: z.string(),
+    }),
+  ),
+  parkingAddons: z.array(
+    z.object({
+      id: z.uuid(),
+      name: z.string(),
+    }),
+  ),
+  organization: z.object({
+    id: z.uuid(),
+    name: z.string(),
+  }),
+  place: z.object({
+    id: z.uuid(),
+    name: z.string(),
+  }),
+  version: z.number().int().positive(),
+  createdAt: z.coerce.date(),
+  updatedAt: z.coerce.date(),
+});
+
+export type ParkingDetailsSchema = z.infer<typeof parkingDetailsSchema>;
+
+export const updateParkingInputSchema = createParkingInputSchema.extend({
+  parkingId: z.uuid(),
+  name: z.string().min(1).max(255),
+  address: z.string().min(1).max(255),
+  longitude: z.number().min(-180).max(180),
+  latitude: z.number().min(-90).max(90),
+  assetIds: z.array(z.uuid()),
+  parkingFeatureIds: z.array(z.uuid()),
+  parkingAddonIds: z.array(z.uuid()),
+  description: z.string(),
+  statute: z.string(),
+  version: z.number().int().positive(),
+  placeId: z.uuid(),
+  organizationId: z.uuid(),
+});
+
+export const activateAndDeactivateParkingInputSchema = z.object({
+  parkingId: z.uuid(),
+  version: z.number().int().positive(),
+});

@@ -27,6 +27,8 @@ export class UpdateParkingCommandHandler implements ICommandHandler<
       description,
       statute,
       version,
+      placeId,
+      organizationId,
     } = command;
 
     const parking = await this.parkingRepository.findById(id);
@@ -52,6 +54,8 @@ export class UpdateParkingCommandHandler implements ICommandHandler<
       assetIds,
       parkingFeatureIds,
       parkingAddonIds,
+      placeId,
+      organizationId,
       description,
       statute,
     );

@@ -40,6 +40,10 @@ import { GetParkingByIdsQuery } from './queries/get-parking-by-ids.query';
 import { ParkingItemReadModel } from './query-handlers/read-models/parking-item.read-model';
 import { GetParkingByParkingSpotIdQuery } from './queries/get-parking-by-parking-spot-id.query';
 import { GetParkingFeatureByIdQuery } from './queries/get-parking-feature-by-id.query';
+import { GetParkingAddonByIdsQuery } from './queries/get-parking-addon-by-ids.query';
+import { ParkingAddonReadModel } from './query-handlers/read-models/parking-addon.read-model';
+import { GetParkingFeatureByIdsQuery } from './queries/get-parking-feature-by-ids.query';
+import { ParkingFeatureReadModel } from './query-handlers/read-models/parking-feature.read-model';
 import { GetPlaceForEditingQuery } from 'src/modules/parking/application/queries/get-place-for-editing.query';
 import { PlaceReadReadModel } from './query-handlers/read-models/place-read.read-model';
 import { GetParkingByIdQuery } from './queries/get-parking-by-id.query';
@@ -205,6 +209,8 @@ export class ParkingFacade {
     description: string,
     statute: string,
     version: number,
+    placeId: string,
+    organizationId: string,
   ) {
     const command = new UpdateParkingCommand(
       id,
@@ -218,6 +224,8 @@ export class ParkingFacade {
       description,
       statute,
       version,
+      placeId,
+      organizationId,
     );
     return await this.commandBus.execute<UpdateParkingCommand, string>(command);
   }
@@ -420,6 +428,22 @@ export class ParkingFacade {
     return await this.queryBus.execute<
       GetParkingByIdQuery,
       ParkingItemReadModel
+    >(query);
+  }
+
+  async getParkingAddonByIds(ids: string[]) {
+    const query = new GetParkingAddonByIdsQuery(ids);
+    return await this.queryBus.execute<
+      GetParkingAddonByIdsQuery,
+      ParkingAddonReadModel[]
+    >(query);
+  }
+
+  async getParkingFeatureByIds(ids: string[]) {
+    const query = new GetParkingFeatureByIdsQuery(ids);
+    return await this.queryBus.execute<
+      GetParkingFeatureByIdsQuery,
+      ParkingFeatureReadModel[]
     >(query);
   }
 }

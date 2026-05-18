@@ -56,13 +56,25 @@ export class ParkingsController {
         statute: { type: 'string' },
         description: { type: 'string' },
         assetIds: { type: 'array', items: { type: 'string', format: 'uuid' } },
-        parkingFeatureIds: {
+        parkingFeatures: {
           type: 'array',
-          items: { type: 'string', format: 'uuid' },
+          items: {
+            type: 'object',
+            properties: {
+              id: { type: 'string', format: 'uuid' },
+              name: { type: 'string' },
+            },
+          },
         },
-        parkingAddonIds: {
+        parkingAddons: {
           type: 'array',
-          items: { type: 'string', format: 'uuid' },
+          items: {
+            type: 'object',
+            properties: {
+              id: { type: 'string', format: 'uuid' },
+              name: { type: 'string' },
+            },
+          },
         },
         organization: {
           type: 'object',
@@ -92,7 +104,19 @@ export class ParkingsController {
   ) {
     const parking = await this.parkingFacade.getParkingById(parkingId);
 
-    const { organizationId, placeId, ...rest } = parking;
+    const {
+      organizationId,
+      placeId,
+      parkingFeatureIds,
+      parkingAddonIds,
+      ...rest
+    } = parking;
+
+    const parkingFeatures =
+      await this.parkingFacade.getParkingFeatureByIds(parkingFeatureIds);
+
+    const parkingAddons =
+      await this.parkingFacade.getParkingAddonByIds(parkingAddonIds);
 
     const organization =
       await this.organizationFacade.getOrganizationByIdForAdmin(organizationId);
@@ -109,9 +133,22 @@ export class ParkingsController {
         id: place.placeId,
         name: place.name,
       },
-    } satisfies Omit<typeof parking, 'organizationId' | 'placeId'> & {
+      parkingFeatures: parkingFeatures.map((feature) => ({
+        id: feature.id,
+        name: feature.name,
+      })),
+      parkingAddons: parkingAddons.map((addon) => ({
+        id: addon.id,
+        name: addon.name,
+      })),
+    } satisfies Omit<
+      typeof parking,
+      'organizationId' | 'placeId' | 'parkingAddonIds' | 'parkingFeatureIds'
+    > & {
       organization: { id: string; name: string };
       place: { id: string; name: string };
+      parkingFeatures: { id: string; name: string }[];
+      parkingAddons: { id: string; name: string }[];
     };
   }
 
@@ -254,6 +291,8 @@ export class ParkingsController {
       dto.description,
       dto?.statute ?? '',
       dto.version,
+      dto.placeId,
+      dto.organizationId,
     );
     return { id };
   }
