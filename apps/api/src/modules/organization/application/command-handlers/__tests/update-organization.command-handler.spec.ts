@@ -10,11 +10,16 @@ import { OrganizationName } from '../../../domain/value-objects/organization-nam
 import { OrganizationAddress } from '../../../domain/value-objects/organization-address';
 import { OrganizationTaxId } from '../../../domain/value-objects/organization-tax-id';
 import { AggregateVersion } from 'src/shared/value-objects/aggregate-version';
+import { OutboxService } from 'src/shared/outbox/outbox.service';
+import { TransactionRunner } from 'src/shared/prisma/transaction-runner';
+import { PrismaTx } from 'src/shared/prisma/types';
 
 describe('UpdateOrganizationCommandHandler', () => {
   let handler: UpdateOrganizationCommandHandler;
   let organizationRepository: jest.Mocked<OrganizationRepository>;
   let eventPublisher: jest.Mocked<EventPublisher>;
+  let outboxService: jest.Mocked<OutboxService>;
+  let transactionRunner: jest.Mocked<TransactionRunner>;
 
   beforeEach(async () => {
     organizationRepository = {
@@ -24,7 +29,20 @@ describe('UpdateOrganizationCommandHandler', () => {
 
     eventPublisher = {
       mergeObjectContext: jest.fn(<T>(obj: T) => obj),
-    } as unknown as typeof eventPublisher;
+    } as unknown as jest.Mocked<EventPublisher>;
+
+    outboxService = {
+      enqueue: jest.fn(),
+    } as unknown as jest.Mocked<OutboxService>;
+
+    transactionRunner = {
+      runInTransaction: jest
+        .fn()
+        .mockImplementation(
+          (callback: (prisma: PrismaTx) => Promise<unknown>) =>
+            callback({} as PrismaTx),
+        ),
+    };
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -36,6 +54,14 @@ describe('UpdateOrganizationCommandHandler', () => {
         {
           provide: EventPublisher,
           useValue: eventPublisher,
+        },
+        {
+          provide: OutboxService,
+          useValue: outboxService,
+        },
+        {
+          provide: TransactionRunner,
+          useValue: transactionRunner,
         },
       ],
     }).compile();
@@ -82,7 +108,11 @@ describe('UpdateOrganizationCommandHandler', () => {
     expect(organization.getName().value).toBe('New Name');
     expect(organization.getAddress().value).toBe('New Address');
     expect(organization.getTaxId().value).toBe('1234567890');
-    expect(organizationRepository.save).toHaveBeenCalledWith(organization);
+    expect(organizationRepository.save).toHaveBeenCalledWith(
+      organization,
+      expect.any(Object),
+    );
+    expect(outboxService.enqueue).toHaveBeenCalled();
     expect(commitSpy).toHaveBeenCalled();
     expect(resultId).toBe(organizationId);
   });

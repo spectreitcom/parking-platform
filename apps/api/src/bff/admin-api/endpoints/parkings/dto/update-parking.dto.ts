@@ -120,12 +120,32 @@ export class UpdateParkingDto {
   @IsPositive()
   readonly version: number;
 
+  @ApiProperty({
+    description: 'The place ID of the parking',
+    format: 'uuid',
+    required: true,
+  })
+  @IsNotEmpty()
+  @IsUUID()
+  readonly placeId: string;
+
+  @ApiProperty({
+    description: 'The organization ID of the parking',
+    format: 'uuid',
+    required: true,
+  })
+  @IsNotEmpty()
+  @IsUUID()
+  readonly organizationId: string;
+
   constructor(
     name: string,
     address: string,
     longitude: number,
     latitude: number,
     version: number,
+    placeId: string,
+    organizationId: string,
     assetIds: string[] = [],
     parkingFeatureIds: string[] = [],
     parkingAddonIds: string[] = [],
@@ -137,6 +157,8 @@ export class UpdateParkingDto {
     this.longitude = longitude;
     this.latitude = latitude;
     this.version = version;
+    this.placeId = placeId;
+    this.organizationId = organizationId;
     this.assetIds = assetIds;
     this.parkingFeatureIds = parkingFeatureIds;
     this.parkingAddonIds = parkingAddonIds;

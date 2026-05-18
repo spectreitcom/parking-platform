@@ -75,7 +75,7 @@ export class PrismaParkingRepository implements ParkingRepository {
       await prisma.parking.update({
         where: {
           id,
-          version: currentVersion,
+          version: currentVersion - 1,
         },
         data: {
           name,

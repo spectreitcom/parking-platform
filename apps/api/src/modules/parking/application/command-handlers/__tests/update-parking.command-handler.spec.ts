@@ -63,6 +63,8 @@ describe('UpdateParkingCommandHandler', () => {
       'New Description',
       'New Statute',
       1,
+      randomUUID(),
+      randomUUID(),
     );
 
     const result = await handler.execute(command);
@@ -104,6 +106,8 @@ describe('UpdateParkingCommandHandler', () => {
       'Desc',
       'Statue',
       1,
+      randomUUID(),
+      randomUUID(),
     );
 
     await expect(handler.execute(command)).rejects.toThrow(
@@ -138,6 +142,8 @@ describe('UpdateParkingCommandHandler', () => {
       'Desc',
       'Statue',
       2, // version 2 instead of 1
+      randomUUID(),
+      randomUUID(),
     );
 
     await expect(handler.execute(command)).rejects.toThrow(

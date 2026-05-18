@@ -17,6 +17,7 @@ import { Route as ProtectedAppIndexRouteImport } from './routes/_protected/app/i
 import { Route as ProtectedAppParkingsIndexRouteImport } from './routes/_protected/app/parkings/index'
 import { Route as ProtectedAppOrganizationsIndexRouteImport } from './routes/_protected/app/organizations/index'
 import { Route as ProtectedAppAdminUsersIndexRouteImport } from './routes/_protected/app/admin-users/index'
+import { Route as ProtectedAppParkingsParkingIdRouteImport } from './routes/_protected/app/parkings/$parkingId'
 import { Route as ProtectedAppOrganizationsOrganizationIdRouteImport } from './routes/_protected/app/organizations/$organizationId'
 import { Route as ProtectedAppParkingsPlacesIndexRouteImport } from './routes/_protected/app/parkings/places/index'
 import { Route as ProtectedAppParkingsPlaceTypesIndexRouteImport } from './routes/_protected/app/parkings/place-types/index'
@@ -65,6 +66,12 @@ const ProtectedAppAdminUsersIndexRoute =
     path: '/app/admin-users/',
     getParentRoute: () => ProtectedRouteRoute,
   } as any)
+const ProtectedAppParkingsParkingIdRoute =
+  ProtectedAppParkingsParkingIdRouteImport.update({
+    id: '/app/parkings/$parkingId',
+    path: '/app/parkings/$parkingId',
+    getParentRoute: () => ProtectedRouteRoute,
+  } as any)
 const ProtectedAppOrganizationsOrganizationIdRoute =
   ProtectedAppOrganizationsOrganizationIdRouteImport.update({
     id: '/app/organizations/$organizationId',
@@ -102,6 +109,7 @@ export interface FileRoutesByFullPath {
   '/app/': typeof ProtectedAppIndexRoute
   '/auth/sign-in/': typeof AuthSignInIndexRoute
   '/app/organizations/$organizationId': typeof ProtectedAppOrganizationsOrganizationIdRoute
+  '/app/parkings/$parkingId': typeof ProtectedAppParkingsParkingIdRoute
   '/app/admin-users/': typeof ProtectedAppAdminUsersIndexRoute
   '/app/organizations/': typeof ProtectedAppOrganizationsIndexRoute
   '/app/parkings/': typeof ProtectedAppParkingsIndexRoute
@@ -116,6 +124,7 @@ export interface FileRoutesByTo {
   '/app': typeof ProtectedAppIndexRoute
   '/auth/sign-in': typeof AuthSignInIndexRoute
   '/app/organizations/$organizationId': typeof ProtectedAppOrganizationsOrganizationIdRoute
+  '/app/parkings/$parkingId': typeof ProtectedAppParkingsParkingIdRoute
   '/app/admin-users': typeof ProtectedAppAdminUsersIndexRoute
   '/app/organizations': typeof ProtectedAppOrganizationsIndexRoute
   '/app/parkings': typeof ProtectedAppParkingsIndexRoute
@@ -132,6 +141,7 @@ export interface FileRoutesById {
   '/_protected/app/': typeof ProtectedAppIndexRoute
   '/auth/sign-in/': typeof AuthSignInIndexRoute
   '/_protected/app/organizations/$organizationId': typeof ProtectedAppOrganizationsOrganizationIdRoute
+  '/_protected/app/parkings/$parkingId': typeof ProtectedAppParkingsParkingIdRoute
   '/_protected/app/admin-users/': typeof ProtectedAppAdminUsersIndexRoute
   '/_protected/app/organizations/': typeof ProtectedAppOrganizationsIndexRoute
   '/_protected/app/parkings/': typeof ProtectedAppParkingsIndexRoute
@@ -148,6 +158,7 @@ export interface FileRouteTypes {
     | '/app/'
     | '/auth/sign-in/'
     | '/app/organizations/$organizationId'
+    | '/app/parkings/$parkingId'
     | '/app/admin-users/'
     | '/app/organizations/'
     | '/app/parkings/'
@@ -162,6 +173,7 @@ export interface FileRouteTypes {
     | '/app'
     | '/auth/sign-in'
     | '/app/organizations/$organizationId'
+    | '/app/parkings/$parkingId'
     | '/app/admin-users'
     | '/app/organizations'
     | '/app/parkings'
@@ -177,6 +189,7 @@ export interface FileRouteTypes {
     | '/_protected/app/'
     | '/auth/sign-in/'
     | '/_protected/app/organizations/$organizationId'
+    | '/_protected/app/parkings/$parkingId'
     | '/_protected/app/admin-users/'
     | '/_protected/app/organizations/'
     | '/_protected/app/parkings/'
@@ -250,6 +263,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProtectedAppAdminUsersIndexRouteImport
       parentRoute: typeof ProtectedRouteRoute
     }
+    '/_protected/app/parkings/$parkingId': {
+      id: '/_protected/app/parkings/$parkingId'
+      path: '/app/parkings/$parkingId'
+      fullPath: '/app/parkings/$parkingId'
+      preLoaderRoute: typeof ProtectedAppParkingsParkingIdRouteImport
+      parentRoute: typeof ProtectedRouteRoute
+    }
     '/_protected/app/organizations/$organizationId': {
       id: '/_protected/app/organizations/$organizationId'
       path: '/app/organizations/$organizationId'
@@ -291,6 +311,7 @@ declare module '@tanstack/react-router' {
 interface ProtectedRouteRouteChildren {
   ProtectedAppIndexRoute: typeof ProtectedAppIndexRoute
   ProtectedAppOrganizationsOrganizationIdRoute: typeof ProtectedAppOrganizationsOrganizationIdRoute
+  ProtectedAppParkingsParkingIdRoute: typeof ProtectedAppParkingsParkingIdRoute
   ProtectedAppAdminUsersIndexRoute: typeof ProtectedAppAdminUsersIndexRoute
   ProtectedAppOrganizationsIndexRoute: typeof ProtectedAppOrganizationsIndexRoute
   ProtectedAppParkingsIndexRoute: typeof ProtectedAppParkingsIndexRoute
@@ -304,6 +325,7 @@ const ProtectedRouteRouteChildren: ProtectedRouteRouteChildren = {
   ProtectedAppIndexRoute: ProtectedAppIndexRoute,
   ProtectedAppOrganizationsOrganizationIdRoute:
     ProtectedAppOrganizationsOrganizationIdRoute,
+  ProtectedAppParkingsParkingIdRoute: ProtectedAppParkingsParkingIdRoute,
   ProtectedAppAdminUsersIndexRoute: ProtectedAppAdminUsersIndexRoute,
   ProtectedAppOrganizationsIndexRoute: ProtectedAppOrganizationsIndexRoute,
   ProtectedAppParkingsIndexRoute: ProtectedAppParkingsIndexRoute,

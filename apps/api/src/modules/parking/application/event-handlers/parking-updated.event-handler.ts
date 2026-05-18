@@ -31,6 +31,11 @@ export class ParkingUpdatedEventHandler implements IEventHandler<ParkingUpdatedE
       createdAt,
     } = event;
 
+    const organization =
+      await this.prismaService.parkingOrganization.findUnique({
+        where: { organizationId },
+      });
+
     await this.prismaService.parkingListForAdminRead.updateMany({
       where: {
         parkingId: id,
@@ -38,6 +43,7 @@ export class ParkingUpdatedEventHandler implements IEventHandler<ParkingUpdatedE
       data: {
         parkingName: name,
         parkingAddress: address,
+        organizationName: organization?.name,
       },
     });
 
