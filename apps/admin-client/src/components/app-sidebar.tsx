@@ -14,6 +14,7 @@ import { signOut } from '#/features/auth/api';
 import {
   Building2,
   CarFront,
+  KeyRound,
   LayoutDashboard,
   LogOut,
   Map,
@@ -29,129 +30,153 @@ import {
 import { useTheme } from '#/hooks/use-theme';
 import { Separator } from '#/components/ui/separator';
 import { Link } from '@tanstack/react-router';
+import { useState } from 'react';
 import type { ReactNode } from 'react';
 import type { FileRouteTypes } from '#/routeTree.gen.ts';
+import { ChangePasswordModal } from '#/features/auth/components/change-password-modal.tsx';
 
 export function AppSidebar() {
   const signOutFn = useServerFn(signOut);
   const { mode, toggleThemeMode } = useTheme();
+  const [isChangePasswordOpen, setIsChangePasswordOpen] = useState(false);
 
   return (
-    <Sidebar collapsible="icon">
-      <SidebarHeader>
-        <div className="flex items-center gap-3 rounded-lg border bg-background/70 p-3 shadow-xs">
-          <div className="flex size-10 shrink-0 items-center justify-center rounded-md bg-primary text-primary-foreground shadow-sm">
-            <ParkingCircle className="size-5" />
+    <>
+      <Sidebar collapsible="icon">
+        <SidebarHeader>
+          <div className="flex items-center gap-3 rounded-lg border bg-background/70 p-3 shadow-xs">
+            <div className="flex size-10 shrink-0 items-center justify-center rounded-md bg-primary text-primary-foreground shadow-sm">
+              <ParkingCircle className="size-5" />
+            </div>
+            <div className="min-w-0 group-data-[collapsible=icon]:hidden">
+              <h1 className="truncate text-sm font-semibold">
+                Parking Platform
+              </h1>
+              <p className="truncate text-xs text-muted-foreground">
+                Operations admin
+              </p>
+            </div>
           </div>
-          <div className="min-w-0 group-data-[collapsible=icon]:hidden">
-            <h1 className="truncate text-sm font-semibold">Parking Platform</h1>
-            <p className="truncate text-xs text-muted-foreground">
-              Operations admin
-            </p>
-          </div>
-        </div>
-      </SidebarHeader>
-      <SidebarContent>
-        <SidebarGroup>
-          <SidebarGroupLabel>Overview</SidebarGroupLabel>
+        </SidebarHeader>
+        <SidebarContent>
+          <SidebarGroup>
+            <SidebarGroupLabel>Overview</SidebarGroupLabel>
+            <SidebarMenu>
+              <NavItem to="/app" icon={<LayoutDashboard />} label="Dashboard" />
+            </SidebarMenu>
+          </SidebarGroup>
+          <SidebarGroup title="Reservations">
+            <SidebarGroupLabel>Reservations</SidebarGroupLabel>
+            <SidebarMenu>
+              <DisabledItem icon={<Sparkles />} label="Reservations" />
+            </SidebarMenu>
+          </SidebarGroup>
+          <SidebarGroup title="Parking">
+            <SidebarGroupLabel>Parking</SidebarGroupLabel>
+            <SidebarMenu>
+              <NavItem
+                to="/app/parkings"
+                icon={<CarFront />}
+                label="Parkings"
+              />
+              <DisabledItem icon={<Sparkles />} label="Parking Addons" />
+              <NavItem
+                icon={<ShieldCheck />}
+                label="Parking Features"
+                to={'/app/parkings/parking-features'}
+              />
+              <NavItem
+                icon={<MapPinned />}
+                label="Places"
+                to={'/app/parkings/places'}
+              />
+              <NavItem
+                to="/app/parkings/place-types"
+                icon={<Map />}
+                label="Place Types"
+              />
+            </SidebarMenu>
+          </SidebarGroup>
+          <SidebarGroup title="Organizations">
+            <SidebarGroupLabel>Organizations</SidebarGroupLabel>
+            <SidebarMenu>
+              <NavItem
+                icon={<Building2 />}
+                label="Organizations"
+                to={'/app/organizations'}
+              />
+              <NavItem
+                icon={<Users />}
+                label="Organization Users"
+                to={'/app/organizations/organization-users'}
+              />
+            </SidebarMenu>
+          </SidebarGroup>
+          <SidebarGroup title="Users">
+            <SidebarGroupLabel>Users</SidebarGroupLabel>
+            <SidebarMenu>
+              <DisabledItem icon={<Users />} label="Users" />
+            </SidebarMenu>
+          </SidebarGroup>
+          <SidebarGroup title="Admins">
+            <SidebarGroupLabel>Admins</SidebarGroupLabel>
+            <SidebarMenu>
+              <NavItem
+                to="/app/admin-users"
+                icon={<ShieldCheck />}
+                label="Admin Users"
+              />
+            </SidebarMenu>
+          </SidebarGroup>
+        </SidebarContent>
+        <Separator />
+        <SidebarFooter>
           <SidebarMenu>
-            <NavItem to="/app" icon={<LayoutDashboard />} label="Dashboard" />
+            <SidebarMenuItem>
+              <SidebarMenuButton
+                tooltip="Change Password"
+                onClick={() => setIsChangePasswordOpen(true)}
+              >
+                <KeyRound className="size-4" />
+                <span>Change Password</span>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+            <SidebarMenuItem>
+              <SidebarMenuButton onClick={toggleThemeMode}>
+                {mode === 'light' ? (
+                  <Sun className="size-4" />
+                ) : mode === 'dark' ? (
+                  <Moon className="size-4" />
+                ) : (
+                  <Monitor className="size-4" />
+                )}
+                <span>
+                  Theme:{' '}
+                  {mode === 'light'
+                    ? 'Light'
+                    : mode === 'dark'
+                      ? 'Dark'
+                      : 'System'}
+                </span>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+            <SidebarMenuItem>
+              <SidebarMenuButton
+                onClick={async () => await signOutFn()}
+                className="text-destructive hover:bg-destructive/10 hover:text-destructive"
+              >
+                <LogOut className="size-4" />
+                <span>Sign Out</span>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
           </SidebarMenu>
-        </SidebarGroup>
-        <SidebarGroup title="Reservations">
-          <SidebarGroupLabel>Reservations</SidebarGroupLabel>
-          <SidebarMenu>
-            <DisabledItem icon={<Sparkles />} label="Reservations" />
-          </SidebarMenu>
-        </SidebarGroup>
-        <SidebarGroup title="Parking">
-          <SidebarGroupLabel>Parking</SidebarGroupLabel>
-          <SidebarMenu>
-            <NavItem to="/app/parkings" icon={<CarFront />} label="Parkings" />
-            <DisabledItem icon={<Sparkles />} label="Parking Addons" />
-            <NavItem
-              icon={<ShieldCheck />}
-              label="Parking Features"
-              to={'/app/parkings/parking-features'}
-            />
-            <NavItem
-              icon={<MapPinned />}
-              label="Places"
-              to={'/app/parkings/places'}
-            />
-            <NavItem
-              to="/app/parkings/place-types"
-              icon={<Map />}
-              label="Place Types"
-            />
-          </SidebarMenu>
-        </SidebarGroup>
-        <SidebarGroup title="Organizations">
-          <SidebarGroupLabel>Organizations</SidebarGroupLabel>
-          <SidebarMenu>
-            <NavItem
-              icon={<Building2 />}
-              label="Organizations"
-              to={'/app/organizations'}
-            />
-            <NavItem
-              icon={<Users />}
-              label="Organization Users"
-              to={'/app/organizations/organization-users'}
-            />
-          </SidebarMenu>
-        </SidebarGroup>
-        <SidebarGroup title="Users">
-          <SidebarGroupLabel>Users</SidebarGroupLabel>
-          <SidebarMenu>
-            <DisabledItem icon={<Users />} label="Users" />
-          </SidebarMenu>
-        </SidebarGroup>
-        <SidebarGroup title="Admins">
-          <SidebarGroupLabel>Admins</SidebarGroupLabel>
-          <SidebarMenu>
-            <NavItem
-              to="/app/admin-users"
-              icon={<ShieldCheck />}
-              label="Admin Users"
-            />
-          </SidebarMenu>
-        </SidebarGroup>
-      </SidebarContent>
-      <Separator />
-      <SidebarFooter>
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton onClick={toggleThemeMode}>
-              {mode === 'light' ? (
-                <Sun className="size-4" />
-              ) : mode === 'dark' ? (
-                <Moon className="size-4" />
-              ) : (
-                <Monitor className="size-4" />
-              )}
-              <span>
-                Theme:{' '}
-                {mode === 'light'
-                  ? 'Light'
-                  : mode === 'dark'
-                    ? 'Dark'
-                    : 'System'}
-              </span>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-          <SidebarMenuItem>
-            <SidebarMenuButton
-              onClick={async () => await signOutFn()}
-              className="text-destructive hover:bg-destructive/10 hover:text-destructive"
-            >
-              <LogOut className="size-4" />
-              <span>Sign Out</span>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        </SidebarMenu>
-      </SidebarFooter>
-    </Sidebar>
+        </SidebarFooter>
+      </Sidebar>
+      <ChangePasswordModal
+        open={isChangePasswordOpen}
+        onOpenChange={setIsChangePasswordOpen}
+      />
+    </>
   );
 }
 

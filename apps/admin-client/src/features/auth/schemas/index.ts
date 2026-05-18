@@ -26,3 +26,27 @@ export const refreshTokenSchema = z.object({
 });
 
 export type RefreshTokenSchema = z.infer<typeof refreshTokenSchema>;
+
+export const changePasswordInputSchema = z.object({
+  existingPassword: z
+    .string()
+    .min(1, { message: 'Current password is required' }),
+  newPassword: z
+    .string()
+    .min(8, { message: 'New password must be at least 8 characters' }),
+});
+
+export type ChangePasswordInputSchema = z.infer<
+  typeof changePasswordInputSchema
+>;
+
+export const changePasswordFormSchema = changePasswordInputSchema
+  .extend({
+    confirmNewPassword: z
+      .string()
+      .min(1, { message: 'Please confirm the new password' }),
+  })
+  .refine((data) => data.newPassword === data.confirmNewPassword, {
+    message: 'Passwords do not match',
+    path: ['confirmNewPassword'],
+  });
