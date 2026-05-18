@@ -81,8 +81,8 @@ export type ParkingDetailsSchema = z.infer<typeof parkingDetailsSchema>;
 
 export const updateParkingInputSchema = createParkingInputSchema.extend({
   parkingId: z.uuid(),
-  name: z.string().min(1).max(255),
-  address: z.string().min(1).max(255),
+  name: z.string().trim().min(1).max(255),
+  address: z.string().trim().min(1).max(255),
   longitude: z.number().min(-180).max(180),
   latitude: z.number().min(-90).max(90),
   assetIds: z.array(z.uuid()),
