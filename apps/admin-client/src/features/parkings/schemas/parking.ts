@@ -28,3 +28,12 @@ export const parkingListSchema = z.object({
   total: z.number().int().nonnegative(),
   currentPage: z.number().int().positive(),
 });
+
+export const createParkingInputSchema = z.object({
+  name: z.string().trim().min(1).max(255),
+  address: z.string().trim().min(1).max(255),
+  longitude: z.number().min(-180).max(180),
+  latitude: z.number().min(-90).max(90),
+  organizationId: z.uuid(),
+  placeId: z.uuid(),
+});

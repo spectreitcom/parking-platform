@@ -1,5 +1,6 @@
 import { createServerFn } from '@tanstack/react-start';
 import {
+  createParkingInputSchema,
   parkingListBaseInputSchema,
   parkingListSchema,
 } from '#/features/parkings/schemas';
@@ -10,6 +11,7 @@ import {
   genericApiErrorHandler,
 } from '#/lib/auth-fetch.ts';
 import { env } from '#/env.ts';
+import { genericResponseSchema } from '#/lib/schemas.ts';
 
 /**
  * Retrieves a list of parking spaces based on the provided input parameters.
@@ -43,6 +45,43 @@ export const getParkingList = createServerFn()
     const responseData = await response.json();
 
     const validationResult = parkingListSchema.safeParse(responseData);
+
+    if (!validationResult.success) {
+      throw defaultServerError;
+    }
+
+    return validationResult.data;
+  });
+
+/**
+ * Function to create a new parking entry on the server.
+ *
+ * This function initializes a server-side operation to send a POST request
+ * to the parking endpoint. It performs input validation, communicates with
+ * the server, handles errors, and validates the response data. If the response
+ * doesn't meet the expected schema, a default server error is thrown.
+ *
+ * Developers should ensure that the input schema provided to the function
+ * matches the expected structure for parking creation.
+ *
+ * Errors are handled using the genericApiErrorHandler utility, and the parsed
+ * response must conform to the genericResponseSchema for successful execution.
+ */
+export const createParking = createServerFn()
+  .inputValidator(createParkingInputSchema)
+  .handler(async ({ data }) => {
+    const response = await authFetch(`${env.SERVER_URL}/parkings`, {
+      method: 'POST',
+      body: JSON.stringify({
+        ...data,
+      }),
+    });
+
+    await genericApiErrorHandler(response);
+
+    const responseData = await response.json();
+
+    const validationResult = genericResponseSchema.safeParse(responseData);
 
     if (!validationResult.success) {
       throw defaultServerError;
