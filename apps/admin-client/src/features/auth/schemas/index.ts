@@ -21,6 +21,8 @@ export const getMeResponseSchema = z.object({
   isSuperAdmin: z.boolean(),
 });
 
+export type GetMeResponseSchema = z.infer<typeof getMeResponseSchema>;
+
 export const refreshTokenSchema = z.object({
   refreshToken: z.jwt().optional(),
 });

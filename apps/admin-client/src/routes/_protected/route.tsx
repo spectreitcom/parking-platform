@@ -13,10 +13,12 @@ export const Route = createFileRoute('/_protected')({
 });
 
 function ProtectedLayout() {
+  const { user } = Route.useRouteContext();
+
   return (
     <SidebarProvider className="min-h-svh">
       <TooltipProvider>
-        <AppSidebar />
+        <AppSidebar user={user} />
         <main className="min-w-0 flex-1 px-4 py-4 md:px-6 lg:px-8">
           <Outlet />
         </main>
