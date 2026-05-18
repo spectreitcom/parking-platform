@@ -42,6 +42,7 @@ import { GetParkingByParkingSpotIdQuery } from './queries/get-parking-by-parking
 import { GetParkingFeatureByIdQuery } from './queries/get-parking-feature-by-id.query';
 import { GetPlaceForEditingQuery } from 'src/modules/parking/application/queries/get-place-for-editing.query';
 import { PlaceReadReadModel } from './query-handlers/read-models/place-read.read-model';
+import { GetParkingByIdQuery } from './queries/get-parking-by-id.query';
 
 @Injectable()
 export class ParkingFacade {
@@ -411,6 +412,14 @@ export class ParkingFacade {
     return await this.queryBus.execute<
       GetParkingFeatureByIdQuery,
       ParkingFeatureItemReadModel
+    >(query);
+  }
+
+  async getParkingById(id: string) {
+    const query = new GetParkingByIdQuery(id);
+    return await this.queryBus.execute<
+      GetParkingByIdQuery,
+      ParkingItemReadModel
     >(query);
   }
 }

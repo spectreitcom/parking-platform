@@ -29,13 +29,91 @@ import { ActivateParkingDto } from './dto/activate-parking.dto';
 import { DeactivateParkingDto } from './dto/deactivate-parking.dto';
 import { DEFAULT_PAGE_SIZE } from 'src/bff/admin-api/constants';
 import { JwtAuthGuard } from 'src/bff/admin-api/auth/guards/jwt-auth.guard';
+import { OrganizationFacade } from 'src/modules/organization/application/organization.facade';
 
 @UseGuards(JwtAuthGuard)
 @ApiBearerAuth('admin-auth')
 @ApiTags('Admin - Parkings')
 @Controller('admin/parkings')
 export class ParkingsController {
-  constructor(private readonly parkingFacade: ParkingFacade) {}
+  constructor(
+    private readonly parkingFacade: ParkingFacade,
+    private readonly organizationFacade: OrganizationFacade,
+  ) {}
+
+  @ApiOperation({ summary: 'Get a parking by ID' })
+  @ApiOkResponse({
+    description: 'Returns a parking object with organization and place details',
+    schema: {
+      type: 'object',
+      properties: {
+        id: { type: 'string', format: 'uuid' },
+        name: { type: 'string' },
+        address: { type: 'string' },
+        active: { type: 'boolean' },
+        longitude: { type: 'number', format: 'float' },
+        latitude: { type: 'number', format: 'float' },
+        statute: { type: 'string' },
+        description: { type: 'string' },
+        assetIds: { type: 'array', items: { type: 'string', format: 'uuid' } },
+        parkingFeatureIds: {
+          type: 'array',
+          items: { type: 'string', format: 'uuid' },
+        },
+        parkingAddonIds: {
+          type: 'array',
+          items: { type: 'string', format: 'uuid' },
+        },
+        organization: {
+          type: 'object',
+          properties: {
+            id: { type: 'string', format: 'uuid' },
+            name: { type: 'string' },
+          },
+        },
+        place: {
+          type: 'object',
+          properties: {
+            id: { type: 'string', format: 'uuid' },
+            name: { type: 'string' },
+          },
+        },
+        version: { type: 'number', format: 'int32', example: 1 },
+        createdAt: { type: 'string', format: 'date-time' },
+        updatedAt: { type: 'string', format: 'date-time' },
+      },
+    },
+  })
+  @ApiBadRequestResponse({ description: 'Validation errors' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+  @Get(':parkingId')
+  async getParkingById(
+    @Param('parkingId', new ParseUUIDPipe()) parkingId: string,
+  ) {
+    const parking = await this.parkingFacade.getParkingById(parkingId);
+
+    const { organizationId, placeId, ...rest } = parking;
+
+    const organization =
+      await this.organizationFacade.getOrganizationByIdForAdmin(organizationId);
+
+    const place = await this.parkingFacade.getPlaceForEditing(placeId);
+
+    return {
+      ...rest,
+      organization: {
+        id: organization.id,
+        name: organization.name,
+      },
+      place: {
+        id: place.placeId,
+        name: place.name,
+      },
+    } satisfies Omit<typeof parking, 'organizationId' | 'placeId'> & {
+      organization: { id: string; name: string };
+      place: { id: string; name: string };
+    };
+  }
 
   @ApiOperation({
     summary: 'Get a list of parkings',
