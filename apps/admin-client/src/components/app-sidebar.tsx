@@ -25,6 +25,7 @@ import {
   ShieldCheck,
   Sparkles,
   Sun,
+  UserRound,
   Users,
 } from 'lucide-react';
 import { useTheme } from '#/hooks/use-theme';
@@ -34,11 +35,15 @@ import { useState } from 'react';
 import type { ReactNode } from 'react';
 import type { FileRouteTypes } from '#/routeTree.gen.ts';
 import { ChangePasswordModal } from '#/features/auth/components/change-password-modal.tsx';
+import type { GetMeResponseSchema } from '#/features/auth/schemas';
 
-export function AppSidebar() {
+export function AppSidebar({
+  user,
+}: Readonly<{ user: GetMeResponseSchema }>) {
   const signOutFn = useServerFn(signOut);
   const { mode, toggleThemeMode } = useTheme();
   const [isChangePasswordOpen, setIsChangePasswordOpen] = useState(false);
+  const userInitials = getUserInitials(user.displayName, user.email);
 
   return (
     <>
@@ -131,6 +136,31 @@ export function AppSidebar() {
         </SidebarContent>
         <Separator />
         <SidebarFooter>
+          <div
+            className="flex items-center gap-3 rounded-lg border bg-background/70 p-3 shadow-xs"
+            title={`${user.displayName} (${user.email})`}
+          >
+            <div className="flex size-9 shrink-0 items-center justify-center rounded-md bg-sidebar-primary text-xs font-semibold text-sidebar-primary-foreground shadow-sm">
+              {userInitials ? (
+                <span aria-hidden="true">{userInitials}</span>
+              ) : (
+                <UserRound className="size-4" />
+              )}
+            </div>
+            <div className="min-w-0 group-data-[collapsible=icon]:hidden">
+              <p className="truncate text-sm font-medium leading-none">
+                {user.displayName}
+              </p>
+              <p className="mt-1 truncate text-xs text-muted-foreground">
+                {user.email}
+              </p>
+              {user.isSuperAdmin ? (
+                <p className="mt-1 truncate text-[0.7rem] font-medium uppercase text-sidebar-primary">
+                  Super Admin
+                </p>
+              ) : null}
+            </div>
+          </div>
           <SidebarMenu>
             <SidebarMenuItem>
               <SidebarMenuButton
@@ -178,6 +208,18 @@ export function AppSidebar() {
       />
     </>
   );
+}
+
+function getUserInitials(displayName: string, email: string) {
+  const source = displayName.trim() || email.trim();
+
+  return source
+    .split(/[\s._-]+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0])
+    .join('')
+    .toUpperCase();
 }
 
 function NavItem({
