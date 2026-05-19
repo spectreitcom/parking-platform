@@ -22,62 +22,64 @@ async function bootstrap() {
     }),
   );
 
-  // Swagger setup
-  const swaggerConfig = new DocumentBuilder()
-    .setTitle('Parking Platform API')
-    .setDescription('API documentation for Parking Platform')
-    .setVersion('1.0.0')
-    .addBearerAuth(
+  if (process.env.NODE_ENV === 'development') {
+    // Swagger setup
+    const swaggerConfig = new DocumentBuilder()
+      .setTitle('Parking Platform API')
+      .setDescription('API documentation for Parking Platform')
+      .setVersion('1.0.0')
+      .addBearerAuth(
+        {
+          type: 'http',
+          scheme: 'bearer',
+          bearerFormat: 'JWT',
+          name: 'JWT',
+          description: 'Enter JWT token',
+          in: 'header',
+        },
+        'auth',
+      )
+      .build();
+
+    const swaggerDocument = SwaggerModule.createDocument(app, swaggerConfig, {
+      include: [ApiModule],
+    });
+
+    SwaggerModule.setup('docs/app', app, swaggerDocument, {
+      useGlobalPrefix: true,
+      jsonDocumentUrl: '/docs/app/json',
+    });
+
+    const adminSwaggerConfig = new DocumentBuilder()
+      .setTitle('Parking Platform API - Admin Client')
+      .setDescription('API documentation for Admin Client')
+      .setVersion('1.0.0')
+      .addBearerAuth(
+        {
+          type: 'http',
+          scheme: 'bearer',
+          bearerFormat: 'JWT',
+          name: 'JWT',
+          description: 'Enter JWT token',
+          in: 'header',
+        },
+        'admin-auth',
+      )
+      .build();
+
+    const adminSwaggerDocument = SwaggerModule.createDocument(
+      app,
+      adminSwaggerConfig,
       {
-        type: 'http',
-        scheme: 'bearer',
-        bearerFormat: 'JWT',
-        name: 'JWT',
-        description: 'Enter JWT token',
-        in: 'header',
+        include: [AdminApiModule],
       },
-      'auth',
-    )
-    .build();
+    );
 
-  const swaggerDocument = SwaggerModule.createDocument(app, swaggerConfig, {
-    include: [ApiModule],
-  });
-
-  SwaggerModule.setup('docs/app', app, swaggerDocument, {
-    useGlobalPrefix: true,
-    jsonDocumentUrl: '/docs/app/json',
-  });
-
-  const adminSwaggerConfig = new DocumentBuilder()
-    .setTitle('Parking Platform API - Admin Client')
-    .setDescription('API documentation for Admin Client')
-    .setVersion('1.0.0')
-    .addBearerAuth(
-      {
-        type: 'http',
-        scheme: 'bearer',
-        bearerFormat: 'JWT',
-        name: 'JWT',
-        description: 'Enter JWT token',
-        in: 'header',
-      },
-      'admin-auth',
-    )
-    .build();
-
-  const adminSwaggerDocument = SwaggerModule.createDocument(
-    app,
-    adminSwaggerConfig,
-    {
-      include: [AdminApiModule],
-    },
-  );
-
-  SwaggerModule.setup('docs/admin', app, adminSwaggerDocument, {
-    useGlobalPrefix: true,
-    jsonDocumentUrl: '/docs/admin/json',
-  });
+    SwaggerModule.setup('docs/admin', app, adminSwaggerDocument, {
+      useGlobalPrefix: true,
+      jsonDocumentUrl: '/docs/admin/json',
+    });
+  }
 
   await app.listen(process.env.PORT ?? 3003);
 }
