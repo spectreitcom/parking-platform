@@ -4,6 +4,8 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { AdminApiModule } from 'src/bff/admin-api/admin-api.module';
+import { ApiModule } from 'src/bff/api/api.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -34,8 +36,23 @@ async function bootstrap() {
         description: 'Enter JWT token',
         in: 'header',
       },
-      'admin-auth',
+      'auth',
     )
+    .build();
+
+  const swaggerDocument = SwaggerModule.createDocument(app, swaggerConfig, {
+    include: [ApiModule],
+  });
+
+  SwaggerModule.setup('docs/app', app, swaggerDocument, {
+    useGlobalPrefix: true,
+    jsonDocumentUrl: '/docs/app/json',
+  });
+
+  const adminSwaggerConfig = new DocumentBuilder()
+    .setTitle('Parking Platform API - Admin Client')
+    .setDescription('API documentation for Admin Client')
+    .setVersion('1.0.0')
     .addBearerAuth(
       {
         type: 'http',
@@ -45,14 +62,21 @@ async function bootstrap() {
         description: 'Enter JWT token',
         in: 'header',
       },
-      'auth',
+      'admin-auth',
     )
     .build();
-  const swaggerDocument = SwaggerModule.createDocument(app, swaggerConfig);
 
-  SwaggerModule.setup('docs', app, swaggerDocument, {
+  const adminSwaggerDocument = SwaggerModule.createDocument(
+    app,
+    adminSwaggerConfig,
+    {
+      include: [AdminApiModule],
+    },
+  );
+
+  SwaggerModule.setup('docs/admin', app, adminSwaggerDocument, {
     useGlobalPrefix: true,
-    jsonDocumentUrl: '/docs-json',
+    jsonDocumentUrl: '/docs/admin/json',
   });
 
   await app.listen(process.env.PORT ?? 3003);
