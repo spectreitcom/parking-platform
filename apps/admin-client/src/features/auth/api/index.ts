@@ -153,10 +153,13 @@ export const changePassword = createServerFn()
 export const requestResetPassword = createServerFn()
   .inputValidator(requestResetPasswordInputSchema)
   .handler(async ({ data }) => {
-    const response = await authFetch(
+    const response = await fetch(
       `${env.SERVER_URL}/auth/request-reset-password-token`,
       {
         method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
         body: JSON.stringify(data),
       },
     );
@@ -179,9 +182,12 @@ export const requestResetPassword = createServerFn()
 export const resetPassword = createServerFn()
   .inputValidator(resetPasswordInputSchema)
   .handler(async ({ data }) => {
-    const response = await authFetch(`${env.SERVER_URL}/auth/reset-password`, {
+    const response = await fetch(`${env.SERVER_URL}/auth/reset-password`, {
       method: 'POST',
       body: JSON.stringify(data),
+      headers: {
+        'Content-Type': 'application/json',
+      },
     });
 
     await genericApiErrorHandler(response);
