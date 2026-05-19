@@ -8,7 +8,7 @@ import { useServerFn } from '@tanstack/react-start';
 import { signIn } from '#/features/auth/api';
 import { useForm } from '@tanstack/react-form';
 import { signInSchema } from '#/features/auth/schemas';
-import { isRedirect } from '@tanstack/react-router';
+import { Link, isRedirect } from '@tanstack/react-router';
 import { LockKeyhole, Mail } from 'lucide-react';
 
 export function SignInForm() {
@@ -116,6 +116,12 @@ export function SignInForm() {
           );
         }}
       />
+
+      <div className="flex justify-end">
+        <Button asChild type="button" variant="link" className="h-auto px-0">
+          <Link to="/auth/reset-password">Nie pamiętasz hasła?</Link>
+        </Button>
+      </div>
 
       <Button
         type={'submit'}

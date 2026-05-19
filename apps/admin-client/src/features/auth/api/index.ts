@@ -2,6 +2,8 @@ import { createServerFn } from '@tanstack/react-start';
 import {
   changePasswordInputSchema,
   getMeResponseSchema,
+  requestResetPasswordInputSchema,
+  resetPasswordInputSchema,
   signInResponseSchema,
 } from '#/features/auth/schemas';
 import type { SignInSchema } from '#/features/auth/schemas';
@@ -131,6 +133,53 @@ export const changePassword = createServerFn()
   .inputValidator(changePasswordInputSchema)
   .handler(async ({ data }) => {
     const response = await authFetch(`${env.SERVER_URL}/auth/change-password`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+
+    await genericApiErrorHandler(response);
+  });
+
+/**
+ * A function used to initiate a password reset request for a user.
+ * This function validates the provided input data, sends a POST request to the server
+ * to request a reset password token, and processes the response.
+ * Specifically, it ensures errors are handled using a generic API error handler.
+ *
+ * The server URL endpoint for the request is defined by the application configuration.
+ *
+ * The input data for this function is validated against a predefined schema.
+ */
+export const requestResetPassword = createServerFn()
+  .inputValidator(requestResetPasswordInputSchema)
+  .handler(async ({ data }) => {
+    const response = await authFetch(
+      `${env.SERVER_URL}/auth/request-reset-password-token`,
+      {
+        method: 'POST',
+        body: JSON.stringify(data),
+      },
+    );
+
+    await genericApiErrorHandler(response);
+  });
+
+/**
+ * Function to handle resetting user passwords through a server-side operation.
+ * This function uses an input validator to validate the input schema, then sends
+ * a POST request with the provided data to the server's reset-password endpoint.
+ * It also handles generic API errors that may occur during the operation.
+ *
+ * The `resetPassword` variable is initialized using a server function generator
+ * and incorporates the following steps:
+ * 1. Input validation using `resetPasswordInputSchema` to ensure required data is valid.
+ * 2. Sending a request to reset the password via the server's API.
+ * 3. Handling potential errors through a generic API error handler function.
+ */
+export const resetPassword = createServerFn()
+  .inputValidator(resetPasswordInputSchema)
+  .handler(async ({ data }) => {
+    const response = await authFetch(`${env.SERVER_URL}/auth/reset-password`, {
       method: 'POST',
       body: JSON.stringify(data),
     });
