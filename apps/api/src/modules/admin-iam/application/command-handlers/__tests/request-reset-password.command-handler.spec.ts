@@ -77,7 +77,7 @@ describe('RequestResetPasswordCommandHandler', () => {
     );
     expect(outboxService.enqueue).toHaveBeenCalledWith(
       expect.any(IntegrationEvent),
-      { deduplicate: true },
+      { deduplicate: false },
       'mock-prisma-tx',
     );
     const enqueuedEvent = outboxService.enqueue.mock.calls[0][0];
