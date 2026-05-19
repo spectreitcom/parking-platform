@@ -13,6 +13,7 @@ import { Route as AuthRouteRouteImport } from './routes/auth/route'
 import { Route as ProtectedRouteRouteImport } from './routes/_protected/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthSignInIndexRouteImport } from './routes/auth/sign-in/index'
+import { Route as AuthResetPasswordIndexRouteImport } from './routes/auth/reset-password/index'
 import { Route as ProtectedAppIndexRouteImport } from './routes/_protected/app/index'
 import { Route as ProtectedAppParkingsIndexRouteImport } from './routes/_protected/app/parkings/index'
 import { Route as ProtectedAppOrganizationsIndexRouteImport } from './routes/_protected/app/organizations/index'
@@ -41,6 +42,11 @@ const IndexRoute = IndexRouteImport.update({
 const AuthSignInIndexRoute = AuthSignInIndexRouteImport.update({
   id: '/sign-in/',
   path: '/sign-in/',
+  getParentRoute: () => AuthRouteRoute,
+} as any)
+const AuthResetPasswordIndexRoute = AuthResetPasswordIndexRouteImport.update({
+  id: '/reset-password/',
+  path: '/reset-password/',
   getParentRoute: () => AuthRouteRoute,
 } as any)
 const ProtectedAppIndexRoute = ProtectedAppIndexRouteImport.update({
@@ -107,6 +113,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRouteRouteWithChildren
   '/app/': typeof ProtectedAppIndexRoute
+  '/auth/reset-password/': typeof AuthResetPasswordIndexRoute
   '/auth/sign-in/': typeof AuthSignInIndexRoute
   '/app/organizations/$organizationId': typeof ProtectedAppOrganizationsOrganizationIdRoute
   '/app/parkings/$parkingId': typeof ProtectedAppParkingsParkingIdRoute
@@ -122,6 +129,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRouteRouteWithChildren
   '/app': typeof ProtectedAppIndexRoute
+  '/auth/reset-password': typeof AuthResetPasswordIndexRoute
   '/auth/sign-in': typeof AuthSignInIndexRoute
   '/app/organizations/$organizationId': typeof ProtectedAppOrganizationsOrganizationIdRoute
   '/app/parkings/$parkingId': typeof ProtectedAppParkingsParkingIdRoute
@@ -139,6 +147,7 @@ export interface FileRoutesById {
   '/_protected': typeof ProtectedRouteRouteWithChildren
   '/auth': typeof AuthRouteRouteWithChildren
   '/_protected/app/': typeof ProtectedAppIndexRoute
+  '/auth/reset-password/': typeof AuthResetPasswordIndexRoute
   '/auth/sign-in/': typeof AuthSignInIndexRoute
   '/_protected/app/organizations/$organizationId': typeof ProtectedAppOrganizationsOrganizationIdRoute
   '/_protected/app/parkings/$parkingId': typeof ProtectedAppParkingsParkingIdRoute
@@ -156,6 +165,7 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/app/'
+    | '/auth/reset-password/'
     | '/auth/sign-in/'
     | '/app/organizations/$organizationId'
     | '/app/parkings/$parkingId'
@@ -171,6 +181,7 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/app'
+    | '/auth/reset-password'
     | '/auth/sign-in'
     | '/app/organizations/$organizationId'
     | '/app/parkings/$parkingId'
@@ -187,6 +198,7 @@ export interface FileRouteTypes {
     | '/_protected'
     | '/auth'
     | '/_protected/app/'
+    | '/auth/reset-password/'
     | '/auth/sign-in/'
     | '/_protected/app/organizations/$organizationId'
     | '/_protected/app/parkings/$parkingId'
@@ -233,6 +245,13 @@ declare module '@tanstack/react-router' {
       path: '/sign-in'
       fullPath: '/auth/sign-in/'
       preLoaderRoute: typeof AuthSignInIndexRouteImport
+      parentRoute: typeof AuthRouteRoute
+    }
+    '/auth/reset-password/': {
+      id: '/auth/reset-password/'
+      path: '/reset-password'
+      fullPath: '/auth/reset-password/'
+      preLoaderRoute: typeof AuthResetPasswordIndexRouteImport
       parentRoute: typeof AuthRouteRoute
     }
     '/_protected/app/': {
@@ -343,10 +362,12 @@ const ProtectedRouteRouteWithChildren = ProtectedRouteRoute._addFileChildren(
 )
 
 interface AuthRouteRouteChildren {
+  AuthResetPasswordIndexRoute: typeof AuthResetPasswordIndexRoute
   AuthSignInIndexRoute: typeof AuthSignInIndexRoute
 }
 
 const AuthRouteRouteChildren: AuthRouteRouteChildren = {
+  AuthResetPasswordIndexRoute: AuthResetPasswordIndexRoute,
   AuthSignInIndexRoute: AuthSignInIndexRoute,
 }
 

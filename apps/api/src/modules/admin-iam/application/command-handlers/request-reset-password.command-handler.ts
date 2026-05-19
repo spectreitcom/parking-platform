@@ -45,7 +45,7 @@ export class RequestResetPasswordCommandHandler implements ICommandHandler<
         'AdminUser',
         adminUser.getId().value,
       );
-      await this.outboxService.enqueue(event, { deduplicate: true }, prisma);
+      await this.outboxService.enqueue(event, { deduplicate: false }, prisma);
     });
   }
 }
