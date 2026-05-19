@@ -27,8 +27,6 @@ export const refreshTokenSchema = z.object({
   refreshToken: z.jwt().optional(),
 });
 
-export type RefreshTokenSchema = z.infer<typeof refreshTokenSchema>;
-
 export const changePasswordInputSchema = z.object({
   existingPassword: z
     .string()

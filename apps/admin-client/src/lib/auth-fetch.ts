@@ -4,7 +4,6 @@ import {
   refreshTokenSchema,
   signInResponseSchema,
 } from '#/features/auth/schemas';
-import type { RefreshTokenSchema } from '#/features/auth/schemas';
 import { env } from '#/env.ts';
 import { redirect } from '@tanstack/react-router';
 import { apiErrorSchema } from '#/lib/schemas.ts';
@@ -16,13 +15,7 @@ export const defaultServerError = new Error(
 );
 
 const refreshToken = createServerFn()
-  .inputValidator((data: RefreshTokenSchema) => {
-    const validationResult = refreshTokenSchema.safeParse(data);
-    if (!validationResult.success) {
-      throw new Error(validationResult.error.message);
-    }
-    return validationResult.data;
-  })
+  .inputValidator(refreshTokenSchema)
   .handler(async ({ data }) => {
     const response = await fetch(`${env.SERVER_URL}/auth/refresh-token`, {
       method: 'POST',
@@ -74,7 +67,7 @@ export const authFetch = async (...args: FetchParameter) => {
   if (!response.ok && response.status === 401) {
     const { accessToken } = await refreshToken({
       data: {
-        refreshToken: session.data.refreshToken ?? '',
+        refreshToken: session.data.refreshToken ?? undefined,
       },
     });
     return await fetch(args[0], {
