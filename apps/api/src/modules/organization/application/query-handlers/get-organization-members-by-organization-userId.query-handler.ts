@@ -17,7 +17,7 @@ export class GetOrganizationMembersByOrganizationUserIdQueryHandler implements I
   async execute(
     query: GetOrganizationMembersByOrganizationUserIdQuery,
   ): Promise<GetOrganizationMembersByOrganizationUserIdQueryResponse> {
-    const members = await this.prismaService.organizationMember.findMany({
+    return this.prismaService.organizationMember.findMany({
       where: {
         organizationUserId: query.organizationUserId,
       },
@@ -26,7 +26,5 @@ export class GetOrganizationMembersByOrganizationUserIdQueryHandler implements I
         isRoot: true,
       },
     });
-
-    return members;
   }
 }
