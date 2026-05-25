@@ -25,7 +25,7 @@ describe('SignInCommandHandler', () => {
 
   beforeEach(async () => {
     organizationUserRepository = {
-      findByEmail: jest.fn(),
+      findById: jest.fn(),
     } as unknown as jest.Mocked<OrganizationUserRepository>;
 
     passwordService = {
@@ -62,14 +62,12 @@ describe('SignInCommandHandler', () => {
   });
 
   it('should sign in successfully', async () => {
-    const email = 'test@example.com';
-    const password = 'password';
     const organizationUserId = randomUUID();
-    const command = new SignInCommand(email, password);
+    const command = new SignInCommand(organizationUserId);
 
     const organizationUser = OrganizationUser.reconstruct(
       OrganizationUserId.fromString(organizationUserId),
-      Email.fromString(email),
+      Email.fromString('test@example.com'),
       OrganizationUserStatus.active(),
       AggregateVersion.one(),
       OrganizationUserDisplayName.fromString('Test User'),
@@ -78,8 +76,7 @@ describe('SignInCommandHandler', () => {
       'hashed-password',
     );
 
-    organizationUserRepository.findByEmail.mockResolvedValue(organizationUser);
-    passwordService.compare.mockResolvedValue(true);
+    organizationUserRepository.findById.mockResolvedValue(organizationUser);
     accessTokenService.createToken.mockReturnValue('access-token');
     refreshTokenService.createToken.mockReturnValue('refresh-token');
 
@@ -89,10 +86,8 @@ describe('SignInCommandHandler', () => {
       accessToken: 'access-token',
       refreshToken: 'refresh-token',
     });
-    expect(organizationUserRepository.findByEmail).toHaveBeenCalledWith(email);
-    expect(passwordService.compare).toHaveBeenCalledWith(
-      'hashed-password',
-      password,
+    expect(organizationUserRepository.findById).toHaveBeenCalledWith(
+      organizationUserId,
     );
     expect(accessTokenService.createToken).toHaveBeenCalledWith(
       organizationUserId,
@@ -104,9 +99,9 @@ describe('SignInCommandHandler', () => {
   });
 
   it('should throw error if user not found', async () => {
-    const email = 'notfound@example.com';
-    const command = new SignInCommand(email, 'password');
-    organizationUserRepository.findByEmail.mockResolvedValue(null);
+    const organizationUserId = randomUUID();
+    const command = new SignInCommand(organizationUserId);
+    organizationUserRepository.findById.mockResolvedValue(null);
 
     await expect(handler.execute(command)).rejects.toThrow(
       new AppError('WRONG_CREDENTIALS', 'Invalid credentials'),
@@ -114,11 +109,11 @@ describe('SignInCommandHandler', () => {
   });
 
   it('should throw error if user is not active', async () => {
-    const email = 'suspended@example.com';
-    const command = new SignInCommand(email, 'password');
+    const organizationUserId = randomUUID();
+    const command = new SignInCommand(organizationUserId);
     const organizationUser = OrganizationUser.reconstruct(
-      OrganizationUserId.fromString(randomUUID()),
-      Email.fromString(email),
+      OrganizationUserId.fromString(organizationUserId),
+      Email.fromString('suspended@example.com'),
       OrganizationUserStatus.suspended(),
       AggregateVersion.one(),
       OrganizationUserDisplayName.fromString('Test User'),
@@ -126,28 +121,7 @@ describe('SignInCommandHandler', () => {
       new Date(),
       'hashed-password',
     );
-    organizationUserRepository.findByEmail.mockResolvedValue(organizationUser);
-
-    await expect(handler.execute(command)).rejects.toThrow(
-      new AppError('WRONG_CREDENTIALS', 'Invalid credentials'),
-    );
-  });
-
-  it('should throw error if password is invalid', async () => {
-    const email = 'test@example.com';
-    const command = new SignInCommand(email, 'wrong-password');
-    const organizationUser = OrganizationUser.reconstruct(
-      OrganizationUserId.fromString(randomUUID()),
-      Email.fromString(email),
-      OrganizationUserStatus.active(),
-      AggregateVersion.one(),
-      OrganizationUserDisplayName.fromString('Test User'),
-      new Date(),
-      new Date(),
-      'hashed-password',
-    );
-    organizationUserRepository.findByEmail.mockResolvedValue(organizationUser);
-    passwordService.compare.mockResolvedValue(false);
+    organizationUserRepository.findById.mockResolvedValue(organizationUser);
 
     await expect(handler.execute(command)).rejects.toThrow(
       new AppError('WRONG_CREDENTIALS', 'Invalid credentials'),

@@ -4,10 +4,10 @@ import { UpdateOrganizationUserCommand } from './commands/update-organization-us
 import { ActivateOrganizationUserCommand } from './commands/activate-organization-user.command';
 import { SuspendOrganizationUserCommand } from './commands/suspend-organization-user.command';
 import { InviteOrganizationUserCommand } from './commands/invite-organization-user.command';
-import { ChangeOrganizationUserPasswordCommand } from './commands/change-organization-user-password.command';
 import { RequestResetPasswordCommand } from './commands/request-reset-password.command';
 import { ResetPasswordCommand } from './commands/reset-password.command';
 import { SignInCommand } from './commands/sign-in.command';
+import { RefreshTokenCommand } from './commands/refresh-token.command';
 import { SignOutCommand } from './commands/sign-out.command';
 import { SignInCommandResponse } from './command-handlers/sign-in.command-handler';
 import { ValidateResetPasswordTokenQuery } from './queries/validate-reset-password-token.query';
@@ -15,7 +15,10 @@ import { GenerateResetPasswordTokenCommand } from './commands/generate-reset-pas
 import { GetOrganizationUsersListQuery } from './queries/get-organization-users-list.query';
 import { GetOrganizationUsersTotalQuery } from './queries/get-organization-users-total.query';
 import { OrganizationUserListItemReadModel } from './query-handlers/read-models/organization-user-list-item.read-model';
-import { GetOrganizationUserByIdQuery } from 'src/modules/organization-user-iam/application/queries/get-organization-user-by-id.query';
+import { GetOrganizationUserByIdQuery } from './queries/get-organization-user-by-id.query';
+import { ValidateUserQuery } from './queries/validate-user.query';
+import { OrganizationUserReadModel } from './query-handlers/read-models/organization-user.read-model';
+import { ChangePasswordCommand } from './commands/change-password.command';
 
 @Injectable()
 export class OrganizationUserIamFacade {
@@ -75,21 +78,21 @@ export class OrganizationUserIamFacade {
     );
   }
 
-  async changeOrganizationUserPassword(
-    organizationUserId: string,
-    passwordHash: string,
-    version: number,
-  ): Promise<void> {
-    const command = new ChangeOrganizationUserPasswordCommand(
-      organizationUserId,
-      passwordHash,
-      version,
-    );
-    return await this.commandBus.execute<
-      ChangeOrganizationUserPasswordCommand,
-      void
-    >(command);
-  }
+  // async changeOrganizationUserPassword(
+  //   organizationUserId: string,
+  //   passwordHash: string,
+  //   version: number,
+  // ): Promise<void> {
+  //   const command = new ChangeOrganizationUserPasswordCommand(
+  //     organizationUserId,
+  //     passwordHash,
+  //     version,
+  //   );
+  //   return await this.commandBus.execute<
+  //     ChangeOrganizationUserPasswordCommand,
+  //     void
+  //   >(command);
+  // }
 
   async requestResetPassword(email: string): Promise<void> {
     const command = new RequestResetPasswordCommand(email);
@@ -106,11 +109,8 @@ export class OrganizationUserIamFacade {
     return await this.commandBus.execute<ResetPasswordCommand, void>(command);
   }
 
-  async signIn(
-    email: string,
-    password: string,
-  ): Promise<SignInCommandResponse> {
-    const command = new SignInCommand(email, password);
+  async signIn(organizationUserId: string): Promise<SignInCommandResponse> {
+    const command = new SignInCommand(organizationUserId);
     return await this.commandBus.execute<SignInCommand, SignInCommandResponse>(
       command,
     );
@@ -119,6 +119,14 @@ export class OrganizationUserIamFacade {
   async signOut(organizationUserId: string): Promise<void> {
     const command = new SignOutCommand(organizationUserId);
     return await this.commandBus.execute<SignOutCommand, void>(command);
+  }
+
+  async refreshToken(refreshToken: string): Promise<SignInCommandResponse> {
+    const command = new RefreshTokenCommand(refreshToken);
+    return await this.commandBus.execute<
+      RefreshTokenCommand,
+      SignInCommandResponse
+    >(command);
   }
 
   async validateResetPasswordToken(
@@ -168,5 +176,26 @@ export class OrganizationUserIamFacade {
       GetOrganizationUserByIdQuery,
       OrganizationUserListItemReadModel
     >(query);
+  }
+
+  async validateUser(email: string, password: string) {
+    const query = new ValidateUserQuery(email, password);
+    return await this.queryBus.execute<
+      ValidateUserQuery,
+      OrganizationUserReadModel
+    >(query);
+  }
+
+  async changePassword(
+    id: string,
+    existingPassword: string,
+    newPassword: string,
+  ) {
+    const command = new ChangePasswordCommand(
+      id,
+      existingPassword,
+      newPassword,
+    );
+    return await this.commandBus.execute<ChangePasswordCommand, void>(command);
   }
 }
