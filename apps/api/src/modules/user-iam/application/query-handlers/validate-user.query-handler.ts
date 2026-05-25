@@ -22,10 +22,11 @@ export class ValidateUserQueryHandler implements IQueryHandler<
       where: { email },
     });
 
-    if (!record) throw new AppError('UNAUTHORIZED', 'Unauthorized');
+    if (!record || !record.passwordHash)
+      throw new AppError('UNAUTHORIZED', 'Unauthorized');
 
     const isPasswordValid = await this.passwordService.compare(
-      record?.passwordHash ?? '',
+      record.passwordHash,
       password,
     );
 

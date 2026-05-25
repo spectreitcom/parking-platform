@@ -8,6 +8,8 @@ import { GenerateResetPasswordTokenCommandHandler } from './generate-reset-passw
 import { ResetPasswordCommandHandler } from './reset-password.command-handler';
 import { SignInCommandHandler } from './sign-in.command-handler';
 import { SignOutCommandHandler } from './sign-out.command-handler';
+import { ChangePasswordCommandHandler } from './change-password.command-handler';
+import { RefreshTokenCommandHandler } from './refresh-token.command-handler';
 
 export const commandHandlers = [
   UpdateOrganizationUserCommandHandler,
@@ -20,4 +22,6 @@ export const commandHandlers = [
   ResetPasswordCommandHandler,
   SignInCommandHandler,
   SignOutCommandHandler,
+  ChangePasswordCommandHandler,
+  RefreshTokenCommandHandler,
 ];

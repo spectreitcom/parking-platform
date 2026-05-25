@@ -31,8 +31,14 @@ export class ChangePasswordCommandHandler implements ICommandHandler<
       );
     }
 
+    const passwordHash = user.getPasswordHash();
+
+    if (!passwordHash) {
+      throw new AppError('VALIDATION_ERROR', 'Invalid existing password');
+    }
+
     const isValid = await this.passwordService.compare(
-      user.getPasswordHash() ?? '',
+      passwordHash,
       existingPassword,
     );
 

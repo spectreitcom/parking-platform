@@ -28,10 +28,10 @@ export class SignInCommandHandler implements ICommandHandler<
   ) {}
 
   async execute(command: SignInCommand): Promise<SignInCommandResponse> {
-    const { email, password } = command;
+    const { organizationUserId } = command;
 
     const organizationUser =
-      await this.organizationUserRepository.findByEmail(email);
+      await this.organizationUserRepository.findById(organizationUserId);
 
     const canSignIn =
       organizationUser &&
@@ -40,17 +40,6 @@ export class SignInCommandHandler implements ICommandHandler<
     if (!canSignIn) {
       throw new AppError('WRONG_CREDENTIALS', 'Invalid credentials');
     }
-
-    const isPasswordValid = await this.passwordService.compare(
-      organizationUser.getPasswordHash() || '',
-      password,
-    );
-
-    if (!isPasswordValid) {
-      throw new AppError('WRONG_CREDENTIALS', 'Invalid credentials');
-    }
-
-    const organizationUserId = organizationUser.getId().value;
 
     const accessToken = this.accessTokenService.createToken(organizationUserId);
 

@@ -10,6 +10,8 @@ import { GetOrganizationListForAdminTotalQuery } from './queries/get-organizatio
 import { GetOrganizationByIdForAdminQuery } from './queries/get-organization-by-id-for-admin.query';
 import { SearchOrganizationUsersQuery } from './queries/search-organization-users.query';
 import { SearchedOrganizationUserItemReadModel } from './query-handlers/read-models/searched-organization-user-item.read-model';
+import { GetOrganizationMembersByOrganizationUserIdQuery } from './queries/get-organization-members-by-organization-userId.query';
+import { GetOrganizationMembersByOrganizationUserIdQueryResponse } from './query-handlers/get-organization-members-by-organization-userId.query-handler';
 
 @Injectable()
 export class OrganizationFacade {
@@ -100,6 +102,16 @@ export class OrganizationFacade {
     return await this.queryBus.execute<
       SearchOrganizationUsersQuery,
       SearchedOrganizationUserItemReadModel[]
+    >(query);
+  }
+
+  async getOrganizationMembersByOrganizationUserId(organizationUserId: string) {
+    const query = new GetOrganizationMembersByOrganizationUserIdQuery(
+      organizationUserId,
+    );
+    return await this.queryBus.execute<
+      GetOrganizationMembersByOrganizationUserIdQuery,
+      GetOrganizationMembersByOrganizationUserIdQueryResponse
     >(query);
   }
 }

@@ -26,8 +26,14 @@ export class ChangePasswordCommandHandler implements ICommandHandler<
 
     this.eventPublisher.mergeObjectContext(adminUser);
 
+    const passwordHash = adminUser.getPasswordHash();
+
+    if (!passwordHash) {
+      throw new AppError('VALIDATION_ERROR', 'Invalid existing password');
+    }
+
     const isValid = await this.passwordService.compare(
-      adminUser.getPasswordHash() ?? '',
+      passwordHash,
       existingPassword,
     );
 
