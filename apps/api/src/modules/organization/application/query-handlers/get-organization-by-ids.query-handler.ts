@@ -1,56 +1,26 @@
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
-import { GetOrganizationListForAdminQuery } from '../queries/get-organization-list-for-admin.query';
+import { GetOrganizationByIdsQuery } from '../queries/get-organization-by-ids.query';
 import { OrganizationReadModel } from './read-models/organization.read-model';
 import { PrismaService } from 'src/shared/prisma/prisma.service';
-import { Prisma } from '@prisma/client';
 
-export const getOrganizationListForAdminQueryWhere: (
-  search?: string,
-) => Prisma.OrganizationListForAdminReadWhereInput = (search?: string) =>
-  search
-    ? {
-        OR: [
-          {
-            name: {
-              contains: search,
-              mode: 'insensitive',
-            },
-          },
-          {
-            address: {
-              contains: search,
-              mode: 'insensitive',
-            },
-          },
-          {
-            taxId: {
-              contains: search,
-              mode: 'insensitive',
-            },
-          },
-        ],
-      }
-    : {};
-
-@QueryHandler(GetOrganizationListForAdminQuery)
-export class GetOrganizationListForAdminQueryHandler implements IQueryHandler<
-  GetOrganizationListForAdminQuery,
+@QueryHandler(GetOrganizationByIdsQuery)
+export class GetOrganizationByIdsQueryHandler implements IQueryHandler<
+  GetOrganizationByIdsQuery,
   OrganizationReadModel[]
 > {
   constructor(private readonly prismaService: PrismaService) {}
 
   async execute(
-    query: GetOrganizationListForAdminQuery,
+    query: GetOrganizationByIdsQuery,
   ): Promise<OrganizationReadModel[]> {
-    const { page, limit, search } = query;
+    const { ids } = query;
 
     const records =
       await this.prismaService.organizationListForAdminRead.findMany({
-        where: getOrganizationListForAdminQueryWhere(search),
-        skip: (page - 1) * limit,
-        take: limit,
-        orderBy: {
-          id: 'asc',
+        where: {
+          organizationId: {
+            in: ids,
+          },
         },
       });
 

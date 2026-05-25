@@ -1,19 +1,19 @@
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { GetOrganizationByIdForAdminQuery } from '../queries/get-organization-by-id-for-admin.query';
-import { OrganizationListForAdminItemReadModel } from './read-models/organization-list-for-admin-item.read-model';
+import { OrganizationReadModel } from './read-models/organization.read-model';
 import { PrismaService } from 'src/shared/prisma/prisma.service';
 import { AppError } from 'src/shared/errors';
 
 @QueryHandler(GetOrganizationByIdForAdminQuery)
 export class GetOrganizationByIdForAdminQueryHandler implements IQueryHandler<
   GetOrganizationByIdForAdminQuery,
-  OrganizationListForAdminItemReadModel
+  OrganizationReadModel
 > {
   constructor(private readonly prismaService: PrismaService) {}
 
   async execute(
     query: GetOrganizationByIdForAdminQuery,
-  ): Promise<OrganizationListForAdminItemReadModel> {
+  ): Promise<OrganizationReadModel> {
     const { organizationId } = query;
 
     const record =
@@ -42,20 +42,19 @@ export class GetOrganizationByIdForAdminQueryHandler implements IQueryHandler<
         },
       });
 
-    const _members: OrganizationListForAdminItemReadModel['members'] =
-      members.map((member) => {
-        const organizationUser = organizationUsers.find(
-          (user) => user.organizationUserId === member.organizationUserId,
-        );
+    const _members: OrganizationReadModel['members'] = members.map((member) => {
+      const organizationUser = organizationUsers.find(
+        (user) => user.organizationUserId === member.organizationUserId,
+      );
 
-        return {
-          ...member,
-          displayName: organizationUser?.displayName ?? '',
-          email: organizationUser?.email ?? '',
-        };
-      });
+      return {
+        ...member,
+        displayName: organizationUser?.displayName ?? '',
+        email: organizationUser?.email ?? '',
+      };
+    });
 
-    return new OrganizationListForAdminItemReadModel(
+    return new OrganizationReadModel(
       record.organizationId,
       record.name,
       record.address,

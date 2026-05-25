@@ -3,6 +3,7 @@ import { GetOrganizationListForAdminTotalQueryHandler } from './get-organization
 import { GetOrganizationByIdForAdminQueryHandler } from './get-organization-by-id-for-admin.query-handler';
 import { SearchOrganizationUsersQueryHandler } from './search-organization-users.query-handler';
 import { GetOrganizationMembersByOrganizationUserIdQueryHandler } from './get-organization-members-by-organization-userId.query-handler';
+import { GetOrganizationByIdsQueryHandler } from './get-organization-by-ids.query-handler';
 
 export const queryHandlers = [
   GetOrganizationListForAdminQueryHandler,
@@ -10,4 +11,5 @@ export const queryHandlers = [
   GetOrganizationByIdForAdminQueryHandler,
   SearchOrganizationUsersQueryHandler,
   GetOrganizationMembersByOrganizationUserIdQueryHandler,
+  GetOrganizationByIdsQueryHandler,
 ];
