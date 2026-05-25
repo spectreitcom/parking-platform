@@ -137,7 +137,7 @@ export class ParkingsController {
         id: string;
         name: string;
         address: string;
-      };
+      } | null;
     })[] = [];
 
     for (const parking of parkings) {
@@ -147,11 +147,13 @@ export class ParkingsController {
 
       data.push({
         ...rest,
-        place: {
-          id: place?.placeId ?? '',
-          name: place?.name ?? '',
-          address: place?.address ?? '',
-        },
+        place: place
+          ? {
+              id: place.placeId,
+              name: place.name,
+              address: place.address,
+            }
+          : null,
       });
     }
 

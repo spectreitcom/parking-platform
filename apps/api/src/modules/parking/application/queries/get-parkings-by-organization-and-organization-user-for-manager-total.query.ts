@@ -16,7 +16,7 @@ export class GetParkingsByOrganizationAndOrganizationUserForManagerTotalQuery im
     if (errors.length > 0) {
       throw new AppError(
         'VALIDATION_ERROR',
-        'Invalid GetParkingsByOrganizationAndOrganizationUserForManagerQuery',
+        'Invalid GetParkingsByOrganizationAndOrganizationUserForManagerTotalQuery',
       );
     }
   }

@@ -21,6 +21,7 @@ export class GetParkingsByOrganizationAndOrganizationUserForManagerQueryHandler 
       },
       take: limit,
       skip: (page - 1) * limit,
+      orderBy: [{ createdAt: 'desc' }, { id: 'asc' }],
     });
 
     return records.map(
