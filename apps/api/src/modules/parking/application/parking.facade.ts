@@ -24,6 +24,7 @@ import { DeactivateParkingSpotCommand } from './commands/deactivate-parking-spot
 import { GetPlacesListForAdminQuery } from './queries/get-places-list-for-admin.query';
 import { PlaceListForAdminItemReadModel } from './query-handlers/read-models/place-list-for-admin-item.read-model';
 import { GetPlacesListForAdminTotalQuery } from './queries/get-places-list-for-admin-total.query';
+import { GetPlaceByIdsQuery } from './queries/get-place-by-ids.query';
 import { GetParkingListForAdminQuery } from './queries/get-parking-list-for-admin.query';
 import { ParkingListForAdminItemReadModel } from './query-handlers/read-models/parking-list-for-admin-item.read-model';
 import { GetParkingListForAdminTotalQuery } from './queries/get-parking-list-for-admin-total.query';
@@ -47,6 +48,9 @@ import { ParkingFeatureReadModel } from './query-handlers/read-models/parking-fe
 import { GetPlaceForEditingQuery } from 'src/modules/parking/application/queries/get-place-for-editing.query';
 import { PlaceReadReadModel } from './query-handlers/read-models/place-read.read-model';
 import { GetParkingByIdQuery } from './queries/get-parking-by-id.query';
+import { GetParkingsByOrganizationAndOrganizationUserForManagerQuery } from './queries/get-parkings-by-organization-and-organization-user-for-manager.query';
+import { GetParkingsByOrganizationAndOrganizationUserForManagerTotalQuery } from './queries/get-parkings-by-organization-and-organization-user-for-manager-total.query';
+import { ParkingForManagerItemReadModel } from './query-handlers/read-models/parking-for-manager-item.read-model';
 
 @Injectable()
 export class ParkingFacade {
@@ -320,6 +324,14 @@ export class ParkingFacade {
     );
   }
 
+  async getPlaceByIds(ids: string[]) {
+    const query = new GetPlaceByIdsQuery(ids);
+    return await this.queryBus.execute<
+      GetPlaceByIdsQuery,
+      PlaceReadReadModel[]
+    >(query);
+  }
+
   async getParkingListForAdmin(page: number, limit: number, search?: string) {
     const query = new GetParkingListForAdminQuery(page, limit, search);
     return await this.queryBus.execute<
@@ -444,6 +456,36 @@ export class ParkingFacade {
     return await this.queryBus.execute<
       GetParkingFeatureByIdsQuery,
       ParkingFeatureReadModel[]
+    >(query);
+  }
+
+  async getParkingsByOrganizationAndOrganizationUserForManager(
+    organizationId: string,
+    page: number,
+    limit: number,
+  ) {
+    const query =
+      new GetParkingsByOrganizationAndOrganizationUserForManagerQuery(
+        organizationId,
+        page,
+        limit,
+      );
+    return await this.queryBus.execute<
+      GetParkingsByOrganizationAndOrganizationUserForManagerQuery,
+      ParkingForManagerItemReadModel[]
+    >(query);
+  }
+
+  async getParkingsByOrganizationAndOrganizationUserForManagerTotal(
+    organizationId: string,
+  ) {
+    const query =
+      new GetParkingsByOrganizationAndOrganizationUserForManagerTotalQuery(
+        organizationId,
+      );
+    return await this.queryBus.execute<
+      GetParkingsByOrganizationAndOrganizationUserForManagerTotalQuery,
+      number
     >(query);
   }
 }
