@@ -1,4 +1,4 @@
-export class OrganizationListForAdminItemReadModel {
+export class OrganizationReadModel {
   constructor(
     public readonly id: string,
     public readonly name: string,

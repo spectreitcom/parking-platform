@@ -5,13 +5,14 @@ import { UpdateOrganizationCommand } from './commands/update-organization.comman
 import { AddMemberCommand } from './commands/add-member.command';
 import { RemoveMemberCommand } from './commands/remove-member.command';
 import { GetOrganizationListForAdminQuery } from './queries/get-organization-list-for-admin.query';
-import { OrganizationListForAdminItemReadModel } from './query-handlers/read-models/organization-list-for-admin-item.read-model';
+import { OrganizationReadModel } from './query-handlers/read-models/organization.read-model';
 import { GetOrganizationListForAdminTotalQuery } from './queries/get-organization-list-for-admin-total.query';
 import { GetOrganizationByIdForAdminQuery } from './queries/get-organization-by-id-for-admin.query';
 import { SearchOrganizationUsersQuery } from './queries/search-organization-users.query';
 import { SearchedOrganizationUserItemReadModel } from './query-handlers/read-models/searched-organization-user-item.read-model';
 import { GetOrganizationMembersByOrganizationUserIdQuery } from './queries/get-organization-members-by-organization-userId.query';
 import { GetOrganizationMembersByOrganizationUserIdQueryResponse } from './query-handlers/get-organization-members-by-organization-userId.query-handler';
+import { GetOrganizationByIdsQuery } from './queries/get-organization-by-ids.query';
 
 @Injectable()
 export class OrganizationFacade {
@@ -77,7 +78,7 @@ export class OrganizationFacade {
     const query = new GetOrganizationListForAdminQuery(page, limit, search);
     return await this.queryBus.execute<
       GetOrganizationListForAdminQuery,
-      OrganizationListForAdminItemReadModel[]
+      OrganizationReadModel[]
     >(query);
   }
 
@@ -93,7 +94,7 @@ export class OrganizationFacade {
     const query = new GetOrganizationByIdForAdminQuery(organizationId);
     return await this.queryBus.execute<
       GetOrganizationByIdForAdminQuery,
-      OrganizationListForAdminItemReadModel
+      OrganizationReadModel
     >(query);
   }
 
@@ -112,6 +113,14 @@ export class OrganizationFacade {
     return await this.queryBus.execute<
       GetOrganizationMembersByOrganizationUserIdQuery,
       GetOrganizationMembersByOrganizationUserIdQueryResponse
+    >(query);
+  }
+
+  async getOrganizationByIds(ids: string[]) {
+    const query = new GetOrganizationByIdsQuery(ids);
+    return await this.queryBus.execute<
+      GetOrganizationByIdsQuery,
+      OrganizationReadModel[]
     >(query);
   }
 }

@@ -26,6 +26,7 @@ import { ManagerRequestResetPasswordTokenDto } from './dto/manager-request-reset
 import { ManagerResetPasswordTokenDto } from './dto/manager-reset-password-token.dto';
 import { ManagerChangePasswordDto } from './dto/manager-change-password.dto';
 import { ManagerRefreshTokenDto } from './dto/manager-refresh-token.dto';
+import { OrganizationFacade } from 'src/modules/organization/application/organization.facade';
 
 @UseGuards(JwtAuthGuard)
 @ApiTags('Manager Auth')
@@ -33,6 +34,7 @@ import { ManagerRefreshTokenDto } from './dto/manager-refresh-token.dto';
 export class AuthController {
   constructor(
     private readonly organizationUserIamFacade: OrganizationUserIamFacade,
+    private readonly organizationFacade: OrganizationFacade,
   ) {}
 
   @ApiBearerAuth('manager-auth')
@@ -49,6 +51,17 @@ export class AuthController {
         email: { type: 'string', format: 'email' },
         displayName: { type: 'string' },
         statusText: { type: 'string' },
+        organizations: {
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: {
+              id: { type: 'string', format: 'uuid' },
+              name: { type: 'string' },
+              isRoot: { type: 'boolean' },
+            },
+          },
+        },
       },
     },
   })
@@ -56,9 +69,44 @@ export class AuthController {
     description: 'Unauthorized access',
   })
   async me(@CurrentManagerUser() managerUser: RequestUser) {
-    return await this.organizationUserIamFacade.getOrganizationUserById(
-      managerUser.id,
+    const isRootMap = new Map<string, boolean>(
+      managerUser.organizations.map((org) => [org.organizationId, org.isRoot]),
     );
+
+    const organizationRecords =
+      await this.organizationFacade.getOrganizationByIds(
+        managerUser.organizations.map((org) => org.organizationId),
+      );
+
+    const organizationUser =
+      await this.organizationUserIamFacade.getOrganizationUserById(
+        managerUser.id,
+      );
+
+    const organizations: (Pick<
+      (typeof organizationRecords)[number],
+      'id' | 'name'
+    > & {
+      isRoot: boolean;
+    })[] = [];
+
+    for (const orgRecord of organizationRecords) {
+      organizations.push({
+        ...orgRecord,
+        isRoot: isRootMap.get(orgRecord.id) ?? false,
+      });
+    }
+
+    return {
+      ...organizationUser,
+      organizations,
+    } satisfies typeof organizationUser & {
+      organizations: {
+        id: string;
+        name: string;
+        isRoot: boolean;
+      }[];
+    };
   }
 
   @ApiOperation({
