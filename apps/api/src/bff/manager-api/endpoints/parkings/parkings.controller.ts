@@ -268,6 +268,19 @@ export class ParkingsController {
 
     const { longitude, latitude, placeId, organizationId, ...rest } = parking;
 
+    const organization =
+      await this.organizationFacade.getOrganizationByIdForAdmin(organizationId);
+
+    if (
+      !managerUser.organizations.some(
+        (org) => org.organizationId === organizationId,
+      )
+    ) {
+      throw new ForbiddenException(
+        'Access to the parking details is forbidden.',
+      );
+    }
+
     if (currentOrganizationId !== organizationId) {
       throw new ForbiddenException(
         'Access to the parking details is forbidden.',
@@ -275,9 +288,6 @@ export class ParkingsController {
     }
 
     const place = await this.parkingFacade.getPlaceForEditing(placeId);
-
-    const organization =
-      await this.organizationFacade.getOrganizationByIdForAdmin(organizationId);
 
     const parkingFeatureItems = await this.parkingFacade.getParkingFeatureByIds(
       parking.parkingFeatureIds,
