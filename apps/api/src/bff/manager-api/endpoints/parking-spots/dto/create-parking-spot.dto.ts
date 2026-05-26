@@ -1,11 +1,4 @@
-import {
-  IsArray,
-  IsNumber,
-  IsPositive,
-  IsUUID,
-  validateSync,
-} from 'class-validator';
-import { AppError } from 'src/shared/errors';
+import { IsArray, IsNumber, IsPositive, IsUUID } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateParkingSpotDto {
@@ -40,13 +33,5 @@ export class CreateParkingSpotDto {
     this.parkingFeatureIds = parkingFeatureIds;
     this.price = price;
     this.parkingId = parkingId;
-    this.validate();
-  }
-
-  private validate() {
-    const errors = validateSync(this);
-    if (errors.length > 0) {
-      throw new AppError('VALIDATION_ERROR', 'Invalid CreateParkingSpotDto');
-    }
   }
 }

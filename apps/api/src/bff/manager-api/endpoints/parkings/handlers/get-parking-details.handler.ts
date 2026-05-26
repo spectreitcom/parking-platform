@@ -20,9 +20,6 @@ export class GetParkingDetailsHandler implements IControllerHandler {
 
     const { longitude, latitude, placeId, organizationId, ...rest } = parking;
 
-    const organization =
-      await this.organizationFacade.getOrganizationByIdForAdmin(organizationId);
-
     if (
       !managerUser.organizations.some(
         (org) => org.organizationId === organizationId,
@@ -32,6 +29,9 @@ export class GetParkingDetailsHandler implements IControllerHandler {
         'Access to the parking details is forbidden.',
       );
     }
+
+    const organization =
+      await this.organizationFacade.getOrganizationByIdForAdmin(organizationId);
 
     const place = await this.parkingFacade.getPlaceForEditing(placeId);
 
