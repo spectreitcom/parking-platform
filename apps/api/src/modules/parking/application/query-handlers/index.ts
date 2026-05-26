@@ -19,6 +19,8 @@ import { GetParkingsByOrganizationAndOrganizationUserForManagerQueryHandler } fr
 import { GetParkingsByOrganizationAndOrganizationUserForManagerTotalQueryHandler } from './get-parkings-by-organization-and-organization-user-for-manager-total.query-handler';
 import { GetPlaceByIdsQueryHandler } from './get-place-by-ids.query-handler';
 import { GetParkingSpotByIdQueryHandler } from './get-parking-spot-by-id.query-handler';
+import { GetParkingSpotsByParkingIdQueryHandler } from './get-parking-spots-by-parking-id.query-handler';
+import { GetParkingSpotsByParkingIdTotalQueryHandler } from './get-parking-spots-by-parking-id-total.query-handler';
 
 export const queryHandlers = [
   GetPlacesListForAdminQueryHandler,
@@ -42,4 +44,6 @@ export const queryHandlers = [
   GetParkingsByOrganizationAndOrganizationUserForManagerTotalQueryHandler,
   GetPlaceByIdsQueryHandler,
   GetParkingSpotByIdQueryHandler,
+  GetParkingSpotsByParkingIdQueryHandler,
+  GetParkingSpotsByParkingIdTotalQueryHandler,
 ];

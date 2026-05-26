@@ -10,7 +10,7 @@ export class GetParkingSpotsByParkingIdTotalQueryHandler implements IQueryHandle
   constructor(private readonly prismaService: PrismaService) {}
 
   async execute(query: GetParkingSpotsByParkingIdTotalQuery): Promise<number> {
-    return await this.prismaService.parkingSpotRead.count({
+    return this.prismaService.parkingSpotRead.count({
       where: {
         parkingId: query.parkingId,
       },
