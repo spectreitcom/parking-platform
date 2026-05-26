@@ -15,7 +15,7 @@ export class ParkingSpot extends AggregateRoot {
   private price: Money;
   private active: boolean;
   private parkingSpotFeatureIds: ParkingFeatureId[];
-  private readonly version: AggregateVersion;
+  private version: AggregateVersion;
 
   private constructor(
     id: ParkingSpotId,
@@ -76,11 +76,13 @@ export class ParkingSpot extends AggregateRoot {
       new ParkingSpotCreatedEvent(
         parkingSpot.getId().value,
         parkingSpot.getParkingId().value,
+        parkingSpot.getPrice().value,
         parkingSpot.getPrice().toPLN(),
         parkingSpot.isActive(),
         parkingSpot
           .getParkingSpotFeatureIds()
           .map((featureId) => featureId.value),
+        parkingSpot.getVersion().value,
       ),
     );
 
@@ -92,14 +94,18 @@ export class ParkingSpot extends AggregateRoot {
     this.parkingSpotFeatureIds = parkingSpotFeatureIds.map((featureId) =>
       ParkingFeatureId.fromString(featureId),
     );
+    this.version = this.version.increment();
+    const _nextVersion = this.version;
 
     this.apply(
       new ParkingSpotUpdatedEvent(
         this.getId().value,
         this.getParkingId().value,
+        this.getPrice().value,
         this.getPrice().toPLN(),
         this.isActive(),
         this.getParkingSpotFeatureIds().map((featureId) => featureId.value),
+        _nextVersion.value,
       ),
     );
   }
@@ -109,7 +115,11 @@ export class ParkingSpot extends AggregateRoot {
       return;
     }
     this.active = true;
-    this.apply(new ParkingSpotActivatedEvent(this.id.value));
+    this.version = this.version.increment();
+    const _nextVersion = this.version;
+    this.apply(
+      new ParkingSpotActivatedEvent(this.id.value, _nextVersion.value),
+    );
   }
 
   deactivate() {
@@ -117,7 +127,11 @@ export class ParkingSpot extends AggregateRoot {
       return;
     }
     this.active = false;
-    this.apply(new ParkingSpotDeactivatedEvent(this.id.value));
+    this.version = this.version.increment();
+    const _nextVersion = this.version;
+    this.apply(
+      new ParkingSpotDeactivatedEvent(this.id.value, _nextVersion.value),
+    );
   }
 
   getId() {

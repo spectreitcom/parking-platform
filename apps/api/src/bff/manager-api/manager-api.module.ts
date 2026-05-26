@@ -16,6 +16,7 @@ import { ManagerRequestResetPasswordTokenHandler } from './endpoints/auth/handle
 import { ManagerSignOutHandler } from './endpoints/auth/handlers/manager-sign-out.handler';
 import { ManagerResetPasswordHandler } from './endpoints/auth/handlers/manager-reset-password.handler';
 import { ManagerChangePasswordHandler } from './endpoints/auth/handlers/manager-change-password.handler';
+import { UpdateParkingSpotHandler } from './endpoints/parking-spots/handlers/update-parking-spot.handler';
 
 @Module({
   imports: [
@@ -36,6 +37,7 @@ import { ManagerChangePasswordHandler } from './endpoints/auth/handlers/manager-
     ManagerSignOutHandler,
     ManagerResetPasswordHandler,
     ManagerChangePasswordHandler,
+    UpdateParkingSpotHandler,
   ],
 })
 export class ManagerApiModule {}

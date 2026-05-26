@@ -236,6 +236,21 @@ model ParkingSpot {
   version Int @default(1) @db.Integer
 }
 
+model ParkingSpotRead {
+  id                    String   @id @default(uuid()) @db.Uuid
+  parkingSpotId         String   @unique @db.Uuid
+  price                 Int
+  pricePLN              Int
+  active                Boolean
+  version               Int      @default(1) @db.Integer
+  parkingSpotFeatureIds String[] @default([])
+  organizationId        String   @db.Uuid
+  parkingId             String   @db.Uuid
+
+  @@unique([organizationId, parkingId])
+  @@index([parkingId])
+}
+
 model ParkingOrganization {
   id             String @id @default(uuid()) @db.Uuid
   organizationId String @unique @db.Uuid
