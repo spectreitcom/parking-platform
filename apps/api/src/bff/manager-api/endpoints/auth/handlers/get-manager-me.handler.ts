@@ -16,15 +16,12 @@ export class GetManagerMeHandler implements IControllerHandler {
       managerUser.organizations.map((org) => [org.organizationId, org.isRoot]),
     );
 
-    const organizationRecords =
-      await this.organizationFacade.getOrganizationByIds(
+    const [organizationRecords, organizationUser] = await Promise.all([
+      this.organizationFacade.getOrganizationByIds(
         managerUser.organizations.map((org) => org.organizationId),
-      );
-
-    const organizationUser =
-      await this.organizationUserIamFacade.getOrganizationUserById(
-        managerUser.id,
-      );
+      ),
+      this.organizationUserIamFacade.getOrganizationUserById(managerUser.id),
+    ]);
 
     const organizations: (Pick<
       (typeof organizationRecords)[number],
@@ -35,7 +32,8 @@ export class GetManagerMeHandler implements IControllerHandler {
 
     for (const orgRecord of organizationRecords) {
       organizations.push({
-        ...orgRecord,
+        id: orgRecord.id,
+        name: orgRecord.name,
         isRoot: isRootMap.get(orgRecord.id) ?? false,
       });
     }

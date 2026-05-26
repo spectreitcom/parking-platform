@@ -1,3 +1,6 @@
-export interface IControllerHandler<T = unknown> {
-  handle(...args: unknown[]): Promise<T> | T;
+export interface IControllerHandler<
+  TArgs extends unknown[] = unknown[],
+  TResult = unknown,
+> {
+  handle(...args: TArgs): Promise<TResult> | TResult;
 }
