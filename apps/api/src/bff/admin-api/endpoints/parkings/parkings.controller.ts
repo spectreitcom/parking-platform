@@ -21,15 +21,18 @@ import {
   ApiTags,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
-import { ParkingFacade } from 'src/modules/parking/application/parking.facade';
 import { CreateParkingDto } from './dto/create-parking.dto';
 import { GetParkingListQueryParamsDto } from './dto/get-parking-list-query-params.dto';
 import { UpdateParkingDto } from './dto/update-parking.dto';
 import { ActivateParkingDto } from './dto/activate-parking.dto';
 import { DeactivateParkingDto } from './dto/deactivate-parking.dto';
-import { DEFAULT_PAGE_SIZE } from 'src/bff/admin-api/constants';
 import { JwtAuthGuard } from 'src/bff/admin-api/auth/guards/jwt-auth.guard';
-import { OrganizationFacade } from 'src/modules/organization/application/organization.facade';
+import { GetAdminParkingByIdHandler } from './handlers/get-admin-parking-by-id.handler';
+import { GetAdminParkingListHandler } from './handlers/get-admin-parking-list.handler';
+import { CreateAdminParkingHandler } from './handlers/create-admin-parking.handler';
+import { UpdateAdminParkingHandler } from './handlers/update-admin-parking.handler';
+import { ActivateAdminParkingHandler } from './handlers/activate-admin-parking.handler';
+import { DeactivateAdminParkingHandler } from './handlers/deactivate-admin-parking.handler';
 
 @UseGuards(JwtAuthGuard)
 @ApiBearerAuth('admin-auth')
@@ -37,8 +40,12 @@ import { OrganizationFacade } from 'src/modules/organization/application/organiz
 @Controller('admin/parkings')
 export class ParkingsController {
   constructor(
-    private readonly parkingFacade: ParkingFacade,
-    private readonly organizationFacade: OrganizationFacade,
+    private readonly getAdminParkingByIdHandler: GetAdminParkingByIdHandler,
+    private readonly getAdminParkingListHandler: GetAdminParkingListHandler,
+    private readonly createAdminParkingHandler: CreateAdminParkingHandler,
+    private readonly updateAdminParkingHandler: UpdateAdminParkingHandler,
+    private readonly activateAdminParkingHandler: ActivateAdminParkingHandler,
+    private readonly deactivateAdminParkingHandler: DeactivateAdminParkingHandler,
   ) {}
 
   @ApiOperation({ summary: 'Get a parking by ID' })
@@ -102,54 +109,7 @@ export class ParkingsController {
   async getParkingById(
     @Param('parkingId', new ParseUUIDPipe()) parkingId: string,
   ) {
-    const parking = await this.parkingFacade.getParkingById(parkingId);
-
-    const {
-      organizationId,
-      placeId,
-      parkingFeatureIds,
-      parkingAddonIds,
-      ...rest
-    } = parking;
-
-    const parkingFeatures =
-      await this.parkingFacade.getParkingFeatureByIds(parkingFeatureIds);
-
-    const parkingAddons =
-      await this.parkingFacade.getParkingAddonByIds(parkingAddonIds);
-
-    const organization =
-      await this.organizationFacade.getOrganizationByIdForAdmin(organizationId);
-
-    const place = await this.parkingFacade.getPlaceForEditing(placeId);
-
-    return {
-      ...rest,
-      organization: {
-        id: organization.id,
-        name: organization.name,
-      },
-      place: {
-        id: place.placeId,
-        name: place.name,
-      },
-      parkingFeatures: parkingFeatures.map((feature) => ({
-        id: feature.id,
-        name: feature.name,
-      })),
-      parkingAddons: parkingAddons.map((addon) => ({
-        id: addon.id,
-        name: addon.name,
-      })),
-    } satisfies Omit<
-      typeof parking,
-      'organizationId' | 'placeId' | 'parkingAddonIds' | 'parkingFeatureIds'
-    > & {
-      organization: { id: string; name: string };
-      place: { id: string; name: string };
-      parkingFeatures: { id: string; name: string }[];
-      parkingAddons: { id: string; name: string }[];
-    };
+    return await this.getAdminParkingByIdHandler.handle(parkingId);
   }
 
   @ApiOperation({
@@ -206,16 +166,7 @@ export class ParkingsController {
   })
   @Get()
   async getParkingList(@Query() queryParams: GetParkingListQueryParamsDto) {
-    const data = await this.parkingFacade.getParkingListForAdmin(
-      queryParams.page ?? 1,
-      queryParams.limit ?? DEFAULT_PAGE_SIZE,
-      queryParams.search,
-    );
-    const total = await this.parkingFacade.getParkingListForAdminTotal(
-      queryParams.search,
-    );
-
-    return { data, total, currentPage: queryParams.page ?? 1 };
+    return await this.getAdminParkingListHandler.handle(queryParams);
   }
 
   @Post()
@@ -238,15 +189,7 @@ export class ParkingsController {
   })
   @ApiBadRequestResponse({ description: 'Validation errors' })
   async createParking(@Body() createParkingDto: CreateParkingDto) {
-    const id = await this.parkingFacade.createParking(
-      createParkingDto.organizationId,
-      createParkingDto.name,
-      createParkingDto.address,
-      createParkingDto.longitude,
-      createParkingDto.latitude,
-      createParkingDto.placeId,
-    );
-    return { id };
+    return await this.createAdminParkingHandler.handle(createParkingDto);
   }
 
   @ApiOperation({
@@ -279,22 +222,7 @@ export class ParkingsController {
     @Param('parkingId', new ParseUUIDPipe()) parkingId: string,
     @Body() dto: UpdateParkingDto,
   ) {
-    const id = await this.parkingFacade.updateParking(
-      parkingId,
-      dto.name,
-      dto.address,
-      dto.longitude,
-      dto.latitude,
-      dto.assetIds,
-      dto.parkingFeatureIds,
-      dto.parkingAddonIds,
-      dto.description,
-      dto?.statute ?? '',
-      dto.version,
-      dto.placeId,
-      dto.organizationId,
-    );
-    return { id };
+    return await this.updateAdminParkingHandler.handle(parkingId, dto);
   }
 
   @ApiOperation({
@@ -328,8 +256,7 @@ export class ParkingsController {
     @Param('parkingId', new ParseUUIDPipe()) parkingId: string,
     @Body() dto: ActivateParkingDto,
   ) {
-    const id = await this.parkingFacade.activateParking(parkingId, dto.version);
-    return { id };
+    return await this.activateAdminParkingHandler.handle(parkingId, dto);
   }
 
   @ApiOperation({
@@ -363,10 +290,6 @@ export class ParkingsController {
     @Param('parkingId', new ParseUUIDPipe()) parkingId: string,
     @Body() dto: DeactivateParkingDto,
   ) {
-    const id = await this.parkingFacade.deactivateParking(
-      parkingId,
-      dto.version,
-    );
-    return { id };
+    return await this.deactivateAdminParkingHandler.handle(parkingId, dto);
   }
 }

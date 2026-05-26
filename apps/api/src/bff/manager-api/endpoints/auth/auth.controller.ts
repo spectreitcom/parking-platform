@@ -16,7 +16,6 @@ import {
   ApiTags,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
-import { OrganizationUserIamFacade } from 'src/modules/organization-user-iam/application/organization-user-iam.facade';
 import { CurrentManagerUser } from '../../auth/decorators/current-manager-user.decorator';
 import type { RequestUser } from '../../auth/types';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
@@ -26,15 +25,26 @@ import { ManagerRequestResetPasswordTokenDto } from './dto/manager-request-reset
 import { ManagerResetPasswordTokenDto } from './dto/manager-reset-password-token.dto';
 import { ManagerChangePasswordDto } from './dto/manager-change-password.dto';
 import { ManagerRefreshTokenDto } from './dto/manager-refresh-token.dto';
-import { OrganizationFacade } from 'src/modules/organization/application/organization.facade';
+import { GetManagerMeHandler } from './handlers/get-manager-me.handler';
+import { ManagerSignInHandler } from './handlers/manager-sign-in.handler';
+import { ManagerRefreshTokenHandler } from './handlers/manager-refresh-token.handler';
+import { ManagerRequestResetPasswordTokenHandler } from './handlers/manager-request-reset-password-token.handler';
+import { ManagerSignOutHandler } from './handlers/manager-sign-out.handler';
+import { ManagerResetPasswordHandler } from './handlers/manager-reset-password.handler';
+import { ManagerChangePasswordHandler } from './handlers/manager-change-password.handler';
 
 @UseGuards(JwtAuthGuard)
 @ApiTags('Manager Auth')
 @Controller('manager/auth')
 export class AuthController {
   constructor(
-    private readonly organizationUserIamFacade: OrganizationUserIamFacade,
-    private readonly organizationFacade: OrganizationFacade,
+    private readonly getManagerMeHandler: GetManagerMeHandler,
+    private readonly managerSignInHandler: ManagerSignInHandler,
+    private readonly managerRefreshTokenHandler: ManagerRefreshTokenHandler,
+    private readonly managerRequestResetPasswordTokenHandler: ManagerRequestResetPasswordTokenHandler,
+    private readonly managerSignOutHandler: ManagerSignOutHandler,
+    private readonly managerResetPasswordHandler: ManagerResetPasswordHandler,
+    private readonly managerChangePasswordHandler: ManagerChangePasswordHandler,
   ) {}
 
   @ApiBearerAuth('manager-auth')
@@ -69,44 +79,7 @@ export class AuthController {
     description: 'Unauthorized access',
   })
   async me(@CurrentManagerUser() managerUser: RequestUser) {
-    const isRootMap = new Map<string, boolean>(
-      managerUser.organizations.map((org) => [org.organizationId, org.isRoot]),
-    );
-
-    const organizationRecords =
-      await this.organizationFacade.getOrganizationByIds(
-        managerUser.organizations.map((org) => org.organizationId),
-      );
-
-    const organizationUser =
-      await this.organizationUserIamFacade.getOrganizationUserById(
-        managerUser.id,
-      );
-
-    const organizations: (Pick<
-      (typeof organizationRecords)[number],
-      'id' | 'name'
-    > & {
-      isRoot: boolean;
-    })[] = [];
-
-    for (const orgRecord of organizationRecords) {
-      organizations.push({
-        ...orgRecord,
-        isRoot: isRootMap.get(orgRecord.id) ?? false,
-      });
-    }
-
-    return {
-      ...organizationUser,
-      organizations,
-    } satisfies typeof organizationUser & {
-      organizations: {
-        id: string;
-        name: string;
-        isRoot: boolean;
-      }[];
-    };
+    return await this.getManagerMeHandler.handle(managerUser);
   }
 
   @ApiOperation({
@@ -146,7 +119,7 @@ export class AuthController {
   @Post('sign-in')
   @HttpCode(HttpStatus.OK)
   async signIn(@CurrentManagerUser() managerUser: RequestUser) {
-    return await this.organizationUserIamFacade.signIn(managerUser.id);
+    return await this.managerSignInHandler.handle(managerUser.id);
   }
 
   @ApiOperation({
@@ -176,7 +149,7 @@ export class AuthController {
   @Post('refresh-token')
   @HttpCode(HttpStatus.OK)
   async refreshToken(@Body() dto: ManagerRefreshTokenDto) {
-    return await this.organizationUserIamFacade.refreshToken(dto.refreshToken);
+    return await this.managerRefreshTokenHandler.handle(dto);
   }
 
   @ApiOperation({
@@ -191,7 +164,7 @@ export class AuthController {
   async requestResetPasswordToken(
     @Body() dto: ManagerRequestResetPasswordTokenDto,
   ) {
-    return await this.organizationUserIamFacade.requestResetPassword(dto.email);
+    return await this.managerRequestResetPasswordTokenHandler.handle(dto);
   }
 
   @ApiBearerAuth('manager-auth')
@@ -213,10 +186,7 @@ export class AuthController {
   @Post('sign-out')
   @HttpCode(HttpStatus.OK)
   async signOut(@CurrentManagerUser() managerUser: RequestUser) {
-    await this.organizationUserIamFacade.signOut(managerUser.id);
-    return {
-      status: HttpStatus.OK,
-    };
+    return await this.managerSignOutHandler.handle(managerUser.id);
   }
 
   @ApiOperation({ summary: 'Reset password' })
@@ -236,8 +206,7 @@ export class AuthController {
   @Post('reset-password')
   @HttpCode(HttpStatus.OK)
   async resetPasswordToken(@Body() dto: ManagerResetPasswordTokenDto) {
-    await this.organizationUserIamFacade.resetPassword(dto.token, dto.password);
-    return { status: HttpStatus.OK };
+    return await this.managerResetPasswordHandler.handle(dto);
   }
 
   @ApiBearerAuth('manager-auth')
@@ -260,11 +229,6 @@ export class AuthController {
     @CurrentManagerUser() managerUser: RequestUser,
     @Body() dto: ManagerChangePasswordDto,
   ) {
-    await this.organizationUserIamFacade.changePassword(
-      managerUser.id,
-      dto.existingPassword,
-      dto.newPassword,
-    );
-    return { status: HttpStatus.OK };
+    return await this.managerChangePasswordHandler.handle(managerUser.id, dto);
   }
 }

@@ -14,7 +14,6 @@ import {
   ApiTags,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
-import { AdminIamFacade } from 'src/modules/admin-iam/application/admin-iam.facade';
 import { CurrentAdminUserId } from '../../auth/decorators/current-admin-user-id.decorator';
 import { PublicApi } from '../../auth/decorators/public-api.decorator';
 import { LocalAuthGuard } from '../../auth/guards/local-auth.guard';
@@ -23,12 +22,27 @@ import { AdminResetPasswordTokenDto } from './dto/admin-reset-password-token.dto
 import { AdminChangePasswordDto } from './dto/admin-change-password.dto';
 import { AdminRefreshTokenDto } from './dto/admin-refresh-token.dto';
 import { JwtAuthGuard } from 'src/bff/admin-api/auth/guards/jwt-auth.guard';
+import { AdminSignInHandler } from './handlers/admin-sign-in.handler';
+import { GetAdminMeHandler } from './handlers/get-admin-me.handler';
+import { AdminSignOutHandler } from './handlers/admin-sign-out.handler';
+import { AdminRequestResetPasswordTokenHandler } from './handlers/admin-request-reset-password-token.handler';
+import { AdminResetPasswordHandler } from './handlers/admin-reset-password.handler';
+import { AdminChangePasswordHandler } from './handlers/admin-change-password.handler';
+import { AdminRefreshTokenHandler } from './handlers/admin-refresh-token.handler';
 
 @UseGuards(JwtAuthGuard)
 @ApiTags('Admin Auth')
 @Controller('admin/auth')
 export class AuthController {
-  constructor(private readonly adminIamFacade: AdminIamFacade) {}
+  constructor(
+    private readonly adminSignInHandler: AdminSignInHandler,
+    private readonly getAdminMeHandler: GetAdminMeHandler,
+    private readonly adminSignOutHandler: AdminSignOutHandler,
+    private readonly adminRequestResetPasswordTokenHandler: AdminRequestResetPasswordTokenHandler,
+    private readonly adminResetPasswordHandler: AdminResetPasswordHandler,
+    private readonly adminChangePasswordHandler: AdminChangePasswordHandler,
+    private readonly adminRefreshTokenHandler: AdminRefreshTokenHandler,
+  ) {}
 
   @ApiOperation({ summary: 'Sign in with email and password' })
   @ApiOkResponse({
@@ -55,7 +69,7 @@ export class AuthController {
   @Post('sign-in')
   @HttpCode(HttpStatus.OK)
   async signIn(@CurrentAdminUserId() adminUserId: string) {
-    return await this.adminIamFacade.signIn(adminUserId);
+    return await this.adminSignInHandler.handle(adminUserId);
   }
 
   @ApiBearerAuth('admin-auth')
@@ -92,7 +106,7 @@ export class AuthController {
   })
   @Get('me')
   async me(@CurrentAdminUserId() adminUserId: string) {
-    return await this.adminIamFacade.getAdminUserById(adminUserId);
+    return await this.getAdminMeHandler.handle(adminUserId);
   }
 
   @ApiBearerAuth('admin-auth')
@@ -116,8 +130,7 @@ export class AuthController {
   @Post('sign-out')
   @HttpCode(HttpStatus.OK)
   async signOut(@CurrentAdminUserId() adminUserId: string) {
-    await this.adminIamFacade.signOut(adminUserId);
-    return { status: HttpStatus.OK };
+    return await this.adminSignOutHandler.handle(adminUserId);
   }
 
   @ApiOperation({ summary: 'Request reset password token' })
@@ -130,7 +143,7 @@ export class AuthController {
   async requestResetPasswordToken(
     @Body() dto: AdminRequestResetPasswordTokenDto,
   ) {
-    await this.adminIamFacade.requestResetPassword(dto.email);
+    return await this.adminRequestResetPasswordTokenHandler.handle(dto);
   }
 
   @ApiOperation({ summary: 'Reset password' })
@@ -141,7 +154,7 @@ export class AuthController {
   @Post('reset-password')
   @HttpCode(HttpStatus.OK)
   async resetPasswordToken(@Body() dto: AdminResetPasswordTokenDto) {
-    await this.adminIamFacade.resetPassword(dto.token, dto.password);
+    return await this.adminResetPasswordHandler.handle(dto);
   }
 
   @ApiBearerAuth('admin-auth')
@@ -155,11 +168,7 @@ export class AuthController {
     @CurrentAdminUserId() adminUserId: string,
     @Body() dto: AdminChangePasswordDto,
   ) {
-    await this.adminIamFacade.changePassword(
-      adminUserId,
-      dto.existingPassword,
-      dto.newPassword,
-    );
+    return await this.adminChangePasswordHandler.handle(adminUserId, dto);
   }
 
   @ApiOperation({ summary: 'Refresh access token' })
@@ -186,6 +195,6 @@ export class AuthController {
   @Post('refresh-token')
   @HttpCode(HttpStatus.OK)
   async refreshToken(@Body() dto: AdminRefreshTokenDto) {
-    return await this.adminIamFacade.refreshToken(dto.refreshToken);
+    return await this.adminRefreshTokenHandler.handle(dto);
   }
 }
