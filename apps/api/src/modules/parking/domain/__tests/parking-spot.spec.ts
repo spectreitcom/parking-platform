@@ -33,9 +33,11 @@ describe('ParkingSpot', () => {
       new ParkingSpotCreatedEvent(
         parkingSpot.getId().value,
         parkingId,
+        priceInGroszy,
         priceInPLN,
         true,
         featureIds,
+        1,
       ),
     );
   });
@@ -64,9 +66,11 @@ describe('ParkingSpot', () => {
       new ParkingSpotUpdatedEvent(
         parkingSpot.getId().value,
         parkingId,
+        newPriceInGroszy,
         newPriceInPLN,
         true,
         newFeatureIds,
+        2,
       ),
     );
   });
@@ -105,10 +109,10 @@ describe('ParkingSpot', () => {
     );
 
     expect(deactivationEvent).toEqual(
-      new ParkingSpotDeactivatedEvent(parkingSpot.getId().value),
+      new ParkingSpotDeactivatedEvent(parkingSpot.getId().value, 2),
     );
     expect(activationEvent).toEqual(
-      new ParkingSpotActivatedEvent(parkingSpot.getId().value),
+      new ParkingSpotActivatedEvent(parkingSpot.getId().value, 3),
     );
   });
 

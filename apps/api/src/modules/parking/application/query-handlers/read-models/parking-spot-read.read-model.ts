@@ -1,6 +1,4 @@
-import { IEvent } from '@nestjs/cqrs';
-
-export class ParkingSpotUpdatedEvent implements IEvent {
+export class ParkingSpotReadReadModel {
   constructor(
     public readonly id: string,
     public readonly parkingId: string,
@@ -9,5 +7,6 @@ export class ParkingSpotUpdatedEvent implements IEvent {
     public readonly active: boolean,
     public readonly parkingSpotFeatureIds: string[],
     public readonly version: number,
+    public readonly organizationId: string,
   ) {}
 }

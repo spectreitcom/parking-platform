@@ -49,6 +49,7 @@ async function bootstrap() {
     SwaggerModule.setup('docs/app', app, swaggerDocument, {
       useGlobalPrefix: true,
       jsonDocumentUrl: '/docs/app/json',
+      customJsStr: "document.querySelector('html').classList.add('dark-mode')",
     });
 
     const adminSwaggerConfig = new DocumentBuilder()
@@ -79,6 +80,7 @@ async function bootstrap() {
     SwaggerModule.setup('docs/admin', app, adminSwaggerDocument, {
       useGlobalPrefix: true,
       jsonDocumentUrl: '/docs/admin/json',
+      customJsStr: "document.querySelector('html').classList.add('dark-mode')",
     });
 
     const managerSwaggerConfig = new DocumentBuilder()
@@ -109,6 +111,8 @@ async function bootstrap() {
     SwaggerModule.setup('docs/manager', app, managerSwaggerDocument, {
       useGlobalPrefix: true,
       jsonDocumentUrl: '/docs/manager/json',
+      explorer: true,
+      customJsStr: "document.querySelector('html').classList.add('dark-mode')",
     });
   }
 
