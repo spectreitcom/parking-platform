@@ -6,6 +6,7 @@ import { ParkingsController } from './endpoints/parkings/parkings.controller';
 import { ParkingModule } from 'src/modules/parking/application/parking.module';
 import { OrganizationModule } from 'src/modules/organization/application/organization.module';
 import { ParkingSpotsController } from './endpoints/parking-spots/parking-spots.controller';
+import { AddParkingSpotHandler } from './endpoints/parking-spots/handlers/add-parking-spot.handler';
 
 @Module({
   imports: [
@@ -15,5 +16,6 @@ import { ParkingSpotsController } from './endpoints/parking-spots/parking-spots.
     OrganizationModule,
   ],
   controllers: [AuthController, ParkingsController, ParkingSpotsController],
+  providers: [AddParkingSpotHandler],
 })
 export class ManagerApiModule {}
