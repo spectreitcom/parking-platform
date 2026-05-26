@@ -20,20 +20,29 @@ import {
   ApiTags,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
-import { ParkingFacade } from 'src/modules/parking/application/parking.facade';
 import { CreateParkingFeatureDto } from './dto/create-parking-feature.dto';
 import { UpdateParkingFeatureDto } from './dto/update-parking-feature.dto';
 import { DeleteParkingFeatureQueryParamsDto } from './dto/delete-parking-feature-query-params.dto';
 import { GetParkingFeaturesListQueryParamsDto } from './dto/get-parking-features-list-query-params.dto';
-import { DEFAULT_PAGE_SIZE } from '../../constants';
 import { JwtAuthGuard } from 'src/bff/admin-api/auth/guards/jwt-auth.guard';
+import { GetParkingFeaturesListHandler } from './handlers/get-parking-features-list.handler';
+import { GetParkingFeatureByIdHandler } from './handlers/get-parking-feature-by-id.handler';
+import { CreateParkingFeatureHandler } from './handlers/create-parking-feature.handler';
+import { UpdateParkingFeatureHandler } from './handlers/update-parking-feature.handler';
+import { DeleteParkingFeatureHandler } from './handlers/delete-parking-feature.handler';
 
 @UseGuards(JwtAuthGuard)
 @ApiBearerAuth('admin-auth')
 @ApiTags('Admin Parking Features')
 @Controller('admin/parking-features')
 export class ParkingFeaturesController {
-  constructor(private readonly parkingFacade: ParkingFacade) {}
+  constructor(
+    private readonly getParkingFeaturesListHandler: GetParkingFeaturesListHandler,
+    private readonly getParkingFeatureByIdHandler: GetParkingFeatureByIdHandler,
+    private readonly createParkingFeatureHandler: CreateParkingFeatureHandler,
+    private readonly updateParkingFeatureHandler: UpdateParkingFeatureHandler,
+    private readonly deleteParkingFeatureHandler: DeleteParkingFeatureHandler,
+  ) {}
 
   @ApiOperation({
     summary: 'Get parking features list',
@@ -71,7 +80,6 @@ export class ParkingFeaturesController {
         },
         total: {
           type: 'number',
-          example: DEFAULT_PAGE_SIZE,
         },
         currentPage: {
           type: 'number',
@@ -91,21 +99,7 @@ export class ParkingFeaturesController {
   async getParkingFeaturesList(
     @Query() queryParams: GetParkingFeaturesListQueryParamsDto,
   ) {
-    const data = await this.parkingFacade.getParkingFeatureListForAdmin(
-      queryParams.page ?? 1,
-      queryParams.limit ?? DEFAULT_PAGE_SIZE,
-      queryParams.search,
-    );
-
-    const total = await this.parkingFacade.getParkingFeatureListForAdminTotal(
-      queryParams.search,
-    );
-
-    return {
-      data,
-      total,
-      currentPage: queryParams.page ?? 1,
-    };
+    return await this.getParkingFeaturesListHandler.handle(queryParams);
   }
 
   @ApiOperation({
@@ -150,7 +144,7 @@ export class ParkingFeaturesController {
   async getParkingFeatureById(
     @Param('parkingFeatureId', new ParseUUIDPipe()) parkingFeatureId: string,
   ) {
-    return await this.parkingFacade.getParkingFeatureById(parkingFeatureId);
+    return await this.getParkingFeatureByIdHandler.handle(parkingFeatureId);
   }
 
   @ApiOperation({
@@ -177,11 +171,7 @@ export class ParkingFeaturesController {
   })
   @Post()
   async createParkingFeature(@Body() dto: CreateParkingFeatureDto) {
-    const id = await this.parkingFacade.createParkingFeature(
-      dto.name,
-      dto.levels,
-    );
-    return { id };
+    return await this.createParkingFeatureHandler.handle(dto);
   }
 
   @ApiOperation({
@@ -209,13 +199,7 @@ export class ParkingFeaturesController {
     @Body() dto: UpdateParkingFeatureDto,
     @Param('parkingFeatureId', new ParseUUIDPipe()) parkingFeatureId: string,
   ) {
-    const id = await this.parkingFacade.updateParkingFeature(
-      parkingFeatureId,
-      dto.name,
-      dto.levels,
-      dto.version,
-    );
-    return { id };
+    return await this.updateParkingFeatureHandler.handle(parkingFeatureId, dto);
   }
 
   @ApiOperation({
@@ -243,10 +227,9 @@ export class ParkingFeaturesController {
     @Param('parkingFeatureId', new ParseUUIDPipe()) parkingFeatureId: string,
     @Query() queryParams: DeleteParkingFeatureQueryParamsDto,
   ) {
-    const id = await this.parkingFacade.deleteParkingFeature(
+    return await this.deleteParkingFeatureHandler.handle(
       parkingFeatureId,
-      queryParams.version,
+      queryParams,
     );
-    return { id };
   }
 }

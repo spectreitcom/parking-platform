@@ -20,15 +20,15 @@ import {
   ApiUnauthorizedResponse,
   ApiBadRequestResponse,
 } from '@nestjs/swagger';
-import { ReservationFacade } from 'src/modules/reservation/application/reservation.facade';
 import { CurrentUserId } from '../../auth/decorators/current-user-id.decorator';
 import { CreateReservationDto } from './dto/create-reservation.dto';
 import { UpdateReservationDto } from './dto/update-reservation.dto';
 import { CancelReservationDto } from './dto/cancel-reservation.dto';
 import { GetReservationsListQueryParamsDto } from './dto/get-reservations-list-query-params.dto';
-import { DEFAULT_PAGE_SIZE } from 'src/shared/constants';
-import { ParkingFacade } from 'src/modules/parking/application/parking.facade';
-import { AppError } from 'src/shared/errors';
+import { CreateReservationHandler } from './handlers/create-reservation.handler';
+import { UpdateReservationHandler } from './handlers/update-reservation.handler';
+import { CancelReservationHandler } from './handlers/cancel-reservation.handler';
+import { GetReservationsListHandler } from './handlers/get-reservations-list.handler';
 
 @UseGuards(JwtAuthGuard)
 @ApiBearerAuth('auth')
@@ -36,8 +36,10 @@ import { AppError } from 'src/shared/errors';
 @Controller('reservations')
 export class ReservationsController {
   constructor(
-    private readonly reservationFacade: ReservationFacade,
-    private readonly parkingFacade: ParkingFacade,
+    private readonly createReservationHandler: CreateReservationHandler,
+    private readonly updateReservationHandler: UpdateReservationHandler,
+    private readonly cancelReservationHandler: CancelReservationHandler,
+    private readonly getReservationsListHandler: GetReservationsListHandler,
   ) {}
 
   @ApiOperation({ summary: 'Create a new reservation' })
@@ -56,25 +58,7 @@ export class ReservationsController {
     @CurrentUserId() userId: string,
     @Body() dto: CreateReservationDto,
   ): Promise<string> {
-    const parking = await this.parkingFacade.getParkingByParkingSpotId(
-      dto.parkingSpotId,
-    );
-
-    if (!parking) {
-      throw new AppError('VALIDATION_ERROR', 'Parking not found');
-    }
-
-    return await this.reservationFacade.createReservation(
-      dto.cartId,
-      userId,
-      parking.id,
-      dto.parkingSpotId,
-      dto.startDate,
-      dto.endDate,
-      dto.registrationNumber,
-      dto.lines,
-      dto.addons,
-    );
+    return await this.createReservationHandler.handle(userId, dto);
   }
 
   @ApiOperation({ summary: 'Update a reservation' })
@@ -94,11 +78,10 @@ export class ReservationsController {
     @CurrentUserId() userId: string,
     @Body() dto: UpdateReservationDto,
   ): Promise<string> {
-    return await this.reservationFacade.updateReservation(
+    return await this.updateReservationHandler.handle(
       reservationId,
       userId,
-      dto.version,
-      dto.registrationNumber,
+      dto,
     );
   }
 
@@ -120,10 +103,10 @@ export class ReservationsController {
     @CurrentUserId() userId: string,
     @Body() dto: CancelReservationDto,
   ): Promise<string> {
-    return await this.reservationFacade.cancelReservation(
+    return await this.cancelReservationHandler.handle(
       reservationId,
       userId,
-      dto.version,
+      dto,
     );
   }
 
@@ -180,35 +163,6 @@ export class ReservationsController {
     @CurrentUserId() userId: string,
     @Query() queryParams: GetReservationsListQueryParamsDto,
   ) {
-    const reservations = await this.reservationFacade.getUserReservationsList(
-      userId,
-      queryParams.page ?? 1,
-      queryParams.limit ?? DEFAULT_PAGE_SIZE,
-      queryParams.search,
-    );
-
-    const parkings = await this.parkingFacade.getParkingByIds(
-      reservations.map((r) => r.parkingId),
-    );
-
-    const parkingMap = new Map(parkings.map((p) => [p.id, p]));
-
-    const data: ((typeof reservations)[0] & {
-      parking: { id: string; name: string } | null;
-    })[] = [];
-
-    for (const reservation of reservations) {
-      data.push({
-        ...reservation,
-        parking: parkingMap.get(reservation.parkingId) ?? null,
-      });
-    }
-
-    const total = await this.reservationFacade.getUserReservationsListTotal(
-      userId,
-      queryParams.search,
-    );
-
-    return { data, total, currentPage: queryParams.page ?? 1 };
+    return await this.getReservationsListHandler.handle(userId, queryParams);
   }
 }

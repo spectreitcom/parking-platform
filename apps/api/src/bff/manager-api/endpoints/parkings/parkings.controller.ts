@@ -1,6 +1,5 @@
 import {
   Controller,
-  ForbiddenException,
   Get,
   Param,
   ParseUUIDPipe,
@@ -17,14 +16,12 @@ import {
   ApiTags,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
-import { ParkingFacade } from 'src/modules/parking/application/parking.facade';
 import { GetParkingFeaturesListQueryParamsDto } from './dto/get-parkings-list-query-params.dto';
 import { CurrentManagerUser } from '../../auth/decorators/current-manager-user.decorator';
 import type { RequestUser } from '../../auth/types';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
-import { DEFAULT_PAGE_SIZE } from 'src/shared/constants';
-import { PlaceReadReadModel } from 'src/modules/parking/application/query-handlers/read-models/place-read.read-model';
-import { OrganizationFacade } from 'src/modules/organization/application/organization.facade';
+import { GetParkingsListHandler } from './handlers/get-parkings-list.handler';
+import { GetParkingDetailsHandler } from './handlers/get-parking-details.handler';
 
 @ApiBearerAuth('manager-auth')
 @Controller('manager/parkings')
@@ -32,8 +29,8 @@ import { OrganizationFacade } from 'src/modules/organization/application/organiz
 @UseGuards(JwtAuthGuard)
 export class ParkingsController {
   constructor(
-    private readonly parkingFacade: ParkingFacade,
-    private readonly organizationFacade: OrganizationFacade,
+    private readonly getParkingsListHandler: GetParkingsListHandler,
+    private readonly getParkingDetailsHandler: GetParkingDetailsHandler,
   ) {}
 
   @ApiOperation({ summary: 'Get list of parkings' })
@@ -108,66 +105,11 @@ export class ParkingsController {
     @Param('organizationId', new ParseUUIDPipe()) organizationId: string,
     @CurrentManagerUser() managerUser: RequestUser,
   ) {
-    const organizationIds = managerUser.organizations.map(
-      (organization) => organization.organizationId,
+    return await this.getParkingsListHandler.handle(
+      queryParams,
+      organizationId,
+      managerUser,
     );
-
-    if (!organizationIds.includes(organizationId)) {
-      throw new ForbiddenException(
-        'You are not authorized to access this resource.',
-      );
-    }
-
-    const parkings =
-      await this.parkingFacade.getParkingsByOrganizationAndOrganizationUserForManager(
-        organizationId,
-        queryParams.page ?? 1,
-        queryParams.limit ?? DEFAULT_PAGE_SIZE,
-      );
-
-    const places = await this.parkingFacade.getPlaceByIds(
-      parkings.map((parking) => parking.placeId),
-    );
-
-    const placesMap = new Map<string, PlaceReadReadModel>(
-      places.map((place) => [place.placeId, place]),
-    );
-
-    const total =
-      await this.parkingFacade.getParkingsByOrganizationAndOrganizationUserForManagerTotal(
-        organizationId,
-      );
-
-    const data: (Omit<(typeof parkings)[number], 'placeId'> & {
-      place: {
-        id: string;
-        name: string;
-        address: string;
-      } | null;
-    })[] = [];
-
-    for (const parking of parkings) {
-      const { placeId, ...rest } = parking;
-
-      const place = placesMap.get(placeId);
-
-      data.push({
-        ...rest,
-        place: place
-          ? {
-              id: place.placeId,
-              name: place.name,
-              address: place.address,
-            }
-          : null,
-      });
-    }
-
-    return {
-      data,
-      total,
-      currentPage: queryParams.page ?? 1,
-    };
   }
 
   @ApiOperation({ summary: 'Get parking details' })
@@ -254,106 +196,11 @@ export class ParkingsController {
   @ApiNotFoundResponse({
     description: 'Parking not found.',
   })
-  @Get(':organizationId/:parkingId')
+  @Get(':parkingId/details')
   async getParkingDetails(
-    @Param('organizationId', new ParseUUIDPipe()) currentOrganizationId: string,
     @Param('parkingId', new ParseUUIDPipe()) parkingId: string,
     @CurrentManagerUser() managerUser: RequestUser,
   ) {
-    const isRootMap = new Map<string, boolean>(
-      managerUser.organizations.map((org) => [org.organizationId, org.isRoot]),
-    );
-
-    const parking = await this.parkingFacade.getParkingById(parkingId);
-
-    const { longitude, latitude, placeId, organizationId, ...rest } = parking;
-
-    const organization =
-      await this.organizationFacade.getOrganizationByIdForAdmin(organizationId);
-
-    if (
-      !managerUser.organizations.some(
-        (org) => org.organizationId === organizationId,
-      )
-    ) {
-      throw new ForbiddenException(
-        'Access to the parking details is forbidden.',
-      );
-    }
-
-    if (currentOrganizationId !== organizationId) {
-      throw new ForbiddenException(
-        'Access to the parking details is forbidden.',
-      );
-    }
-
-    const place = await this.parkingFacade.getPlaceForEditing(placeId);
-
-    const parkingFeatureItems = await this.parkingFacade.getParkingFeatureByIds(
-      parking.parkingFeatureIds,
-    );
-
-    const parkingAddonItems = await this.parkingFacade.getParkingAddonByIds(
-      parking.parkingAddonIds,
-    );
-
-    return {
-      ...rest,
-      coords: { latitude, longitude },
-      place: {
-        id: place.placeId,
-        name: place.name,
-        address: place.address,
-      },
-      organization: {
-        id: organization.id,
-        name: organization.name,
-        address: organization.address,
-      },
-      parkingFeatures: parkingFeatureItems.map((feature) => ({
-        id: feature.id,
-        name: feature.name,
-      })),
-      parkingAddons: parkingAddonItems.map((addon) => ({
-        id: addon.id,
-        name: addon.name,
-      })),
-      actions: {
-        edit: isRootMap.get(organizationId) ?? false,
-        addParkingSpot: isRootMap.get(organizationId) ?? false,
-        removeParkingSpot: isRootMap.get(organizationId) ?? false,
-      },
-    } satisfies Omit<
-      typeof parking,
-      'longitude' | 'latitude' | 'placeId' | 'organizationId'
-    > & {
-      coords: {
-        latitude: number;
-        longitude: number;
-      };
-      place: {
-        id: string;
-        name: string;
-        address: string;
-      };
-      organization: {
-        id: string;
-        name: string;
-        address: string;
-      };
-      parkingFeatures: {
-        id: string;
-        name: string;
-      }[];
-      parkingAddons: {
-        id: string;
-        name: string;
-      }[];
-      actions: {
-        edit: boolean;
-        addParkingSpot: boolean;
-        removeParkingSpot: boolean;
-      };
-    };
+    return await this.getParkingDetailsHandler.handle(parkingId, managerUser);
   }
 }

@@ -19,21 +19,28 @@ import {
   ApiTags,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
-import { AdminIamFacade } from 'src/modules/admin-iam/application/admin-iam.facade';
 import { GetAdminsListQueryParamsDto } from 'src/bff/admin-api/endpoints/admins/dto/get-admins-list-query-params.dto';
 import { InviteAdminDto } from 'src/bff/admin-api/endpoints/admins/dto/invite-admin.dto';
-import { DEFAULT_PAGE_SIZE } from 'src/bff/admin-api/constants';
 import { SuperAdminGuard } from 'src/bff/admin-api/auth/guards/super-admin.guard';
 import { SuspendAdminUserDto } from 'src/bff/admin-api/endpoints/admins/dto/suspend-admin-user.dto';
 import { ActivateAdminUserDto } from 'src/bff/admin-api/endpoints/admins/dto/activate-admin-user.dto';
 import { JwtAuthGuard } from 'src/bff/admin-api/auth/guards/jwt-auth.guard';
+import { GetAdminsListHandler } from './handlers/get-admins-list.handler';
+import { InviteAdminHandler } from './handlers/invite-admin.handler';
+import { SuspendAdminUserHandler } from './handlers/suspend-admin-user.handler';
+import { ActivateAdminUserHandler } from './handlers/activate-admin-user.handler';
 
 @UseGuards(JwtAuthGuard)
 @ApiBearerAuth('admin-auth')
 @ApiTags('Admin - Admins')
 @Controller('admin/admins')
 export class AdminsController {
-  constructor(private readonly adminIamFacade: AdminIamFacade) {}
+  constructor(
+    private readonly getAdminsListHandler: GetAdminsListHandler,
+    private readonly inviteAdminHandler: InviteAdminHandler,
+    private readonly suspendAdminUserHandler: SuspendAdminUserHandler,
+    private readonly activateAdminUserHandler: ActivateAdminUserHandler,
+  ) {}
 
   @ApiOperation({
     summary: 'Get admins list',
@@ -87,15 +94,7 @@ export class AdminsController {
   })
   @Get()
   async getAdminsList(@Query() queryParams: GetAdminsListQueryParamsDto) {
-    const data = await this.adminIamFacade.getAdminUsersList(
-      queryParams.page ?? 1,
-      queryParams.limit ?? DEFAULT_PAGE_SIZE,
-      queryParams.search,
-    );
-    const total = await this.adminIamFacade.getAdminUsersTotal(
-      queryParams.search,
-    );
-    return { data, total, currentPage: queryParams.page ?? 1 };
+    return await this.getAdminsListHandler.handle(queryParams);
   }
 
   @ApiOperation({
@@ -123,11 +122,7 @@ export class AdminsController {
   @UseGuards(SuperAdminGuard)
   @Post('invite')
   async inviteAdmin(@Body() dto: InviteAdminDto) {
-    const id = await this.adminIamFacade.inviteAdminUser(
-      dto.email,
-      dto.displayName,
-    );
-    return { id };
+    return await this.inviteAdminHandler.handle(dto);
   }
 
   @ApiOperation({
@@ -159,8 +154,7 @@ export class AdminsController {
     @Param('adminUserId', new ParseUUIDPipe()) adminUserId: string,
     @Body() dto: SuspendAdminUserDto,
   ) {
-    await this.adminIamFacade.suspendAdminUser(adminUserId, dto.version);
-    return { id: adminUserId };
+    return await this.suspendAdminUserHandler.handle(adminUserId, dto);
   }
 
   @ApiOperation({
@@ -192,7 +186,6 @@ export class AdminsController {
     @Param('adminUserId', new ParseUUIDPipe()) adminUserId: string,
     @Body() dto: ActivateAdminUserDto,
   ) {
-    await this.adminIamFacade.activateAdminUser(adminUserId, dto.version);
-    return { id: adminUserId };
+    return await this.activateAdminUserHandler.handle(adminUserId, dto);
   }
 }

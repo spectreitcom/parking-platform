@@ -16,7 +16,6 @@ import {
   ApiTags,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
-import { UserIamFacade } from 'src/modules/user-iam/application/user-iam.facade';
 import { CurrentUserId } from '../../auth/decorators/current-user-id.decorator';
 import { PublicApi } from '../../auth/decorators/public-api.decorator';
 import { LocalAuthGuard } from '../../auth/guards/local-auth.guard';
@@ -26,12 +25,29 @@ import { UserResetPasswordTokenDto } from './dto/user-reset-password-token.dto';
 import { UserChangePasswordDto } from './dto/user-change-password.dto';
 import { UserRefreshTokenDto } from './dto/user-refresh-token.dto';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
+import { RegisterUserHandler } from './handlers/register-user.handler';
+import { SignInHandler } from './handlers/sign-in.handler';
+import { GetMeHandler } from './handlers/get-me.handler';
+import { SignOutHandler } from './handlers/sign-out.handler';
+import { RequestResetPasswordTokenHandler } from './handlers/request-reset-password-token.handler';
+import { ResetPasswordHandler } from './handlers/reset-password.handler';
+import { ChangePasswordHandler } from './handlers/change-password.handler';
+import { RefreshTokenHandler } from './handlers/refresh-token.handler';
 
 @UseGuards(JwtAuthGuard)
 @ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly userIamFacade: UserIamFacade) {}
+  constructor(
+    private readonly registerUserHandler: RegisterUserHandler,
+    private readonly signInHandler: SignInHandler,
+    private readonly getMeHandler: GetMeHandler,
+    private readonly signOutHandler: SignOutHandler,
+    private readonly requestResetPasswordTokenHandler: RequestResetPasswordTokenHandler,
+    private readonly resetPasswordHandler: ResetPasswordHandler,
+    private readonly changePasswordHandler: ChangePasswordHandler,
+    private readonly refreshTokenHandler: RefreshTokenHandler,
+  ) {}
 
   @ApiOperation({ summary: 'Sign up with email, name and password' })
   @ApiCreatedResponse({
@@ -40,11 +56,7 @@ export class AuthController {
   @PublicApi()
   @Post('sign-up')
   async registerUser(@Body() dto: RegisterUserDto) {
-    return await this.userIamFacade.registerUser(
-      dto.email,
-      dto.name,
-      dto.password,
-    );
+    return await this.registerUserHandler.handle(dto);
   }
 
   @ApiOperation({ summary: 'Sign in with email and password' })
@@ -72,7 +84,7 @@ export class AuthController {
   @Post('sign-in')
   @HttpCode(HttpStatus.OK)
   async signIn(@CurrentUserId() userId: string) {
-    return await this.userIamFacade.signIn(userId);
+    return await this.signInHandler.handle(userId);
   }
 
   @ApiBearerAuth('auth')
@@ -107,7 +119,7 @@ export class AuthController {
   })
   @Get('me')
   async me(@CurrentUserId() userId: string) {
-    return await this.userIamFacade.getUserById(userId);
+    return await this.getMeHandler.handle(userId);
   }
 
   @ApiBearerAuth('auth')
@@ -131,8 +143,7 @@ export class AuthController {
   @Post('sign-out')
   @HttpCode(HttpStatus.OK)
   async signOut(@CurrentUserId() userId: string) {
-    await this.userIamFacade.signOut(userId);
-    return { status: HttpStatus.OK };
+    return await this.signOutHandler.handle(userId);
   }
 
   @ApiOperation({ summary: 'Request reset password token' })
@@ -145,7 +156,7 @@ export class AuthController {
   async requestResetPasswordToken(
     @Body() dto: UserRequestResetPasswordTokenDto,
   ) {
-    await this.userIamFacade.requestResetPassword(dto.email);
+    return await this.requestResetPasswordTokenHandler.handle(dto);
   }
 
   @ApiOperation({ summary: 'Reset password' })
@@ -159,7 +170,7 @@ export class AuthController {
   @Post('reset-password')
   @HttpCode(HttpStatus.OK)
   async resetPasswordToken(@Body() dto: UserResetPasswordTokenDto) {
-    await this.userIamFacade.resetPassword(dto.token, dto.password);
+    return await this.resetPasswordHandler.handle(dto);
   }
 
   @ApiBearerAuth('auth')
@@ -173,11 +184,7 @@ export class AuthController {
     @CurrentUserId() userId: string,
     @Body() dto: UserChangePasswordDto,
   ) {
-    await this.userIamFacade.changePassword(
-      userId,
-      dto.existingPassword,
-      dto.newPassword,
-    );
+    return await this.changePasswordHandler.handle(userId, dto);
   }
 
   @ApiOperation({ summary: 'Refresh access token' })
@@ -204,6 +211,6 @@ export class AuthController {
   @Post('refresh-token')
   @HttpCode(HttpStatus.OK)
   async refreshToken(@Body() dto: UserRefreshTokenDto) {
-    return await this.userIamFacade.refreshToken(dto.refreshToken);
+    return await this.refreshTokenHandler.handle(dto);
   }
 }

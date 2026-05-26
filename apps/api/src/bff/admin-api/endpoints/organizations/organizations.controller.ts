@@ -20,22 +20,35 @@ import {
   ApiTags,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
-import { OrganizationFacade } from 'src/modules/organization/application/organization.facade';
 import { CreateOrganizationDto } from 'src/bff/admin-api/endpoints/organizations/dto/create-organization.dto';
 import { UpdateOrganizationDto } from 'src/bff/admin-api/endpoints/organizations/dto/update-organization.dto';
 import { AddMemberToOrganizationDto } from 'src/bff/admin-api/endpoints/organizations/dto/add-member-to-organization.dto';
 import { RemoveMemberFromOrganizationQueryParamsDto } from 'src/bff/admin-api/endpoints/organizations/dto/remove-member-from-organization-query-params.dto';
 import { GetOrganizationListQueryParamsDto } from 'src/bff/admin-api/endpoints/organizations/dto/get-organization-list-query-params.dto';
-import { DEFAULT_PAGE_SIZE } from 'src/bff/admin-api/constants';
 import { SearchOrganizationUsersQueryParamsDto } from 'src/bff/admin-api/endpoints/organizations/dto/search-organization-users-query-params.dto';
 import { JwtAuthGuard } from 'src/bff/admin-api/auth/guards/jwt-auth.guard';
+import { SearchOrganizationUsersHandler } from './handlers/search-organization-users.handler';
+import { GetOrganizationListHandler } from './handlers/get-organization-list.handler';
+import { GetOrganizationByIdHandler } from './handlers/get-organization-by-id.handler';
+import { CreateOrganizationHandler } from './handlers/create-organization.handler';
+import { UpdateOrganizationHandler } from './handlers/update-organization.handler';
+import { AddMemberToOrganizationHandler } from './handlers/add-member-to-organization.handler';
+import { RemoveMemberFromOrganizationHandler } from './handlers/remove-member-from-organization.handler';
 
 @UseGuards(JwtAuthGuard)
 @ApiBearerAuth('admin-auth')
 @ApiTags('Admin - Organizations')
 @Controller('admin/organizations')
 export class OrganizationsController {
-  constructor(private readonly organizationFacade: OrganizationFacade) {}
+  constructor(
+    private readonly searchOrganizationUsersHandler: SearchOrganizationUsersHandler,
+    private readonly getOrganizationListHandler: GetOrganizationListHandler,
+    private readonly getOrganizationByIdHandler: GetOrganizationByIdHandler,
+    private readonly createOrganizationHandler: CreateOrganizationHandler,
+    private readonly updateOrganizationHandler: UpdateOrganizationHandler,
+    private readonly addMemberToOrganizationHandler: AddMemberToOrganizationHandler,
+    private readonly removeMemberFromOrganizationHandler: RemoveMemberFromOrganizationHandler,
+  ) {}
 
   @ApiOperation({
     summary: 'Search organization users',
@@ -62,9 +75,7 @@ export class OrganizationsController {
   async searchOrganizationUsers(
     @Query() queryParams: SearchOrganizationUsersQueryParamsDto,
   ) {
-    return await this.organizationFacade.searchOrganizationUsers(
-      queryParams.search,
-    );
+    return await this.searchOrganizationUsersHandler.handle(queryParams);
   }
 
   @ApiOperation({
@@ -120,17 +131,7 @@ export class OrganizationsController {
   async getOrganizationList(
     @Query() queryParams: GetOrganizationListQueryParamsDto,
   ) {
-    const data = await this.organizationFacade.getOrganizationListForAdmin(
-      queryParams.page ?? 1,
-      queryParams.limit ?? DEFAULT_PAGE_SIZE,
-      queryParams.search,
-    );
-    const total =
-      await this.organizationFacade.getOrganizationListForAdminTotal(
-        queryParams.search,
-      );
-
-    return { data, total, currentPage: queryParams.page ?? 1 };
+    return await this.getOrganizationListHandler.handle(queryParams);
   }
 
   @ApiOperation({
@@ -172,9 +173,7 @@ export class OrganizationsController {
   async getOrganizationById(
     @Param('organizationId', new ParseUUIDPipe()) organizationId: string,
   ) {
-    return await this.organizationFacade.getOrganizationByIdForAdmin(
-      organizationId,
-    );
+    return await this.getOrganizationByIdHandler.handle(organizationId);
   }
 
   @ApiOperation({
@@ -201,12 +200,7 @@ export class OrganizationsController {
   })
   @Post()
   async createOrganization(@Body() dto: CreateOrganizationDto) {
-    const id = await this.organizationFacade.createOrganization(
-      dto.name,
-      dto.address,
-      dto.taxId,
-    );
-    return { id };
+    return await this.createOrganizationHandler.handle(dto);
   }
 
   @ApiOperation({
@@ -237,14 +231,7 @@ export class OrganizationsController {
     @Param('organizationId', new ParseUUIDPipe()) organizationId: string,
     @Body() dto: UpdateOrganizationDto,
   ) {
-    const id = await this.organizationFacade.updateOrganization(
-      organizationId,
-      dto.name,
-      dto.address,
-      dto.taxId,
-      dto.version,
-    );
-    return { id };
+    return await this.updateOrganizationHandler.handle(organizationId, dto);
   }
 
   @ApiOperation({
@@ -277,13 +264,10 @@ export class OrganizationsController {
     @Param('organizationId', new ParseUUIDPipe()) organizationId: string,
     @Body() dto: AddMemberToOrganizationDto,
   ) {
-    const id = await this.organizationFacade.addMember(
+    return await this.addMemberToOrganizationHandler.handle(
       organizationId,
-      dto.organizationUserId,
-      dto.isRoot,
-      dto.version,
+      dto,
     );
-    return { id };
   }
 
   @ApiOperation({
@@ -316,11 +300,10 @@ export class OrganizationsController {
     @Param('memberId', new ParseUUIDPipe()) memberId: string,
     @Query() queryParams: RemoveMemberFromOrganizationQueryParamsDto,
   ) {
-    const id = await this.organizationFacade.removeMember(
+    return await this.removeMemberFromOrganizationHandler.handle(
       organizationId,
       memberId,
-      queryParams.version,
+      queryParams,
     );
-    return { id };
   }
 }
