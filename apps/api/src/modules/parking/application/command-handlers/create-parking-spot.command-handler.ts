@@ -3,7 +3,7 @@ import { CreateParkingSpotCommand } from '../commands/create-parking-spot.comman
 import { ParkingSpotRepository } from '../ports/parking-spot.repository';
 import { ParkingSpot } from '../../domain/parking-spot';
 import { OrganizationId } from '../../domain/value-objects/organization-id';
-import { AppError } from '../../../../shared/errors';
+import { AppError } from 'src/shared/errors';
 import { ParkingRepository } from '../ports/parking.repository';
 
 @CommandHandler(CreateParkingSpotCommand)

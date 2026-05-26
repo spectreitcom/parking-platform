@@ -5,6 +5,7 @@ import { OrganizationUserIamModule } from 'src/modules/organization-user-iam/app
 import { ParkingsController } from './endpoints/parkings/parkings.controller';
 import { ParkingModule } from 'src/modules/parking/application/parking.module';
 import { OrganizationModule } from 'src/modules/organization/application/organization.module';
+import { ParkingSpotsController } from './endpoints/parking-spots/parking-spots.controller';
 
 @Module({
   imports: [
@@ -13,6 +14,6 @@ import { OrganizationModule } from 'src/modules/organization/application/organiz
     ParkingModule,
     OrganizationModule,
   ],
-  controllers: [AuthController, ParkingsController],
+  controllers: [AuthController, ParkingsController, ParkingSpotsController],
 })
 export class ManagerApiModule {}
