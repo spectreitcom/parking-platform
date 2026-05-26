@@ -29,7 +29,7 @@ export class UpdateParkingSpotHandler implements IControllerHandler {
 
     const id = await this.parkingFacade.updateParkingSpot(
       parkingSpotId,
-      dto.price * 100,
+      Math.round(dto.price * 100),
       dto.parkingFeatureIds,
       dto.version,
       parkingSpot.organizationId,

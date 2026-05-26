@@ -26,19 +26,9 @@ export class ParkingSpotCreatedEventHandler implements IEventHandler<ParkingSpot
     });
 
     if (parking) {
-      await this.prismaService.parkingSpotRead.upsert({
-        where: { parkingSpotId: id },
-        create: {
+      await this.prismaService.parkingSpotRead.create({
+        data: {
           parkingSpotId: id,
-          parkingId,
-          price,
-          pricePLN,
-          active,
-          version,
-          parkingSpotFeatureIds,
-          organizationId: parking.organizationId,
-        },
-        update: {
           parkingId,
           price,
           pricePLN,

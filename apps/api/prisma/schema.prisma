@@ -247,7 +247,7 @@ model ParkingSpotRead {
   organizationId        String   @db.Uuid
   parkingId             String   @db.Uuid
 
-  @@unique([organizationId, parkingId])
+  @@index([organizationId, parkingId])
   @@index([parkingId])
 }
 

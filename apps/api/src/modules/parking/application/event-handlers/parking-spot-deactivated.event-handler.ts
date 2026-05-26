@@ -15,7 +15,7 @@ export class ParkingSpotDeactivatedEventHandler implements IEventHandler<Parking
     const { id, version } = event;
 
     await this.prismaService.parkingSpotRead.update({
-      where: { id },
+      where: { parkingSpotId: id },
       data: { version, active: false },
     });
   }
