@@ -21,15 +21,6 @@ export class UpdateParkingSpotDto {
   @IsNumber()
   readonly price: number;
 
-  // todo;
-  // @ApiProperty({
-  //   description: 'Parking ID to which the spot belongs',
-  //   type: 'string',
-  //   format: 'uuid',
-  // })
-  // @IsUUID()
-  // readonly parkingId: string;
-
   @ApiProperty({
     description:
       'Version of the parking spot for optimistic concurrency control',
@@ -41,15 +32,9 @@ export class UpdateParkingSpotDto {
   @IsPositive()
   readonly version: number;
 
-  constructor(
-    parkingFeatureIds: string[],
-    price: number,
-    // parkingId: string,
-    version: number,
-  ) {
+  constructor(parkingFeatureIds: string[], price: number, version: number) {
     this.parkingFeatureIds = parkingFeatureIds;
     this.price = price;
-    // this.parkingId = parkingId;
     this.version = version;
   }
 }
