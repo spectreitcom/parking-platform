@@ -9,15 +9,14 @@ export class GetParkingFeaturesListHandler implements IControllerHandler {
   constructor(private readonly parkingFacade: ParkingFacade) {}
 
   async handle(queryParams: GetParkingFeaturesListQueryParamsDto) {
-    const data = await this.parkingFacade.getParkingFeatureListForAdmin(
-      queryParams.page ?? 1,
-      queryParams.limit ?? DEFAULT_PAGE_SIZE,
-      queryParams.search,
-    );
-
-    const total = await this.parkingFacade.getParkingFeatureListForAdminTotal(
-      queryParams.search,
-    );
+    const [data, total] = await Promise.all([
+      this.parkingFacade.getParkingFeatureListForAdmin(
+        queryParams.page ?? 1,
+        queryParams.limit ?? DEFAULT_PAGE_SIZE,
+        queryParams.search,
+      ),
+      this.parkingFacade.getParkingFeatureListForAdminTotal(queryParams.search),
+    ]);
 
     return {
       data,

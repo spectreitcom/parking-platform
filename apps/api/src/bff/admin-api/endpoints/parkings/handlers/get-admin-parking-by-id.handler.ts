@@ -21,16 +21,13 @@ export class GetAdminParkingByIdHandler implements IControllerHandler {
       ...rest
     } = parking;
 
-    const parkingFeatures =
-      await this.parkingFacade.getParkingFeatureByIds(parkingFeatureIds);
-
-    const parkingAddons =
-      await this.parkingFacade.getParkingAddonByIds(parkingAddonIds);
-
-    const organization =
-      await this.organizationFacade.getOrganizationByIdForAdmin(organizationId);
-
-    const place = await this.parkingFacade.getPlaceForEditing(placeId);
+    const [parkingFeatures, parkingAddons, organization, place] =
+      await Promise.all([
+        this.parkingFacade.getParkingFeatureByIds(parkingFeatureIds),
+        this.parkingFacade.getParkingAddonByIds(parkingAddonIds),
+        this.organizationFacade.getOrganizationByIdForAdmin(organizationId),
+        this.parkingFacade.getPlaceForEditing(placeId),
+      ]);
 
     return {
       ...rest,
