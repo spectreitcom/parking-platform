@@ -16,12 +16,24 @@ import {
 } from '#/components/ui/card.tsx';
 import { Spinner } from '#/components/ui/spinner.tsx';
 import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '#/components/ui/table.tsx';
+import {
   activateParking,
   deactivateParking,
   getParkingDetails,
+  getParkingSpotsByParkingId,
 } from '#/features/parkings/api';
 import { EditParkingModal } from '#/features/parkings/components/edit-parking-modal.tsx';
-import type { ParkingDetailsSchema } from '#/features/parkings/schemas';
+import type {
+  ParkingDetailsSchema,
+  ParkingSpotListItemSchema,
+} from '#/features/parkings/schemas';
 import {
   AlertTriangle,
   ArrowLeft,
@@ -39,6 +51,8 @@ import {
   Sparkles,
 } from 'lucide-react';
 
+const PARKING_SPOTS_LIMIT = 100;
+
 export const Route = createFileRoute('/_protected/app/parkings/$parkingId')({
   component: RouteComponent,
   pendingComponent: () => (
@@ -48,19 +62,32 @@ export const Route = createFileRoute('/_protected/app/parkings/$parkingId')({
   ),
   loader: async ({ params }) => {
     try {
-      const parking = await getParkingDetails({
-        data: {
-          parkingId: params.parkingId,
-        },
-      });
+      const [parking, parkingSpotsResponse] = await Promise.all([
+        getParkingDetails({
+          data: {
+            parkingId: params.parkingId,
+          },
+        }),
+        getParkingSpotsByParkingId({
+          data: {
+            parkingId: params.parkingId,
+            page: 1,
+            limit: PARKING_SPOTS_LIMIT,
+          },
+        }),
+      ]);
 
       return {
         parking,
+        parkingSpots: parkingSpotsResponse.data,
+        parkingSpotsTotal: parkingSpotsResponse.total,
         error: null,
       };
     } catch (error) {
       return {
         parking: null,
+        parkingSpots: [],
+        parkingSpotsTotal: 0,
         error: 'Failed to fetch parking details.',
       };
     }
@@ -68,7 +95,8 @@ export const Route = createFileRoute('/_protected/app/parkings/$parkingId')({
 });
 
 function RouteComponent() {
-  const { parking, error } = Route.useLoaderData();
+  const { parking, parkingSpots, parkingSpotsTotal, error } =
+    Route.useLoaderData();
   const router = useRouter();
   const activateParkingFn = useServerFn(activateParking);
   const deactivateParkingFn = useServerFn(deactivateParking);
@@ -157,6 +185,11 @@ function RouteComponent() {
 
       <ParkingAssociations parking={parking} />
       <ParkingConfiguration parking={parking} />
+      <ParkingSpots
+        items={parkingSpots}
+        total={parkingSpotsTotal}
+        displayedLimit={PARKING_SPOTS_LIMIT}
+      />
 
       <EditParkingModal
         open={isEditModalOpen}
@@ -174,6 +207,103 @@ function RouteComponent() {
         confirmText={parking.active ? 'Deactivate' : 'Activate'}
       />
     </PageShell>
+  );
+}
+
+function ParkingSpots({
+  items,
+  total,
+  displayedLimit,
+}: Readonly<{
+  items: ParkingSpotListItemSchema[];
+  total: number;
+  displayedLimit: number;
+}>) {
+  return (
+    <Card>
+      <CardHeader>
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+          <div>
+            <CardTitle>Parking spots</CardTitle>
+            <CardDescription>
+              Spots assigned to this parking and their enabled features.
+            </CardDescription>
+          </div>
+          <StatusBadge tone="neutral">
+            {total === 1 ? '1 spot' : `${total} spots`}
+          </StatusBadge>
+        </div>
+      </CardHeader>
+      <CardContent>
+        {items.length === 0 ? (
+          <p className="rounded-md border border-dashed px-3 py-6 text-center text-sm text-muted-foreground">
+            No parking spots assigned
+          </p>
+        ) : (
+          <div className="space-y-3">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="w-[260px]">Spot</TableHead>
+                  <TableHead>Price</TableHead>
+                  <TableHead>Features</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Version</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {items.map((spot) => (
+                  <TableRow
+                    key={spot.id}
+                    className="transition-colors hover:bg-muted/50"
+                  >
+                    <TableCell className="font-medium">
+                      <div className="flex items-center gap-3">
+                        <div className="flex size-9 shrink-0 items-center justify-center rounded-md border bg-background text-primary shadow-xs">
+                          <CarFront className="size-4" />
+                        </div>
+                        <span className="truncate text-foreground">
+                          {spot.id}
+                        </span>
+                      </div>
+                    </TableCell>
+                    <TableCell>{formatPLN(spot.price)}</TableCell>
+                    <TableCell>
+                      {spot.parkingSpotFeatures.length === 0 ? (
+                        <span className="text-muted-foreground">
+                          No features
+                        </span>
+                      ) : (
+                        <div className="flex max-w-xl flex-wrap gap-1.5">
+                          {spot.parkingSpotFeatures.map((feature) => (
+                            <StatusBadge key={feature.id} tone="neutral">
+                              {feature.name}
+                            </StatusBadge>
+                          ))}
+                        </div>
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      <StatusBadge
+                        tone={spot.active ? 'positive' : 'negative'}
+                      >
+                        {spot.active ? 'Active' : 'Inactive'}
+                      </StatusBadge>
+                    </TableCell>
+                    <TableCell>v{spot.version}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+            {total > displayedLimit ? (
+              <p className="text-right text-xs text-muted-foreground">
+                Showing first {displayedLimit} of {total} spots.
+              </p>
+            ) : null}
+          </div>
+        )}
+      </CardContent>
+    </Card>
   );
 }
 
@@ -462,5 +592,12 @@ function formatDateTime(value: Date) {
   return new Intl.DateTimeFormat('en', {
     dateStyle: 'medium',
     timeStyle: 'short',
+  }).format(value);
+}
+
+function formatPLN(value: number) {
+  return new Intl.NumberFormat('en', {
+    style: 'currency',
+    currency: 'PLN',
   }).format(value);
 }
