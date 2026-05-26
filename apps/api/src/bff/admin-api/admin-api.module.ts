@@ -48,6 +48,8 @@ import { GetAdminsListHandler } from './endpoints/admins/handlers/get-admins-lis
 import { InviteAdminHandler } from './endpoints/admins/handlers/invite-admin.handler';
 import { SuspendAdminUserHandler } from './endpoints/admins/handlers/suspend-admin-user.handler';
 import { ActivateAdminUserHandler } from './endpoints/admins/handlers/activate-admin-user.handler';
+import { ParkingSpotsController } from './endpoints/parking-spots/parking-spots.controller';
+import { GetParkingSpotsHandler } from './endpoints/parking-spots/handlers/get-parking-spots.handler';
 
 @Module({
   imports: [
@@ -72,6 +74,7 @@ import { ActivateAdminUserHandler } from './endpoints/admins/handlers/activate-a
     PlacesController,
     UsersController,
     ReservationsController,
+    ParkingSpotsController,
   ],
   providers: [
     GetAdminParkingByIdHandler,
@@ -104,6 +107,7 @@ import { ActivateAdminUserHandler } from './endpoints/admins/handlers/activate-a
     InviteAdminHandler,
     SuspendAdminUserHandler,
     ActivateAdminUserHandler,
+    GetParkingSpotsHandler,
   ],
 })
 export class AdminApiModule {}

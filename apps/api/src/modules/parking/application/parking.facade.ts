@@ -49,6 +49,8 @@ import { GetPlaceForEditingQuery } from 'src/modules/parking/application/queries
 import { PlaceReadReadModel } from './query-handlers/read-models/place-read.read-model';
 import { GetParkingByIdQuery } from './queries/get-parking-by-id.query';
 import { GetParkingSpotByIdQuery } from './queries/get-parking-spot-by-id.query';
+import { GetParkingSpotsByParkingIdQuery } from './queries/get-parking-spots-by-parking-id.query';
+import { GetParkingSpotsByParkingIdTotalQuery } from './queries/get-parking-spots-by-parking-id-total.query';
 import { GetParkingsByOrganizationAndOrganizationUserForManagerQuery } from './queries/get-parkings-by-organization-and-organization-user-for-manager.query';
 import { GetParkingsByOrganizationAndOrganizationUserForManagerTotalQuery } from './queries/get-parkings-by-organization-and-organization-user-for-manager-total.query';
 import { ParkingForManagerItemReadModel } from './query-handlers/read-models/parking-for-manager-item.read-model';
@@ -496,6 +498,26 @@ export class ParkingFacade {
     return await this.queryBus.execute<
       GetParkingSpotByIdQuery,
       ParkingSpotReadReadModel
+    >(query);
+  }
+
+  async getParkingSpotsByParkingId(
+    parkingId: string,
+    page: number,
+    limit: number,
+  ) {
+    const query = new GetParkingSpotsByParkingIdQuery(parkingId, page, limit);
+    return await this.queryBus.execute<
+      GetParkingSpotsByParkingIdQuery,
+      ParkingSpotReadReadModel[]
+    >(query);
+  }
+
+  async getParkingSpotsByParkingIdTotal(parkingId: string) {
+    const query = new GetParkingSpotsByParkingIdTotalQuery(parkingId);
+    return await this.queryBus.execute<
+      GetParkingSpotsByParkingIdTotalQuery,
+      number
     >(query);
   }
 }
