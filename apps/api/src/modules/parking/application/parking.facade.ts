@@ -514,11 +514,7 @@ export class ParkingFacade {
   }
 
   async getParkingSpotsByParkingIdTotal(parkingId: string) {
-    const query = new GetParkingSpotsByParkingIdTotalQuery(
-      parkingId,
-      0, // These are not used by the handler anyway, but required by constructor for some reason
-      0,
-    );
+    const query = new GetParkingSpotsByParkingIdTotalQuery(parkingId);
     return await this.queryBus.execute<
       GetParkingSpotsByParkingIdTotalQuery,
       number
