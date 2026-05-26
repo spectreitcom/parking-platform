@@ -254,9 +254,8 @@ export class ParkingsController {
   @ApiNotFoundResponse({
     description: 'Parking not found.',
   })
-  @Get(':organizationId/:parkingId')
+  @Get(':parkingId/details')
   async getParkingDetails(
-    @Param('organizationId', new ParseUUIDPipe()) currentOrganizationId: string,
     @Param('parkingId', new ParseUUIDPipe()) parkingId: string,
     @CurrentManagerUser() managerUser: RequestUser,
   ) {
@@ -276,12 +275,6 @@ export class ParkingsController {
         (org) => org.organizationId === organizationId,
       )
     ) {
-      throw new ForbiddenException(
-        'Access to the parking details is forbidden.',
-      );
-    }
-
-    if (currentOrganizationId !== organizationId) {
       throw new ForbiddenException(
         'Access to the parking details is forbidden.',
       );
