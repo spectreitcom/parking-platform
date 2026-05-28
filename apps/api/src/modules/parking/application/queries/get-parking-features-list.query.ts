@@ -21,7 +21,7 @@ export class GetParkingFeaturesListQuery implements IQuery {
 
   @IsOptional()
   @IsArray()
-  @IsIn([PARKING_LEVEL, PARKING_SPOT_LEVEL])
+  @IsIn([PARKING_LEVEL, PARKING_SPOT_LEVEL], { each: true })
   readonly levels?: string[];
 
   @IsNumber()

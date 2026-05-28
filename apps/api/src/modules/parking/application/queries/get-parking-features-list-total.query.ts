@@ -16,7 +16,7 @@ export class GetParkingFeaturesListTotalQuery implements IQuery {
 
   @IsOptional()
   @IsArray()
-  @IsIn([PARKING_LEVEL, PARKING_SPOT_LEVEL])
+  @IsIn([PARKING_LEVEL, PARKING_SPOT_LEVEL], { each: true })
   readonly levels?: string[];
 
   constructor(search?: string, levels?: string[]) {
