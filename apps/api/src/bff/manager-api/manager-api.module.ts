@@ -17,6 +17,8 @@ import { ManagerSignOutHandler } from './endpoints/auth/handlers/manager-sign-ou
 import { ManagerResetPasswordHandler } from './endpoints/auth/handlers/manager-reset-password.handler';
 import { ManagerChangePasswordHandler } from './endpoints/auth/handlers/manager-change-password.handler';
 import { UpdateParkingSpotHandler } from './endpoints/parking-spots/handlers/update-parking-spot.handler';
+import { ParkingFeaturesController } from './endpoints/parking-features/parking-features.controller';
+import { GetParkingFeaturesListHandler } from './endpoints/parking-features/handlers/get-parking-features-list.handler';
 
 @Module({
   imports: [
@@ -25,7 +27,12 @@ import { UpdateParkingSpotHandler } from './endpoints/parking-spots/handlers/upd
     ParkingModule,
     OrganizationModule,
   ],
-  controllers: [AuthController, ParkingsController, ParkingSpotsController],
+  controllers: [
+    AuthController,
+    ParkingsController,
+    ParkingSpotsController,
+    ParkingFeaturesController,
+  ],
   providers: [
     AddParkingSpotHandler,
     GetParkingsListHandler,
@@ -38,6 +45,7 @@ import { UpdateParkingSpotHandler } from './endpoints/parking-spots/handlers/upd
     ManagerResetPasswordHandler,
     ManagerChangePasswordHandler,
     UpdateParkingSpotHandler,
+    GetParkingFeaturesListHandler,
   ],
 })
 export class ManagerApiModule {}
