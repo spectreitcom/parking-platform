@@ -30,7 +30,7 @@ export class GetParkingFeaturesListTotalQuery implements IQuery {
     if (errors.length > 0) {
       throw new AppError(
         'VALIDATION_ERROR',
-        'Invalid GetParkingFeaturesListQuery',
+        'Invalid GetParkingFeaturesListTotalQuery',
       );
     }
   }
