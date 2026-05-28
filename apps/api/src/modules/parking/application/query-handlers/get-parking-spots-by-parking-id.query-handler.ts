@@ -1,6 +1,6 @@
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { GetParkingSpotsByParkingIdQuery } from '../queries/get-parking-spots-by-parking-id.query';
-import { ParkingSpotReadReadModel } from 'src/modules/parking/application/query-handlers/read-models/parking-spot-read.read-model';
+import { ParkingSpotReadReadModel } from './read-models/parking-spot-read.read-model';
 import { PrismaService } from 'src/shared/prisma/prisma.service';
 
 @QueryHandler(GetParkingSpotsByParkingIdQuery)
