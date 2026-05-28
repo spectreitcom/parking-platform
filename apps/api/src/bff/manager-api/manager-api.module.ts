@@ -19,6 +19,7 @@ import { ManagerChangePasswordHandler } from './endpoints/auth/handlers/manager-
 import { UpdateParkingSpotHandler } from './endpoints/parking-spots/handlers/update-parking-spot.handler';
 import { ParkingFeaturesController } from './endpoints/parking-features/parking-features.controller';
 import { GetParkingFeaturesListHandler } from './endpoints/parking-features/handlers/get-parking-features-list.handler';
+import { GetParkingSpotsHandler } from './endpoints/parking-spots/handlers/get-parking-spots.handler';
 
 @Module({
   imports: [
@@ -46,6 +47,7 @@ import { GetParkingFeaturesListHandler } from './endpoints/parking-features/hand
     ManagerChangePasswordHandler,
     UpdateParkingSpotHandler,
     GetParkingFeaturesListHandler,
+    GetParkingSpotsHandler,
   ],
 })
 export class ManagerApiModule {}
