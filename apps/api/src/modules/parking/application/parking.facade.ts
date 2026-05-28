@@ -44,6 +44,8 @@ import { GetParkingFeatureByIdQuery } from './queries/get-parking-feature-by-id.
 import { GetParkingAddonByIdsQuery } from './queries/get-parking-addon-by-ids.query';
 import { ParkingAddonReadModel } from './query-handlers/read-models/parking-addon.read-model';
 import { GetParkingFeatureByIdsQuery } from './queries/get-parking-feature-by-ids.query';
+import { GetParkingFeaturesListQuery } from './queries/get-parking-features-list.query';
+import { GetParkingFeaturesListTotalQuery } from './queries/get-parking-features-list-total.query';
 import { ParkingFeatureReadModel } from './query-handlers/read-models/parking-feature.read-model';
 import { GetPlaceForEditingQuery } from 'src/modules/parking/application/queries/get-place-for-editing.query';
 import { PlaceReadReadModel } from './query-handlers/read-models/place-read.read-model';
@@ -460,6 +462,27 @@ export class ParkingFacade {
     return await this.queryBus.execute<
       GetParkingFeatureByIdsQuery,
       ParkingFeatureReadModel[]
+    >(query);
+  }
+
+  async getParkingFeaturesList(
+    page: number,
+    limit: number,
+    search?: string,
+    levels?: string[],
+  ) {
+    const query = new GetParkingFeaturesListQuery(page, limit, search, levels);
+    return await this.queryBus.execute<
+      GetParkingFeaturesListQuery,
+      ParkingFeatureReadModel[]
+    >(query);
+  }
+
+  async getParkingFeaturesListTotal(search?: string, levels?: string[]) {
+    const query = new GetParkingFeaturesListTotalQuery(search, levels);
+    return await this.queryBus.execute<
+      GetParkingFeaturesListTotalQuery,
+      number
     >(query);
   }
 
