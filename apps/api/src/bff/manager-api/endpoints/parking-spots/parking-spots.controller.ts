@@ -12,10 +12,12 @@ import {
 import {
   Body,
   Controller,
+  Get,
   Param,
   ParseUUIDPipe,
   Post,
   Put,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
@@ -24,7 +26,9 @@ import { CurrentManagerUser } from '../../auth/decorators/current-manager-user.d
 import type { RequestUser } from '../../auth/types';
 import { AddParkingSpotHandler } from './handlers/add-parking-spot.handler';
 import { UpdateParkingSpotHandler } from './handlers/update-parking-spot.handler';
-import { UpdateParkingSpotDto } from 'src/bff/manager-api/endpoints/parking-spots/dto/update-parking-spot.dto';
+import { UpdateParkingSpotDto } from './dto/update-parking-spot.dto';
+import { GetParkingSpotsHandler } from './handlers/get-parking-spots.handler';
+import { GetParkingSpotsQueryParamsDto } from './dto/get-parking-spots-query-params.dto';
 
 @ApiBearerAuth('manager-auth')
 @Controller('manager/parking-spots')
@@ -34,7 +38,49 @@ export class ParkingSpotsController {
   constructor(
     private readonly addParkingSpotHandler: AddParkingSpotHandler,
     private readonly updateParkingSpotHandler: UpdateParkingSpotHandler,
+    private readonly getParkingSpotsHandler: GetParkingSpotsHandler,
   ) {}
+
+  @ApiOperation({ summary: 'Get parking spots by parking ID' })
+  @ApiOkResponse({
+    description: 'List of parking spots',
+    schema: {
+      type: 'object',
+      properties: {
+        data: {
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: {
+              id: { type: 'string', format: 'uuid' },
+              active: { type: 'boolean' },
+              version: { type: 'number', minimum: 0 },
+              price: { type: 'number', minimum: 0 },
+              parkingSpotFeatures: {
+                type: 'array',
+                items: {
+                  type: 'object',
+                  properties: {
+                    id: { type: 'string', format: 'uuid' },
+                    name: { type: 'string' },
+                  },
+                },
+              },
+            },
+          },
+        },
+        total: { type: 'number', minimum: 0 },
+        currentPage: { type: 'number', minimum: 1 },
+      },
+    },
+  })
+  @Get()
+  async getParkingSpots(
+    @Query() queryParams: GetParkingSpotsQueryParamsDto,
+    @CurrentManagerUser() managerUser: RequestUser,
+  ) {
+    return await this.getParkingSpotsHandler.handle(queryParams, managerUser);
+  }
 
   @ApiOperation({ summary: 'Add a parking spot to a parking' })
   @ApiCreatedResponse({
