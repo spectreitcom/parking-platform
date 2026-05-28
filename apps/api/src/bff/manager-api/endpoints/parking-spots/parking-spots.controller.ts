@@ -74,6 +74,18 @@ export class ParkingSpotsController {
       },
     },
   })
+  @ApiBadRequestResponse({
+    description: 'Invalid query parameters',
+  })
+  @ApiUnauthorizedResponse({
+    description: 'Unauthorized access',
+  })
+  @ApiForbiddenResponse({
+    description: 'Forbidden access to the operation',
+  })
+  @ApiNotFoundResponse({
+    description: 'Parking not found',
+  })
   @Get()
   async getParkingSpots(
     @Query() queryParams: GetParkingSpotsQueryParamsDto,

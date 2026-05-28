@@ -42,7 +42,7 @@ export class GetParkingSpotsQueryParamsDto {
   @IsUUID()
   readonly parkingId: string;
 
-  constructor(parkingId: string, page: number, limit: number) {
+  constructor(parkingId: string, page?: number, limit?: number) {
     this.parkingId = parkingId;
     this.page = page;
     this.limit = limit;

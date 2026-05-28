@@ -33,6 +33,10 @@ export class GetParkingSpotsHandler implements IControllerHandler {
       queryParams?.limit ?? DEFAULT_PAGE_SIZE,
     );
 
+    const parkingFeatures = await this.parkingFacade.getParkingFeatureByIds(
+      parkingSpots.flatMap((spot) => spot.parkingSpotFeatureIds),
+    );
+
     const total = await this.parkingFacade.getParkingSpotsByParkingIdTotal(
       queryParams.parkingId,
     );
@@ -49,11 +53,7 @@ export class GetParkingSpotsHandler implements IControllerHandler {
     })[] = [];
 
     for (const parkingSpot of parkingSpots) {
-      const { pricePLN, parkingSpotFeatureIds } = parkingSpot;
-
-      const parkingFeatures = await this.parkingFacade.getParkingFeatureByIds(
-        parkingSpotFeatureIds,
-      );
+      const { pricePLN } = parkingSpot;
 
       data.push({
         id: parkingSpot.id,
