@@ -30,6 +30,10 @@ export class GetAssetImageQueryHandler implements IQueryHandler<
       throw new AppError('ENTITY_NOT_FOUND', 'Asset not found');
     }
 
+    if (!record.mimeType.startsWith('image/')) {
+      throw new AppError('VALIDATION_ERROR', 'Asset is not an image');
+    }
+
     const buffer = await this.fileUploader.getObjectFromStorage(record.key);
 
     const updatedBuffer = await this.imageProcessing.resize(

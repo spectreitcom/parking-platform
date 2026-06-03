@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "Asset" ALTER COLUMN "mimeType" SET DATA TYPE VARCHAR(127);

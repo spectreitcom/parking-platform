@@ -1,6 +1,7 @@
 import { AggregateRoot } from '@nestjs/cqrs';
 import { AssetId } from './value-objects/asset-id';
 import { AssetMimeType } from './value-objects/asset-mime-type';
+import { AssetInvalidError } from './errors';
 
 export class Asset extends AggregateRoot {
   private readonly id: AssetId;
@@ -15,6 +16,9 @@ export class Asset extends AggregateRoot {
   }
 
   static create(key: string, mimeType: string) {
+    if (!key || key.trim().length === 0) {
+      throw new AssetInvalidError('Asset key cannot be empty');
+    }
     const id = AssetId.create();
     const _mimeType = AssetMimeType.fromString(mimeType);
     return new Asset(id, key, _mimeType);

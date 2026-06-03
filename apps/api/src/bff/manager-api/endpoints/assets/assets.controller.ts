@@ -1,7 +1,6 @@
 import {
   Controller,
   FileTypeValidator,
-  MaxFileSizeValidator,
   ParseFilePipe,
   Post,
   UploadedFile,
@@ -52,12 +51,17 @@ export class AssetsController {
     type: 'file',
   })
   @Post('upload-image')
-  @UseInterceptors(FileInterceptor('file'))
+  @UseInterceptors(
+    FileInterceptor('file', {
+      limits: {
+        fileSize: 2 * 1024 * 1024,
+      },
+    }),
+  )
   async uploadImage(
     @UploadedFile(
       new ParseFilePipe({
         validators: [
-          new MaxFileSizeValidator({ maxSize: 2 * 1024 * 1024 }),
           new FileTypeValidator({
             fileType: /^image\/(png|jpeg|webp|gif|tiff)$/,
           }),
