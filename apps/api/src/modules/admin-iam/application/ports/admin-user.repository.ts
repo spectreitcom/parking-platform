@@ -1,6 +1,6 @@
 import { AdminUser } from '../../domain/admin-user';
-import { RepositorySaveOptions } from '../../../../shared/types';
-import { PrismaTx } from '../../../../shared/prisma/types';
+import { RepositorySaveOptions } from 'src/shared/types';
+import { PrismaTx } from 'src/shared/prisma/types';
 
 export abstract class AdminUserRepository {
   abstract save(

@@ -160,11 +160,7 @@ function RouteComponent() {
   );
 }
 
-function NoOrganizationUsers({
-  onInviteClick,
-}: {
-  onInviteClick: () => void;
-}) {
+function NoOrganizationUsers({ onInviteClick }: { onInviteClick: () => void }) {
   return (
     <EmptyState
       icon={<Users className="size-5" />}

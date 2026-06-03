@@ -284,9 +284,7 @@ function ParkingSpots({
                       )}
                     </TableCell>
                     <TableCell>
-                      <StatusBadge
-                        tone={spot.active ? 'positive' : 'negative'}
-                      >
+                      <StatusBadge tone={spot.active ? 'positive' : 'negative'}>
                         {spot.active ? 'Active' : 'Inactive'}
                       </StatusBadge>
                     </TableCell>

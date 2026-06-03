@@ -23,7 +23,7 @@
     "forceConsistentCasingInFileNames": true,
     "noImplicitAny": true,
     "noFallthroughCasesInSwitch": false,
-    "types": ["jest", "node"],
+    "types": ["jest", "node", "multer"],
     "pretty": true
   }
 }

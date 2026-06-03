@@ -13,4 +13,8 @@ export const envSchema = Joi.object({
   TRACE_EXPORTER_URL: Joi.string().uri().required(),
   LOG_EXPORTER_URL: Joi.string().uri().required(),
   METRIC_EXPORTER_URL: Joi.string().uri().required(),
+  AWS_REGION: Joi.string().required(),
+  AWS_ACCESS_KEY_ID: Joi.string().required(),
+  AWS_SECRET_ACCESS_KEY: Joi.string().required(),
+  AWS_BUCKET: Joi.string().required(),
 });
