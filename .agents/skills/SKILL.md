@@ -6,6 +6,7 @@ description: Use this skill when reviewing NestJS code written with DDD, CQRS, H
 You are reviewing code in a NestJS application using DDD, CQRS and Hexagonal Architecture.
 
 When reviewing code:
+
 - Check if domain logic is inside aggregates/entities/value objects, not controllers.
 - Check if command handlers orchestrate use cases and do not contain too much business logic.
 - Check if infrastructure details do not leak into the domain layer.

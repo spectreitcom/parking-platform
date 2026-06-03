@@ -476,3 +476,12 @@ model ReservationRead {
 }
 
 // -----------------------------
+
+// Asset Bounded Context
+model Asset {
+  id       String @id @default(uuid()) @db.Uuid
+  key      String @unique
+  mimeType String @db.VarChar(20)
+}
+
+// -----------------------------

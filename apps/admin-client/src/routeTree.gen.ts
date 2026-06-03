@@ -8,159 +8,159 @@
 // You should NOT make any changes in this file as it will be overwritten.
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
-import { Route as rootRouteImport } from './routes/__root'
-import { Route as AuthRouteRouteImport } from './routes/auth/route'
-import { Route as ProtectedRouteRouteImport } from './routes/_protected/route'
-import { Route as IndexRouteImport } from './routes/index'
-import { Route as AuthSignInIndexRouteImport } from './routes/auth/sign-in/index'
-import { Route as AuthResetPasswordIndexRouteImport } from './routes/auth/reset-password/index'
-import { Route as ProtectedAppIndexRouteImport } from './routes/_protected/app/index'
-import { Route as ProtectedAppParkingsIndexRouteImport } from './routes/_protected/app/parkings/index'
-import { Route as ProtectedAppOrganizationsIndexRouteImport } from './routes/_protected/app/organizations/index'
-import { Route as ProtectedAppAdminUsersIndexRouteImport } from './routes/_protected/app/admin-users/index'
-import { Route as ProtectedAppParkingsParkingIdRouteImport } from './routes/_protected/app/parkings/$parkingId'
-import { Route as ProtectedAppOrganizationsOrganizationIdRouteImport } from './routes/_protected/app/organizations/$organizationId'
-import { Route as ProtectedAppParkingsPlacesIndexRouteImport } from './routes/_protected/app/parkings/places/index'
-import { Route as ProtectedAppParkingsPlaceTypesIndexRouteImport } from './routes/_protected/app/parkings/place-types/index'
-import { Route as ProtectedAppParkingsParkingFeaturesIndexRouteImport } from './routes/_protected/app/parkings/parking-features/index'
-import { Route as ProtectedAppOrganizationsOrganizationUsersIndexRouteImport } from './routes/_protected/app/organizations/organization-users/index'
+import { Route as rootRouteImport } from './routes/__root';
+import { Route as AuthRouteRouteImport } from './routes/auth/route';
+import { Route as ProtectedRouteRouteImport } from './routes/_protected/route';
+import { Route as IndexRouteImport } from './routes/index';
+import { Route as AuthSignInIndexRouteImport } from './routes/auth/sign-in/index';
+import { Route as AuthResetPasswordIndexRouteImport } from './routes/auth/reset-password/index';
+import { Route as ProtectedAppIndexRouteImport } from './routes/_protected/app/index';
+import { Route as ProtectedAppParkingsIndexRouteImport } from './routes/_protected/app/parkings/index';
+import { Route as ProtectedAppOrganizationsIndexRouteImport } from './routes/_protected/app/organizations/index';
+import { Route as ProtectedAppAdminUsersIndexRouteImport } from './routes/_protected/app/admin-users/index';
+import { Route as ProtectedAppParkingsParkingIdRouteImport } from './routes/_protected/app/parkings/$parkingId';
+import { Route as ProtectedAppOrganizationsOrganizationIdRouteImport } from './routes/_protected/app/organizations/$organizationId';
+import { Route as ProtectedAppParkingsPlacesIndexRouteImport } from './routes/_protected/app/parkings/places/index';
+import { Route as ProtectedAppParkingsPlaceTypesIndexRouteImport } from './routes/_protected/app/parkings/place-types/index';
+import { Route as ProtectedAppParkingsParkingFeaturesIndexRouteImport } from './routes/_protected/app/parkings/parking-features/index';
+import { Route as ProtectedAppOrganizationsOrganizationUsersIndexRouteImport } from './routes/_protected/app/organizations/organization-users/index';
 
 const AuthRouteRoute = AuthRouteRouteImport.update({
   id: '/auth',
   path: '/auth',
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any);
 const ProtectedRouteRoute = ProtectedRouteRouteImport.update({
   id: '/_protected',
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any);
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any);
 const AuthSignInIndexRoute = AuthSignInIndexRouteImport.update({
   id: '/sign-in/',
   path: '/sign-in/',
   getParentRoute: () => AuthRouteRoute,
-} as any)
+} as any);
 const AuthResetPasswordIndexRoute = AuthResetPasswordIndexRouteImport.update({
   id: '/reset-password/',
   path: '/reset-password/',
   getParentRoute: () => AuthRouteRoute,
-} as any)
+} as any);
 const ProtectedAppIndexRoute = ProtectedAppIndexRouteImport.update({
   id: '/app/',
   path: '/app/',
   getParentRoute: () => ProtectedRouteRoute,
-} as any)
+} as any);
 const ProtectedAppParkingsIndexRoute =
   ProtectedAppParkingsIndexRouteImport.update({
     id: '/app/parkings/',
     path: '/app/parkings/',
     getParentRoute: () => ProtectedRouteRoute,
-  } as any)
+  } as any);
 const ProtectedAppOrganizationsIndexRoute =
   ProtectedAppOrganizationsIndexRouteImport.update({
     id: '/app/organizations/',
     path: '/app/organizations/',
     getParentRoute: () => ProtectedRouteRoute,
-  } as any)
+  } as any);
 const ProtectedAppAdminUsersIndexRoute =
   ProtectedAppAdminUsersIndexRouteImport.update({
     id: '/app/admin-users/',
     path: '/app/admin-users/',
     getParentRoute: () => ProtectedRouteRoute,
-  } as any)
+  } as any);
 const ProtectedAppParkingsParkingIdRoute =
   ProtectedAppParkingsParkingIdRouteImport.update({
     id: '/app/parkings/$parkingId',
     path: '/app/parkings/$parkingId',
     getParentRoute: () => ProtectedRouteRoute,
-  } as any)
+  } as any);
 const ProtectedAppOrganizationsOrganizationIdRoute =
   ProtectedAppOrganizationsOrganizationIdRouteImport.update({
     id: '/app/organizations/$organizationId',
     path: '/app/organizations/$organizationId',
     getParentRoute: () => ProtectedRouteRoute,
-  } as any)
+  } as any);
 const ProtectedAppParkingsPlacesIndexRoute =
   ProtectedAppParkingsPlacesIndexRouteImport.update({
     id: '/app/parkings/places/',
     path: '/app/parkings/places/',
     getParentRoute: () => ProtectedRouteRoute,
-  } as any)
+  } as any);
 const ProtectedAppParkingsPlaceTypesIndexRoute =
   ProtectedAppParkingsPlaceTypesIndexRouteImport.update({
     id: '/app/parkings/place-types/',
     path: '/app/parkings/place-types/',
     getParentRoute: () => ProtectedRouteRoute,
-  } as any)
+  } as any);
 const ProtectedAppParkingsParkingFeaturesIndexRoute =
   ProtectedAppParkingsParkingFeaturesIndexRouteImport.update({
     id: '/app/parkings/parking-features/',
     path: '/app/parkings/parking-features/',
     getParentRoute: () => ProtectedRouteRoute,
-  } as any)
+  } as any);
 const ProtectedAppOrganizationsOrganizationUsersIndexRoute =
   ProtectedAppOrganizationsOrganizationUsersIndexRouteImport.update({
     id: '/app/organizations/organization-users/',
     path: '/app/organizations/organization-users/',
     getParentRoute: () => ProtectedRouteRoute,
-  } as any)
+  } as any);
 
 export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
-  '/auth': typeof AuthRouteRouteWithChildren
-  '/app/': typeof ProtectedAppIndexRoute
-  '/auth/reset-password/': typeof AuthResetPasswordIndexRoute
-  '/auth/sign-in/': typeof AuthSignInIndexRoute
-  '/app/organizations/$organizationId': typeof ProtectedAppOrganizationsOrganizationIdRoute
-  '/app/parkings/$parkingId': typeof ProtectedAppParkingsParkingIdRoute
-  '/app/admin-users/': typeof ProtectedAppAdminUsersIndexRoute
-  '/app/organizations/': typeof ProtectedAppOrganizationsIndexRoute
-  '/app/parkings/': typeof ProtectedAppParkingsIndexRoute
-  '/app/organizations/organization-users/': typeof ProtectedAppOrganizationsOrganizationUsersIndexRoute
-  '/app/parkings/parking-features/': typeof ProtectedAppParkingsParkingFeaturesIndexRoute
-  '/app/parkings/place-types/': typeof ProtectedAppParkingsPlaceTypesIndexRoute
-  '/app/parkings/places/': typeof ProtectedAppParkingsPlacesIndexRoute
+  '/': typeof IndexRoute;
+  '/auth': typeof AuthRouteRouteWithChildren;
+  '/app/': typeof ProtectedAppIndexRoute;
+  '/auth/reset-password/': typeof AuthResetPasswordIndexRoute;
+  '/auth/sign-in/': typeof AuthSignInIndexRoute;
+  '/app/organizations/$organizationId': typeof ProtectedAppOrganizationsOrganizationIdRoute;
+  '/app/parkings/$parkingId': typeof ProtectedAppParkingsParkingIdRoute;
+  '/app/admin-users/': typeof ProtectedAppAdminUsersIndexRoute;
+  '/app/organizations/': typeof ProtectedAppOrganizationsIndexRoute;
+  '/app/parkings/': typeof ProtectedAppParkingsIndexRoute;
+  '/app/organizations/organization-users/': typeof ProtectedAppOrganizationsOrganizationUsersIndexRoute;
+  '/app/parkings/parking-features/': typeof ProtectedAppParkingsParkingFeaturesIndexRoute;
+  '/app/parkings/place-types/': typeof ProtectedAppParkingsPlaceTypesIndexRoute;
+  '/app/parkings/places/': typeof ProtectedAppParkingsPlacesIndexRoute;
 }
 export interface FileRoutesByTo {
-  '/': typeof IndexRoute
-  '/auth': typeof AuthRouteRouteWithChildren
-  '/app': typeof ProtectedAppIndexRoute
-  '/auth/reset-password': typeof AuthResetPasswordIndexRoute
-  '/auth/sign-in': typeof AuthSignInIndexRoute
-  '/app/organizations/$organizationId': typeof ProtectedAppOrganizationsOrganizationIdRoute
-  '/app/parkings/$parkingId': typeof ProtectedAppParkingsParkingIdRoute
-  '/app/admin-users': typeof ProtectedAppAdminUsersIndexRoute
-  '/app/organizations': typeof ProtectedAppOrganizationsIndexRoute
-  '/app/parkings': typeof ProtectedAppParkingsIndexRoute
-  '/app/organizations/organization-users': typeof ProtectedAppOrganizationsOrganizationUsersIndexRoute
-  '/app/parkings/parking-features': typeof ProtectedAppParkingsParkingFeaturesIndexRoute
-  '/app/parkings/place-types': typeof ProtectedAppParkingsPlaceTypesIndexRoute
-  '/app/parkings/places': typeof ProtectedAppParkingsPlacesIndexRoute
+  '/': typeof IndexRoute;
+  '/auth': typeof AuthRouteRouteWithChildren;
+  '/app': typeof ProtectedAppIndexRoute;
+  '/auth/reset-password': typeof AuthResetPasswordIndexRoute;
+  '/auth/sign-in': typeof AuthSignInIndexRoute;
+  '/app/organizations/$organizationId': typeof ProtectedAppOrganizationsOrganizationIdRoute;
+  '/app/parkings/$parkingId': typeof ProtectedAppParkingsParkingIdRoute;
+  '/app/admin-users': typeof ProtectedAppAdminUsersIndexRoute;
+  '/app/organizations': typeof ProtectedAppOrganizationsIndexRoute;
+  '/app/parkings': typeof ProtectedAppParkingsIndexRoute;
+  '/app/organizations/organization-users': typeof ProtectedAppOrganizationsOrganizationUsersIndexRoute;
+  '/app/parkings/parking-features': typeof ProtectedAppParkingsParkingFeaturesIndexRoute;
+  '/app/parkings/place-types': typeof ProtectedAppParkingsPlaceTypesIndexRoute;
+  '/app/parkings/places': typeof ProtectedAppParkingsPlacesIndexRoute;
 }
 export interface FileRoutesById {
-  __root__: typeof rootRouteImport
-  '/': typeof IndexRoute
-  '/_protected': typeof ProtectedRouteRouteWithChildren
-  '/auth': typeof AuthRouteRouteWithChildren
-  '/_protected/app/': typeof ProtectedAppIndexRoute
-  '/auth/reset-password/': typeof AuthResetPasswordIndexRoute
-  '/auth/sign-in/': typeof AuthSignInIndexRoute
-  '/_protected/app/organizations/$organizationId': typeof ProtectedAppOrganizationsOrganizationIdRoute
-  '/_protected/app/parkings/$parkingId': typeof ProtectedAppParkingsParkingIdRoute
-  '/_protected/app/admin-users/': typeof ProtectedAppAdminUsersIndexRoute
-  '/_protected/app/organizations/': typeof ProtectedAppOrganizationsIndexRoute
-  '/_protected/app/parkings/': typeof ProtectedAppParkingsIndexRoute
-  '/_protected/app/organizations/organization-users/': typeof ProtectedAppOrganizationsOrganizationUsersIndexRoute
-  '/_protected/app/parkings/parking-features/': typeof ProtectedAppParkingsParkingFeaturesIndexRoute
-  '/_protected/app/parkings/place-types/': typeof ProtectedAppParkingsPlaceTypesIndexRoute
-  '/_protected/app/parkings/places/': typeof ProtectedAppParkingsPlacesIndexRoute
+  __root__: typeof rootRouteImport;
+  '/': typeof IndexRoute;
+  '/_protected': typeof ProtectedRouteRouteWithChildren;
+  '/auth': typeof AuthRouteRouteWithChildren;
+  '/_protected/app/': typeof ProtectedAppIndexRoute;
+  '/auth/reset-password/': typeof AuthResetPasswordIndexRoute;
+  '/auth/sign-in/': typeof AuthSignInIndexRoute;
+  '/_protected/app/organizations/$organizationId': typeof ProtectedAppOrganizationsOrganizationIdRoute;
+  '/_protected/app/parkings/$parkingId': typeof ProtectedAppParkingsParkingIdRoute;
+  '/_protected/app/admin-users/': typeof ProtectedAppAdminUsersIndexRoute;
+  '/_protected/app/organizations/': typeof ProtectedAppOrganizationsIndexRoute;
+  '/_protected/app/parkings/': typeof ProtectedAppParkingsIndexRoute;
+  '/_protected/app/organizations/organization-users/': typeof ProtectedAppOrganizationsOrganizationUsersIndexRoute;
+  '/_protected/app/parkings/parking-features/': typeof ProtectedAppParkingsParkingFeaturesIndexRoute;
+  '/_protected/app/parkings/place-types/': typeof ProtectedAppParkingsPlaceTypesIndexRoute;
+  '/_protected/app/parkings/places/': typeof ProtectedAppParkingsPlacesIndexRoute;
 }
 export interface FileRouteTypes {
-  fileRoutesByFullPath: FileRoutesByFullPath
+  fileRoutesByFullPath: FileRoutesByFullPath;
   fullPaths:
     | '/'
     | '/auth'
@@ -175,8 +175,8 @@ export interface FileRouteTypes {
     | '/app/organizations/organization-users/'
     | '/app/parkings/parking-features/'
     | '/app/parkings/place-types/'
-    | '/app/parkings/places/'
-  fileRoutesByTo: FileRoutesByTo
+    | '/app/parkings/places/';
+  fileRoutesByTo: FileRoutesByTo;
   to:
     | '/'
     | '/auth'
@@ -191,7 +191,7 @@ export interface FileRouteTypes {
     | '/app/organizations/organization-users'
     | '/app/parkings/parking-features'
     | '/app/parkings/place-types'
-    | '/app/parkings/places'
+    | '/app/parkings/places';
   id:
     | '__root__'
     | '/'
@@ -208,136 +208,136 @@ export interface FileRouteTypes {
     | '/_protected/app/organizations/organization-users/'
     | '/_protected/app/parkings/parking-features/'
     | '/_protected/app/parkings/place-types/'
-    | '/_protected/app/parkings/places/'
-  fileRoutesById: FileRoutesById
+    | '/_protected/app/parkings/places/';
+  fileRoutesById: FileRoutesById;
 }
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
-  ProtectedRouteRoute: typeof ProtectedRouteRouteWithChildren
-  AuthRouteRoute: typeof AuthRouteRouteWithChildren
+  IndexRoute: typeof IndexRoute;
+  ProtectedRouteRoute: typeof ProtectedRouteRouteWithChildren;
+  AuthRouteRoute: typeof AuthRouteRouteWithChildren;
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
     '/auth': {
-      id: '/auth'
-      path: '/auth'
-      fullPath: '/auth'
-      preLoaderRoute: typeof AuthRouteRouteImport
-      parentRoute: typeof rootRouteImport
-    }
+      id: '/auth';
+      path: '/auth';
+      fullPath: '/auth';
+      preLoaderRoute: typeof AuthRouteRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
     '/_protected': {
-      id: '/_protected'
-      path: ''
-      fullPath: '/'
-      preLoaderRoute: typeof ProtectedRouteRouteImport
-      parentRoute: typeof rootRouteImport
-    }
+      id: '/_protected';
+      path: '';
+      fullPath: '/';
+      preLoaderRoute: typeof ProtectedRouteRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
     '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
+      id: '/';
+      path: '/';
+      fullPath: '/';
+      preLoaderRoute: typeof IndexRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
     '/auth/sign-in/': {
-      id: '/auth/sign-in/'
-      path: '/sign-in'
-      fullPath: '/auth/sign-in/'
-      preLoaderRoute: typeof AuthSignInIndexRouteImport
-      parentRoute: typeof AuthRouteRoute
-    }
+      id: '/auth/sign-in/';
+      path: '/sign-in';
+      fullPath: '/auth/sign-in/';
+      preLoaderRoute: typeof AuthSignInIndexRouteImport;
+      parentRoute: typeof AuthRouteRoute;
+    };
     '/auth/reset-password/': {
-      id: '/auth/reset-password/'
-      path: '/reset-password'
-      fullPath: '/auth/reset-password/'
-      preLoaderRoute: typeof AuthResetPasswordIndexRouteImport
-      parentRoute: typeof AuthRouteRoute
-    }
+      id: '/auth/reset-password/';
+      path: '/reset-password';
+      fullPath: '/auth/reset-password/';
+      preLoaderRoute: typeof AuthResetPasswordIndexRouteImport;
+      parentRoute: typeof AuthRouteRoute;
+    };
     '/_protected/app/': {
-      id: '/_protected/app/'
-      path: '/app'
-      fullPath: '/app/'
-      preLoaderRoute: typeof ProtectedAppIndexRouteImport
-      parentRoute: typeof ProtectedRouteRoute
-    }
+      id: '/_protected/app/';
+      path: '/app';
+      fullPath: '/app/';
+      preLoaderRoute: typeof ProtectedAppIndexRouteImport;
+      parentRoute: typeof ProtectedRouteRoute;
+    };
     '/_protected/app/parkings/': {
-      id: '/_protected/app/parkings/'
-      path: '/app/parkings'
-      fullPath: '/app/parkings/'
-      preLoaderRoute: typeof ProtectedAppParkingsIndexRouteImport
-      parentRoute: typeof ProtectedRouteRoute
-    }
+      id: '/_protected/app/parkings/';
+      path: '/app/parkings';
+      fullPath: '/app/parkings/';
+      preLoaderRoute: typeof ProtectedAppParkingsIndexRouteImport;
+      parentRoute: typeof ProtectedRouteRoute;
+    };
     '/_protected/app/organizations/': {
-      id: '/_protected/app/organizations/'
-      path: '/app/organizations'
-      fullPath: '/app/organizations/'
-      preLoaderRoute: typeof ProtectedAppOrganizationsIndexRouteImport
-      parentRoute: typeof ProtectedRouteRoute
-    }
+      id: '/_protected/app/organizations/';
+      path: '/app/organizations';
+      fullPath: '/app/organizations/';
+      preLoaderRoute: typeof ProtectedAppOrganizationsIndexRouteImport;
+      parentRoute: typeof ProtectedRouteRoute;
+    };
     '/_protected/app/admin-users/': {
-      id: '/_protected/app/admin-users/'
-      path: '/app/admin-users'
-      fullPath: '/app/admin-users/'
-      preLoaderRoute: typeof ProtectedAppAdminUsersIndexRouteImport
-      parentRoute: typeof ProtectedRouteRoute
-    }
+      id: '/_protected/app/admin-users/';
+      path: '/app/admin-users';
+      fullPath: '/app/admin-users/';
+      preLoaderRoute: typeof ProtectedAppAdminUsersIndexRouteImport;
+      parentRoute: typeof ProtectedRouteRoute;
+    };
     '/_protected/app/parkings/$parkingId': {
-      id: '/_protected/app/parkings/$parkingId'
-      path: '/app/parkings/$parkingId'
-      fullPath: '/app/parkings/$parkingId'
-      preLoaderRoute: typeof ProtectedAppParkingsParkingIdRouteImport
-      parentRoute: typeof ProtectedRouteRoute
-    }
+      id: '/_protected/app/parkings/$parkingId';
+      path: '/app/parkings/$parkingId';
+      fullPath: '/app/parkings/$parkingId';
+      preLoaderRoute: typeof ProtectedAppParkingsParkingIdRouteImport;
+      parentRoute: typeof ProtectedRouteRoute;
+    };
     '/_protected/app/organizations/$organizationId': {
-      id: '/_protected/app/organizations/$organizationId'
-      path: '/app/organizations/$organizationId'
-      fullPath: '/app/organizations/$organizationId'
-      preLoaderRoute: typeof ProtectedAppOrganizationsOrganizationIdRouteImport
-      parentRoute: typeof ProtectedRouteRoute
-    }
+      id: '/_protected/app/organizations/$organizationId';
+      path: '/app/organizations/$organizationId';
+      fullPath: '/app/organizations/$organizationId';
+      preLoaderRoute: typeof ProtectedAppOrganizationsOrganizationIdRouteImport;
+      parentRoute: typeof ProtectedRouteRoute;
+    };
     '/_protected/app/parkings/places/': {
-      id: '/_protected/app/parkings/places/'
-      path: '/app/parkings/places'
-      fullPath: '/app/parkings/places/'
-      preLoaderRoute: typeof ProtectedAppParkingsPlacesIndexRouteImport
-      parentRoute: typeof ProtectedRouteRoute
-    }
+      id: '/_protected/app/parkings/places/';
+      path: '/app/parkings/places';
+      fullPath: '/app/parkings/places/';
+      preLoaderRoute: typeof ProtectedAppParkingsPlacesIndexRouteImport;
+      parentRoute: typeof ProtectedRouteRoute;
+    };
     '/_protected/app/parkings/place-types/': {
-      id: '/_protected/app/parkings/place-types/'
-      path: '/app/parkings/place-types'
-      fullPath: '/app/parkings/place-types/'
-      preLoaderRoute: typeof ProtectedAppParkingsPlaceTypesIndexRouteImport
-      parentRoute: typeof ProtectedRouteRoute
-    }
+      id: '/_protected/app/parkings/place-types/';
+      path: '/app/parkings/place-types';
+      fullPath: '/app/parkings/place-types/';
+      preLoaderRoute: typeof ProtectedAppParkingsPlaceTypesIndexRouteImport;
+      parentRoute: typeof ProtectedRouteRoute;
+    };
     '/_protected/app/parkings/parking-features/': {
-      id: '/_protected/app/parkings/parking-features/'
-      path: '/app/parkings/parking-features'
-      fullPath: '/app/parkings/parking-features/'
-      preLoaderRoute: typeof ProtectedAppParkingsParkingFeaturesIndexRouteImport
-      parentRoute: typeof ProtectedRouteRoute
-    }
+      id: '/_protected/app/parkings/parking-features/';
+      path: '/app/parkings/parking-features';
+      fullPath: '/app/parkings/parking-features/';
+      preLoaderRoute: typeof ProtectedAppParkingsParkingFeaturesIndexRouteImport;
+      parentRoute: typeof ProtectedRouteRoute;
+    };
     '/_protected/app/organizations/organization-users/': {
-      id: '/_protected/app/organizations/organization-users/'
-      path: '/app/organizations/organization-users'
-      fullPath: '/app/organizations/organization-users/'
-      preLoaderRoute: typeof ProtectedAppOrganizationsOrganizationUsersIndexRouteImport
-      parentRoute: typeof ProtectedRouteRoute
-    }
+      id: '/_protected/app/organizations/organization-users/';
+      path: '/app/organizations/organization-users';
+      fullPath: '/app/organizations/organization-users/';
+      preLoaderRoute: typeof ProtectedAppOrganizationsOrganizationUsersIndexRouteImport;
+      parentRoute: typeof ProtectedRouteRoute;
+    };
   }
 }
 
 interface ProtectedRouteRouteChildren {
-  ProtectedAppIndexRoute: typeof ProtectedAppIndexRoute
-  ProtectedAppOrganizationsOrganizationIdRoute: typeof ProtectedAppOrganizationsOrganizationIdRoute
-  ProtectedAppParkingsParkingIdRoute: typeof ProtectedAppParkingsParkingIdRoute
-  ProtectedAppAdminUsersIndexRoute: typeof ProtectedAppAdminUsersIndexRoute
-  ProtectedAppOrganizationsIndexRoute: typeof ProtectedAppOrganizationsIndexRoute
-  ProtectedAppParkingsIndexRoute: typeof ProtectedAppParkingsIndexRoute
-  ProtectedAppOrganizationsOrganizationUsersIndexRoute: typeof ProtectedAppOrganizationsOrganizationUsersIndexRoute
-  ProtectedAppParkingsParkingFeaturesIndexRoute: typeof ProtectedAppParkingsParkingFeaturesIndexRoute
-  ProtectedAppParkingsPlaceTypesIndexRoute: typeof ProtectedAppParkingsPlaceTypesIndexRoute
-  ProtectedAppParkingsPlacesIndexRoute: typeof ProtectedAppParkingsPlacesIndexRoute
+  ProtectedAppIndexRoute: typeof ProtectedAppIndexRoute;
+  ProtectedAppOrganizationsOrganizationIdRoute: typeof ProtectedAppOrganizationsOrganizationIdRoute;
+  ProtectedAppParkingsParkingIdRoute: typeof ProtectedAppParkingsParkingIdRoute;
+  ProtectedAppAdminUsersIndexRoute: typeof ProtectedAppAdminUsersIndexRoute;
+  ProtectedAppOrganizationsIndexRoute: typeof ProtectedAppOrganizationsIndexRoute;
+  ProtectedAppParkingsIndexRoute: typeof ProtectedAppParkingsIndexRoute;
+  ProtectedAppOrganizationsOrganizationUsersIndexRoute: typeof ProtectedAppOrganizationsOrganizationUsersIndexRoute;
+  ProtectedAppParkingsParkingFeaturesIndexRoute: typeof ProtectedAppParkingsParkingFeaturesIndexRoute;
+  ProtectedAppParkingsPlaceTypesIndexRoute: typeof ProtectedAppParkingsPlaceTypesIndexRoute;
+  ProtectedAppParkingsPlacesIndexRoute: typeof ProtectedAppParkingsPlacesIndexRoute;
 }
 
 const ProtectedRouteRouteChildren: ProtectedRouteRouteChildren = {
@@ -355,40 +355,40 @@ const ProtectedRouteRouteChildren: ProtectedRouteRouteChildren = {
   ProtectedAppParkingsPlaceTypesIndexRoute:
     ProtectedAppParkingsPlaceTypesIndexRoute,
   ProtectedAppParkingsPlacesIndexRoute: ProtectedAppParkingsPlacesIndexRoute,
-}
+};
 
 const ProtectedRouteRouteWithChildren = ProtectedRouteRoute._addFileChildren(
   ProtectedRouteRouteChildren,
-)
+);
 
 interface AuthRouteRouteChildren {
-  AuthResetPasswordIndexRoute: typeof AuthResetPasswordIndexRoute
-  AuthSignInIndexRoute: typeof AuthSignInIndexRoute
+  AuthResetPasswordIndexRoute: typeof AuthResetPasswordIndexRoute;
+  AuthSignInIndexRoute: typeof AuthSignInIndexRoute;
 }
 
 const AuthRouteRouteChildren: AuthRouteRouteChildren = {
   AuthResetPasswordIndexRoute: AuthResetPasswordIndexRoute,
   AuthSignInIndexRoute: AuthSignInIndexRoute,
-}
+};
 
 const AuthRouteRouteWithChildren = AuthRouteRoute._addFileChildren(
   AuthRouteRouteChildren,
-)
+);
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ProtectedRouteRoute: ProtectedRouteRouteWithChildren,
   AuthRouteRoute: AuthRouteRouteWithChildren,
-}
+};
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
-  ._addFileTypes<FileRouteTypes>()
+  ._addFileTypes<FileRouteTypes>();
 
-import type { getRouter } from './router.tsx'
-import type { createStart } from '@tanstack/react-start'
+import type { getRouter } from './router.tsx';
+import type { createStart } from '@tanstack/react-start';
 declare module '@tanstack/react-start' {
   interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
+    ssr: true;
+    router: Awaited<ReturnType<typeof getRouter>>;
   }
 }

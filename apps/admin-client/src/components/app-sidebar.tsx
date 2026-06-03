@@ -37,9 +37,7 @@ import type { FileRouteTypes } from '#/routeTree.gen.ts';
 import { ChangePasswordModal } from '#/features/auth/components/change-password-modal.tsx';
 import type { GetMeResponseSchema } from '#/features/auth/schemas';
 
-export function AppSidebar({
-  user,
-}: Readonly<{ user: GetMeResponseSchema }>) {
+export function AppSidebar({ user }: Readonly<{ user: GetMeResponseSchema }>) {
   const signOutFn = useServerFn(signOut);
   const { mode, toggleThemeMode } = useTheme();
   const [isChangePasswordOpen, setIsChangePasswordOpen] = useState(false);
