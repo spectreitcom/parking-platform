@@ -51,7 +51,7 @@ function RouteComponent() {
           <CardContent>
             {isResetMode ? (
               isValidToken ? (
-                <ResetPasswordForm token={token} />
+                <ResetPasswordForm token={token ?? ''} />
               ) : (
                 <div className="space-y-5">
                   <Alert variant="destructive">
