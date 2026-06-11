@@ -17,6 +17,7 @@ export class JwtAuthGuard extends AuthGuard('manager-jwt') {
       IS_MANAGER_API_PUBLIC,
       [context.getHandler(), context.getClass()],
     );
+
     if (isPublic) return true;
     return super.canActivate(context);
   }

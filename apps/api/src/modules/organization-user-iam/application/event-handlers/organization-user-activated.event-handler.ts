@@ -1,7 +1,7 @@
 import { EventsHandler, IEventHandler } from '@nestjs/cqrs';
 import { Logger } from '@nestjs/common';
 import { OrganizationUserActivatedEvent } from '../../domain/events/organization-user-activated.event';
-import { PrismaService } from '../../../../shared/prisma/prisma.service';
+import { PrismaService } from 'src/shared/prisma/prisma.service';
 import { ORGANIZATION_USER_ACTIVE } from '../../domain/constants';
 import { OrganizationUserStatusMapperService } from '../ports/organization-user-status-mapper.service';
 

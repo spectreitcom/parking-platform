@@ -25,7 +25,7 @@ import { JwtAccessTokenService } from './tokens/jwt-access-token.service';
     ConfigModule,
     JwtModule.registerAsync({
       useFactory: (configService: ConfigService) => ({
-        secret: configService.get<string>('JWT_SECRET')!,
+        secret: configService.get<string>('MANAGER_JWT_SECRET')!,
         signOptions: {
           expiresIn: '1h',
         },

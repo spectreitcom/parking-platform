@@ -14,6 +14,8 @@ import { OrganizationUserStatus } from '../../../domain/value-objects/organizati
 import { AggregateVersion } from 'src/shared/value-objects/aggregate-version';
 import { OrganizationUserDisplayName } from '../../../domain/value-objects/organization-user-display-name';
 import { AppError } from 'src/shared/errors';
+import { OrganizationUserPasswordChangedEvent } from '../../../domain/events/organization-user-password-changed.event';
+import { OrganizationUserActivatedEvent } from '../../../domain/events/organization-user-activated.event';
 
 describe('ResetPasswordCommandHandler', () => {
   let handler: ResetPasswordCommandHandler;
@@ -27,11 +29,12 @@ describe('ResetPasswordCommandHandler', () => {
     organizationUserRepository = {
       findById: jest.fn(),
       save: jest.fn(),
-    } as unknown as typeof organizationUserRepository;
+      findByEmail: jest.fn(),
+    };
 
     eventPublisher = {
-      mergeObjectContext: jest.fn(<T>(obj: T) => obj),
-    } as unknown as typeof eventPublisher;
+      mergeObjectContext: jest.fn((obj: unknown) => obj),
+    } as unknown as jest.Mocked<EventPublisher>;
 
     resetPasswordTokenService = {
       createHash: jest.fn(),
@@ -40,11 +43,11 @@ describe('ResetPasswordCommandHandler', () => {
     resetPasswordTokenStorage = {
       validate: jest.fn(),
       invalidate: jest.fn(),
-    } as unknown as typeof resetPasswordTokenStorage;
+    } as unknown as jest.Mocked<ResetPasswordTokenStorage>;
 
     passwordService = {
       create: jest.fn(),
-    } as unknown as typeof passwordService;
+    } as unknown as jest.Mocked<PasswordService>;
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -77,7 +80,7 @@ describe('ResetPasswordCommandHandler', () => {
     );
   });
 
-  it('should reset password successfully', async () => {
+  it('should reset password successfully for an active user', async () => {
     // Given
     const token = 'valid-token';
     const newPassword = 'NewPassword123!';
@@ -101,6 +104,7 @@ describe('ResetPasswordCommandHandler', () => {
     organizationUserRepository.findById.mockResolvedValue(organizationUser);
     passwordService.create.mockResolvedValue(newPasswordHash);
 
+    const applySpy = jest.spyOn(organizationUser, 'apply');
     const commitSpy = jest.spyOn(organizationUser, 'commit');
 
     // When
@@ -121,6 +125,108 @@ describe('ResetPasswordCommandHandler', () => {
       organizationUser,
     );
     expect(organizationUser.getPasswordHash()).toBe(newPasswordHash);
+    expect(
+      organizationUser.getStatus().equals(OrganizationUserStatus.active()),
+    ).toBe(true);
+    expect(applySpy).toHaveBeenCalledWith(
+      new OrganizationUserPasswordChangedEvent(userId),
+    );
+    expect(commitSpy).toHaveBeenCalled();
+  });
+
+  it('should reset password and activate user if status is invited', async () => {
+    // Given
+    const token = 'valid-token';
+    const newPassword = 'NewPassword123!';
+    const command = new ResetPasswordCommand(token, newPassword);
+    const userId = randomUUID();
+    const tokenHash = 'hashed-token';
+    const newPasswordHash = 'hashed-new-password';
+
+    const organizationUser = OrganizationUser.reconstruct(
+      OrganizationUserId.fromString(userId),
+      Email.fromString('test@example.com'),
+      OrganizationUserStatus.invited(),
+      AggregateVersion.one(),
+      OrganizationUserDisplayName.fromString('Test User'),
+      new Date(),
+      new Date(),
+    );
+
+    resetPasswordTokenService.createHash.mockReturnValue(tokenHash);
+    resetPasswordTokenStorage.validate.mockResolvedValue(userId);
+    organizationUserRepository.findById.mockResolvedValue(organizationUser);
+    passwordService.create.mockResolvedValue(newPasswordHash);
+
+    const applySpy = jest.spyOn(organizationUser, 'apply');
+    const activateSpy = jest.spyOn(organizationUser, 'activate');
+    const commitSpy = jest.spyOn(organizationUser, 'commit');
+
+    // When
+    await handler.execute(command);
+
+    // Then
+    expect(
+      organizationUser.getStatus().equals(OrganizationUserStatus.active()),
+    ).toBe(true);
+    expect(activateSpy).toHaveBeenCalled();
+    expect(applySpy).toHaveBeenCalledWith(
+      new OrganizationUserPasswordChangedEvent(userId),
+    );
+    expect(applySpy).toHaveBeenCalledWith(
+      new OrganizationUserActivatedEvent(userId),
+    );
+    expect(organizationUserRepository.save).toHaveBeenCalledWith(
+      organizationUser,
+    );
+    expect(commitSpy).toHaveBeenCalled();
+  });
+
+  it('should reset password but keep status suspended if user is suspended', async () => {
+    // Given
+    const token = 'valid-token';
+    const newPassword = 'NewPassword123!';
+    const command = new ResetPasswordCommand(token, newPassword);
+    const userId = randomUUID();
+    const tokenHash = 'hashed-token';
+    const newPasswordHash = 'hashed-new-password';
+
+    const organizationUser = OrganizationUser.reconstruct(
+      OrganizationUserId.fromString(userId),
+      Email.fromString('test@example.com'),
+      OrganizationUserStatus.suspended(),
+      AggregateVersion.one(),
+      OrganizationUserDisplayName.fromString('Test User'),
+      new Date(),
+      new Date(),
+    );
+
+    resetPasswordTokenService.createHash.mockReturnValue(tokenHash);
+    resetPasswordTokenStorage.validate.mockResolvedValue(userId);
+    organizationUserRepository.findById.mockResolvedValue(organizationUser);
+    passwordService.create.mockResolvedValue(newPasswordHash);
+
+    const applySpy = jest.spyOn(organizationUser, 'apply');
+    const activateSpy = jest.spyOn(organizationUser, 'activate');
+    const commitSpy = jest.spyOn(organizationUser, 'commit');
+
+    // When
+    await handler.execute(command);
+
+    // Then
+    expect(
+      organizationUser.getStatus().equals(OrganizationUserStatus.suspended()),
+    ).toBe(true);
+    expect(activateSpy).not.toHaveBeenCalled();
+    expect(applySpy).toHaveBeenCalledWith(
+      new OrganizationUserPasswordChangedEvent(userId),
+    );
+    expect(applySpy).not.toHaveBeenCalledWith(
+      expect.any(OrganizationUserActivatedEvent),
+    );
+    expect(organizationUserRepository.save).toHaveBeenCalledWith(
+      organizationUser,
+    );
     expect(commitSpy).toHaveBeenCalled();
   });
 
