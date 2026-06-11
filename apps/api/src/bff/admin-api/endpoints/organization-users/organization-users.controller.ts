@@ -259,7 +259,7 @@ export class OrganizationUsersController {
     description: 'Unauthorized',
   })
   @ApiBadRequestResponse({
-    description: 'Error suspending organization user due to validation errors.',
+    description: 'Error resending invitation due to validation errors',
   })
   @ApiNotFoundResponse({
     description: 'Organization user not found',
