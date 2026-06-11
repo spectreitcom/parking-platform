@@ -9,6 +9,7 @@ import {
   OrganizationUserIamRequestedResetPasswordV1Payload,
 } from '@repo/api-contracts';
 import { OrganizationUserWelcomeEmail } from '../../email/organization-user-welcome.email';
+import { ConfigService } from '@nestjs/config';
 
 type Event = IntegrationEvent<
   OrganizationUserIamRequestedResetPasswordV1Payload,
@@ -25,6 +26,7 @@ export class OrganizationUserIamInvitedIeHandler implements IEventHandler<Event>
     private readonly emailService: EmailService,
     private readonly organizationUserIamFacade: OrganizationUserIamFacade,
     private readonly outboxService: OutboxService,
+    private readonly configService: ConfigService,
   ) {}
 
   async handle(event: Event) {
@@ -41,6 +43,8 @@ export class OrganizationUserIamInvitedIeHandler implements IEventHandler<Event>
     try {
       const { email, organizationUserId, displayName } = event.payload;
 
+      const appUrl = this.configService.getOrThrow<string>('MANAGER_APP_URL');
+
       const resetPasswordToken =
         await this.organizationUserIamFacade.generateResetPasswordToken(
           organizationUserId,
@@ -51,6 +55,7 @@ export class OrganizationUserIamInvitedIeHandler implements IEventHandler<Event>
           email,
           resetPasswordToken,
           displayName,
+          appUrl,
         ),
       );
 

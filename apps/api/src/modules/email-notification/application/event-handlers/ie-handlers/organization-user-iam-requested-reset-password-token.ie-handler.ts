@@ -9,6 +9,7 @@ import {
   OrganizationUserIamIntegrationEventTypes,
   OrganizationUserIamRequestedResetPasswordV1Payload,
 } from '@repo/api-contracts';
+import { ConfigService } from '@nestjs/config';
 
 type Event = IntegrationEvent<
   OrganizationUserIamRequestedResetPasswordV1Payload,
@@ -25,6 +26,7 @@ export class OrganizationUserIamRequestedResetPasswordTokenIeHandler implements 
     private readonly emailService: EmailService,
     private readonly organizationUserIamFacade: OrganizationUserIamFacade,
     private readonly outboxService: OutboxService,
+    private readonly configService: ConfigService,
   ) {}
 
   async handle(event: Event) {
@@ -43,13 +45,15 @@ export class OrganizationUserIamRequestedResetPasswordTokenIeHandler implements 
     try {
       const { email, organizationUserId } = event.payload;
 
+      const appUrl = this.configService.getOrThrow<string>('MANAGER_APP_URL');
+
       const resetPasswordToken =
         await this.organizationUserIamFacade.generateResetPasswordToken(
           organizationUserId,
         );
 
       await this.emailService.send(
-        new ResetPasswordEmail(email, resetPasswordToken),
+        new ResetPasswordEmail(email, resetPasswordToken, appUrl),
       );
       emailSent = true;
 

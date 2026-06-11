@@ -3,11 +3,13 @@ import { Email } from './index';
 export class OrganizationUserWelcomeEmail extends Email<{
   resetPasswordToken: string;
   displayName: string;
+  appUrl: string;
 }> {
   constructor(
     private readonly _to: string,
     private readonly resetPasswordToken: string,
     private readonly displayName: string,
+    private readonly appUrl: string,
   ) {
     super();
   }
@@ -24,6 +26,7 @@ export class OrganizationUserWelcomeEmail extends Email<{
     return {
       resetPasswordToken: this.resetPasswordToken,
       displayName: this.displayName,
+      appUrl: this.appUrl,
     };
   }
 
