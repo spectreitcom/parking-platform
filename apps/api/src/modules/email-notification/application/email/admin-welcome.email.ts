@@ -1,9 +1,13 @@
 import { Email } from 'src/modules/email-notification/application/email/index';
 
-export class AdminWelcomeEmail extends Email<{ resetPasswordToken: string }> {
+export class AdminWelcomeEmail extends Email<{
+  resetPasswordToken: string;
+  appUrl: string;
+}> {
   constructor(
     private readonly _to: string,
     private readonly resetPasswordToken: string,
+    private readonly appUrl: string,
   ) {
     super();
   }
@@ -19,6 +23,7 @@ export class AdminWelcomeEmail extends Email<{ resetPasswordToken: string }> {
   get context() {
     return {
       resetPasswordToken: this.resetPasswordToken,
+      appUrl: this.appUrl,
     };
   }
 

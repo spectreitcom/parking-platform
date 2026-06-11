@@ -17,4 +17,7 @@ export const envSchema = Joi.object({
   AWS_ACCESS_KEY_ID: Joi.string().required(),
   AWS_SECRET_ACCESS_KEY: Joi.string().required(),
   AWS_BUCKET: Joi.string().required(),
+  ADMIN_APP_URL: Joi.string().uri().required(),
+  MANAGER_APP_URL: Joi.string().uri().required(),
+  USER_APP_URL: Joi.string().uri().required(),
 });

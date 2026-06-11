@@ -9,6 +9,7 @@ import {
   AdminIamAdminUserInvitedV1Payload,
   AdminIamIntegrationEventTypes,
 } from '@repo/api-contracts';
+import { ConfigService } from '@nestjs/config';
 
 type Event = IntegrationEvent<
   AdminIamAdminUserInvitedV1Payload,
@@ -23,6 +24,7 @@ export class AdminIamInvitedIEHandler implements IEventHandler<Event> {
     private readonly emailService: EmailService,
     private readonly adminIamFacade: AdminIamFacade,
     private readonly outboxService: OutboxService,
+    private readonly configService: ConfigService,
   ) {}
 
   async handle(event: Event) {
@@ -35,11 +37,13 @@ export class AdminIamInvitedIEHandler implements IEventHandler<Event> {
     try {
       const { email, adminUserId } = event.payload;
 
+      const appUrl = this.configService.getOrThrow<string>('ADMIN_APP_URL');
+
       const resetPasswordToken =
         await this.adminIamFacade.generateResetPasswordToken(adminUserId);
 
       await this.emailService.send(
-        new AdminWelcomeEmail(email, resetPasswordToken),
+        new AdminWelcomeEmail(email, resetPasswordToken, appUrl),
       );
       emailSent = true;
 
