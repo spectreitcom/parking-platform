@@ -5,6 +5,7 @@ import {
   organizationUserListItemSchema,
   organizationUserListSchema,
   organizationUsersListInputSchema,
+  resendInvitationForOrganizationUserInputSchema,
 } from '#/features/organization-users/schemas';
 import { createSearchParams } from '#/lib/utils.ts';
 import {
@@ -128,4 +129,35 @@ export const inviteOrganizationUser = createServerFn()
     }
 
     return validationResult.data;
+  });
+
+/**
+ * Resends an invitation to an existing organization user.
+ *
+ * This server function interacts with the backend to resend an invitation
+ * for a specific organization user, identified by their unique ID.
+ * It ensures input validation based on the predefined schema
+ * and handles potential API errors.
+ *
+ * The process involves sending a POST request to
+ * a designated endpoint on the server to trigger the invitation resend.
+ *
+ * Input:
+ * - An object containing the `organizationUserId` which specifies the
+ *   target user for the invitation.
+ *
+ * Errors:
+ * - API errors will be handled using the `genericApiErrorHandler` utility.
+ */
+export const resendInvitationForOrganizationUser = createServerFn()
+  .inputValidator(resendInvitationForOrganizationUserInputSchema)
+  .handler(async ({ data }) => {
+    const response = await authFetch(
+      `${env.SERVER_URL}/organization-users/${data.organizationUserId}/resend-invitation`,
+      {
+        method: 'POST',
+      },
+    );
+
+    await genericApiErrorHandler(response);
   });

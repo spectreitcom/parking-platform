@@ -31,3 +31,7 @@ export const inviteOrganizationUserInputSchema = z.object({
   email: z.email(),
   displayName: z.string().min(1).max(120),
 });
+
+export const resendInvitationForOrganizationUserInputSchema = z.object({
+  organizationUserId: z.uuid(),
+});

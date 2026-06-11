@@ -19,6 +19,7 @@ import { GetOrganizationUserByIdQuery } from './queries/get-organization-user-by
 import { ValidateUserQuery } from './queries/validate-user.query';
 import { OrganizationUserReadModel } from './query-handlers/read-models/organization-user.read-model';
 import { ChangePasswordCommand } from './commands/change-password.command';
+import { ResendOrganizationUserInvitationCommand } from 'src/modules/organization-user-iam/application/commands/resend-organization-user-invitation.command';
 
 @Injectable()
 export class OrganizationUserIamFacade {
@@ -197,5 +198,15 @@ export class OrganizationUserIamFacade {
       newPassword,
     );
     return await this.commandBus.execute<ChangePasswordCommand, void>(command);
+  }
+
+  async resendInvitation(organizationUserId: string) {
+    const command = new ResendOrganizationUserInvitationCommand(
+      organizationUserId,
+    );
+    return await this.commandBus.execute<
+      ResendOrganizationUserInvitationCommand,
+      void
+    >(command);
   }
 }
