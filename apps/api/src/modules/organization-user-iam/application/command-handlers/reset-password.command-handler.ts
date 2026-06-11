@@ -4,7 +4,8 @@ import { OrganizationUserRepository } from '../ports/organization-user.repositor
 import { ResetPasswordTokenService } from '../ports/reset-password-token.service';
 import { ResetPasswordTokenStorage } from '../ports/reset-password-token.storage';
 import { PasswordService } from '../ports/password.service';
-import { AppError } from '../../../../shared/errors';
+import { AppError } from 'src/shared/errors';
+import { OrganizationUserStatus } from '../../domain/value-objects/organization-user-status';
 
 @CommandHandler(ResetPasswordCommand)
 export class ResetPasswordCommandHandler implements ICommandHandler<
@@ -44,6 +45,11 @@ export class ResetPasswordCommandHandler implements ICommandHandler<
 
     const passwordHash = await this.passwordService.create(password);
     organizationUser.changePassword(passwordHash);
+
+    if (organizationUser.getStatus().equals(OrganizationUserStatus.invited())) {
+      organizationUser.activate();
+    }
+
     await this.organizationUserRepository.save(organizationUser);
 
     await this.resetPasswordTokenStorage.invalidate(resetPasswordTokenHash);

@@ -25,6 +25,7 @@ export class ManagerJwtStrategy extends PassportStrategy(
 
   async validate(payload: JwtPayload): Promise<RequestUser> {
     const managerUserId = payload.sub;
+
     const managerUser =
       await this.organizationUserIamFacade.getOrganizationUserById(
         managerUserId,

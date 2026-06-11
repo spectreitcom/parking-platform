@@ -19,7 +19,7 @@ import { GetOrganizationUserByIdQuery } from './queries/get-organization-user-by
 import { ValidateUserQuery } from './queries/validate-user.query';
 import { OrganizationUserReadModel } from './query-handlers/read-models/organization-user.read-model';
 import { ChangePasswordCommand } from './commands/change-password.command';
-import { ResendOrganizationUserInvitationCommand } from 'src/modules/organization-user-iam/application/commands/resend-organization-user-invitation.command';
+import { ResendOrganizationUserInvitationCommand } from './commands/resend-organization-user-invitation.command';
 
 @Injectable()
 export class OrganizationUserIamFacade {
