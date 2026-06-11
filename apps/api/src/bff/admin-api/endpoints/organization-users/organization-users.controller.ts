@@ -240,4 +240,37 @@ export class OrganizationUsersController {
     );
     return { id: organizationUserId };
   }
+
+  @ApiOperation({ summary: 'Resend organization user invitation' })
+  @ApiOkResponse({
+    description:
+      'The organization user invitation has been successfully resent.',
+    schema: {
+      type: 'object',
+      properties: {
+        status: {
+          type: 'string',
+          description: 'The status of the resend invitation operation',
+        },
+      },
+    },
+  })
+  @ApiUnauthorizedResponse({
+    description: 'Unauthorized',
+  })
+  @ApiBadRequestResponse({
+    description: 'Error suspending organization user due to validation errors.',
+  })
+  @ApiNotFoundResponse({
+    description: 'Organization user not found',
+  })
+  @Post(':organizationUserId/resend-invitation')
+  @HttpCode(HttpStatus.OK)
+  async resendInvitation(
+    @Param('organizationUserId', new ParseUUIDPipe())
+    organizationUserId: string,
+  ) {
+    await this.organizationUserIamFacade.resendInvitation(organizationUserId);
+    return { status: 'ok' };
+  }
 }

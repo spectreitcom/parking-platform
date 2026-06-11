@@ -10,6 +10,7 @@ import { SignInCommandHandler } from './sign-in.command-handler';
 import { SignOutCommandHandler } from './sign-out.command-handler';
 import { ChangePasswordCommandHandler } from './change-password.command-handler';
 import { RefreshTokenCommandHandler } from './refresh-token.command-handler';
+import { ResendOrganizationUserInvitationCommandHandler } from './resend-organization-user-invitation.command-handler';
 
 export const commandHandlers = [
   UpdateOrganizationUserCommandHandler,
@@ -24,4 +25,5 @@ export const commandHandlers = [
   SignOutCommandHandler,
   ChangePasswordCommandHandler,
   RefreshTokenCommandHandler,
+  ResendOrganizationUserInvitationCommandHandler,
 ];

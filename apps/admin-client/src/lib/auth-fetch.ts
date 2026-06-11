@@ -106,6 +106,7 @@ export async function genericApiErrorHandler(
     if (!validationSchema.success) {
       throw new Error(fallbackMessage);
     }
+
     throw new Error(validationSchema.data.detail);
   }
 }
