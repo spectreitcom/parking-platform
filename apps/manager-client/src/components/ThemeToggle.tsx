@@ -1,4 +1,7 @@
+import { LaptopIcon, MoonIcon, SunIcon } from 'lucide-react';
+
 import { useTheme } from '#/hooks/use-theme';
+import { Button } from '#/components/ui/button';
 
 export default function ThemeToggle() {
   const { mode, toggleThemeMode } = useTheme();
@@ -8,15 +11,22 @@ export default function ThemeToggle() {
       ? 'Theme mode: auto (system). Click to switch to light mode.'
       : `Theme mode: ${mode}. Click to switch mode.`;
 
+  const Icon =
+    mode === 'auto' ? LaptopIcon : mode === 'dark' ? MoonIcon : SunIcon;
+  const text = mode === 'auto' ? 'Auto' : mode === 'dark' ? 'Dark' : 'Light';
+
   return (
-    <button
+    <Button
       type="button"
+      variant="outline"
+      size="sm"
       onClick={toggleThemeMode}
       aria-label={label}
       title={label}
-      className="rounded-full border border-[var(--chip-line)] bg-[var(--chip-bg)] px-3 py-1.5 text-sm font-semibold text-[var(--sea-ink)] shadow-[0_8px_22px_rgba(30,90,72,0.08)] transition hover:-translate-y-0.5"
+      className="border-[var(--chip-line)] bg-[var(--chip-bg)] text-[var(--sea-ink)] shadow-xs"
     >
-      {mode === 'auto' ? 'Auto' : mode === 'dark' ? 'Dark' : 'Light'}
-    </button>
+      <Icon aria-hidden="true" />
+      <span>{text}</span>
+    </Button>
   );
 }
