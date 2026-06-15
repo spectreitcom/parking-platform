@@ -15,6 +15,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthSignInIndexRouteImport } from './routes/auth/sign-in/index'
 import { Route as AuthResetPasswordIndexRouteImport } from './routes/auth/reset-password/index'
 import { Route as ProtectedAppIndexRouteImport } from './routes/_protected/app/index'
+import { Route as ProtectedAppOrganizationIdRouteImport } from './routes/_protected/app/$organizationId'
 
 const AuthRouteRoute = AuthRouteRouteImport.update({
   id: '/auth',
@@ -45,10 +46,17 @@ const ProtectedAppIndexRoute = ProtectedAppIndexRouteImport.update({
   path: '/app/',
   getParentRoute: () => ProtectedRouteRoute,
 } as any)
+const ProtectedAppOrganizationIdRoute =
+  ProtectedAppOrganizationIdRouteImport.update({
+    id: '/app/$organizationId',
+    path: '/app/$organizationId',
+    getParentRoute: () => ProtectedRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRouteRouteWithChildren
+  '/app/$organizationId': typeof ProtectedAppOrganizationIdRoute
   '/app/': typeof ProtectedAppIndexRoute
   '/auth/reset-password/': typeof AuthResetPasswordIndexRoute
   '/auth/sign-in/': typeof AuthSignInIndexRoute
@@ -56,6 +64,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRouteRouteWithChildren
+  '/app/$organizationId': typeof ProtectedAppOrganizationIdRoute
   '/app': typeof ProtectedAppIndexRoute
   '/auth/reset-password': typeof AuthResetPasswordIndexRoute
   '/auth/sign-in': typeof AuthSignInIndexRoute
@@ -65,6 +74,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_protected': typeof ProtectedRouteRouteWithChildren
   '/auth': typeof AuthRouteRouteWithChildren
+  '/_protected/app/$organizationId': typeof ProtectedAppOrganizationIdRoute
   '/_protected/app/': typeof ProtectedAppIndexRoute
   '/auth/reset-password/': typeof AuthResetPasswordIndexRoute
   '/auth/sign-in/': typeof AuthSignInIndexRoute
@@ -74,16 +84,24 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/auth'
+    | '/app/$organizationId'
     | '/app/'
     | '/auth/reset-password/'
     | '/auth/sign-in/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth' | '/app' | '/auth/reset-password' | '/auth/sign-in'
+  to:
+    | '/'
+    | '/auth'
+    | '/app/$organizationId'
+    | '/app'
+    | '/auth/reset-password'
+    | '/auth/sign-in'
   id:
     | '__root__'
     | '/'
     | '/_protected'
     | '/auth'
+    | '/_protected/app/$organizationId'
     | '/_protected/app/'
     | '/auth/reset-password/'
     | '/auth/sign-in/'
@@ -139,14 +157,23 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProtectedAppIndexRouteImport
       parentRoute: typeof ProtectedRouteRoute
     }
+    '/_protected/app/$organizationId': {
+      id: '/_protected/app/$organizationId'
+      path: '/app/$organizationId'
+      fullPath: '/app/$organizationId'
+      preLoaderRoute: typeof ProtectedAppOrganizationIdRouteImport
+      parentRoute: typeof ProtectedRouteRoute
+    }
   }
 }
 
 interface ProtectedRouteRouteChildren {
+  ProtectedAppOrganizationIdRoute: typeof ProtectedAppOrganizationIdRoute
   ProtectedAppIndexRoute: typeof ProtectedAppIndexRoute
 }
 
 const ProtectedRouteRouteChildren: ProtectedRouteRouteChildren = {
+  ProtectedAppOrganizationIdRoute: ProtectedAppOrganizationIdRoute,
   ProtectedAppIndexRoute: ProtectedAppIndexRoute,
 }
 
