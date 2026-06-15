@@ -8,11 +8,7 @@ export const Route = createFileRoute('/auth/sign-in/')({
 
 function RouteComponent() {
   return (
-    <AuthPageShell
-      eyebrow="Witaj ponownie"
-      title="Zaloguj się do panelu"
-      description="Wejdź do przestrzeni zarządzania parkingami, użytkownikami i rezerwacjami."
-    >
+    <AuthPageShell>
       <SignInForm />
     </AuthPageShell>
   );

@@ -15,24 +15,14 @@ function RouteComponent() {
 
   if (token) {
     return (
-      <AuthPageShell
-        eyebrow="Reset hasła"
-        title="Ustaw nowe hasło"
-        description="Wprowadź nowe hasło dla konta powiązanego z linkiem resetującym."
-        backToSignIn
-      >
+      <AuthPageShell>
         <ResetPasswordForm token={token} />
       </AuthPageShell>
     );
   }
 
   return (
-    <AuthPageShell
-      eyebrow="Odzyskiwanie dostępu"
-      title="Wyślij link resetujący"
-      description="Podaj adres email, a jeśli konto istnieje, wyślemy instrukcję ustawienia nowego hasła."
-      backToSignIn
-    >
+    <AuthPageShell>
       <RequestResetPasswordForm />
     </AuthPageShell>
   );
