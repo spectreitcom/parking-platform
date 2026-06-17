@@ -99,17 +99,12 @@ export class ParkingsController {
   @ApiUnauthorizedResponse({
     description: 'Unauthorized',
   })
-  @Get(':organizationId')
+  @Get()
   async getParkingsList(
     @Query() queryParams: GetParkingFeaturesListQueryParamsDto,
-    @Param('organizationId', new ParseUUIDPipe()) organizationId: string,
     @CurrentManagerUser() managerUser: RequestUser,
   ) {
-    return await this.getParkingsListHandler.handle(
-      queryParams,
-      organizationId,
-      managerUser,
-    );
+    return await this.getParkingsListHandler.handle(queryParams, managerUser);
   }
 
   @ApiOperation({ summary: 'Get parking details' })

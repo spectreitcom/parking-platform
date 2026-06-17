@@ -1,4 +1,11 @@
-import { IsInt, Max, IsOptional, Min } from 'class-validator';
+import {
+  IsInt,
+  Max,
+  IsOptional,
+  Min,
+  IsNotEmpty,
+  IsUUID,
+} from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import { DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE } from 'src/shared/constants';
@@ -27,8 +34,17 @@ export class GetParkingFeaturesListQueryParamsDto {
   @Max(MAX_PAGE_SIZE)
   readonly limit?: number;
 
-  constructor(page?: number, limit?: number) {
+  @ApiProperty({
+    description: 'The organization ID',
+    format: 'uuid',
+  })
+  @IsNotEmpty()
+  @IsUUID()
+  readonly organizationId: string;
+
+  constructor(organizationId: string, page?: number, limit?: number) {
     this.page = page;
     this.limit = limit;
+    this.organizationId = organizationId;
   }
 }
