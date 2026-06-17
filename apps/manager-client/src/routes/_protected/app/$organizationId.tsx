@@ -1,39 +1,34 @@
-import { queryOptions, useQuery } from '@tanstack/react-query';
 import { createFileRoute, redirect } from '@tanstack/react-router';
 import {
-  AlertCircleIcon,
   CheckCircle2Icon,
   MapPinIcon,
   ParkingSquareIcon,
   XCircleIcon,
 } from 'lucide-react';
-
-import { Alert, AlertDescription, AlertTitle } from '#/components/ui/alert.tsx';
+import { z } from 'zod';
 import {
   Card,
   CardContent,
   CardHeader,
   CardTitle,
 } from '#/components/ui/card.tsx';
-import { Skeleton } from '#/components/ui/skeleton.tsx';
+import { Pagination } from '#/components/pagination.tsx';
 import { getParkings } from '#/features/parking/api';
+import { Spinner } from 'admin-client/src/components/ui/spinner.tsx';
 
 const PARKINGS_PAGE_SIZE = 24;
 
-function parkingListQueryOptions(organizationId: string) {
-  return queryOptions({
-    queryKey: ['parkings', organizationId],
-    queryFn: () =>
-      getParkings({
-        data: {
-          organizationId,
-          limit: PARKINGS_PAGE_SIZE,
-        },
-      }),
-  });
-}
+const parkingSearchSchema = z
+  .object({
+    page: z.coerce.number().int().positive().catch(1),
+  })
+  .transform(
+    ({ page }): { page?: number } => (page === 1 ? {} : { page }),
+  );
 
 export const Route = createFileRoute('/_protected/app/$organizationId')({
+  validateSearch: (search) => parkingSearchSchema.parse(search),
+  loaderDeps: ({ search: { page } }) => ({ page: page ?? 1 }),
   beforeLoad: ({ context, params }) => {
     const organization = context.user.organizations.find(
       (item) => item.id === params.organizationId,
@@ -50,21 +45,55 @@ export const Route = createFileRoute('/_protected/app/$organizationId')({
       }
     }
   },
-  loader: ({ context, params }) =>
-    context.queryClient.ensureQueryData(
-      parkingListQueryOptions(params.organizationId),
-    ),
+  loader: async ({ params, deps }) => {
+    try {
+      const parkingListResponse = await getParkings({
+        data: {
+          page: deps.page,
+          organizationId: params.organizationId,
+          limit: PARKINGS_PAGE_SIZE,
+        },
+      });
+
+      return {
+        parkings: parkingListResponse.data,
+        currentPage: parkingListResponse.currentPage,
+        total: parkingListResponse.total,
+        error: null,
+      };
+    } catch {
+      return {
+        parkings: [],
+        currentPage: 1,
+        total: 0,
+        error: 'Failed to fetch parkings. Please try again later.',
+      };
+    }
+  },
   component: RouteComponent,
+  pendingComponent: () => (
+    <div className={'flex h-full w-full items-center justify-center'}>
+      <Spinner className={'size-8'} />
+    </div>
+  ),
 });
 
 function RouteComponent() {
   const { organizationId } = Route.useParams();
+  const navigate = Route.useNavigate();
   const { user } = Route.useRouteContext();
   const organization = user.organizations.find(
     (item) => item.id === organizationId,
   );
-  const parkingsQuery = useQuery(parkingListQueryOptions(organizationId));
-  const parkings = parkingsQuery.data?.data ?? [];
+  const { parkings, error, currentPage, total } = Route.useLoaderData();
+  const handlePageChange = (page: number) => {
+    void navigate({
+      search: (previous) => ({
+        ...previous,
+        page: page === 1 ? undefined : page,
+      }),
+    });
+  };
 
   return (
     <div className="space-y-6">
@@ -82,24 +111,20 @@ function RouteComponent() {
           <div>
             <h2 className="text-lg font-semibold tracking-tight">Parkings</h2>
             <p className="text-sm text-muted-foreground">
-              {parkingsQuery.data
-                ? `${parkingsQuery.data.total} parking locations`
-                : 'Parking locations assigned to this organization'}
+              {error ??
+                (parkings.length > 0
+                  ? `${total} parking locations`
+                  : 'Parking locations assigned to this organization')}
             </p>
           </div>
+          <Pagination
+            total={total}
+            page={currentPage}
+            pageSize={PARKINGS_PAGE_SIZE}
+            onPageChange={handlePageChange}
+          />
         </div>
 
-        {parkingsQuery.isLoading ? <ParkingGridSkeleton /> : null}
-        {parkingsQuery.isError ? (
-          <Alert variant="destructive">
-            <AlertCircleIcon aria-hidden="true" />
-            <AlertTitle>Could not load parkings</AlertTitle>
-            <AlertDescription>{parkingsQuery.error.message}</AlertDescription>
-          </Alert>
-        ) : null}
-        {parkingsQuery.isSuccess && parkings.length === 0 ? (
-          <EmptyParkingList />
-        ) : null}
         {parkings.length > 0 ? (
           <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
             {parkings.map((parking) => (
@@ -143,7 +168,7 @@ function RouteComponent() {
   );
 }
 
-function ParkingStatus({ active }: { active: boolean }) {
+function ParkingStatus({ active }: Readonly<{ active: boolean }>) {
   const Icon = active ? CheckCircle2Icon : XCircleIcon;
 
   return (
@@ -155,47 +180,6 @@ function ParkingStatus({ active }: { active: boolean }) {
         }
       />
       <span>{active ? 'Active' : 'Inactive'}</span>
-    </div>
-  );
-}
-
-function ParkingGridSkeleton() {
-  return (
-    <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-      {Array.from({ length: 6 }).map((_, index) => (
-        <Card key={index} className="gap-4 rounded-lg">
-          <CardHeader className="gap-3">
-            <div className="flex items-start justify-between gap-3">
-              <div className="space-y-2">
-                <Skeleton className="size-10 rounded-md" />
-                <Skeleton className="h-5 w-40" />
-              </div>
-              <Skeleton className="h-7 w-20 rounded-md" />
-            </div>
-          </CardHeader>
-          <CardContent className="space-y-2">
-            <Skeleton className="h-4 w-32" />
-            <Skeleton className="h-4 w-full" />
-          </CardContent>
-        </Card>
-      ))}
-    </div>
-  );
-}
-
-function EmptyParkingList() {
-  return (
-    <div className="flex min-h-48 items-center justify-center rounded-lg border border-dashed p-6 text-center">
-      <div className="space-y-2">
-        <ParkingSquareIcon
-          aria-hidden="true"
-          className="mx-auto size-8 text-muted-foreground"
-        />
-        <h3 className="font-medium">No parkings found</h3>
-        <p className="max-w-md text-sm text-muted-foreground">
-          This organization does not have any parking locations assigned yet.
-        </p>
-      </div>
     </div>
   );
 }

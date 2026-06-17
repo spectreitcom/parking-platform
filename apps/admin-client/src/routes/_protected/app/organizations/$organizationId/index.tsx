@@ -35,7 +35,7 @@ import { AddMemberModal } from '#/features/organizations/components/add-member-m
 import { MembersTable } from '#/features/organizations/components/members-table.tsx';
 
 export const Route = createFileRoute(
-  '/_protected/app/organizations/$organizationId',
+  '/_protected/app/organizations/$organizationId/',
 )({
   component: RouteComponent,
   pendingComponent: () => (
