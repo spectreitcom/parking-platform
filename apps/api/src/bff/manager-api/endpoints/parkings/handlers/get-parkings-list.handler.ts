@@ -12,14 +12,13 @@ export class GetParkingsListHandler implements IControllerHandler {
 
   async handle(
     queryParams: GetParkingFeaturesListQueryParamsDto,
-    organizationId: string,
     managerUser: RequestUser,
   ) {
     const organizationIds = managerUser.organizations.map(
       (organization) => organization.organizationId,
     );
 
-    if (!organizationIds.includes(organizationId)) {
+    if (!organizationIds.includes(queryParams.organizationId)) {
       throw new ForbiddenException(
         'You are not authorized to access this resource.',
       );
@@ -27,7 +26,7 @@ export class GetParkingsListHandler implements IControllerHandler {
 
     const parkings =
       await this.parkingFacade.getParkingsByOrganizationAndOrganizationUserForManager(
-        organizationId,
+        queryParams.organizationId,
         queryParams.page ?? 1,
         queryParams.limit ?? DEFAULT_PAGE_SIZE,
       );
@@ -42,7 +41,7 @@ export class GetParkingsListHandler implements IControllerHandler {
 
     const total =
       await this.parkingFacade.getParkingsByOrganizationAndOrganizationUserForManagerTotal(
-        organizationId,
+        queryParams.organizationId,
       );
 
     const data: (Omit<(typeof parkings)[number], 'placeId'> & {
