@@ -14,7 +14,7 @@ import {
 } from '#/components/ui/card.tsx';
 import { Pagination } from '#/components/pagination.tsx';
 import { getParkings } from '#/features/parking/api';
-import { Spinner } from 'admin-client/src/components/ui/spinner.tsx';
+import { Spinner } from '#/components/ui/spinner.tsx';
 
 const PARKINGS_PAGE_SIZE = 24;
 
@@ -22,9 +22,7 @@ const parkingSearchSchema = z
   .object({
     page: z.coerce.number().int().positive().catch(1),
   })
-  .transform(
-    ({ page }): { page?: number } => (page === 1 ? {} : { page }),
-  );
+  .transform(({ page }): { page?: number } => (page === 1 ? {} : { page }));
 
 export const Route = createFileRoute('/_protected/app/$organizationId')({
   validateSearch: (search) => parkingSearchSchema.parse(search),
