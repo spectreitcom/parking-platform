@@ -1,4 +1,4 @@
-import { createFileRoute, redirect } from '@tanstack/react-router';
+import { Link, createFileRoute, redirect } from '@tanstack/react-router';
 import {
   CheckCircle2Icon,
   MapPinIcon,
@@ -24,7 +24,7 @@ const parkingSearchSchema = z
   })
   .transform(({ page }): { page?: number } => (page === 1 ? {} : { page }));
 
-export const Route = createFileRoute('/_protected/app/$organizationId')({
+export const Route = createFileRoute('/_protected/app/$organizationId/')({
   validateSearch: (search) => parkingSearchSchema.parse(search),
   loaderDeps: ({ search: { page } }) => ({ page: page ?? 1 }),
   beforeLoad: ({ context, params }) => {
@@ -126,7 +126,10 @@ function RouteComponent() {
         {parkings.length > 0 ? (
           <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
             {parkings.map((parking) => (
-              <Card key={parking.id} className="gap-4 rounded-lg">
+              <Card
+                key={parking.id}
+                className="relative gap-4 rounded-lg transition-colors hover:bg-muted/40"
+              >
                 <CardHeader className="gap-3">
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0 space-y-2">
@@ -137,7 +140,16 @@ function RouteComponent() {
                         />
                       </div>
                       <CardTitle className="truncate text-base">
-                        {parking.name}
+                        <Link
+                          to="/app/$organizationId/parkings/$parkingId"
+                          params={{
+                            organizationId,
+                            parkingId: parking.id,
+                          }}
+                          className="after:absolute after:inset-0"
+                        >
+                          {parking.name}
+                        </Link>
                       </CardTitle>
                     </div>
                     <ParkingStatus active={parking.active} />
