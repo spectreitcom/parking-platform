@@ -16,22 +16,8 @@ import {
 import { env } from '#/env.ts';
 import { genericResponseSchema } from '#/lib/schemas.ts';
 
-/**
- * Fetches and returns a list of organization users from the server.
- *
- * This server function:
- * 1. Accepts validated input based on the `organizationUsersListInputSchema`.
- * 2. Constructs search parameters from the input data.
- * 3. Sends an authenticated `GET` request to the server to retrieve organization users.
- * 4. Handles API errors through a generic error handler.
- * 5. Validates the response data using the `organizationUserListSchema`.
- *
- * Throws an error if the validation fails or if a server error occurs.
- *
- * @constant {ServerFunction} getOrganizationUsers - The server function responsible for fetching organization users.
- */
 export const getOrganizationUsers = createServerFn()
-  .inputValidator(organizationUsersListInputSchema)
+  .validator(organizationUsersListInputSchema)
   .handler(async ({ data }) => {
     const searchParams = createSearchParams({
       ...data,
@@ -57,23 +43,8 @@ export const getOrganizationUsers = createServerFn()
     return validationResult.data;
   });
 
-/**
- * A function for retrieving the information of an organization user by their identifier.
- * This server function is configured with an input validator and a handler for processing
- * the request to fetch organization user data from the server.
- *
- * Input Validation:
- * The input is validated using the `getOrganizationUserByIdInputSchema` to ensure the
- * required properties and data structure are provided.
- *
- * Handler Logic:
- * 1. Sends a GET request to the server to fetch organization user data based on the provided user ID.
- * 2. Handles server responses and checks for errors using a generic API error handler.
- * 3. Parses and validates the server response against the `organizationUserListItemSchema`.
- * 4. Throws a default server error if the validation fails.
- */
 export const getOrganizationUser = createServerFn()
-  .inputValidator(getOrganizationUserByIdInputSchema)
+  .validator(getOrganizationUserByIdInputSchema)
   .handler(async ({ data }) => {
     const response = await authFetch(
       `${env.SERVER_URL}/organization-users/${data.organizationUserId}`,
@@ -96,20 +67,8 @@ export const getOrganizationUser = createServerFn()
     return validationResult.data;
   });
 
-/**
- * A server-side function used to handle the invitation of a user to an organization.
- * This function validates the input, sends a request to the server to create the organization
- * user, handles potential errors, and validates the server's response.
- *
- * The function performs the following steps:
- * 1. Validates the input using `inviteOrganizationUserInputSchema`.
- * 2. Sends a POST request to the server to invite the user to the organization.
- * 3. Handles API errors using `genericApiErrorHandler`.
- * 4. Parses and validates the response using `genericResponseSchema`.
- * 5. Throws appropriate errors or returns the validated response data.
- */
 export const inviteOrganizationUser = createServerFn()
-  .inputValidator(inviteOrganizationUserInputSchema)
+  .validator(inviteOrganizationUserInputSchema)
   .handler(async ({ data }) => {
     const response = await authFetch(`${env.SERVER_URL}/organization-users`, {
       method: 'POST',
@@ -131,26 +90,8 @@ export const inviteOrganizationUser = createServerFn()
     return validationResult.data;
   });
 
-/**
- * Resends an invitation to an existing organization user.
- *
- * This server function interacts with the backend to resend an invitation
- * for a specific organization user, identified by their unique ID.
- * It ensures input validation based on the predefined schema
- * and handles potential API errors.
- *
- * The process involves sending a POST request to
- * a designated endpoint on the server to trigger the invitation resend.
- *
- * Input:
- * - An object containing the `organizationUserId` which specifies the
- *   target user for the invitation.
- *
- * Errors:
- * - API errors will be handled using the `genericApiErrorHandler` utility.
- */
 export const resendInvitationForOrganizationUser = createServerFn()
-  .inputValidator(resendInvitationForOrganizationUserInputSchema)
+  .validator(resendInvitationForOrganizationUserInputSchema)
   .handler(async ({ data }) => {
     const response = await authFetch(
       `${env.SERVER_URL}/organization-users/${data.organizationUserId}/resend-invitation`,
