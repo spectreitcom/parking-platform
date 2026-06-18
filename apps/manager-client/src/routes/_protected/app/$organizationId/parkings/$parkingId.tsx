@@ -16,9 +16,11 @@ import {
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import type { ReactNode } from 'react';
+import { z } from 'zod';
 
 import { Alert, AlertDescription, AlertTitle } from '#/components/ui/alert.tsx';
 import { Button } from '#/components/ui/button.tsx';
+import { Pagination } from '#/components/pagination.tsx';
 import {
   Card,
   CardContent,
@@ -28,10 +30,23 @@ import {
 import { Separator } from '#/components/ui/separator.tsx';
 import { Spinner } from '#/components/ui/spinner.tsx';
 import { getParkingDetails } from '#/features/parking/api';
+import { getParkingSpotsForParking } from '#/features/parking-spots/api';
+
+const PARKING_SPOTS_PAGE_SIZE = 24;
+
+const parkingDetailsSearchSchema = z
+  .object({
+    spotsPage: z.coerce.number().int().positive().catch(1),
+  })
+  .transform(({ spotsPage }): { spotsPage?: number } =>
+    spotsPage === 1 ? {} : { spotsPage },
+  );
 
 export const Route = createFileRoute(
   '/_protected/app/$organizationId/parkings/$parkingId',
 )({
+  validateSearch: (search) => parkingDetailsSearchSchema.parse(search),
+  loaderDeps: ({ search: { spotsPage } }) => ({ spotsPage: spotsPage ?? 1 }),
   beforeLoad: ({ context, params }) => {
     const organization = context.user.organizations.find(
       (item) => item.id === params.organizationId,
@@ -48,16 +63,47 @@ export const Route = createFileRoute(
       }
     }
   },
-  loader: async ({ params }) => {
+  loader: async ({ params, deps }) => {
     try {
       const parking = await getParkingDetails({
         data: { parkingId: params.parkingId },
       });
 
-      return { parking, error: null };
+      try {
+        const parkingSpotsResponse = await getParkingSpotsForParking({
+          data: {
+            parkingId: params.parkingId,
+            page: deps.spotsPage,
+            limit: PARKING_SPOTS_PAGE_SIZE,
+          },
+        });
+
+        return {
+          parking,
+          parkingSpots: parkingSpotsResponse.data,
+          parkingSpotsCurrentPage: parkingSpotsResponse.currentPage,
+          parkingSpotsTotal: parkingSpotsResponse.total,
+          parkingSpotsError: null,
+          error: null,
+        };
+      } catch {
+        return {
+          parking,
+          parkingSpots: [],
+          parkingSpotsCurrentPage: 1,
+          parkingSpotsTotal: 0,
+          parkingSpotsError:
+            'Failed to fetch parking spots. Please try again later.',
+          error: null,
+        };
+      }
     } catch {
       return {
         parking: null,
+        parkingSpots: [],
+        parkingSpotsCurrentPage: 1,
+        parkingSpotsTotal: 0,
+        parkingSpotsError: null,
         error: 'Failed to fetch parking details. Please try again later.',
       };
     }
@@ -72,7 +118,23 @@ export const Route = createFileRoute(
 
 function RouteComponent() {
   const { organizationId } = Route.useParams();
-  const { parking, error } = Route.useLoaderData();
+  const navigate = Route.useNavigate();
+  const {
+    parking,
+    parkingSpots,
+    parkingSpotsCurrentPage,
+    parkingSpotsError,
+    parkingSpotsTotal,
+    error,
+  } = Route.useLoaderData();
+  const handleParkingSpotsPageChange = (spotsPage: number) => {
+    void navigate({
+      search: (previous) => ({
+        ...previous,
+        spotsPage: spotsPage === 1 ? undefined : spotsPage,
+      }),
+    });
+  };
 
   if (error || !parking) {
     return (
@@ -226,7 +288,10 @@ function RouteComponent() {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
-              <PermissionRow label="Edit parking" enabled={parking.actions.edit} />
+              <PermissionRow
+                label="Edit parking"
+                enabled={parking.actions.edit}
+              />
               <PermissionRow
                 label="Add parking spot"
                 enabled={parking.actions.addParkingSpot}
@@ -249,8 +314,14 @@ function RouteComponent() {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <DetailItem label="Created" value={formatDate(parking.createdAt)} />
-              <DetailItem label="Updated" value={formatDate(parking.updatedAt)} />
+              <DetailItem
+                label="Created"
+                value={formatDate(parking.createdAt)}
+              />
+              <DetailItem
+                label="Updated"
+                value={formatDate(parking.updatedAt)}
+              />
               <DetailItem label="Version" value={parking.version.toString()} />
               <DetailItem
                 label="Assets"
@@ -261,6 +332,71 @@ function RouteComponent() {
             </CardContent>
           </Card>
         </div>
+      </section>
+
+      <section className="space-y-4">
+        <div className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <h2 className="text-lg font-semibold tracking-tight">
+              Parking spots
+            </h2>
+            <p className="text-sm text-muted-foreground">
+              {parkingSpotsError ??
+                (parkingSpots.length > 0
+                  ? `${parkingSpotsTotal} spots assigned to this parking`
+                  : 'Spots assigned to this parking')}
+            </p>
+          </div>
+          <Pagination
+            total={parkingSpotsTotal}
+            page={parkingSpotsCurrentPage}
+            pageSize={PARKING_SPOTS_PAGE_SIZE}
+            onPageChange={handleParkingSpotsPageChange}
+          />
+        </div>
+
+        {parkingSpots.length > 0 ? (
+          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+            {parkingSpots.map((parkingSpot) => (
+              <Card key={parkingSpot.id} className="gap-4 rounded-lg">
+                <CardHeader className="gap-3">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0 space-y-2">
+                      <div className="flex size-10 items-center justify-center rounded-md border bg-muted">
+                        <ParkingSquareIcon
+                          aria-hidden="true"
+                          className="size-5 text-muted-foreground"
+                        />
+                      </div>
+                      <CardTitle className="break-all text-base">
+                        Spot {parkingSpot.id}
+                      </CardTitle>
+                    </div>
+                    <ParkingStatus active={parkingSpot.active} />
+                  </div>
+                </CardHeader>
+                <CardContent className="space-y-4 text-sm">
+                  <div className="grid grid-cols-2 gap-4">
+                    <DetailItem
+                      label="Price"
+                      value={formatPrice(parkingSpot.price)}
+                    />
+                    <DetailItem
+                      label="Version"
+                      value={parkingSpot.version.toString()}
+                    />
+                  </div>
+                  <TagGroup
+                    title="Features"
+                    items={parkingSpot.parkingSpotFeatures.map(
+                      (item) => item.name,
+                    )}
+                  />
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        ) : null}
       </section>
     </div>
   );
@@ -353,7 +489,9 @@ function PermissionRow({
         <Icon
           aria-hidden="true"
           className={
-            enabled ? 'size-3.5 text-green-600' : 'size-3.5 text-muted-foreground'
+            enabled
+              ? 'size-3.5 text-green-600'
+              : 'size-3.5 text-muted-foreground'
           }
         />
         {enabled ? 'Allowed' : 'Blocked'}
@@ -370,5 +508,12 @@ function formatDate(value: Date) {
   return new Intl.DateTimeFormat('en', {
     dateStyle: 'medium',
     timeStyle: 'short',
+  }).format(value);
+}
+
+function formatPrice(value: number) {
+  return new Intl.NumberFormat('en', {
+    style: 'currency',
+    currency: 'PLN',
   }).format(value);
 }
