@@ -23,3 +23,50 @@ export const parkingListSchema = z.object({
   total: z.number().int().nonnegative(),
   currentPage: z.number().int().positive(),
 });
+
+export const parkingDetailsInputSchema = z.object({
+  parkingId: z.uuid(),
+});
+
+export const parkingDetailSchema = z.object({
+  id: z.uuid(),
+  name: z.string(),
+  coords: z.object({
+    latitude: z.number(),
+    longitude: z.number(),
+  }),
+  statute: z.string(),
+  description: z.string(),
+  organization: z.object({
+    id: z.uuid(),
+    name: z.string(),
+    address: z.string(),
+  }),
+  parkingFeatures: z.array(
+    z.object({
+      id: z.uuid(),
+      name: z.string(),
+    }),
+  ),
+  parkingAddons: z.array(
+    z.object({
+      id: z.uuid(),
+      name: z.string(),
+    }),
+  ),
+  place: z.object({
+    id: z.uuid(),
+    name: z.string(),
+    address: z.string(),
+  }),
+  active: z.boolean(),
+  createdAt: z.coerce.date(),
+  updatedAt: z.coerce.date(),
+  version: z.number().int().positive(),
+  assetIds: z.array(z.uuid()),
+  actions: z.object({
+    edit: z.boolean(),
+    addParkingSpot: z.boolean(),
+    removeParkingSpot: z.boolean(),
+  }),
+});

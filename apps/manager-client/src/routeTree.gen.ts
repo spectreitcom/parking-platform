@@ -15,7 +15,8 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthSignInIndexRouteImport } from './routes/auth/sign-in/index'
 import { Route as AuthResetPasswordIndexRouteImport } from './routes/auth/reset-password/index'
 import { Route as ProtectedAppIndexRouteImport } from './routes/_protected/app/index'
-import { Route as ProtectedAppOrganizationIdRouteImport } from './routes/_protected/app/$organizationId'
+import { Route as ProtectedAppOrganizationIdIndexRouteImport } from './routes/_protected/app/$organizationId/index'
+import { Route as ProtectedAppOrganizationIdParkingsParkingIdRouteImport } from './routes/_protected/app/$organizationId/parkings/$parkingId'
 
 const AuthRouteRoute = AuthRouteRouteImport.update({
   id: '/auth',
@@ -46,65 +47,77 @@ const ProtectedAppIndexRoute = ProtectedAppIndexRouteImport.update({
   path: '/app/',
   getParentRoute: () => ProtectedRouteRoute,
 } as any)
-const ProtectedAppOrganizationIdRoute =
-  ProtectedAppOrganizationIdRouteImport.update({
-    id: '/app/$organizationId',
-    path: '/app/$organizationId',
+const ProtectedAppOrganizationIdIndexRoute =
+  ProtectedAppOrganizationIdIndexRouteImport.update({
+    id: '/app/$organizationId/',
+    path: '/app/$organizationId/',
+    getParentRoute: () => ProtectedRouteRoute,
+  } as any)
+const ProtectedAppOrganizationIdParkingsParkingIdRoute =
+  ProtectedAppOrganizationIdParkingsParkingIdRouteImport.update({
+    id: '/app/$organizationId/parkings/$parkingId',
+    path: '/app/$organizationId/parkings/$parkingId',
     getParentRoute: () => ProtectedRouteRoute,
   } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRouteRouteWithChildren
-  '/app/$organizationId': typeof ProtectedAppOrganizationIdRoute
   '/app/': typeof ProtectedAppIndexRoute
   '/auth/reset-password/': typeof AuthResetPasswordIndexRoute
   '/auth/sign-in/': typeof AuthSignInIndexRoute
+  '/app/$organizationId/': typeof ProtectedAppOrganizationIdIndexRoute
+  '/app/$organizationId/parkings/$parkingId': typeof ProtectedAppOrganizationIdParkingsParkingIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRouteRouteWithChildren
-  '/app/$organizationId': typeof ProtectedAppOrganizationIdRoute
   '/app': typeof ProtectedAppIndexRoute
   '/auth/reset-password': typeof AuthResetPasswordIndexRoute
   '/auth/sign-in': typeof AuthSignInIndexRoute
+  '/app/$organizationId': typeof ProtectedAppOrganizationIdIndexRoute
+  '/app/$organizationId/parkings/$parkingId': typeof ProtectedAppOrganizationIdParkingsParkingIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_protected': typeof ProtectedRouteRouteWithChildren
   '/auth': typeof AuthRouteRouteWithChildren
-  '/_protected/app/$organizationId': typeof ProtectedAppOrganizationIdRoute
   '/_protected/app/': typeof ProtectedAppIndexRoute
   '/auth/reset-password/': typeof AuthResetPasswordIndexRoute
   '/auth/sign-in/': typeof AuthSignInIndexRoute
+  '/_protected/app/$organizationId/': typeof ProtectedAppOrganizationIdIndexRoute
+  '/_protected/app/$organizationId/parkings/$parkingId': typeof ProtectedAppOrganizationIdParkingsParkingIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
     | '/auth'
-    | '/app/$organizationId'
     | '/app/'
     | '/auth/reset-password/'
     | '/auth/sign-in/'
+    | '/app/$organizationId/'
+    | '/app/$organizationId/parkings/$parkingId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/auth'
-    | '/app/$organizationId'
     | '/app'
     | '/auth/reset-password'
     | '/auth/sign-in'
+    | '/app/$organizationId'
+    | '/app/$organizationId/parkings/$parkingId'
   id:
     | '__root__'
     | '/'
     | '/_protected'
     | '/auth'
-    | '/_protected/app/$organizationId'
     | '/_protected/app/'
     | '/auth/reset-password/'
     | '/auth/sign-in/'
+    | '/_protected/app/$organizationId/'
+    | '/_protected/app/$organizationId/parkings/$parkingId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -157,24 +170,34 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProtectedAppIndexRouteImport
       parentRoute: typeof ProtectedRouteRoute
     }
-    '/_protected/app/$organizationId': {
-      id: '/_protected/app/$organizationId'
+    '/_protected/app/$organizationId/': {
+      id: '/_protected/app/$organizationId/'
       path: '/app/$organizationId'
-      fullPath: '/app/$organizationId'
-      preLoaderRoute: typeof ProtectedAppOrganizationIdRouteImport
+      fullPath: '/app/$organizationId/'
+      preLoaderRoute: typeof ProtectedAppOrganizationIdIndexRouteImport
+      parentRoute: typeof ProtectedRouteRoute
+    }
+    '/_protected/app/$organizationId/parkings/$parkingId': {
+      id: '/_protected/app/$organizationId/parkings/$parkingId'
+      path: '/app/$organizationId/parkings/$parkingId'
+      fullPath: '/app/$organizationId/parkings/$parkingId'
+      preLoaderRoute: typeof ProtectedAppOrganizationIdParkingsParkingIdRouteImport
       parentRoute: typeof ProtectedRouteRoute
     }
   }
 }
 
 interface ProtectedRouteRouteChildren {
-  ProtectedAppOrganizationIdRoute: typeof ProtectedAppOrganizationIdRoute
   ProtectedAppIndexRoute: typeof ProtectedAppIndexRoute
+  ProtectedAppOrganizationIdIndexRoute: typeof ProtectedAppOrganizationIdIndexRoute
+  ProtectedAppOrganizationIdParkingsParkingIdRoute: typeof ProtectedAppOrganizationIdParkingsParkingIdRoute
 }
 
 const ProtectedRouteRouteChildren: ProtectedRouteRouteChildren = {
-  ProtectedAppOrganizationIdRoute: ProtectedAppOrganizationIdRoute,
   ProtectedAppIndexRoute: ProtectedAppIndexRoute,
+  ProtectedAppOrganizationIdIndexRoute: ProtectedAppOrganizationIdIndexRoute,
+  ProtectedAppOrganizationIdParkingsParkingIdRoute:
+    ProtectedAppOrganizationIdParkingsParkingIdRoute,
 }
 
 const ProtectedRouteRouteWithChildren = ProtectedRouteRoute._addFileChildren(
