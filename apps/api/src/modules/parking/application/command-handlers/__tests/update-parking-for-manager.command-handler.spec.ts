@@ -5,7 +5,7 @@ import { UpdateParkingForManagerCommand } from '../../commands/update-parking-fo
 import { ParkingRepository } from '../../ports/parking.repository';
 import { Parking } from '../../../domain/parking';
 import { randomUUID } from 'node:crypto';
-import { AppError } from '../../../../../shared/errors';
+import { AppError } from 'src/shared/errors';
 
 describe('UpdateParkingForManagerCommandHandler', () => {
   let handler: UpdateParkingForManagerCommandHandler;
