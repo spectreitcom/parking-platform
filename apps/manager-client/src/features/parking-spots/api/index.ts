@@ -31,8 +31,6 @@ export const getParkingSpotsForParking = createServerFn()
 
     const responseData = await response.json();
 
-    console.log(responseData.data); // todo;
-
     const validationResult = parkingSpotListSchema.safeParse(responseData);
 
     if (!validationResult.success) {
