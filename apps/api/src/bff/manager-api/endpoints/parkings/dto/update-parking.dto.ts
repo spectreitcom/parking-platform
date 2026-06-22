@@ -25,7 +25,6 @@ export class UpdateParkingDto {
     description: 'Parking asset ids',
     format: 'uuid',
   })
-  @IsOptional()
   @IsArray()
   @IsUUID('4', { each: true })
   readonly assetIds: string[];
