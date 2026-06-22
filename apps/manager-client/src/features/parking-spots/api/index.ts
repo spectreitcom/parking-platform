@@ -4,6 +4,7 @@ import {
   generalServerResponseSchema,
   parkingSpotListSchema,
   parkingSpotsListInputSchema,
+  updateParkingSpotInputSchema,
 } from '#/features/parking-spots/schemas';
 import {
   authFetch,
@@ -51,6 +52,35 @@ export const addParkingSpot = createServerFn()
         parkingId: data.parkingId,
       }),
     });
+
+    await genericApiErrorHandler(response);
+
+    const responseData = await response.json();
+
+    const validationResult =
+      generalServerResponseSchema.safeParse(responseData);
+
+    if (!validationResult.success) {
+      throw defaultServerError;
+    }
+
+    return validationResult.data;
+  });
+
+export const updateParkingSpot = createServerFn()
+  .validator(updateParkingSpotInputSchema)
+  .handler(async ({ data }) => {
+    const response = await authFetch(
+      `${env.SERVER_URL}/parking-spots/${data.parkingSpotId}`,
+      {
+        method: 'PUT',
+        body: JSON.stringify({
+          parkingFeatureIds: data.parkingFeatureIds,
+          price: data.price,
+          version: data.version,
+        }),
+      },
+    );
 
     await genericApiErrorHandler(response);
 
