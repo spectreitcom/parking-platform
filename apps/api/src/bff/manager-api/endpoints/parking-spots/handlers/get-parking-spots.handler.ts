@@ -55,15 +55,16 @@ export class GetParkingSpotsHandler implements IControllerHandler {
     for (const parkingSpot of parkingSpots) {
       const { pricePLN } = parkingSpot;
 
+      const parkingSpotFeatures = parkingFeatures.filter((feature) =>
+        parkingSpot.parkingSpotFeatureIds.includes(feature.id),
+      );
+
       data.push({
         id: parkingSpot.id,
         active: parkingSpot.active,
         version: parkingSpot.version,
         price: pricePLN,
-        parkingSpotFeatures: parkingFeatures.map((feature) => ({
-          id: feature.id,
-          name: feature.name,
-        })),
+        parkingSpotFeatures,
       });
     }
 

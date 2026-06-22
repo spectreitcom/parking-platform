@@ -24,3 +24,13 @@ export const parkingSpotsListInputSchema = z.object({
   page: z.coerce.number().int().positive().optional().default(1),
   limit: z.coerce.number().int().positive().optional().default(30),
 });
+
+export const addParkingSpotInputSchema = z.object({
+  parkingFeatureIds: z.array(z.uuid()),
+  price: z.number().int().positive(),
+  parkingId: z.uuid(),
+});
+
+export const generalServerResponseSchema = z.object({
+  id: z.uuid(),
+});

@@ -8,7 +8,6 @@ import {
   placesListSchema,
   updatePlaceInputSchema,
 } from '#/features/parkings/schemas';
-import { createSearchParams } from '#/lib/utils.ts';
 import {
   authFetch,
   defaultServerError,
@@ -16,6 +15,7 @@ import {
 } from '#/lib/auth-fetch.ts';
 import { env } from '#/env.ts';
 import { genericResponseSchema } from '#/lib/schemas.ts';
+import { createSearchParams } from '@repo/frontend-utils';
 
 export const getPlacesList = createServerFn()
   .validator(placesListBaseInputSchema)

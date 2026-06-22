@@ -7,7 +7,6 @@ import {
   organizationUsersListInputSchema,
   resendInvitationForOrganizationUserInputSchema,
 } from '#/features/organization-users/schemas';
-import { createSearchParams } from '#/lib/utils.ts';
 import {
   authFetch,
   defaultServerError,
@@ -15,6 +14,7 @@ import {
 } from '#/lib/auth-fetch.ts';
 import { env } from '#/env.ts';
 import { genericResponseSchema } from '#/lib/schemas.ts';
+import { createSearchParams } from '@repo/frontend-utils';
 
 export const getOrganizationUsers = createServerFn()
   .validator(organizationUsersListInputSchema)

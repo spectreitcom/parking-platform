@@ -1,4 +1,9 @@
-import { Link, createFileRoute, redirect } from '@tanstack/react-router';
+import {
+  Link,
+  createFileRoute,
+  redirect,
+  useRouter,
+} from '@tanstack/react-router';
 import {
   ArrowLeftIcon,
   Building2Icon,
@@ -8,6 +13,7 @@ import {
   FileTextIcon,
   Layers3Icon,
   MapPinIcon,
+  ParkingSquareIcon,
   PencilIcon,
   PlusIcon,
   ShieldCheckIcon,
@@ -16,6 +22,7 @@ import {
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import type { ReactNode } from 'react';
+import { useState } from 'react';
 import { z } from 'zod';
 
 import { Alert, AlertDescription, AlertTitle } from '#/components/ui/alert.tsx';
@@ -31,6 +38,7 @@ import { Separator } from '#/components/ui/separator.tsx';
 import { Spinner } from '#/components/ui/spinner.tsx';
 import { getParkingDetails } from '#/features/parking/api';
 import { getParkingSpotsForParking } from '#/features/parking-spots/api';
+import { AddParkingSpotModal } from '#/features/parking-spots/components/add-parking-spot-modal.tsx';
 
 const PARKING_SPOTS_PAGE_SIZE = 24;
 
@@ -119,6 +127,8 @@ export const Route = createFileRoute(
 function RouteComponent() {
   const { organizationId } = Route.useParams();
   const navigate = Route.useNavigate();
+  const router = useRouter();
+  const [addParkingSpotOpen, setAddParkingSpotOpen] = useState(false);
   const {
     parking,
     parkingSpots,
@@ -178,6 +188,7 @@ function RouteComponent() {
           <ActionButton
             enabled={parking.actions.addParkingSpot}
             icon={PlusIcon}
+            onClick={() => setAddParkingSpotOpen(true)}
           >
             Add spot
           </ActionButton>
@@ -368,9 +379,6 @@ function RouteComponent() {
                           className="size-5 text-muted-foreground"
                         />
                       </div>
-                      <CardTitle className="break-all text-base">
-                        Spot {parkingSpot.id}
-                      </CardTitle>
                     </div>
                     <ParkingStatus active={parkingSpot.active} />
                   </div>
@@ -380,10 +388,6 @@ function RouteComponent() {
                     <DetailItem
                       label="Price"
                       value={formatPrice(parkingSpot.price)}
-                    />
-                    <DetailItem
-                      label="Version"
-                      value={parkingSpot.version.toString()}
                     />
                   </div>
                   <TagGroup
@@ -398,6 +402,15 @@ function RouteComponent() {
           </div>
         ) : null}
       </section>
+
+      <AddParkingSpotModal
+        open={addParkingSpotOpen}
+        parkingId={parking.id}
+        onOpenChange={setAddParkingSpotOpen}
+        onParkingSpotAdded={async () => {
+          await router.invalidate();
+        }}
+      />
     </div>
   );
 }
@@ -422,15 +435,17 @@ function ActionButton({
   children,
   enabled,
   icon: Icon,
+  onClick,
   variant = 'outline',
 }: Readonly<{
   children: ReactNode;
   enabled: boolean;
   icon: LucideIcon;
+  onClick?: () => void;
   variant?: 'outline' | 'destructive';
 }>) {
   return (
-    <Button variant={variant} size="sm" disabled={!enabled}>
+    <Button variant={variant} size="sm" disabled={!enabled} onClick={onClick}>
       <Icon aria-hidden="true" />
       {children}
     </Button>
