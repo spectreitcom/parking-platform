@@ -22,6 +22,7 @@ import { GetParkingFeaturesListHandler } from './endpoints/parking-features/hand
 import { GetParkingSpotsHandler } from './endpoints/parking-spots/handlers/get-parking-spots.handler';
 import { AssetsController } from './endpoints/assets/assets.controller';
 import { AssetModule } from 'src/modules/asset/application/asset.module';
+import { UpdateParkingHandler } from './endpoints/parkings/handlers/update-parking.handler';
 
 @Module({
   imports: [
@@ -52,6 +53,7 @@ import { AssetModule } from 'src/modules/asset/application/asset.module';
     UpdateParkingSpotHandler,
     GetParkingFeaturesListHandler,
     GetParkingSpotsHandler,
+    UpdateParkingHandler,
   ],
 })
 export class ManagerApiModule {}
