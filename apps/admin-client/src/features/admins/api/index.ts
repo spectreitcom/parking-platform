@@ -6,7 +6,7 @@ import {
 import type { AdminListInputSchema } from '#/features/admins/schemas';
 import { authFetch, genericApiErrorHandler } from '#/lib/auth-fetch.ts';
 import { env } from '#/env.ts';
-import { createSearchParams } from '#/lib/utils.ts';
+import { createSearchParams } from '@repo/frontend-utils';
 
 export const getAdminsList = createServerFn()
   .validator((input: AdminListInputSchema) => {

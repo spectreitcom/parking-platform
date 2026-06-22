@@ -9,7 +9,7 @@ export const getParkingFeaturesListQueryWhere: (
   levels?: string[],
 ) => Prisma.ParkingFeatureReadWhereInput = (search, levels) => ({
   name: search ? { contains: search, mode: 'insensitive' } : undefined,
-  level: levels ? { in: levels } : undefined,
+  levels: levels && levels.length > 0 ? { hasSome: levels } : undefined,
 });
 
 @QueryHandler(GetParkingFeaturesListQuery)

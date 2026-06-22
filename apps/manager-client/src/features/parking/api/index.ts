@@ -5,13 +5,13 @@ import {
   parkingListBaseInputSchema,
   parkingListSchema,
 } from '#/features/parking/schemas';
-import { createSearchParams } from '#/lib/utils.ts';
 import {
   authFetch,
   defaultServerError,
   genericApiErrorHandler,
 } from '#/lib/auth-fetch.ts';
 import { env } from '#/env.ts';
+import { createSearchParams } from '@repo/frontend-utils';
 
 export const getParkings = createServerFn()
   .validator(parkingListBaseInputSchema)
