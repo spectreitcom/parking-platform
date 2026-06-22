@@ -1,8 +1,10 @@
 import {
+  Body,
   Controller,
   Get,
   Param,
   ParseUUIDPipe,
+  Put,
   Query,
   UseGuards,
 } from '@nestjs/common';
@@ -22,6 +24,8 @@ import type { RequestUser } from '../../auth/types';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { GetParkingsListHandler } from './handlers/get-parkings-list.handler';
 import { GetParkingDetailsHandler } from './handlers/get-parking-details.handler';
+import { UpdateParkingHandler } from './handlers/update-parking.handler';
+import { UpdateParkingDto } from './dto/update-parking.dto';
 
 @ApiBearerAuth('manager-auth')
 @Controller('manager/parkings')
@@ -31,6 +35,7 @@ export class ParkingsController {
   constructor(
     private readonly getParkingsListHandler: GetParkingsListHandler,
     private readonly getParkingDetailsHandler: GetParkingDetailsHandler,
+    private readonly updateParkingHandler: UpdateParkingHandler,
   ) {}
 
   @ApiOperation({ summary: 'Get list of parkings' })
@@ -197,5 +202,36 @@ export class ParkingsController {
     @CurrentManagerUser() managerUser: RequestUser,
   ) {
     return await this.getParkingDetailsHandler.handle(parkingId, managerUser);
+  }
+
+  @ApiOperation({ summary: 'Update parking details' })
+  @ApiOkResponse({
+    description: 'Parking details updated successfully.',
+    schema: {
+      type: 'object',
+      properties: {
+        id: { type: 'string', format: 'uuid' },
+      },
+    },
+  })
+  @ApiBadRequestResponse({
+    description: 'Invalid data.',
+  })
+  @ApiUnauthorizedResponse({
+    description: 'Unauthorized',
+  })
+  @ApiForbiddenResponse({
+    description: 'Access to the parking details is forbidden.',
+  })
+  @ApiNotFoundResponse({
+    description: 'Parking not found.',
+  })
+  @Put(':parkingId')
+  async updateParking(
+    @Param('parkingId', new ParseUUIDPipe()) parkingId: string,
+    @CurrentManagerUser() managerUser: RequestUser,
+    @Body() dto: UpdateParkingDto,
+  ) {
+    return await this.updateParkingHandler.handle(parkingId, dto, managerUser);
   }
 }

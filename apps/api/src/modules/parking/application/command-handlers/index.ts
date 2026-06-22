@@ -19,6 +19,7 @@ import { CreateParkingSpotCommandHandler } from './create-parking-spot.command-h
 import { UpdateParkingSpotCommandHandler } from './update-parking-spot.command-handler';
 import { ActivateParkingSpotCommandHandler } from './activate-parking-spot.command-handler';
 import { DeactivateParkingSpotCommandHandler } from './deactivate-parking-spot.command-handler';
+import { UpdateParkingForManagerCommandHandler } from './update-parking-for-manager.command-handler';
 
 export const commandHandlers = [
   CreatePlaceTypeCommandHandler,
@@ -42,4 +43,5 @@ export const commandHandlers = [
   UpdateParkingSpotCommandHandler,
   ActivateParkingSpotCommandHandler,
   DeactivateParkingSpotCommandHandler,
+  UpdateParkingForManagerCommandHandler,
 ];

@@ -15,6 +15,7 @@ import { UpdateParkingFeatureCommand } from './commands/update-parking-feature.c
 import { DeleteParkingFeatureCommand } from './commands/delete-parking-feature.command';
 import { CreateParkingCommand } from './commands/create-parking.command';
 import { UpdateParkingCommand } from './commands/update-parking.command';
+import { UpdateParkingForManagerCommand } from './commands/update-parking-for-manager.command';
 import { ActivateParkingCommand } from './commands/activate-parking.command';
 import { DeactivateParkingCommand } from './commands/deactivate-parking.command';
 import { CreateParkingSpotCommand } from './commands/create-parking-spot.command';
@@ -238,6 +239,32 @@ export class ParkingFacade {
       organizationId,
     );
     return await this.commandBus.execute<UpdateParkingCommand, string>(command);
+  }
+
+  async updateParkingForManager(
+    id: string,
+    name: string,
+    assetIds: string[],
+    parkingFeatureIds: string[],
+    parkingAddonIds: string[],
+    description: string,
+    statute: string,
+    version: number,
+  ) {
+    const command = new UpdateParkingForManagerCommand(
+      id,
+      name,
+      assetIds,
+      parkingFeatureIds,
+      parkingAddonIds,
+      description,
+      statute,
+      version,
+    );
+    return await this.commandBus.execute<
+      UpdateParkingForManagerCommand,
+      string
+    >(command);
   }
 
   async activateParking(id: string, version: number) {
