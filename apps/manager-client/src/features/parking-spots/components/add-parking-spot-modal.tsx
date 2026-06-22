@@ -24,14 +24,18 @@ import {
 import { Field, FieldError, FieldLabel } from '#/components/ui/field.tsx';
 import { Input } from '#/components/ui/input.tsx';
 import { Spinner } from '#/components/ui/spinner.tsx';
-import { addParkingSpot } from '#/features/parking-spots/api';
+import {
+  addParkingSpot,
+  updateParkingSpot,
+} from '#/features/parking-spots/api';
+import type { parkingSpotListItemSchema } from '#/features/parking-spots/schemas';
 import { getParkingFeatures } from '#/features/parking-features/api';
 import type { parkingFeatureListItemSchema } from '#/features/parking-features/schemas';
 import { cn } from '#/lib/utils.ts';
 
 const PARKING_FEATURES_LIMIT = 20;
 
-const addParkingSpotFormSchema = z.object({
+const parkingSpotFormSchema = z.object({
   price: z.coerce
     .number()
     .int('Price must be a whole number')
@@ -39,13 +43,41 @@ const addParkingSpotFormSchema = z.object({
   parkingFeatureIds: z.array(z.uuid()),
 });
 
-type ParkingFeatureOption = z.infer<typeof parkingFeatureListItemSchema>;
+type ParkingFeatureOption = Pick<
+  z.infer<typeof parkingFeatureListItemSchema>,
+  'id' | 'name'
+>;
+type ParkingSpotListItem = z.infer<typeof parkingSpotListItemSchema>;
+type ParkingSpotFormValues = {
+  price: string;
+  parkingFeatureIds: Array<string>;
+};
 
-type Props = Readonly<{
+type AddParkingSpotModalProps = Readonly<{
   open: boolean;
   parkingId: string;
   onOpenChange: (open: boolean) => void;
   onParkingSpotAdded: () => Promise<void> | void;
+}>;
+
+type UpdateParkingSpotModalProps = Readonly<{
+  open: boolean;
+  parkingSpot: ParkingSpotListItem;
+  onOpenChange: (open: boolean) => void;
+  onParkingSpotUpdated: () => Promise<void> | void;
+}>;
+
+type ParkingSpotModalProps = Readonly<{
+  open: boolean;
+  title: string;
+  submitLabel: string;
+  initialValues: ParkingSpotFormValues;
+  initialSelectedFeatures: Record<string, ParkingFeatureOption>;
+  successMessage: string;
+  errorMessage: string;
+  onOpenChange: (open: boolean) => void;
+  onSubmit: (value: ParkingSpotFormValues) => Promise<void>;
+  onSubmitted: () => Promise<void> | void;
 }>;
 
 export function AddParkingSpotModal({
@@ -53,29 +85,23 @@ export function AddParkingSpotModal({
   parkingId,
   onOpenChange,
   onParkingSpotAdded,
-}: Props) {
+}: AddParkingSpotModalProps) {
   const addParkingSpotFn = useServerFn(addParkingSpot);
-  const getParkingFeaturesFn = useServerFn(getParkingFeatures);
-  const [featureSearch, setFeatureSearch] = useState('');
-  const [debouncedFeatureSearch, setDebouncedFeatureSearch] = useState('');
-  const [featuresOpen, setFeaturesOpen] = useState(false);
-  const [features, setFeatures] = useState<Array<ParkingFeatureOption>>([]);
-  const [selectedFeatures, setSelectedFeatures] = useState<
-    Record<string, ParkingFeatureOption>
-  >({});
-  const [featuresLoading, setFeaturesLoading] = useState(false);
-  const [featuresError, setFeaturesError] = useState<string | null>(null);
 
-  const form = useForm({
-    defaultValues: {
-      price: '',
-      parkingFeatureIds: [] as Array<string>,
-    },
-    validators: {
-      onSubmit: addParkingSpotFormSchema,
-    },
-    onSubmit: async ({ value }) => {
-      try {
+  return (
+    <ParkingSpotModal
+      open={open}
+      title="Add parking spot"
+      submitLabel="Add spot"
+      initialValues={{
+        price: '',
+        parkingFeatureIds: [],
+      }}
+      initialSelectedFeatures={{}}
+      successMessage="Parking spot added"
+      errorMessage="Failed to add parking spot"
+      onOpenChange={onOpenChange}
+      onSubmit={async (value) => {
         await addParkingSpotFn({
           data: {
             parkingId,
@@ -83,14 +109,102 @@ export function AddParkingSpotModal({
             parkingFeatureIds: value.parkingFeatureIds,
           },
         });
-        toast.success('Parking spot added');
+      }}
+      onSubmitted={onParkingSpotAdded}
+    />
+  );
+}
+
+export function UpdateParkingSpotModal({
+  open,
+  parkingSpot,
+  onOpenChange,
+  onParkingSpotUpdated,
+}: UpdateParkingSpotModalProps) {
+  const updateParkingSpotFn = useServerFn(updateParkingSpot);
+  const initialSelectedFeatures = useMemo(
+    () =>
+      Object.fromEntries(
+        parkingSpot.parkingSpotFeatures.map((feature) => [
+          feature.id,
+          feature,
+        ]),
+      ),
+    [parkingSpot.parkingSpotFeatures],
+  );
+
+  return (
+    <ParkingSpotModal
+      open={open}
+      title="Edit parking spot"
+      submitLabel="Save changes"
+      initialValues={{
+        price: parkingSpot.price.toString(),
+        parkingFeatureIds: parkingSpot.parkingSpotFeatures.map(
+          (feature) => feature.id,
+        ),
+      }}
+      initialSelectedFeatures={initialSelectedFeatures}
+      successMessage="Parking spot updated"
+      errorMessage="Failed to update parking spot"
+      onOpenChange={onOpenChange}
+      onSubmit={async (value) => {
+        await updateParkingSpotFn({
+          data: {
+            parkingSpotId: parkingSpot.id,
+            version: parkingSpot.version,
+            price: Number(value.price),
+            parkingFeatureIds: value.parkingFeatureIds,
+          },
+        });
+      }}
+      onSubmitted={onParkingSpotUpdated}
+    />
+  );
+}
+
+function ParkingSpotModal({
+  open,
+  title,
+  submitLabel,
+  initialValues,
+  initialSelectedFeatures,
+  successMessage,
+  errorMessage,
+  onOpenChange,
+  onSubmit,
+  onSubmitted,
+}: ParkingSpotModalProps) {
+  const getParkingFeaturesFn = useServerFn(getParkingFeatures);
+  const [featureSearch, setFeatureSearch] = useState('');
+  const [debouncedFeatureSearch, setDebouncedFeatureSearch] = useState('');
+  const [featuresOpen, setFeaturesOpen] = useState(false);
+  const [features, setFeatures] = useState<Array<ParkingFeatureOption>>([]);
+  const [selectedFeatures, setSelectedFeatures] = useState<
+    Record<string, ParkingFeatureOption>
+  >(initialSelectedFeatures);
+  const [featuresLoading, setFeaturesLoading] = useState(false);
+  const [featuresError, setFeaturesError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const form = useForm({
+    defaultValues: initialValues,
+    validators: {
+      onSubmit: parkingSpotFormSchema,
+    },
+    onSubmit: async ({ value }) => {
+      setIsSubmitting(true);
+
+      try {
+        await onSubmit(value);
+        toast.success(successMessage);
         resetModalState();
         onOpenChange(false);
-        await onParkingSpotAdded();
+        await onSubmitted();
       } catch (error) {
-        toast.error(
-          error instanceof Error ? error.message : 'Failed to add parking spot',
-        );
+        toast.error(error instanceof Error ? error.message : errorMessage);
+      } finally {
+        setIsSubmitting(false);
       }
     },
   });
@@ -160,7 +274,7 @@ export function AddParkingSpotModal({
     setDebouncedFeatureSearch('');
     setFeaturesOpen(false);
     setFeatures([]);
-    setSelectedFeatures({});
+    setSelectedFeatures(initialSelectedFeatures);
     setFeaturesError(null);
   }
 
@@ -179,7 +293,7 @@ export function AddParkingSpotModal({
           <div className="mb-1 flex size-10 items-center justify-center rounded-md border bg-background text-primary shadow-xs">
             <ParkingSquareIcon aria-hidden="true" className="size-5" />
           </div>
-          <DialogTitle>Add parking spot</DialogTitle>
+          <DialogTitle>{title}</DialogTitle>
         </DialogHeader>
 
         <form
@@ -379,9 +493,9 @@ export function AddParkingSpotModal({
             >
               Cancel
             </Button>
-            <Button type="submit" disabled={form.state.isSubmitting}>
-              {form.state.isSubmitting && <Spinner className="mr-2" />}
-              Add spot
+            <Button type="submit" disabled={isSubmitting}>
+              {isSubmitting && <Spinner className="mr-2" />}
+              {submitLabel}
             </Button>
           </DialogFooter>
         </form>

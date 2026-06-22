@@ -38,7 +38,13 @@ import { Separator } from '#/components/ui/separator.tsx';
 import { Spinner } from '#/components/ui/spinner.tsx';
 import { getParkingDetails } from '#/features/parking/api';
 import { getParkingSpotsForParking } from '#/features/parking-spots/api';
-import { AddParkingSpotModal } from '#/features/parking-spots/components/add-parking-spot-modal.tsx';
+import {
+  AddParkingSpotModal,
+  UpdateParkingSpotModal,
+} from '#/features/parking-spots/components/add-parking-spot-modal.tsx';
+import type { parkingSpotListItemSchema } from '#/features/parking-spots/schemas';
+
+type ParkingSpotListItem = z.infer<typeof parkingSpotListItemSchema>;
 
 const PARKING_SPOTS_PAGE_SIZE = 24;
 
@@ -129,6 +135,8 @@ function RouteComponent() {
   const navigate = Route.useNavigate();
   const router = useRouter();
   const [addParkingSpotOpen, setAddParkingSpotOpen] = useState(false);
+  const [parkingSpotToEdit, setParkingSpotToEdit] =
+    useState<ParkingSpotListItem | null>(null);
   const {
     parking,
     parkingSpots,
@@ -380,7 +388,19 @@ function RouteComponent() {
                         />
                       </div>
                     </div>
-                    <ParkingStatus active={parkingSpot.active} />
+                    <div className="flex shrink-0 items-center gap-2">
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        disabled={!parking.actions.edit}
+                        aria-label="Edit parking spot"
+                        onClick={() => setParkingSpotToEdit(parkingSpot)}
+                      >
+                        <PencilIcon aria-hidden="true" />
+                      </Button>
+                      <ParkingStatus active={parkingSpot.active} />
+                    </div>
                   </div>
                 </CardHeader>
                 <CardContent className="space-y-4 text-sm">
@@ -411,6 +431,22 @@ function RouteComponent() {
           await router.invalidate();
         }}
       />
+      {parkingSpotToEdit ? (
+        <UpdateParkingSpotModal
+          key={parkingSpotToEdit.id}
+          open={true}
+          parkingSpot={parkingSpotToEdit}
+          onOpenChange={(isOpen) => {
+            if (!isOpen) {
+              setParkingSpotToEdit(null);
+            }
+          }}
+          onParkingSpotUpdated={async () => {
+            setParkingSpotToEdit(null);
+            await router.invalidate();
+          }}
+        />
+      ) : null}
     </div>
   );
 }
