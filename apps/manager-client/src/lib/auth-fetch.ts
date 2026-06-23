@@ -15,7 +15,7 @@ export const defaultServerError = new Error(
 );
 
 const refreshToken = createServerFn()
-  .inputValidator(refreshTokenSchema)
+  .validator(refreshTokenSchema)
   .handler(async ({ data }) => {
     const response = await fetch(`${env.SERVER_URL}/auth/refresh-token`, {
       method: 'POST',
@@ -52,11 +52,12 @@ export const authFetch = async (...args: FetchParameter) => {
 
   const apiOrigin = new URL(env.SERVER_URL).origin;
   const shouldAttachAuthHeader = apiOrigin === env.SERVER_ORIGIN;
+  const hasFormDataBody = args[1]?.body instanceof FormData;
 
   const response = await fetch(args[0], {
     ...args[1],
     headers: {
-      'Content-Type': 'application/json',
+      ...(!hasFormDataBody && { 'Content-Type': 'application/json' }),
       ...(shouldAttachAuthHeader && {
         Authorization: `Bearer ${session.data.accessToken ?? ''}`,
       }),
@@ -73,7 +74,7 @@ export const authFetch = async (...args: FetchParameter) => {
     return await fetch(args[0], {
       ...args[1],
       headers: {
-        'Content-Type': 'application/json',
+        ...(!hasFormDataBody && { 'Content-Type': 'application/json' }),
         ...(shouldAttachAuthHeader && {
           Authorization: `Bearer ${accessToken}`,
         }),
@@ -106,6 +107,7 @@ export async function genericApiErrorHandler(
     if (!validationSchema.success) {
       throw new Error(fallbackMessage);
     }
+
     throw new Error(validationSchema.data.detail);
   }
 }

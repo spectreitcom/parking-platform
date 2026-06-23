@@ -37,6 +37,7 @@ import {
 import { Separator } from '#/components/ui/separator.tsx';
 import { Spinner } from '#/components/ui/spinner.tsx';
 import { getParkingDetails } from '#/features/parking/api';
+import { EditParkingModal } from '#/features/parking/components/edit-parking-modal.tsx';
 import { getParkingSpotsForParking } from '#/features/parking-spots/api';
 import {
   AddParkingSpotModal,
@@ -134,6 +135,7 @@ function RouteComponent() {
   const { organizationId } = Route.useParams();
   const navigate = Route.useNavigate();
   const router = useRouter();
+  const [editParkingOpen, setEditParkingOpen] = useState(false);
   const [addParkingSpotOpen, setAddParkingSpotOpen] = useState(false);
   const [parkingSpotToEdit, setParkingSpotToEdit] =
     useState<ParkingSpotListItem | null>(null);
@@ -190,7 +192,11 @@ function RouteComponent() {
         </div>
 
         <div className="flex flex-wrap gap-2">
-          <ActionButton enabled={parking.actions.edit} icon={PencilIcon}>
+          <ActionButton
+            enabled={parking.actions.edit}
+            icon={PencilIcon}
+            onClick={() => setEditParkingOpen(true)}
+          >
             Edit
           </ActionButton>
           <ActionButton
@@ -447,6 +453,14 @@ function RouteComponent() {
           }}
         />
       ) : null}
+      <EditParkingModal
+        open={editParkingOpen}
+        parking={parking}
+        onOpenChange={setEditParkingOpen}
+        onParkingUpdated={async () => {
+          await router.invalidate();
+        }}
+      />
     </div>
   );
 }

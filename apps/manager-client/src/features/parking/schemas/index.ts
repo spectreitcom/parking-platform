@@ -70,3 +70,14 @@ export const parkingDetailSchema = z.object({
     removeParkingSpot: z.boolean(),
   }),
 });
+
+export const updateParkingInputSchema = z.object({
+  parkingId: z.uuid(),
+  name: z.string(),
+  assetIds: z.array(z.uuid()),
+  parkingFeatureIds: z.array(z.uuid()),
+  parkingAddonIds: z.array(z.uuid()),
+  description: z.string().optional(),
+  statute: z.string().optional(),
+  version: z.int().positive(),
+});

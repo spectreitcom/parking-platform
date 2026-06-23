@@ -31,10 +31,6 @@ export const addParkingSpotInputSchema = z.object({
   parkingId: z.uuid(),
 });
 
-export const generalServerResponseSchema = z.object({
-  id: z.uuid(),
-});
-
 export const updateParkingSpotInputSchema = addParkingSpotInputSchema
   .omit({
     parkingId: true,
