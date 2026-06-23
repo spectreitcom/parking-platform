@@ -1,7 +1,6 @@
 import { createServerFn } from '@tanstack/react-start';
 import {
   addParkingSpotInputSchema,
-  generalServerResponseSchema,
   parkingSpotListSchema,
   parkingSpotsListInputSchema,
   updateParkingSpotInputSchema,
@@ -13,6 +12,7 @@ import {
 } from '#/lib/auth-fetch.ts';
 import { env } from '#/env.ts';
 import { createSearchParams } from '@repo/frontend-utils';
+import { genericResponseSchema } from '#/lib/schemas.ts';
 
 export const getParkingSpotsForParking = createServerFn()
   .validator(parkingSpotsListInputSchema)
@@ -57,8 +57,7 @@ export const addParkingSpot = createServerFn()
 
     const responseData = await response.json();
 
-    const validationResult =
-      generalServerResponseSchema.safeParse(responseData);
+    const validationResult = genericResponseSchema.safeParse(responseData);
 
     if (!validationResult.success) {
       throw defaultServerError;
@@ -86,8 +85,7 @@ export const updateParkingSpot = createServerFn()
 
     const responseData = await response.json();
 
-    const validationResult =
-      generalServerResponseSchema.safeParse(responseData);
+    const validationResult = genericResponseSchema.safeParse(responseData);
 
     if (!validationResult.success) {
       throw defaultServerError;
