@@ -5,6 +5,7 @@ import { FileUploader } from '../ports/file-uploader';
 import { ImageProcessing } from '../ports/image-processing';
 import { AppError } from 'src/shared/errors';
 import { QueryAssetResponse } from '../../types';
+import { createHash } from 'node:crypto';
 
 @QueryHandler(GetAssetImageQuery)
 export class GetAssetImageQueryHandler implements IQueryHandler<
@@ -42,10 +43,13 @@ export class GetAssetImageQueryHandler implements IQueryHandler<
       height,
     );
 
+    const etag = createHash('md5').update(updatedBuffer).digest('hex');
+
     return {
       id: record.id,
       mimeType: record.mimeType,
       buffer: updatedBuffer,
+      etag,
     };
   }
 }

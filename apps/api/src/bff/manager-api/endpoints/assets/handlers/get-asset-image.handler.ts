@@ -11,7 +11,12 @@ export class GetAssetImageHandler implements IControllerHandler {
     assetId: string,
     width?: number,
     height?: number,
-  ): Promise<QueryAssetResponse> {
-    return await this.assetFacade.getAssetImage(assetId, width, height);
+  ): Promise<QueryAssetResponse & { cacheControl: string }> {
+    const asset = await this.assetFacade.getAssetImage(assetId, width, height);
+
+    return {
+      ...asset,
+      cacheControl: 'public, max-age=31536000',
+    };
   }
 }

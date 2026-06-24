@@ -26,6 +26,7 @@ import { Field, FieldError, FieldLabel } from '#/components/ui/field.tsx';
 import { Input } from '#/components/ui/input.tsx';
 import { Spinner } from '#/components/ui/spinner.tsx';
 import { Textarea } from '#/components/ui/textarea.tsx';
+import { AssetImage } from '#/features/assets/components/asset-image.tsx';
 import { uploadImage } from '#/features/assets/api';
 import { getParkingFeatures } from '#/features/parking-features/api';
 import type { parkingFeatureListItemSchema } from '#/features/parking-features/schemas';
@@ -503,28 +504,35 @@ export function EditParkingModal({
                         </div>
 
                         {assetField.state.value.length > 0 && (
-                          <div className="flex flex-wrap gap-2">
+                          <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
                             {assetField.state.value.map((assetId) => (
-                              <button
+                              <div
                                 key={assetId}
-                                type="button"
-                                className="inline-flex max-w-full items-center gap-1 rounded-md border bg-muted px-2 py-1 text-xs font-medium"
-                                onClick={() =>
-                                  assetField.handleChange(
-                                    assetField.state.value.filter(
-                                      (id) => id !== assetId,
-                                    ),
-                                  )
-                                }
+                                className="group relative overflow-hidden rounded-md"
                               >
-                                <span className="max-w-48 truncate">
-                                  {assetId}
-                                </span>
-                                <XIcon
-                                  aria-hidden="true"
-                                  className="size-3 shrink-0 text-muted-foreground"
+                                <AssetImage
+                                  assetId={assetId}
+                                  alt="Linked parking asset"
+                                  width={320}
+                                  height={180}
                                 />
-                              </button>
+                                <Button
+                                  type="button"
+                                  size="icon"
+                                  variant="secondary"
+                                  className="absolute right-1.5 top-1.5 size-7 shadow-sm"
+                                  aria-label="Remove image"
+                                  onClick={() =>
+                                    assetField.handleChange(
+                                      assetField.state.value.filter(
+                                        (id) => id !== assetId,
+                                      ),
+                                    )
+                                  }
+                                >
+                                  <XIcon aria-hidden="true" className="size-4" />
+                                </Button>
+                              </div>
                             ))}
                           </div>
                         )}

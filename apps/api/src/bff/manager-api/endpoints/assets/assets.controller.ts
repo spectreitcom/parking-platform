@@ -113,12 +113,17 @@ export class AssetsController {
     @Query() query: GetAssetImageQueryDto,
     @Res() res: Response,
   ) {
-    const { buffer, mimeType } = await this.getAssetImageHandler.handle(
-      assetId,
-      query.width,
-      query.height,
-    );
+    const { buffer, mimeType, etag, cacheControl } =
+      await this.getAssetImageHandler.handle(
+        assetId,
+        query.width,
+        query.height,
+      );
+
     res.set('Content-Type', mimeType);
+    res.set('ETag', etag);
+    res.set('Cache-Control', cacheControl);
+
     res.send(buffer);
   }
 }
