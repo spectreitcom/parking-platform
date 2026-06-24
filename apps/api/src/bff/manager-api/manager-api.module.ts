@@ -23,6 +23,9 @@ import { GetParkingSpotsHandler } from './endpoints/parking-spots/handlers/get-p
 import { AssetsController } from './endpoints/assets/assets.controller';
 import { AssetModule } from 'src/modules/asset/application/asset.module';
 import { UpdateParkingHandler } from './endpoints/parkings/handlers/update-parking.handler';
+import { ActivateParkingSpotHandler } from './endpoints/parking-spots/handlers/activate-parking-spot.handler';
+import { DeactivateParkingSpotHandler } from './endpoints/parking-spots/handlers/deactivate-parking-spot.handler';
+import { ActivateAndDeactivateParkingSpotService } from './endpoints/parking-spots/handlers/shared/activate-and-deactivate-parking-spot.service';
 
 @Module({
   imports: [
@@ -54,6 +57,9 @@ import { UpdateParkingHandler } from './endpoints/parkings/handlers/update-parki
     GetParkingFeaturesListHandler,
     GetParkingSpotsHandler,
     UpdateParkingHandler,
+    ActivateParkingSpotHandler,
+    DeactivateParkingSpotHandler,
+    ActivateAndDeactivateParkingSpotService,
   ],
 })
 export class ManagerApiModule {}

@@ -13,6 +13,8 @@ import {
   Body,
   Controller,
   Get,
+  HttpCode,
+  HttpStatus,
   Param,
   ParseUUIDPipe,
   Post,
@@ -29,6 +31,9 @@ import { UpdateParkingSpotHandler } from './handlers/update-parking-spot.handler
 import { UpdateParkingSpotDto } from './dto/update-parking-spot.dto';
 import { GetParkingSpotsHandler } from './handlers/get-parking-spots.handler';
 import { GetParkingSpotsQueryParamsDto } from './dto/get-parking-spots-query-params.dto';
+import { ActivateParkingSpotHandler } from './handlers/activate-parking-spot.handler';
+import { DeactivateParkingSpotHandler } from './handlers/deactivate-parking-spot.handler';
+import { ActivateOrDeactivateParkingSpotDto } from './dto/activate-or-deactivate-parking-spot.dto';
 
 @ApiBearerAuth('manager-auth')
 @Controller('manager/parking-spots')
@@ -39,6 +44,8 @@ export class ParkingSpotsController {
     private readonly addParkingSpotHandler: AddParkingSpotHandler,
     private readonly updateParkingSpotHandler: UpdateParkingSpotHandler,
     private readonly getParkingSpotsHandler: GetParkingSpotsHandler,
+    private readonly activateParkingSpotHandler: ActivateParkingSpotHandler,
+    private readonly deactivateParkingSpotHandler: DeactivateParkingSpotHandler,
   ) {}
 
   @ApiOperation({ summary: 'Get parking spots by parking ID' })
@@ -152,6 +159,78 @@ export class ParkingSpotsController {
     return await this.updateParkingSpotHandler.handle(
       dto,
       parkingSpotId,
+      managerUser,
+    );
+  }
+
+  @ApiOperation({ summary: 'Activate a parking spot' })
+  @ApiOkResponse({
+    description: 'Parking spot activated successfully',
+    schema: {
+      type: 'object',
+      properties: {
+        id: { type: 'string', format: 'uuid' },
+      },
+    },
+  })
+  @ApiNotFoundResponse({
+    description: 'Parking spot not found',
+  })
+  @ApiBadRequestResponse({
+    description: 'Errors due to validation',
+  })
+  @ApiForbiddenResponse({
+    description: 'Forbidden access to the operation',
+  })
+  @ApiUnauthorizedResponse({
+    description: 'Unauthorized access to the operation',
+  })
+  @Post(':parkingSpotId/activate')
+  @HttpCode(HttpStatus.OK)
+  async activateParkingSpot(
+    @Param('parkingSpotId', new ParseUUIDPipe()) parkingSpotId: string,
+    @Body() dto: ActivateOrDeactivateParkingSpotDto,
+    @CurrentManagerUser() managerUser: RequestUser,
+  ) {
+    return await this.activateParkingSpotHandler.handle(
+      parkingSpotId,
+      dto,
+      managerUser,
+    );
+  }
+
+  @ApiOperation({ summary: 'Deactivate a parking spot' })
+  @ApiOkResponse({
+    description: 'Parking spot deactivated successfully',
+    schema: {
+      type: 'object',
+      properties: {
+        id: { type: 'string', format: 'uuid' },
+      },
+    },
+  })
+  @ApiNotFoundResponse({
+    description: 'Parking spot not found',
+  })
+  @ApiBadRequestResponse({
+    description: 'Errors due to validation',
+  })
+  @ApiForbiddenResponse({
+    description: 'Forbidden access to the operation',
+  })
+  @ApiUnauthorizedResponse({
+    description: 'Unauthorized access to the operation',
+  })
+  @Post(':parkingSpotId/deactivate')
+  @HttpCode(HttpStatus.OK)
+  async deactivateParkingSpot(
+    @Param('parkingSpotId', new ParseUUIDPipe()) parkingSpotId: string,
+    @Body() dto: ActivateOrDeactivateParkingSpotDto,
+    @CurrentManagerUser() managerUser: RequestUser,
+  ) {
+    return await this.deactivateParkingSpotHandler.handle(
+      parkingSpotId,
+      dto,
       managerUser,
     );
   }

@@ -39,3 +39,8 @@ export const updateParkingSpotInputSchema = addParkingSpotInputSchema
     parkingSpotId: z.uuid(),
     version: z.number().int().positive(),
   });
+
+export const activateOrDeactivateParkingSpotInputSchema = z.object({
+  parkingSpotId: z.uuid(),
+  version: z.number().int().positive(),
+});
