@@ -47,7 +47,6 @@ import {
   Pencil,
   Power,
   PowerOff,
-  Tag,
   Sparkles,
 } from 'lucide-react';
 
@@ -248,7 +247,6 @@ function ParkingSpots({
                   <TableHead>Price</TableHead>
                   <TableHead>Features</TableHead>
                   <TableHead>Status</TableHead>
-                  <TableHead>Version</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -288,7 +286,6 @@ function ParkingSpots({
                         {spot.active ? 'Active' : 'Inactive'}
                       </StatusBadge>
                     </TableCell>
-                    <TableCell>v{spot.version}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -434,11 +431,6 @@ function ParkingAssociations({
             icon={<MapPin className="size-4" />}
             label="Place"
             value={parking.place.name}
-          />
-          <DetailItem
-            icon={<Tag className="size-4" />}
-            label="Version"
-            value={`v${parking.version}`}
           />
           <DetailItem
             icon={<CalendarClock className="size-4" />}
