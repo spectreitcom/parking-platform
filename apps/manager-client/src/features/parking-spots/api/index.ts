@@ -1,5 +1,6 @@
 import { createServerFn } from '@tanstack/react-start';
 import {
+  activateOrDeactivateParkingSpotInputSchema,
   addParkingSpotInputSchema,
   parkingSpotListSchema,
   parkingSpotsListInputSchema,
@@ -76,6 +77,58 @@ export const updateParkingSpot = createServerFn()
         body: JSON.stringify({
           parkingFeatureIds: data.parkingFeatureIds,
           price: data.price,
+          version: data.version,
+        }),
+      },
+    );
+
+    await genericApiErrorHandler(response);
+
+    const responseData = await response.json();
+
+    const validationResult = genericResponseSchema.safeParse(responseData);
+
+    if (!validationResult.success) {
+      throw defaultServerError;
+    }
+
+    return validationResult.data;
+  });
+
+export const activateParkingSpot = createServerFn()
+  .validator(activateOrDeactivateParkingSpotInputSchema)
+  .handler(async ({ data }) => {
+    const response = await authFetch(
+      `${env.SERVER_URL}/parking-spots/${data.parkingSpotId}/activate`,
+      {
+        method: 'POST',
+        body: JSON.stringify({
+          version: data.version,
+        }),
+      },
+    );
+
+    await genericApiErrorHandler(response);
+
+    const responseData = await response.json();
+
+    const validationResult = genericResponseSchema.safeParse(responseData);
+
+    if (!validationResult.success) {
+      throw defaultServerError;
+    }
+
+    return validationResult.data;
+  });
+
+export const deactivateParkingSpot = createServerFn()
+  .validator(activateOrDeactivateParkingSpotInputSchema)
+  .handler(async ({ data }) => {
+    const response = await authFetch(
+      `${env.SERVER_URL}/parking-spots/${data.parkingSpotId}/deactivate`,
+      {
+        method: 'POST',
+        body: JSON.stringify({
           version: data.version,
         }),
       },

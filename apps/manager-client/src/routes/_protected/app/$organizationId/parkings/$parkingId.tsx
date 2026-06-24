@@ -4,6 +4,7 @@ import {
   redirect,
   useRouter,
 } from '@tanstack/react-router';
+import { useServerFn } from '@tanstack/react-start';
 import {
   ArrowLeftIcon,
   Building2Icon,
@@ -23,6 +24,7 @@ import {
 import type { LucideIcon } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { useState } from 'react';
+import { toast } from 'sonner';
 import { z } from 'zod';
 
 import { Alert, AlertDescription, AlertTitle } from '#/components/ui/alert.tsx';
@@ -38,7 +40,11 @@ import { Separator } from '#/components/ui/separator.tsx';
 import { Spinner } from '#/components/ui/spinner.tsx';
 import { getParkingDetails } from '#/features/parking/api';
 import { EditParkingModal } from '#/features/parking/components/edit-parking-modal.tsx';
-import { getParkingSpotsForParking } from '#/features/parking-spots/api';
+import {
+  activateParkingSpot,
+  deactivateParkingSpot,
+  getParkingSpotsForParking,
+} from '#/features/parking-spots/api';
 import {
   AddParkingSpotModal,
   UpdateParkingSpotModal,
@@ -139,6 +145,11 @@ function RouteComponent() {
   const [addParkingSpotOpen, setAddParkingSpotOpen] = useState(false);
   const [parkingSpotToEdit, setParkingSpotToEdit] =
     useState<ParkingSpotListItem | null>(null);
+  const [parkingSpotStatusPendingId, setParkingSpotStatusPendingId] = useState<
+    string | null
+  >(null);
+  const activateParkingSpotFn = useServerFn(activateParkingSpot);
+  const deactivateParkingSpotFn = useServerFn(deactivateParkingSpot);
   const {
     parking,
     parkingSpots,
@@ -154,6 +165,36 @@ function RouteComponent() {
         spotsPage: spotsPage === 1 ? undefined : spotsPage,
       }),
     });
+  };
+  const handleParkingSpotStatusToggle = async (
+    parkingSpot: ParkingSpotListItem,
+  ) => {
+    setParkingSpotStatusPendingId(parkingSpot.id);
+
+    try {
+      const payload = {
+        parkingSpotId: parkingSpot.id,
+        version: parkingSpot.version,
+      };
+
+      if (parkingSpot.active) {
+        await deactivateParkingSpotFn({ data: payload });
+        toast.success('Parking spot deactivated');
+      } else {
+        await activateParkingSpotFn({ data: payload });
+        toast.success('Parking spot activated');
+      }
+
+      await router.invalidate();
+    } catch (caughtError) {
+      toast.error(
+        caughtError instanceof Error
+          ? caughtError.message
+          : 'Failed to update parking spot status',
+      );
+    } finally {
+      setParkingSpotStatusPendingId(null);
+    }
   };
 
   if (error || !parking) {
@@ -395,6 +436,32 @@ function RouteComponent() {
                       </div>
                     </div>
                     <div className="flex shrink-0 items-center gap-2">
+                      <Button
+                        type="button"
+                        variant={parkingSpot.active ? 'outline' : 'default'}
+                        size="xs"
+                        disabled={
+                          !parking.actions.edit ||
+                          parkingSpotStatusPendingId !== null
+                        }
+                        aria-label={
+                          parkingSpot.active
+                            ? 'Deactivate parking spot'
+                            : 'Activate parking spot'
+                        }
+                        onClick={() => {
+                          void handleParkingSpotStatusToggle(parkingSpot);
+                        }}
+                      >
+                        {parkingSpotStatusPendingId === parkingSpot.id ? (
+                          <Spinner aria-hidden="true" className="size-3" />
+                        ) : parkingSpot.active ? (
+                          <XCircleIcon aria-hidden="true" />
+                        ) : (
+                          <CheckCircle2Icon aria-hidden="true" />
+                        )}
+                        {parkingSpot.active ? 'Deactivate' : 'Activate'}
+                      </Button>
                       <Button
                         type="button"
                         variant="ghost"
