@@ -118,7 +118,7 @@ export function AppSidebar({ user }: Readonly<{ user: GetMeResponseSchema }>) {
           <SidebarGroup title="Users">
             <SidebarGroupLabel>Users</SidebarGroupLabel>
             <SidebarMenu>
-              <DisabledItem icon={<Users />} label="Users" />
+              <NavItem icon={<Users />} label="Users" to="/app/users" />
             </SidebarMenu>
           </SidebarGroup>
           <SidebarGroup title="Admins">
