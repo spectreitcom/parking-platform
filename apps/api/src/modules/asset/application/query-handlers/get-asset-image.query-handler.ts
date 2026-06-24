@@ -60,8 +60,6 @@ export class GetAssetImageQueryHandler implements IQueryHandler<
       };
     }
 
-    console.log('reading data from s3'); // todo: remove it
-
     const buffer = await this.fileUploader.getObjectFromStorage(record.key);
 
     const updatedBuffer = await this.imageProcessing.resize(
