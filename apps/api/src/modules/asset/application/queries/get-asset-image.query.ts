@@ -25,10 +25,14 @@ export class GetAssetImageQuery implements IQuery {
   @Max(1080)
   readonly height?: number;
 
-  constructor(id: string, width?: number, height?: number) {
+  @IsUUID()
+  readonly userId: string;
+
+  constructor(id: string, userId: string, width?: number, height?: number) {
     this.id = id;
     this.width = width;
     this.height = height;
+    this.userId = userId;
     this.validate();
   }
 

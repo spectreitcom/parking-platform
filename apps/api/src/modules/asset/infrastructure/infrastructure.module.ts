@@ -6,6 +6,8 @@ import { ImageProcessing } from '../application/ports/image-processing';
 import { SharpImageProcessing } from './sharp-image-processing';
 import { AssetRepository } from '../application/ports/asset.repository';
 import { PrismaAssetRepository } from './persistance/prisma-asset.repository';
+import { AssetsStorage } from '../application/ports/assets.storage';
+import { RedisAssetsStorage } from './redis-assets.storage';
 
 @Module({
   imports: [PrismaModule],
@@ -22,7 +24,11 @@ import { PrismaAssetRepository } from './persistance/prisma-asset.repository';
       provide: AssetRepository,
       useClass: PrismaAssetRepository,
     },
+    {
+      provide: AssetsStorage,
+      useClass: RedisAssetsStorage,
+    },
   ],
-  exports: [FileUploader, ImageProcessing, AssetRepository],
+  exports: [FileUploader, ImageProcessing, AssetRepository, AssetsStorage],
 })
 export class InfrastructureModule {}

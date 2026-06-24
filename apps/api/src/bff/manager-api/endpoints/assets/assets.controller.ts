@@ -29,6 +29,8 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { GetAssetImageQueryDto } from './dto/get-asset-image-query.dto';
 import { GetAssetImageHandler } from './handlers/get-asset-image.handler';
 import { UploadAssetHandler } from './handlers/upload-asset.handler';
+import { CurrentManagerUser } from 'src/bff/manager-api/auth/decorators/current-manager-user.decorator';
+import type { RequestUser } from 'src/bff/manager-api/auth/types';
 
 @ApiBearerAuth('manager-auth')
 @ApiTags('Assets')
@@ -112,10 +114,12 @@ export class AssetsController {
     @Param('assetId', new ParseUUIDPipe()) assetId: string,
     @Query() query: GetAssetImageQueryDto,
     @Res() res: Response,
+    @CurrentManagerUser() managerUser: RequestUser,
   ) {
     const { buffer, mimeType, etag, cacheControl } =
       await this.getAssetImageHandler.handle(
         assetId,
+        managerUser,
         query.width,
         query.height,
       );
