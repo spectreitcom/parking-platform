@@ -43,7 +43,7 @@ export class GetAssetImageQueryHandler implements IQueryHandler<
       height,
     );
 
-    const etag = createHash('md5').update(updatedBuffer).digest('hex');
+    const etag = `"${createHash('md5').update(updatedBuffer).digest('hex')}"`;
 
     return {
       id: record.id,

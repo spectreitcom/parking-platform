@@ -16,7 +16,7 @@ export class GetAssetImageHandler implements IControllerHandler {
 
     return {
       ...asset,
-      cacheControl: 'public, max-age=31536000',
+      cacheControl: 'private, max-age=31536000',
     };
   }
 }
