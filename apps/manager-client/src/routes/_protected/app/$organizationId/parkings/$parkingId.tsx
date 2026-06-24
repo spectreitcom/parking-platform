@@ -417,7 +417,6 @@ function RouteComponent() {
                 label="Updated"
                 value={formatDate(parking.updatedAt)}
               />
-              <DetailItem label="Version" value={parking.version.toString()} />
               <DetailItem
                 label="Assets"
                 value={`${parking.assetIds.length} linked assets`}

@@ -29,6 +29,7 @@ import {
   getParkingDetails,
   getParkingSpotsByParkingId,
 } from '#/features/parkings/api';
+import { AssetImage } from '#/features/assets/components/asset-image.tsx';
 import { EditParkingModal } from '#/features/parkings/components/edit-parking-modal.tsx';
 import type {
   ParkingDetailsSchema,
@@ -47,7 +48,6 @@ import {
   Pencil,
   Power,
   PowerOff,
-  Tag,
   Sparkles,
 } from 'lucide-react';
 
@@ -248,7 +248,6 @@ function ParkingSpots({
                   <TableHead>Price</TableHead>
                   <TableHead>Features</TableHead>
                   <TableHead>Status</TableHead>
-                  <TableHead>Version</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -288,7 +287,6 @@ function ParkingSpots({
                         {spot.active ? 'Active' : 'Inactive'}
                       </StatusBadge>
                     </TableCell>
-                    <TableCell>v{spot.version}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -436,11 +434,6 @@ function ParkingAssociations({
             value={parking.place.name}
           />
           <DetailItem
-            icon={<Tag className="size-4" />}
-            label="Version"
-            value={`v${parking.version}`}
-          />
-          <DetailItem
             icon={<CalendarClock className="size-4" />}
             label="Created"
             value={formatDateTime(parking.createdAt)}
@@ -478,6 +471,16 @@ function ParkingConfiguration({
         description="Asset identifiers connected to this parking."
         emptyLabel="No assets assigned"
         items={parking.assetIds}
+        renderItem={(assetId, index) => (
+          <AssetImage
+            assetId={assetId}
+            alt={`Parking asset ${index + 1}`}
+            width={320}
+            height={180}
+            className="w-full"
+          />
+        )}
+        listClassName="grid grid-cols-1 gap-3 sm:grid-cols-2"
       />
     </div>
   );
@@ -513,12 +516,16 @@ function CollectionCard({
   description,
   emptyLabel,
   items,
+  renderItem,
+  listClassName = 'flex flex-wrap gap-2',
 }: Readonly<{
   icon: ReactNode;
   title: string;
   description: string;
   emptyLabel: string;
   items: Array<string>;
+  renderItem?: (item: string, index: number) => ReactNode;
+  listClassName?: string;
 }>) {
   return (
     <Card>
@@ -535,12 +542,16 @@ function CollectionCard({
             {emptyLabel}
           </p>
         ) : (
-          <ul className="flex flex-wrap gap-2">
+          <ul className={listClassName}>
             {items.map((item, index) => (
               <li className="min-w-0" key={`${item}-${index}`}>
-                <StatusBadge className="max-w-full break-all" tone="neutral">
-                  {item}
-                </StatusBadge>
+                {renderItem ? (
+                  renderItem(item, index)
+                ) : (
+                  <StatusBadge className="max-w-full break-all" tone="neutral">
+                    {item}
+                  </StatusBadge>
+                )}
               </li>
             ))}
           </ul>

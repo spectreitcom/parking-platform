@@ -18,6 +18,8 @@ import { PlacesController } from './endpoints/places/places.controller';
 import { UsersController } from './endpoints/users/users.controller';
 import { ReservationsController } from './endpoints/reservations/reservations.controller';
 import { ReservationModule } from 'src/modules/reservation/application/reservation.module';
+import { AssetsController } from './endpoints/assets/assets.controller';
+import { AssetModule } from 'src/modules/asset/application/asset.module';
 import { GetAdminParkingByIdHandler } from './endpoints/parkings/handlers/get-admin-parking-by-id.handler';
 import { GetAdminParkingListHandler } from './endpoints/parkings/handlers/get-admin-parking-list.handler';
 import { CreateAdminParkingHandler } from './endpoints/parkings/handlers/create-admin-parking.handler';
@@ -50,6 +52,7 @@ import { SuspendAdminUserHandler } from './endpoints/admins/handlers/suspend-adm
 import { ActivateAdminUserHandler } from './endpoints/admins/handlers/activate-admin-user.handler';
 import { ParkingSpotsController } from './endpoints/parking-spots/parking-spots.controller';
 import { GetParkingSpotsHandler } from './endpoints/parking-spots/handlers/get-parking-spots.handler';
+import { GetAssetImageHandler } from './endpoints/assets/handlers/get-asset-image.handler';
 
 @Module({
   imports: [
@@ -61,6 +64,7 @@ import { GetParkingSpotsHandler } from './endpoints/parking-spots/handlers/get-p
     UserIamModule,
     AuthModule,
     ReservationModule,
+    AssetModule,
   ],
   controllers: [
     AuthController,
@@ -75,6 +79,7 @@ import { GetParkingSpotsHandler } from './endpoints/parking-spots/handlers/get-p
     UsersController,
     ReservationsController,
     ParkingSpotsController,
+    AssetsController,
   ],
   providers: [
     GetAdminParkingByIdHandler,
@@ -108,6 +113,7 @@ import { GetParkingSpotsHandler } from './endpoints/parking-spots/handlers/get-p
     SuspendAdminUserHandler,
     ActivateAdminUserHandler,
     GetParkingSpotsHandler,
+    GetAssetImageHandler,
   ],
 })
 export class AdminApiModule {}
