@@ -1,5 +1,6 @@
 import { createServerFn } from '@tanstack/react-start';
 import {
+  getImageInputSchema,
   uploadImageInputSchema,
   uploadImageResponseSchema,
 } from '#/features/assets/schemas';
@@ -40,4 +41,29 @@ export const uploadImage = createServerFn({ method: 'POST' })
     }
 
     return validationResult.data;
+  });
+
+export const getImage = createServerFn()
+  .validator(getImageInputSchema)
+  .handler(async ({ data }) => {
+    const url = new URL(`${env.SERVER_URL}/assets/${data.assetId}`);
+
+    if (data.width) {
+      url.searchParams.set('width', data.width.toString());
+    }
+
+    if (data.height) {
+      url.searchParams.set('height', data.height.toString());
+    }
+
+    const response = await authFetch(url, {
+      method: 'GET',
+    });
+
+    await genericApiErrorHandler(response, 'Failed to load image.');
+
+    const contentType = response.headers.get('content-type') ?? 'image/jpeg';
+    const buffer = Buffer.from(await response.arrayBuffer());
+
+    return `data:${contentType};base64,${buffer.toString('base64')}`;
   });

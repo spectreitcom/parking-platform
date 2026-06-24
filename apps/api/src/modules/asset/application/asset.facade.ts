@@ -32,9 +32,14 @@ export class AssetFacade {
     );
   }
 
-  async getAssetImage(assetId: string, width?: number, height?: number) {
+  async getAssetImage(
+    assetId: string,
+    userId: string,
+    width?: number,
+    height?: number,
+  ) {
     return await this.queryBus.execute<GetAssetImageQuery, QueryAssetResponse>(
-      new GetAssetImageQuery(assetId, width, height),
+      new GetAssetImageQuery(assetId, userId, width, height),
     );
   }
 

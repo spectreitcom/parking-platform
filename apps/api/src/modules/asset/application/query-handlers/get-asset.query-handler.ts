@@ -4,6 +4,7 @@ import { FileUploader } from '../ports/file-uploader';
 import { PrismaService } from 'src/shared/prisma/prisma.service';
 import { AppError } from 'src/shared/errors';
 import { QueryAssetResponse } from '../../types';
+import { createHash } from 'node:crypto';
 
 @QueryHandler(GetAssetQuery)
 export class GetAssetQueryHandler implements IQueryHandler<
@@ -30,10 +31,13 @@ export class GetAssetQueryHandler implements IQueryHandler<
 
     const buffer = await this.fileUploader.getObjectFromStorage(record.key);
 
+    const etag = createHash('md5').update(buffer).digest('hex');
+
     return {
       id: record.id,
       mimeType: record.mimeType,
       buffer,
+      etag,
     };
   }
 }

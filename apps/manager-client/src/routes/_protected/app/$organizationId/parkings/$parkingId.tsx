@@ -12,6 +12,7 @@ import {
   CheckCircle2Icon,
   CircleSlashIcon,
   FileTextIcon,
+  ImageIcon,
   Layers3Icon,
   MapPinIcon,
   ParkingSquareIcon,
@@ -38,6 +39,7 @@ import {
 } from '#/components/ui/card.tsx';
 import { Separator } from '#/components/ui/separator.tsx';
 import { Spinner } from '#/components/ui/spinner.tsx';
+import { AssetImage } from '#/features/assets/components/asset-image.tsx';
 import { getParkingDetails } from '#/features/parking/api';
 import { EditParkingModal } from '#/features/parking/components/edit-parking-modal.tsx';
 import {
@@ -259,6 +261,33 @@ function RouteComponent() {
 
       <section className="grid gap-4 xl:grid-cols-[minmax(0,1.25fr)_minmax(22rem,0.75fr)]">
         <div className="space-y-4">
+          {parking.assetIds.length > 0 && (
+            <Card className="rounded-lg">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-base">
+                  <ImageIcon
+                    aria-hidden="true"
+                    className="size-4 text-muted-foreground"
+                  />
+                  Images
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-2 gap-2">
+                  {parking.assetIds.map((assetId) => (
+                    <AssetImage
+                      key={assetId}
+                      assetId={assetId}
+                      alt={`${parking.name} image`}
+                      width={360}
+                      height={200}
+                    />
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
           <Card className="rounded-lg">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-base">
