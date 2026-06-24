@@ -7,3 +7,5 @@ export const uploadImageInputSchema = z.object({
 export const uploadImageResponseSchema = z.object({
   id: z.uuid(),
 });
+
+export const getImageInputSchema = z.object({ assetId: z.uuid() });

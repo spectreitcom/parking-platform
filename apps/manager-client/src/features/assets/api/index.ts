@@ -1,5 +1,6 @@
 import { createServerFn } from '@tanstack/react-start';
 import {
+  getImageInputSchema,
   uploadImageInputSchema,
   uploadImageResponseSchema,
 } from '#/features/assets/schemas';
@@ -40,4 +41,16 @@ export const uploadImage = createServerFn({ method: 'POST' })
     }
 
     return validationResult.data;
+  });
+
+export const getImage = createServerFn()
+  .validator(getImageInputSchema)
+  .handler(async ({ data }) => {
+    const response = await authFetch(
+      `${env.SERVER_URL}/assets/${data.assetId}`,
+      {
+        method: 'GET',
+      },
+    );
+    return await response.json();
   });
