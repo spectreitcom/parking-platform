@@ -11,11 +11,13 @@ export class CancelReservationHandler implements IControllerHandler {
     reservationId: string,
     userId: string,
     dto: CancelReservationDto,
-  ): Promise<string> {
-    return await this.reservationFacade.cancelReservation(
+  ): Promise<{ id: string }> {
+    const id = await this.reservationFacade.cancelReservation(
       reservationId,
       userId,
       dto.version,
     );
+
+    return { id };
   }
 }

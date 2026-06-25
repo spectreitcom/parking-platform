@@ -11,12 +11,14 @@ export class UpdateReservationHandler implements IControllerHandler {
     reservationId: string,
     userId: string,
     dto: UpdateReservationDto,
-  ): Promise<string> {
-    return await this.reservationFacade.updateReservation(
+  ): Promise<{ id: string }> {
+    const id = await this.reservationFacade.updateReservation(
       reservationId,
       userId,
       dto.version,
       dto.registrationNumber,
     );
+
+    return { id };
   }
 }

@@ -17,9 +17,16 @@ import { CreateReservationHandler } from './endpoints/reservations/handlers/crea
 import { UpdateReservationHandler } from './endpoints/reservations/handlers/update-reservation.handler';
 import { CancelReservationHandler } from './endpoints/reservations/handlers/cancel-reservation.handler';
 import { GetReservationsListHandler } from './endpoints/reservations/handlers/get-reservations-list.handler';
+import { CartModule } from 'src/modules/cart/application/cart.module';
 
 @Module({
-  imports: [UserIamModule, AuthModule, ReservationModule, ParkingModule],
+  imports: [
+    UserIamModule,
+    AuthModule,
+    ReservationModule,
+    ParkingModule,
+    CartModule,
+  ],
   controllers: [AuthController, ReservationsController],
   providers: [
     RegisterUserHandler,
