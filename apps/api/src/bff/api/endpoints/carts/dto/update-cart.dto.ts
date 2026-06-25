@@ -1,14 +1,22 @@
-import { IsArray, IsNotEmpty, IsNumber, IsUUID } from 'class-validator';
+import {
+  IsArray,
+  IsNotEmpty,
+  IsNumber,
+  IsPositive,
+  IsUUID,
+} from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class UpdateCartDto {
   @ApiProperty({ description: 'Timestamp in milliseconds' })
   @IsNumber()
+  @IsPositive()
   @IsNotEmpty()
   readonly arrival: number;
 
   @ApiProperty({ description: 'Timestamp in milliseconds' })
   @IsNumber()
+  @IsPositive()
   @IsNotEmpty()
   readonly departure: number;
 

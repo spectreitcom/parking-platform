@@ -7,10 +7,7 @@ import { CartReadModel } from 'src/modules/cart/application/query-handlers/read-
 export class GetCartHandler implements IControllerHandler {
   constructor(private readonly cartFacade: CartFacade) {}
 
-  async handle(
-    cartId: string,
-    userId: string,
-  ): Promise<CartReadModel> {
+  async handle(cartId: string, userId: string): Promise<CartReadModel> {
     return await this.cartFacade.getCartById(cartId, userId);
   }
 }

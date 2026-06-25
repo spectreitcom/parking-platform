@@ -19,20 +19,9 @@ export class CreateCartDto {
   @IsNotEmpty()
   readonly departure: number;
 
-  @ApiProperty()
-  @IsNumber()
-  @IsNotEmpty()
-  readonly pricePerDay: number;
-
-  constructor(
-    parkingSpotId: string,
-    arrival: number,
-    departure: number,
-    pricePerDay: number,
-  ) {
+  constructor(parkingSpotId: string, arrival: number, departure: number) {
     this.parkingSpotId = parkingSpotId;
     this.arrival = arrival;
     this.departure = departure;
-    this.pricePerDay = pricePerDay;
   }
 }
