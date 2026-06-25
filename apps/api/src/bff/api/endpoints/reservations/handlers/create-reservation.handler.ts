@@ -18,7 +18,7 @@ export class CreateReservationHandler implements IControllerHandler {
     userId: string,
     dto: CreateReservationDto,
   ): Promise<{ id: string }> {
-    const cart = await this.cartFacade.getCartById(dto.cartId);
+    const cart = await this.cartFacade.getCartById(dto.cartId, userId);
 
     if (!cart) {
       throw new AppError('VALIDATION_ERROR', 'Cart not found');
