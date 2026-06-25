@@ -45,7 +45,12 @@ export class ReservationsController {
   @ApiOperation({ summary: 'Create a new reservation' })
   @ApiCreatedResponse({
     description: 'The reservation has been successfully created.',
-    type: String,
+    schema: {
+      type: 'object',
+      properties: {
+        id: { type: 'string', format: 'uuid' },
+      },
+    },
   })
   @ApiBadRequestResponse({
     description: 'Bad request',
@@ -57,14 +62,19 @@ export class ReservationsController {
   async createReservation(
     @CurrentUserId() userId: string,
     @Body() dto: CreateReservationDto,
-  ): Promise<string> {
+  ): Promise<{ id: string }> {
     return await this.createReservationHandler.handle(userId, dto);
   }
 
   @ApiOperation({ summary: 'Update a reservation' })
   @ApiOkResponse({
     description: 'The reservation has been successfully updated.',
-    type: String,
+    schema: {
+      type: 'object',
+      properties: {
+        id: { type: 'string', format: 'uuid' },
+      },
+    },
   })
   @ApiBadRequestResponse({
     description: 'Bad request',
@@ -77,7 +87,7 @@ export class ReservationsController {
     @Param('reservationId') reservationId: string,
     @CurrentUserId() userId: string,
     @Body() dto: UpdateReservationDto,
-  ): Promise<string> {
+  ): Promise<{ id: string }> {
     return await this.updateReservationHandler.handle(
       reservationId,
       userId,
@@ -88,7 +98,12 @@ export class ReservationsController {
   @ApiOperation({ summary: 'Cancel a reservation' })
   @ApiOkResponse({
     description: 'The reservation has been successfully cancelled.',
-    type: String,
+    schema: {
+      type: 'object',
+      properties: {
+        id: { type: 'string', format: 'uuid' },
+      },
+    },
   })
   @ApiBadRequestResponse({
     description: 'Bad request',
@@ -102,7 +117,7 @@ export class ReservationsController {
     @Param('reservationId') reservationId: string,
     @CurrentUserId() userId: string,
     @Body() dto: CancelReservationDto,
-  ): Promise<string> {
+  ): Promise<{ id: string }> {
     return await this.cancelReservationHandler.handle(
       reservationId,
       userId,
