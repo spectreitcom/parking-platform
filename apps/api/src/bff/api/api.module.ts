@@ -18,6 +18,10 @@ import { UpdateReservationHandler } from './endpoints/reservations/handlers/upda
 import { CancelReservationHandler } from './endpoints/reservations/handlers/cancel-reservation.handler';
 import { GetReservationsListHandler } from './endpoints/reservations/handlers/get-reservations-list.handler';
 import { CartModule } from 'src/modules/cart/application/cart.module';
+import { CartsController } from './endpoints/carts/carts.controller';
+import { GetCartHandler } from './endpoints/carts/handlers/get-cart.handler';
+import { CreateCartHandler } from './endpoints/carts/handlers/create-cart.handler';
+import { UpdateCartHandler } from './endpoints/carts/handlers/update-cart.handler';
 
 @Module({
   imports: [
@@ -27,7 +31,7 @@ import { CartModule } from 'src/modules/cart/application/cart.module';
     ParkingModule,
     CartModule,
   ],
-  controllers: [AuthController, ReservationsController],
+  controllers: [AuthController, ReservationsController, CartsController],
   providers: [
     RegisterUserHandler,
     SignInHandler,
@@ -41,6 +45,9 @@ import { CartModule } from 'src/modules/cart/application/cart.module';
     UpdateReservationHandler,
     CancelReservationHandler,
     GetReservationsListHandler,
+    GetCartHandler,
+    CreateCartHandler,
+    UpdateCartHandler,
   ],
 })
 export class ApiModule {}
