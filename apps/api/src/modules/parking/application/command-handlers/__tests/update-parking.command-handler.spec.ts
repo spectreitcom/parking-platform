@@ -5,10 +5,10 @@ import { UpdateParkingCommand } from '../../commands/update-parking.command';
 import { ParkingRepository } from '../../ports/parking.repository';
 import { Parking } from '../../../domain/parking';
 import { randomUUID } from 'node:crypto';
-import { AppError } from '../../../../../shared/errors';
-import { OutboxService } from '../../../../../shared/outbox/outbox.service';
-import { TransactionRunner } from '../../../../../shared/prisma/transaction-runner';
-import { PrismaTx } from '../../../../../shared/prisma/types';
+import { AppError } from 'src/shared/errors';
+import { OutboxService } from 'src/shared/outbox/outbox.service';
+import { TransactionRunner } from 'src/shared/prisma/transaction-runner';
+import { PrismaTx } from 'src/shared/prisma/types';
 import { DistanceCalculator } from '../../ports/distance-calculator';
 
 describe('UpdateParkingCommandHandler', () => {
