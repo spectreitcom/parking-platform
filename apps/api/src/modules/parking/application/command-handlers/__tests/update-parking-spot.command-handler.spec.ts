@@ -7,6 +7,9 @@ import { ParkingRepository } from '../../ports/parking.repository';
 import { ParkingSpot } from '../../../domain/parking-spot';
 import { Parking } from '../../../domain/parking';
 import { randomUUID } from 'node:crypto';
+import { OutboxService } from 'src/shared/outbox/outbox.service';
+import { TransactionRunner } from 'src/shared/prisma/transaction-runner';
+import { PrismaTx } from 'src/shared/prisma/types';
 
 describe('UpdateParkingSpotCommandHandler', () => {
   let handler: UpdateParkingSpotCommandHandler;
@@ -34,6 +37,28 @@ describe('UpdateParkingSpotCommandHandler', () => {
           provide: EventPublisher,
           useValue: {
             mergeObjectContext: jest.fn(<T>(obj: T): T => obj),
+          },
+        },
+        {
+          provide: OutboxService,
+          useValue: {
+            enqueue: jest.fn(),
+          },
+        },
+        {
+          provide: TransactionRunner,
+          useValue: {
+            runInTransaction: jest.fn(
+              (cb: (tx: PrismaTx) => Promise<unknown>) =>
+                cb({
+                  parkingSpotRead: {
+                    findMany: jest.fn().mockResolvedValue([]),
+                  },
+                  parkingFeatureRead: {
+                    findMany: jest.fn().mockResolvedValue([]),
+                  },
+                } as unknown as PrismaTx),
+            ),
           },
         },
       ],
@@ -78,7 +103,9 @@ describe('UpdateParkingSpotCommandHandler', () => {
       newFeatures,
     );
 
-    expect(parkingSpotRepository.save).toHaveBeenCalledWith(parkingSpot);
+    expect(parkingSpotRepository.save).toHaveBeenCalledWith(parkingSpot, {
+      tx: expect.anything() as PrismaTx,
+    });
   });
 
   it('should throw ENTITY_NOT_FOUND if parking spot does not exist', async () => {

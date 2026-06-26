@@ -5,7 +5,11 @@ import { UpdateParkingCommand } from '../../commands/update-parking.command';
 import { ParkingRepository } from '../../ports/parking.repository';
 import { Parking } from '../../../domain/parking';
 import { randomUUID } from 'node:crypto';
-import { AppError } from '../../../../../shared/errors';
+import { AppError } from 'src/shared/errors';
+import { OutboxService } from 'src/shared/outbox/outbox.service';
+import { TransactionRunner } from 'src/shared/prisma/transaction-runner';
+import { PrismaTx } from 'src/shared/prisma/types';
+import { DistanceCalculator } from '../../ports/distance-calculator';
 
 describe('UpdateParkingCommandHandler', () => {
   let handler: UpdateParkingCommandHandler;
@@ -27,6 +31,37 @@ describe('UpdateParkingCommandHandler', () => {
           provide: EventPublisher,
           useValue: {
             mergeObjectContext: jest.fn(<T>(obj: T): T => obj),
+          },
+        },
+        {
+          provide: OutboxService,
+          useValue: {
+            enqueue: jest.fn(),
+          },
+        },
+        {
+          provide: TransactionRunner,
+          useValue: {
+            runInTransaction: jest.fn(
+              (cb: (tx: PrismaTx) => Promise<unknown>) =>
+                cb({
+                  placeRead: {
+                    findUnique: jest.fn().mockResolvedValue(null),
+                  },
+                  parkingFeatureRead: {
+                    findMany: jest.fn().mockResolvedValue([]),
+                  },
+                  parkingSpotRead: {
+                    findMany: jest.fn().mockResolvedValue([]),
+                  },
+                } as unknown as PrismaTx),
+            ),
+          },
+        },
+        {
+          provide: DistanceCalculator,
+          useValue: {
+            calculate: jest.fn(),
           },
         },
       ],
@@ -86,9 +121,14 @@ describe('UpdateParkingCommandHandler', () => {
       command.parkingAddonIds,
     );
 
-    expect(repository.findById).toHaveBeenCalledWith(parkingId);
+    expect(repository.findById).toHaveBeenCalledWith(
+      parkingId,
+      expect.anything(),
+    );
     expect(publisher.mergeObjectContext).toHaveBeenCalledWith(parking);
-    expect(repository.save).toHaveBeenCalledWith(parking);
+    expect(repository.save).toHaveBeenCalledWith(parking, {
+      tx: expect.anything() as PrismaTx,
+    });
   });
 
   it('should throw ENTITY_NOT_FOUND if parking does not exist', async () => {

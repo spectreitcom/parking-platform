@@ -1,14 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import { DistanceCalculator } from 'src/modules/parking/application/ports/distance-calculator';
+import { DistanceCalculator } from '../application/ports/distance-calculator';
 
 @Injectable()
 export class HaversineDistanceCalculator implements DistanceCalculator {
-  calculate(
-    lat1: number,
-    lon1: number,
-    lat2: number,
-    lon2: number,
-  ): Promise<number> | number {
+  calculate(lat1: number, lon1: number, lat2: number, lon2: number): number {
     const R = 6371; // km
 
     const phi1 = this.toRad(lat1);

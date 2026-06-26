@@ -7,7 +7,10 @@ import { ParkingRepository } from '../../ports/parking.repository';
 import { ParkingSpot } from '../../../domain/parking-spot';
 import { Parking } from '../../../domain/parking';
 import { randomUUID } from 'node:crypto';
-import { AppError } from '../../../../../shared/errors';
+import { AppError } from 'src/shared/errors';
+import { OutboxService } from 'src/shared/outbox/outbox.service';
+import { TransactionRunner } from 'src/shared/prisma/transaction-runner';
+import { PrismaTx } from 'src/shared/prisma/types';
 
 describe('CreateParkingSpotCommandHandler', () => {
   let handler: CreateParkingSpotCommandHandler;
@@ -35,6 +38,28 @@ describe('CreateParkingSpotCommandHandler', () => {
           provide: EventPublisher,
           useValue: {
             mergeObjectContext: jest.fn(<T>(obj: T): T => obj),
+          },
+        },
+        {
+          provide: OutboxService,
+          useValue: {
+            enqueue: jest.fn(),
+          },
+        },
+        {
+          provide: TransactionRunner,
+          useValue: {
+            runInTransaction: jest.fn(
+              (cb: (tx: PrismaTx) => Promise<unknown>) =>
+                cb({
+                  parkingSpotRead: {
+                    findMany: jest.fn().mockResolvedValue([]),
+                  },
+                  parkingFeatureRead: {
+                    findMany: jest.fn().mockResolvedValue([]),
+                  },
+                } as unknown as PrismaTx),
+            ),
           },
         },
       ],
@@ -73,7 +98,7 @@ describe('CreateParkingSpotCommandHandler', () => {
     expect(publisher.mergeObjectContext).toHaveBeenCalled();
     expect(parkingSpotRepository.save).toHaveBeenCalledWith(
       expect.any(ParkingSpot),
-      { isNew: true },
+      { isNew: true, tx: expect.anything() as PrismaTx },
     );
   });
 
