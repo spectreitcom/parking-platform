@@ -42,6 +42,7 @@ export class UpdateParkingSpotCommandHandler implements ICommandHandler<
 
       const parking = await this.parkingRepository.findById(
         parkingSpot.getParkingId().value,
+        prisma,
       );
 
       if (!parking) {
@@ -93,12 +94,12 @@ export class UpdateParkingSpotCommandHandler implements ICommandHandler<
         for (const featureId of parking
           .getParkingFeatureIds()
           .map((featureId) => featureId.value)) {
-          featureIdsSet.delete(featureId);
+          featureIdsSet.add(featureId);
         }
 
         for (const parkingSpotRecord of parkingSpotRecords) {
           for (const featureId of parkingSpotRecord.parkingSpotFeatureIds) {
-            featureIdsSet.delete(featureId);
+            featureIdsSet.add(featureId);
           }
         }
 

@@ -504,7 +504,7 @@ model Search {
   distance                 Float    @default(0)
 
   @@index([placeId])
-  @@index([featureIds])
+  @@index([featureIds(ops: ArrayOps)], type: Gin)
 }
 
 // -----------------------------
