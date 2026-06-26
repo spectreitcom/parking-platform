@@ -485,3 +485,26 @@ model Asset {
 }
 
 // -----------------------------
+
+// Search Bounded Context
+
+model Search {
+  id                       String   @id @default(uuid()) @db.Uuid
+  parkingId                String   @unique @db.Uuid
+  name                     String   @db.VarChar(255)
+  longitude                Decimal  @db.Decimal(10, 7)
+  latitude                 Decimal  @db.Decimal(10, 7)
+  placeId                  String   @db.Uuid
+  active                   Boolean  @default(false)
+  hasAvailableParkingSpots Boolean  @default(false)
+  assetIds                 String[] @default([]) @db.Uuid
+  featureIds               String[] @default([]) @db.Uuid
+  features                 Json
+  order                    Int      @default(0)
+  distance                 Float    @default(0)
+
+  @@index([placeId])
+  @@index([featureIds])
+}
+
+// -----------------------------

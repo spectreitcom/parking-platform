@@ -56,7 +56,7 @@ export class ParkingCreatedEventHandler implements IEventHandler<ParkingCreatedE
         placeRecord.longitude.toNumber(),
         event.latitude,
         event.longitude,
-      ) as number;
+      );
     }
 
     await this.prismaService.parkingListForAdminRead.upsert({
