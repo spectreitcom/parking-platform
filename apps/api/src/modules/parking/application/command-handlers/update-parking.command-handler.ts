@@ -118,7 +118,7 @@ export class UpdateParkingCommandHandler implements ICommandHandler<
 
     const placeReadRecord = await prisma.placeRead.findUnique({
       where: {
-        id: parking.getPlaceId().value,
+        placeId: parking.getPlaceId().value,
       },
     });
 
@@ -139,7 +139,7 @@ export class UpdateParkingCommandHandler implements ICommandHandler<
     prisma: PrismaTx,
   ): Promise<{ name: string }[]> {
     const featureReadRecord = await prisma.parkingFeatureRead.findMany({
-      where: { id: { in: Array.from(featureIdsSet) } },
+      where: { parkingFeatureId: { in: Array.from(featureIdsSet) } },
     });
 
     return featureReadRecord.map((feature) => ({

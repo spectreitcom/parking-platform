@@ -104,7 +104,7 @@ export class UpdateParkingSpotCommandHandler implements ICommandHandler<
 
         const featureRecords = await prisma.parkingFeatureRead.findMany({
           where: {
-            id: { in: Array.from(featureIdsSet) },
+            parkingFeatureId: { in: Array.from(featureIdsSet) },
           },
         });
 
