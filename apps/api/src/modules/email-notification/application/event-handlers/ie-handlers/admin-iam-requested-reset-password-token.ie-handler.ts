@@ -36,7 +36,7 @@ export class AdminIamRequestedResetPasswordTokenIeHandler implements IEventHandl
 
     const { email, adminUserId } = event.payload;
 
-    const appUrl = this.configService.getOrThrow<string>('MANAGER_APP_URL');
+    const appUrl = this.configService.getOrThrow<string>('ADMIN_APP_URL');
 
     const resetPasswordToken =
       await this.adminIamFacade.generateResetPasswordToken(adminUserId);

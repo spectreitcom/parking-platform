@@ -1,5 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { Prisma, OutboxStatus } from '@prisma/client';
+import { Prisma, OutboxStatus, OutboxMessage } from '@prisma/client';
 import { EventBus } from '@nestjs/cqrs';
 import { createHash } from 'node:crypto';
 import { PrismaService } from '../prisma/prisma.service';
@@ -128,44 +128,23 @@ export class OutboxService {
     const staleCutoff = new Date(now.getTime() - LEASE_DURATION_MS);
 
     const messages = await this.prisma.$transaction(async (tx) => {
-      const candidates = await tx.outboxMessage.findMany({
-        where: {
-          OR: [
-            {
-              status: {
-                in: [OutboxStatus.PENDING, OutboxStatus.FAILED],
-              },
-            },
-            {
-              status: OutboxStatus.PROCESSING,
-              updatedAt: { lte: staleCutoff },
-            },
-          ],
-          AND: [
-            {
-              OR: [{ nextRetryAt: null }, { nextRetryAt: { lte: now } }],
-            },
-          ],
-        },
-        orderBy: { createdAt: 'asc' },
-        take: batch,
-      });
-
-      if (candidates.length === 0) {
-        return [];
-      }
-
-      const ids = candidates.map((m) => m.id);
-
-      await tx.outboxMessage.updateMany({
-        where: { id: { in: ids } },
-        data: {
-          status: OutboxStatus.PROCESSING,
-          updatedAt: now,
-        },
-      });
-
-      return candidates;
+      return tx.$queryRaw<OutboxMessage[]>(Prisma.sql`
+        UPDATE "OutboxMessage"
+        SET "status" = ${OutboxStatus.PROCESSING}::"OutboxStatus", "updatedAt" = ${now}
+        WHERE "id" IN (
+          SELECT "id"
+          FROM "OutboxMessage"
+          WHERE (
+            ("status" IN (${OutboxStatus.PENDING}::"OutboxStatus", ${OutboxStatus.FAILED}::"OutboxStatus")) OR
+            ("status" = ${OutboxStatus.PROCESSING}::"OutboxStatus" AND "updatedAt" <= ${staleCutoff})
+          )
+          AND ("nextRetryAt" IS NULL OR "nextRetryAt" <= ${now})
+          ORDER BY "createdAt" ASC
+          LIMIT ${batch}
+          FOR UPDATE SKIP LOCKED
+        )
+        RETURNING *
+      `);
     });
 
     if (messages.length > 0) {

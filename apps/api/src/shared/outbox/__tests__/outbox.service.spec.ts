@@ -18,6 +18,7 @@ describe('OutboxService', () => {
         }
         return cb;
       }),
+      $queryRaw: jest.fn(),
       outboxMessage: {
         findMany: jest.fn(),
         updateMany: jest.fn(),
@@ -58,24 +59,14 @@ describe('OutboxService', () => {
           headers: {},
         } as any,
       ];
-      (prisma.outboxMessage.findMany as jest.Mock).mockResolvedValue(
-        mockMessages,
-      );
+      (prisma.$queryRaw as jest.Mock).mockResolvedValue(mockMessages);
       (prisma.outboxMessage.updateMany as jest.Mock).mockResolvedValue({
         count: 1,
       });
 
       await service.emitPending();
 
-      expect(prisma.outboxMessage.findMany).toHaveBeenCalled();
-      expect(prisma.outboxMessage.updateMany).toHaveBeenCalledWith(
-        expect.objectContaining({
-          where: { id: { in: ['1'] } },
-          data: expect.objectContaining({
-            status: OutboxStatus.PROCESSING,
-          }),
-        }),
-      );
+      expect(prisma.$queryRaw).toHaveBeenCalled();
       expect(eventBus.publish).toHaveBeenCalled();
       expect(prisma.outboxMessage.updateMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -88,11 +79,11 @@ describe('OutboxService', () => {
     });
 
     it('should not emit if no messages found', async () => {
-      (prisma.outboxMessage.findMany as jest.Mock).mockResolvedValue([]);
+      (prisma.$queryRaw as jest.Mock).mockResolvedValue([]);
 
       await service.emitPending();
 
-      expect(prisma.outboxMessage.findMany).toHaveBeenCalled();
+      expect(prisma.$queryRaw).toHaveBeenCalled();
       expect(prisma.outboxMessage.updateMany).not.toHaveBeenCalled();
       expect(eventBus.publish).not.toHaveBeenCalled();
     });
