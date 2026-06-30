@@ -508,3 +508,13 @@ model Search {
 }
 
 // -----------------------------
+
+// Availability Bounded Context
+
+model Availability {
+  id            String  @id @default(uuid()) @db.Uuid
+  parkingSpotId String  @db.Uuid
+  available     Boolean
+}
+
+// -----------------------------
