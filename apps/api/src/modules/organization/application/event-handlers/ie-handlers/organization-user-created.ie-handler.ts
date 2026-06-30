@@ -6,7 +6,6 @@ import {
   OrganizationUserIamCreatedV1Payload,
   OrganizationUserIamIntegrationEventTypes,
 } from '@repo/api-contracts';
-import { OutboxService } from 'src/shared/outbox/outbox.service';
 
 type Event = IntegrationEvent<
   OrganizationUserIamCreatedV1Payload,
@@ -17,10 +16,7 @@ type Event = IntegrationEvent<
 export class OrganizationUserCreatedIeHandler implements IEventHandler<Event> {
   private readonly logger = new Logger(OrganizationUserCreatedIeHandler.name);
 
-  constructor(
-    private readonly prismaService: PrismaService,
-    private readonly outboxService: OutboxService,
-  ) {}
+  constructor(private readonly prismaService: PrismaService) {}
 
   async handle(event: Event) {
     if (event.type !== 'organization-user-iam.organization-user.created.v1')
@@ -30,38 +26,22 @@ export class OrganizationUserCreatedIeHandler implements IEventHandler<Event> {
       `Handling OrganizationUserCreated event: ${event.payload.organizationUserId}`,
     );
 
-    const outboxId = event.headers?.outboxId;
+    const { organizationUserId, email, displayName } = event.payload;
 
-    try {
-      const { organizationUserId, email, displayName } = event.payload;
-
-      await this.prismaService.organizationOrganizationUser.upsert({
-        where: {
-          organizationUserId,
-        },
-        create: {
-          organizationUserId,
-          email,
-          displayName,
-        },
-        update: {
-          organizationUserId,
-          email,
-          displayName,
-        },
-      });
-
-      if (outboxId) {
-        await this.outboxService.ack(outboxId);
-      }
-    } catch (error) {
-      if (outboxId) {
-        await this.outboxService.nack(outboxId, {
-          requeue: true,
-          reason: error instanceof Error ? error.message : String(error),
-        });
-      }
-      throw error;
-    }
+    await this.prismaService.organizationOrganizationUser.upsert({
+      where: {
+        organizationUserId,
+      },
+      create: {
+        organizationUserId,
+        email,
+        displayName,
+      },
+      update: {
+        organizationUserId,
+        email,
+        displayName,
+      },
+    });
   }
 }

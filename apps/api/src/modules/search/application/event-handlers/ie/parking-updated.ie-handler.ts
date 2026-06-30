@@ -6,7 +6,6 @@ import {
 } from '@repo/api-contracts';
 import { PrismaService } from 'src/shared/prisma/prisma.service';
 import { Logger } from '@nestjs/common';
-import { OutboxService } from 'src/shared/outbox/outbox.service';
 
 type Event = IntegrationEvent<
   ParkingUpdatedV1Payload,
@@ -17,10 +16,7 @@ type Event = IntegrationEvent<
 export class ParkingUpdatedIeHandler implements IEventHandler<Event> {
   private readonly logger = new Logger(ParkingUpdatedIeHandler.name);
 
-  constructor(
-    private readonly prismaService: PrismaService,
-    private readonly outboxService: OutboxService,
-  ) {}
+  constructor(private readonly prismaService: PrismaService) {}
 
   async handle(event: Event) {
     if (event.type !== 'parking.parking.updated.v1') return;
@@ -29,10 +25,33 @@ export class ParkingUpdatedIeHandler implements IEventHandler<Event> {
       `Received parking updated event: ${JSON.stringify(event)}`,
     );
 
-    const outboxId = event.headers?.outboxId;
+    const {
+      parkingId,
+      name,
+      distance,
+      active,
+      placeId,
+      longitude,
+      latitude,
+      assetIds,
+      featureIds,
+      features,
+    } = event.payload;
 
-    try {
-      const {
+    await this.prismaService.search.upsert({
+      where: { parkingId },
+      update: {
+        name,
+        distance,
+        active,
+        placeId,
+        longitude,
+        latitude,
+        assetIds,
+        features,
+        featureIds,
+      },
+      create: {
         parkingId,
         name,
         distance,
@@ -41,44 +60,9 @@ export class ParkingUpdatedIeHandler implements IEventHandler<Event> {
         longitude,
         latitude,
         assetIds,
-        featureIds,
         features,
-      } = event.payload;
-
-      await this.prismaService.search.upsert({
-        where: { parkingId },
-        update: {
-          name,
-          distance,
-          active,
-          placeId,
-          longitude,
-          latitude,
-          assetIds,
-          features,
-          featureIds,
-        },
-        create: {
-          parkingId,
-          name,
-          distance,
-          active,
-          placeId,
-          longitude,
-          latitude,
-          assetIds,
-          features,
-          featureIds,
-        },
-      });
-    } catch (error) {
-      if (outboxId) {
-        await this.outboxService.nack(outboxId, {
-          requeue: true,
-          reason: error instanceof Error ? error.message : String(error),
-        });
-      }
-      throw error;
-    }
+        featureIds,
+      },
+    });
   }
 }

@@ -4,7 +4,6 @@ import { Logger } from '@nestjs/common';
 import { EmailService } from 'src/modules/email-notification/application/ports/email.service';
 import { ResetPasswordEmail } from 'src/modules/email-notification/application/email/reset-password.email';
 import { UserIamFacade } from 'src/modules/user-iam/application/user-iam.facade';
-import { OutboxService } from 'src/shared/outbox/outbox.service';
 import {
   UserIamIntegrationEventTypes,
   UserIamRequestedResetPasswordV1Payload,
@@ -25,7 +24,6 @@ export class UserIamRequestedResetPasswordTokenIeHandler implements IEventHandle
   constructor(
     private readonly emailService: EmailService,
     private readonly userIamFacade: UserIamFacade,
-    private readonly outboxService: OutboxService,
     private readonly configService: ConfigService,
   ) {}
 
@@ -33,33 +31,15 @@ export class UserIamRequestedResetPasswordTokenIeHandler implements IEventHandle
     if (event.type !== 'user-iam.user.requested-reset-password.v1') return;
     this.logger.log('Handling user-iam.user.requested-reset-password.v1 event');
 
-    const outboxId = event.headers?.outboxId;
-    let emailSent = false;
+    const { email, userId } = event.payload;
 
-    try {
-      const { email, userId } = event.payload;
+    const appUrl = this.configService.getOrThrow<string>('USER_APP_URL');
 
-      const appUrl = this.configService.getOrThrow<string>('USER_APP_URL');
+    const resetPasswordToken =
+      await this.userIamFacade.generateResetPasswordToken(userId);
 
-      const resetPasswordToken =
-        await this.userIamFacade.generateResetPasswordToken(userId);
-
-      await this.emailService.send(
-        new ResetPasswordEmail(email, resetPasswordToken, appUrl),
-      );
-      emailSent = true;
-
-      if (outboxId) {
-        await this.outboxService.ack(outboxId);
-      }
-    } catch (error) {
-      if (outboxId && !emailSent) {
-        await this.outboxService.nack(outboxId, {
-          requeue: true,
-          reason: error instanceof Error ? error.message : String(error),
-        });
-      }
-      throw error;
-    }
+    await this.emailService.send(
+      new ResetPasswordEmail(email, resetPasswordToken, appUrl),
+    );
   }
 }

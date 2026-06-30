@@ -6,7 +6,6 @@ import {
 } from '@repo/api-contracts';
 import { PrismaService } from 'src/shared/prisma/prisma.service';
 import { Logger } from '@nestjs/common';
-import { OutboxService } from 'src/shared/outbox/outbox.service';
 
 type Event = IntegrationEvent<
   ParkingCreatedV1Payload,
@@ -17,10 +16,7 @@ type Event = IntegrationEvent<
 export class ParkingCreatedIeHandler implements IEventHandler<Event> {
   private readonly logger = new Logger(ParkingCreatedIeHandler.name);
 
-  constructor(
-    private readonly prismaService: PrismaService,
-    private readonly outboxService: OutboxService,
-  ) {}
+  constructor(private readonly prismaService: PrismaService) {}
 
   async handle(event: Event) {
     if (event.type !== 'parking.parking.created.v1') return;
@@ -29,10 +25,12 @@ export class ParkingCreatedIeHandler implements IEventHandler<Event> {
       `Received parking created event: ${JSON.stringify(event)}`,
     );
 
-    const outboxId = event.headers?.outboxId;
+    const { parkingId, name, distance, active, placeId, longitude, latitude } =
+      event.payload;
 
-    try {
-      const {
+    await this.prismaService.search.upsert({
+      where: { parkingId },
+      update: {
         parkingId,
         name,
         distance,
@@ -40,40 +38,19 @@ export class ParkingCreatedIeHandler implements IEventHandler<Event> {
         placeId,
         longitude,
         latitude,
-      } = event.payload;
-
-      await this.prismaService.search.upsert({
-        where: { parkingId },
-        update: {
-          parkingId,
-          name,
-          distance,
-          active,
-          placeId,
-          longitude,
-          latitude,
-        },
-        create: {
-          parkingId,
-          name,
-          distance,
-          active,
-          placeId,
-          longitude,
-          latitude,
-          assetIds: [],
-          features: [],
-          featureIds: [],
-        },
-      });
-    } catch (error) {
-      if (outboxId) {
-        await this.outboxService.nack(outboxId, {
-          requeue: true,
-          reason: error instanceof Error ? error.message : String(error),
-        });
-      }
-      throw error;
-    }
+      },
+      create: {
+        parkingId,
+        name,
+        distance,
+        active,
+        placeId,
+        longitude,
+        latitude,
+        assetIds: [],
+        features: [],
+        featureIds: [],
+      },
+    });
   }
 }

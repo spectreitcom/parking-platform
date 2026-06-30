@@ -4,7 +4,6 @@ import { Logger } from '@nestjs/common';
 import { EmailService } from 'src/modules/email-notification/application/ports/email.service';
 import { ResetPasswordEmail } from 'src/modules/email-notification/application/email/reset-password.email';
 import { OrganizationUserIamFacade } from 'src/modules/organization-user-iam/application/organization-user-iam.facade';
-import { OutboxService } from 'src/shared/outbox/outbox.service';
 import {
   OrganizationUserIamIntegrationEventTypes,
   OrganizationUserIamRequestedResetPasswordV1Payload,
@@ -25,7 +24,6 @@ export class OrganizationUserIamRequestedResetPasswordTokenIeHandler implements 
   constructor(
     private readonly emailService: EmailService,
     private readonly organizationUserIamFacade: OrganizationUserIamFacade,
-    private readonly outboxService: OutboxService,
     private readonly configService: ConfigService,
   ) {}
 
@@ -39,35 +37,17 @@ export class OrganizationUserIamRequestedResetPasswordTokenIeHandler implements 
       'Handling organization-user-iam.organization-user.requested-reset-password.v1 event',
     );
 
-    const outboxId = event.headers?.outboxId;
-    let emailSent = false;
+    const { email, organizationUserId } = event.payload;
 
-    try {
-      const { email, organizationUserId } = event.payload;
+    const appUrl = this.configService.getOrThrow<string>('MANAGER_APP_URL');
 
-      const appUrl = this.configService.getOrThrow<string>('MANAGER_APP_URL');
-
-      const resetPasswordToken =
-        await this.organizationUserIamFacade.generateResetPasswordToken(
-          organizationUserId,
-        );
-
-      await this.emailService.send(
-        new ResetPasswordEmail(email, resetPasswordToken, appUrl),
+    const resetPasswordToken =
+      await this.organizationUserIamFacade.generateResetPasswordToken(
+        organizationUserId,
       );
-      emailSent = true;
 
-      if (outboxId) {
-        await this.outboxService.ack(outboxId);
-      }
-    } catch (error) {
-      if (outboxId && !emailSent) {
-        await this.outboxService.nack(outboxId, {
-          requeue: true,
-          reason: error instanceof Error ? error.message : String(error),
-        });
-      }
-      throw error;
-    }
+    await this.emailService.send(
+      new ResetPasswordEmail(email, resetPasswordToken, appUrl),
+    );
   }
 }

@@ -6,7 +6,6 @@ import {
 } from '@repo/api-contracts';
 import { PrismaService } from 'src/shared/prisma/prisma.service';
 import { Logger } from '@nestjs/common';
-import { OutboxService } from 'src/shared/outbox/outbox.service';
 
 type Event = IntegrationEvent<
   ParkingSpotUpdatedV1Payload,
@@ -17,10 +16,7 @@ type Event = IntegrationEvent<
 export class ParkingSpotUpdatedIeHandler implements IEventHandler<Event> {
   private readonly logger = new Logger(ParkingSpotUpdatedIeHandler.name);
 
-  constructor(
-    private readonly prismaService: PrismaService,
-    private readonly outboxService: OutboxService,
-  ) {}
+  constructor(private readonly prismaService: PrismaService) {}
 
   async handle(event: Event) {
     if (event.type !== 'parking.parking-spot.updated.v1') return;
@@ -29,26 +25,14 @@ export class ParkingSpotUpdatedIeHandler implements IEventHandler<Event> {
       `Received parking spot updated event: ${JSON.stringify(event)}`,
     );
 
-    const outboxId = event.headers?.outboxId;
+    const { parkingId, featureIds, features } = event.payload;
 
-    try {
-      const { parkingId, featureIds, features } = event.payload;
-
-      await this.prismaService.search.update({
-        where: { parkingId },
-        data: {
-          featureIds,
-          features,
-        },
-      });
-    } catch (error) {
-      if (outboxId) {
-        await this.outboxService.nack(outboxId, {
-          requeue: true,
-          reason: error instanceof Error ? error.message : String(error),
-        });
-      }
-      throw error;
-    }
+    await this.prismaService.search.update({
+      where: { parkingId },
+      data: {
+        featureIds,
+        features,
+      },
+    });
   }
 }
