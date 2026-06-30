@@ -11,9 +11,7 @@ export class OutboxScheduler {
   @Cron(CronExpression.EVERY_5_SECONDS)
   async handleEmit() {
     try {
-      await this.outboxService.emitPending({
-        manualAck: true,
-      });
+      await this.outboxService.emitPending();
     } catch (err) {
       this.logger.error(
         `Error in outbox emit cron: ${(err as Error).message}`,

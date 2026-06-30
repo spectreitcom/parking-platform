@@ -9,7 +9,7 @@ import { PrismaTx } from '../prisma/types';
 const DEFAULT_BATCH = 50;
 const MAX_BATCH_SIZE = 500;
 const MAX_RETRIES = 5;
-const LEASE_DURATION_MS = 5 * 60 * 1000; // 5 minutes
+const LEASE_DURATION_MS = 5 * 60 * 1000;
 
 @Injectable()
 export class OutboxService {
@@ -127,28 +127,46 @@ export class OutboxService {
     const now = new Date();
     const staleCutoff = new Date(now.getTime() - LEASE_DURATION_MS);
 
-    const messages = await this.prisma.$queryRaw<
-      Prisma.OutboxMessageGetPayload<Record<string, never>>[]
-    >(
-      Prisma.sql`
-        UPDATE "OutboxMessage"
-        SET status = ${OutboxStatus.PROCESSING}::"OutboxStatus",
-            "updatedAt" = ${now}
-        WHERE id IN (
-          SELECT id
-          FROM "OutboxMessage"
-          WHERE (
-            status IN (${OutboxStatus.PENDING}::"OutboxStatus", ${OutboxStatus.FAILED}::"OutboxStatus")
-            OR (status = ${OutboxStatus.PROCESSING}::"OutboxStatus" AND "updatedAt" <= ${staleCutoff})
-          )
-            AND ("nextRetryAt" IS NULL OR "nextRetryAt" <= ${now})
-          ORDER BY "createdAt" ASC
-          LIMIT ${batch}
-          FOR UPDATE SKIP LOCKED
-        )
-        RETURNING *;
-      `,
-    );
+    const messages = await this.prisma.$transaction(async (tx) => {
+      const candidates = await tx.outboxMessage.findMany({
+        where: {
+          OR: [
+            {
+              status: {
+                in: [OutboxStatus.PENDING, OutboxStatus.FAILED],
+              },
+            },
+            {
+              status: OutboxStatus.PROCESSING,
+              updatedAt: { lte: staleCutoff },
+            },
+          ],
+          AND: [
+            {
+              OR: [{ nextRetryAt: null }, { nextRetryAt: { lte: now } }],
+            },
+          ],
+        },
+        orderBy: { createdAt: 'asc' },
+        take: batch,
+      });
+
+      if (candidates.length === 0) {
+        return [];
+      }
+
+      const ids = candidates.map((m) => m.id);
+
+      await tx.outboxMessage.updateMany({
+        where: { id: { in: ids } },
+        data: {
+          status: OutboxStatus.PROCESSING,
+          updatedAt: now,
+        },
+      });
+
+      return candidates;
+    });
 
     if (messages.length > 0) {
       this.logger.debug(
@@ -172,9 +190,14 @@ export class OutboxService {
 
         await this.eventBus.publish(event);
 
-        if (!options.manualAck) {
-          await this.ack(msg.id);
-        }
+        await this.prisma.outboxMessage.updateMany({
+          where: { id: msg.id, status: OutboxStatus.PROCESSING },
+          data: {
+            status: OutboxStatus.SENT,
+            processedAt: new Date(),
+            nextRetryAt: null,
+          },
+        });
       } catch (error) {
         const err = error as Error;
         this.logger.error(
@@ -222,75 +245,7 @@ export class OutboxService {
   }
 
   private calculateBackoff(attempt: number): Date {
-    // prosty exponential backoff: 2^attempt minut (max 60 min)
     const minutes = Math.min(60, Math.pow(2, attempt));
     return new Date(Date.now() + minutes * 60 * 1000);
-  }
-
-  async ack(id: string, tx?: PrismaTx): Promise<void> {
-    const prisma = tx ?? this.prisma;
-    const res = await prisma.outboxMessage.updateMany({
-      where: { id, status: OutboxStatus.PROCESSING },
-      data: {
-        status: OutboxStatus.SENT,
-        processedAt: new Date(),
-        nextRetryAt: null,
-      },
-    });
-
-    if (res.count === 0) {
-      this.logger.warn(
-        `Ack for message ${id} failed: zero rows updated (likely not in PROCESSING state).`,
-      );
-    }
-  }
-
-  async nack(
-    id: string,
-    options: { requeue: boolean; reason?: string },
-    tx?: PrismaTx,
-  ): Promise<void> {
-    const prisma = tx ?? this.prisma;
-
-    const res = await prisma.outboxMessage.updateMany({
-      where: { id, status: OutboxStatus.PROCESSING },
-      data: {
-        attemptCount: { increment: 1 },
-      },
-    });
-
-    if (res.count === 0) {
-      this.logger.warn(
-        `Nack for message ${id} failed: zero rows updated (likely not in PROCESSING state).`,
-      );
-      return;
-    }
-
-    const msg = await prisma.outboxMessage.findUnique({ where: { id } });
-    if (!msg) return;
-
-    const newAttempt = msg.attemptCount;
-
-    if (options.requeue && newAttempt < MAX_RETRIES) {
-      const next = this.calculateBackoff(newAttempt - 1);
-      await prisma.outboxMessage.updateMany({
-        where: { id, status: OutboxStatus.PROCESSING },
-        data: {
-          status: OutboxStatus.FAILED,
-          nextRetryAt: next,
-        },
-      });
-    } else {
-      this.logger.warn(
-        `Message ${msg.id} nacked without requeue or reached max retries (${MAX_RETRIES}). Moving to DEAD_LETTER.`,
-      );
-      await prisma.outboxMessage.updateMany({
-        where: { id, status: OutboxStatus.PROCESSING },
-        data: {
-          status: OutboxStatus.DEAD_LETTER,
-          nextRetryAt: null,
-        },
-      });
-    }
   }
 }

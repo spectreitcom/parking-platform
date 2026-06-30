@@ -1,14 +1,11 @@
 import { IEvent } from '@nestjs/cqrs';
 
-// export type IntegrationEventType = string;
-
 export type IntegrationEventHeaders = {
   outboxId?: string;
   traceId?: string;
   correlationId?: string;
   userId?: string;
   idempotencyKey?: string;
-  // miejsce na dodatkowe meta
   [key: string]: unknown;
 };
 
@@ -34,6 +31,4 @@ export type EnqueueOptions = {
 export type EmitOptions = {
   // Maksymalna liczba wiadomości do obsłużenia w jednym przebiegu
   maxBatchSize?: number;
-  // Jeśli true, nie oznacza wiadomości jako SENT po publikacji - oczekuje na jawny ack()
-  manualAck?: boolean;
 };
