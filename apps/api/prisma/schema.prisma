@@ -513,7 +513,7 @@ model Search {
 
 model Availability {
   id            String  @id @default(uuid()) @db.Uuid
-  parkingSpotId String  @db.Uuid
+  parkingSpotId String  @unique @db.Uuid
   available     Boolean
 }
 

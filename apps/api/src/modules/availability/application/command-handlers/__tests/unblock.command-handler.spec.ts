@@ -15,9 +15,7 @@ describe('UnblockCommandHandler', () => {
           provide: PrismaService,
           useValue: {
             availability: {
-              findFirst: jest.fn(),
-              update: jest.fn(),
-              create: jest.fn(),
+              upsert: jest.fn(),
             },
           },
         },
@@ -28,34 +26,18 @@ describe('UnblockCommandHandler', () => {
     prismaService = module.get<PrismaService>(PrismaService);
   });
 
-  it('should update availability to true if record exists', async () => {
+  it('should upsert availability to true', async () => {
     const parkingSpotId = 'some-uuid';
-    const existingRecord = { id: '1', parkingSpotId, available: false };
-    jest
-      .spyOn(prismaService.availability, 'findFirst')
-      .mockResolvedValue(existingRecord);
 
     await handler.execute(new UnblockCommand(parkingSpotId));
 
-    expect(prismaService.availability.update).toHaveBeenCalledWith({
-      where: { id: existingRecord.id },
-      data: { available: true },
-    });
-    expect(prismaService.availability.create).not.toHaveBeenCalled();
-  });
-
-  it('should create availability as true if record does not exist', async () => {
-    const parkingSpotId = 'some-uuid';
-    jest.spyOn(prismaService.availability, 'findFirst').mockResolvedValue(null);
-
-    await handler.execute(new UnblockCommand(parkingSpotId));
-
-    expect(prismaService.availability.create).toHaveBeenCalledWith({
-      data: {
+    expect(prismaService.availability.upsert).toHaveBeenCalledWith({
+      where: { parkingSpotId },
+      update: { available: true },
+      create: {
         parkingSpotId,
         available: true,
       },
     });
-    expect(prismaService.availability.update).not.toHaveBeenCalled();
   });
 });

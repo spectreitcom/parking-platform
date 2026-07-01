@@ -10,7 +10,7 @@ export class IsAvailableQueryHandler implements IQueryHandler<
   constructor(private readonly prisma: PrismaService) {}
 
   async execute(query: IsAvailableQuery): Promise<boolean> {
-    const availability = await this.prisma.availability.findFirst({
+    const availability = await this.prisma.availability.findUnique({
       where: {
         parkingSpotId: query.parkingSpotId,
       },

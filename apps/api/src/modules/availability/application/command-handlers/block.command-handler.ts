@@ -12,22 +12,13 @@ export class BlockCommandHandler implements ICommandHandler<
   async execute(command: BlockCommand): Promise<void> {
     const { parkingSpotId } = command;
 
-    const availability = await this.prisma.availability.findFirst({
+    await this.prisma.availability.upsert({
       where: { parkingSpotId },
+      update: { available: false },
+      create: {
+        parkingSpotId,
+        available: false,
+      },
     });
-
-    if (availability) {
-      await this.prisma.availability.update({
-        where: { id: availability.id },
-        data: { available: false },
-      });
-    } else {
-      await this.prisma.availability.create({
-        data: {
-          parkingSpotId,
-          available: false,
-        },
-      });
-    }
   }
 }
