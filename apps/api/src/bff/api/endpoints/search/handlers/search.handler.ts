@@ -39,27 +39,25 @@ export class SearchHandler implements IControllerHandler {
       (queryParams.departure - queryParams.arrival) / (1000 * 60 * 60 * 24),
     );
 
-    const result: SearchResponseDto[] = [];
+    return await Promise.all(
+      parkingRecords.map(async (parkingRecord) => {
+        const parkingSpotPrice =
+          await this.parkingFacade.calculatePriceForParking(
+            parkingRecord.parkingId,
+            days,
+          );
 
-    for (const parkingRecord of parkingRecords) {
-      const parkingSpotPrice =
-        await this.parkingFacade.calculatePriceForParking(
-          parkingRecord.parkingId,
-          days,
-        );
-
-      result.push({
-        parkingId: parkingRecord.parkingId,
-        parkingSpotId: parkingSpotPrice?.parkingSpotId ?? null,
-        parkingName: parkingRecord.name,
-        assetIds: parkingRecord.assetIds,
-        features: parkingRecord.features,
-        distance: parkingRecord.distance,
-        totalPrice: parkingSpotPrice?.totalPrice ?? null,
-        totalPricePLN: parkingSpotPrice?.totalPricePLN ?? null,
-      });
-    }
-
-    return result;
+        return {
+          parkingId: parkingRecord.parkingId,
+          parkingSpotId: parkingSpotPrice?.parkingSpotId ?? null,
+          parkingName: parkingRecord.name,
+          assetIds: parkingRecord.assetIds,
+          features: parkingRecord.features,
+          distance: parkingRecord.distance,
+          totalPrice: parkingSpotPrice?.totalPrice ?? null,
+          totalPricePLN: parkingSpotPrice?.totalPricePLN ?? null,
+        };
+      }),
+    );
   }
 }
