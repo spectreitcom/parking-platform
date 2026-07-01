@@ -23,6 +23,8 @@ import { GetCartHandler } from './endpoints/carts/handlers/get-cart.handler';
 import { CreateCartHandler } from './endpoints/carts/handlers/create-cart.handler';
 import { UpdateCartHandler } from './endpoints/carts/handlers/update-cart.handler';
 import { SearchModule } from 'src/modules/search/application/search.module';
+import { SearchController } from './endpoints/search/search.controller';
+import { SearchHandler } from './endpoints/search/handlers/search.handler';
 
 @Module({
   imports: [
@@ -33,7 +35,12 @@ import { SearchModule } from 'src/modules/search/application/search.module';
     CartModule,
     SearchModule,
   ],
-  controllers: [AuthController, ReservationsController, CartsController],
+  controllers: [
+    AuthController,
+    ReservationsController,
+    CartsController,
+    SearchController,
+  ],
   providers: [
     RegisterUserHandler,
     SignInHandler,
@@ -50,6 +57,7 @@ import { SearchModule } from 'src/modules/search/application/search.module';
     GetCartHandler,
     CreateCartHandler,
     UpdateCartHandler,
+    SearchHandler,
   ],
 })
 export class ApiModule {}

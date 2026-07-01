@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { IsAvailableQuery } from './queries/is-available.query';
+import { AreAvailableQuery } from './queries/are-available.query';
 import { BlockCommand } from './commands/block.command';
 import { UnblockCommand } from './commands/unblock.command';
 
@@ -21,5 +22,11 @@ export class AvailabilityFacade {
 
   async unblock(parkingSpotId: string): Promise<void> {
     return this.commandBus.execute(new UnblockCommand(parkingSpotId));
+  }
+
+  async areAvailable(
+    parkingSpotIds: string[],
+  ): Promise<{ parkingSpotId: string; available: boolean }[]> {
+    return this.queryBus.execute(new AreAvailableQuery(parkingSpotIds));
   }
 }

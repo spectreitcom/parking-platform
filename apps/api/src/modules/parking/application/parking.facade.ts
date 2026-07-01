@@ -58,6 +58,8 @@ import { GetParkingsByOrganizationAndOrganizationUserForManagerQuery } from './q
 import { GetParkingsByOrganizationAndOrganizationUserForManagerTotalQuery } from './queries/get-parkings-by-organization-and-organization-user-for-manager-total.query';
 import { ParkingForManagerItemReadModel } from './query-handlers/read-models/parking-for-manager-item.read-model';
 import { ParkingSpotReadReadModel } from './query-handlers/read-models/parking-spot-read.read-model';
+import { CalculatePriceForParkingQuery } from './queries/calculate-price-for-parking.query';
+import { CalculatePriceForParkingQueryResult } from 'src/modules/parking/application/query-handlers/calculate-price-for-parking.query-handler';
 
 @Injectable()
 export class ParkingFacade {
@@ -568,6 +570,14 @@ export class ParkingFacade {
     return await this.queryBus.execute<
       GetParkingSpotsByParkingIdTotalQuery,
       number
+    >(query);
+  }
+
+  async calculatePriceForParking(parkingId: string, days: number) {
+    const query = new CalculatePriceForParkingQuery(parkingId, days);
+    return await this.queryBus.execute<
+      CalculatePriceForParkingQuery,
+      CalculatePriceForParkingQueryResult | null
     >(query);
   }
 }
