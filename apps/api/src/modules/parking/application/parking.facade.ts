@@ -60,6 +60,8 @@ import { ParkingForManagerItemReadModel } from './query-handlers/read-models/par
 import { ParkingSpotReadReadModel } from './query-handlers/read-models/parking-spot-read.read-model';
 import { CalculatePriceForParkingQuery } from './queries/calculate-price-for-parking.query';
 import { CalculatePriceForParkingQueryResult } from 'src/modules/parking/application/query-handlers/calculate-price-for-parking.query-handler';
+import { GetPlacesQuery } from './queries/get-places.query';
+import { GetPlacesTotalQuery } from './queries/get-places-total.query';
 
 @Injectable()
 export class ParkingFacade {
@@ -579,5 +581,22 @@ export class ParkingFacade {
       CalculatePriceForParkingQuery,
       CalculatePriceForParkingQueryResult | null
     >(query);
+  }
+
+  async getPlaces(
+    page: number,
+    limit: number,
+    placeTypeId: string,
+    search?: string,
+  ) {
+    const query = new GetPlacesQuery(placeTypeId, page, limit, search);
+    return await this.queryBus.execute<GetPlacesQuery, PlaceReadReadModel[]>(
+      query,
+    );
+  }
+
+  async getPlacesTotal(placeTypeId: string, search?: string) {
+    const query = new GetPlacesTotalQuery(placeTypeId, search);
+    return await this.queryBus.execute<GetPlacesTotalQuery, number>(query);
   }
 }
