@@ -26,6 +26,7 @@ import { SearchModule } from 'src/modules/search/application/search.module';
 import { SearchController } from './endpoints/search/search.controller';
 import { SearchHandler } from './endpoints/search/handlers/search.handler';
 import { PlaceTypesController } from './endpoints/place-types/place-types.controller';
+import { PlacesController } from './endpoints/places/places.controller';
 
 @Module({
   imports: [
@@ -42,6 +43,7 @@ import { PlaceTypesController } from './endpoints/place-types/place-types.contro
     CartsController,
     SearchController,
     PlaceTypesController,
+    PlacesController,
   ],
   providers: [
     RegisterUserHandler,
