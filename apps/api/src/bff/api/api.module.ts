@@ -25,6 +25,7 @@ import { UpdateCartHandler } from './endpoints/carts/handlers/update-cart.handle
 import { SearchModule } from 'src/modules/search/application/search.module';
 import { SearchController } from './endpoints/search/search.controller';
 import { SearchHandler } from './endpoints/search/handlers/search.handler';
+import { PlaceTypesController } from './endpoints/place-types/place-types.controller';
 
 @Module({
   imports: [
@@ -40,6 +41,7 @@ import { SearchHandler } from './endpoints/search/handlers/search.handler';
     ReservationsController,
     CartsController,
     SearchController,
+    PlaceTypesController,
   ],
   providers: [
     RegisterUserHandler,
