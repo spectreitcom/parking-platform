@@ -4,9 +4,10 @@ import { PrismaService } from 'src/shared/prisma/prisma.service';
 import { getPlacesQueryWhere } from './get-places.query-handler';
 
 @QueryHandler(GetPlacesTotalQuery)
-export class GetPlacesTotalQueryHandler
-  implements IQueryHandler<GetPlacesTotalQuery, number>
-{
+export class GetPlacesTotalQueryHandler implements IQueryHandler<
+  GetPlacesTotalQuery,
+  number
+> {
   constructor(private readonly prismaService: PrismaService) {}
 
   async execute(query: GetPlacesTotalQuery): Promise<number> {

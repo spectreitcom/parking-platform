@@ -1,10 +1,5 @@
 import { IQuery } from '@nestjs/cqrs';
-import {
-  IsOptional,
-  IsString,
-  IsUUID,
-  validateSync,
-} from 'class-validator';
+import { IsOptional, IsString, IsUUID, validateSync } from 'class-validator';
 import { AppError } from 'src/shared/errors';
 
 export class GetPlacesTotalQuery implements IQuery {
