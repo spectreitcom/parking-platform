@@ -7,9 +7,15 @@ import { PrismaModule } from 'src/shared/prisma/prisma.module';
 import { queryHandlers } from './query-handlers';
 import { ieHandlers } from './event-handlers/ie-handlers';
 import { OutboxModule } from 'src/shared/outbox/outbox.module';
+import { AvailabilityModule } from 'src/modules/availability/application/availability.module';
 
 @Module({
-  imports: [InfrastructureModule, PrismaModule, OutboxModule],
+  imports: [
+    InfrastructureModule,
+    PrismaModule,
+    OutboxModule,
+    AvailabilityModule,
+  ],
   providers: [
     ...commandHandlers,
     ...eventHandlers,
