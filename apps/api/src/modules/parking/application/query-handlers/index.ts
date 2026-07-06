@@ -24,6 +24,8 @@ import { GetParkingSpotsByParkingIdTotalQueryHandler } from './get-parking-spots
 import { GetParkingFeaturesListQueryHandler } from './get-parking-features-list.query-handler';
 import { GetParkingFeaturesListTotalQueryHandler } from './get-parking-features-list-total.query-handler';
 import { CalculatePriceForParkingQueryHandler } from './calculate-price-for-parking.query-handler';
+import { GetPlacesQueryHandler } from './get-places.query-handler';
+import { GetPlacesTotalQueryHandler } from './get-places-total.query-handler';
 
 export const queryHandlers = [
   GetPlacesListForAdminQueryHandler,
@@ -52,4 +54,6 @@ export const queryHandlers = [
   GetParkingFeaturesListQueryHandler,
   GetParkingFeaturesListTotalQueryHandler,
   CalculatePriceForParkingQueryHandler,
+  GetPlacesQueryHandler,
+  GetPlacesTotalQueryHandler,
 ];
