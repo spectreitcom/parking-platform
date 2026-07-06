@@ -1,6 +1,5 @@
 import { IQuery } from '@nestjs/cqrs';
 import { IsInt, IsUUID, Max, Min } from 'class-validator';
-import { MAX_PAGE_SIZE } from 'src/shared/constants';
 
 export class GetParkingSpotsByParkingIdQuery implements IQuery {
   @IsUUID()
@@ -12,7 +11,7 @@ export class GetParkingSpotsByParkingIdQuery implements IQuery {
 
   @IsInt()
   @Min(1)
-  @Max(MAX_PAGE_SIZE)
+  @Max(9999)
   public readonly limit: number;
 
   constructor(parkingId: string, page: number, limit: number) {

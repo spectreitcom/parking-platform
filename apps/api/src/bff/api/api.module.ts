@@ -27,6 +27,8 @@ import { SearchController } from './endpoints/search/search.controller';
 import { SearchHandler } from './endpoints/search/handlers/search.handler';
 import { PlaceTypesController } from './endpoints/place-types/place-types.controller';
 import { PlacesController } from './endpoints/places/places.controller';
+import { ParkingsController } from './endpoints/parkings/parkings.controller';
+import { GetDetailsHandler } from './endpoints/parkings/handlers/get-details.handler';
 
 @Module({
   imports: [
@@ -44,6 +46,7 @@ import { PlacesController } from './endpoints/places/places.controller';
     SearchController,
     PlaceTypesController,
     PlacesController,
+    ParkingsController,
   ],
   providers: [
     RegisterUserHandler,
@@ -62,6 +65,7 @@ import { PlacesController } from './endpoints/places/places.controller';
     CreateCartHandler,
     UpdateCartHandler,
     SearchHandler,
+    GetDetailsHandler,
   ],
 })
 export class ApiModule {}
