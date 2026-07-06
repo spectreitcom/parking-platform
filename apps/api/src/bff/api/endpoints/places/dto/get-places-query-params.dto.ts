@@ -12,6 +12,7 @@ import {
 
 export class GetPlacesQueryParamsDto {
   @ApiProperty({ minimum: 1, maximum: 100 })
+  @IsOptional()
   @Type(() => Number)
   @IsInt()
   @Min(1)

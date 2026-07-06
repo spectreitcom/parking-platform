@@ -10,7 +10,7 @@ export class GetPlacesTotalQueryHandler implements IQueryHandler<
 > {
   constructor(private readonly prismaService: PrismaService) {}
 
-  async execute(query: GetPlacesTotalQuery): Promise<number> {
+  execute(query: GetPlacesTotalQuery): Promise<number> {
     const { search, placeTypeId } = query;
 
     return this.prismaService.placeRead.count({
