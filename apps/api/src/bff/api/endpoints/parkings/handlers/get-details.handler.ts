@@ -103,10 +103,18 @@ export class GetDetailsHandler implements IControllerHandler {
 
     const places = await this.parkingFacade.getPlaceByIds([parking.placeId]);
 
+    if (places.length === 0) {
+      throw new AppError('ENTITY_NOT_FOUND', 'Place not found');
+    }
+
     const organization =
       await this.organizationFacade.getOrganizationByIdForAdmin(
         parking.organizationId,
       );
+
+    if (!organization) {
+      throw new AppError('ENTITY_NOT_FOUND', 'Organization not found');
+    }
 
     return {
       parkingId: parking.id,
