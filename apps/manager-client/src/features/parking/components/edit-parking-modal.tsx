@@ -530,7 +530,10 @@ export function EditParkingModal({
                                     )
                                   }
                                 >
-                                  <XIcon aria-hidden="true" className="size-4" />
+                                  <XIcon
+                                    aria-hidden="true"
+                                    className="size-4"
+                                  />
                                 </Button>
                               </div>
                             ))}
