@@ -34,7 +34,7 @@ const statusTone: Record<string, 'positive' | 'negative' | 'info' | 'neutral'> =
     Suspended: 'negative',
     Invited: 'info',
     Created: 'neutral',
-};
+  };
 
 export function OrganizationUsersList({ items }: Props) {
   const router = useRouter();
@@ -123,8 +123,7 @@ export function OrganizationUsersList({ items }: Props) {
                 <DropdownMenuContent align="end">
                   <DropdownMenuItem
                     disabled={
-                      organizationUser.statusText.toLowerCase() !==
-                        'invited' ||
+                      organizationUser.statusText.toLowerCase() !== 'invited' ||
                       resendingOrganizationUserId ===
                         organizationUser.organizationUserId
                     }

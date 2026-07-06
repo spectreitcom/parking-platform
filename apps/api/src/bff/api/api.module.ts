@@ -29,6 +29,8 @@ import { PlaceTypesController } from './endpoints/place-types/place-types.contro
 import { PlacesController } from './endpoints/places/places.controller';
 import { ParkingsController } from './endpoints/parkings/parkings.controller';
 import { GetDetailsHandler } from './endpoints/parkings/handlers/get-details.handler';
+import { GetPublicAssetImageHandler } from './assets/handlers/get-public-asset-image.handler';
+import { AssetsController } from './assets/assets.controller';
 
 @Module({
   imports: [
@@ -47,6 +49,7 @@ import { GetDetailsHandler } from './endpoints/parkings/handlers/get-details.han
     PlaceTypesController,
     PlacesController,
     ParkingsController,
+    AssetsController,
   ],
   providers: [
     RegisterUserHandler,
@@ -66,6 +69,7 @@ import { GetDetailsHandler } from './endpoints/parkings/handlers/get-details.han
     UpdateCartHandler,
     SearchHandler,
     GetDetailsHandler,
+    GetPublicAssetImageHandler,
   ],
 })
 export class ApiModule {}

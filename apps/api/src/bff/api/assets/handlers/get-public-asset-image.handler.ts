@@ -1,0 +1,25 @@
+import { IControllerHandler } from 'src/shared/controller-handler.interface';
+import { AssetFacade } from 'src/modules/asset/application/asset.facade';
+import { QueryAssetResponse } from 'src/modules/asset/types';
+
+export class GetPublicAssetImageHandler implements IControllerHandler {
+  constructor(private readonly assetFacade: AssetFacade) {}
+
+  async handle(
+    assetId: string,
+    width?: number,
+    height?: number,
+  ): Promise<QueryAssetResponse & { cacheControl: string }> {
+    const asset = await this.assetFacade.getAssetImage(
+      assetId,
+      'guest',
+      width,
+      height,
+    );
+
+    return {
+      ...asset,
+      cacheControl: 'private, max-age=31536000',
+    };
+  }
+}

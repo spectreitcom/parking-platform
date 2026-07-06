@@ -109,9 +109,7 @@ function OrganizationSwitcher({ organizations }: AppSidebarProps) {
             <SelectItem key={organization.id} value={organization.id}>
               {organization.name}
               {organization.isRoot ? (
-                <span className="ml-1 text-xs text-muted-foreground">
-                  Root
-                </span>
+                <span className="ml-1 text-xs text-muted-foreground">Root</span>
               ) : null}
             </SelectItem>
           ))}

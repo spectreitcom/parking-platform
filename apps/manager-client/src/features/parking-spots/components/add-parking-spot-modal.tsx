@@ -125,10 +125,7 @@ export function UpdateParkingSpotModal({
   const initialSelectedFeatures = useMemo(
     () =>
       Object.fromEntries(
-        parkingSpot.parkingSpotFeatures.map((feature) => [
-          feature.id,
-          feature,
-        ]),
+        parkingSpot.parkingSpotFeatures.map((feature) => [feature.id, feature]),
       ),
     [parkingSpot.parkingSpotFeatures],
   );
