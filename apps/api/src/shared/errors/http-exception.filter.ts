@@ -17,8 +17,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
 
   catch(
     exception:
-      | { code?: AppErrorCode; message?: string }
-      | UnauthorizedException,
+      { code?: AppErrorCode; message?: string } | UnauthorizedException,
     host: ArgumentsHost,
   ) {
     this.logger.error(exception);
