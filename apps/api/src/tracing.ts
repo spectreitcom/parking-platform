@@ -40,11 +40,11 @@ const sdk = new NodeSDK({
     url: traceExporterUrl,
   }),
   logRecordProcessors: [
-    new BatchLogRecordProcessor(
-      new OTLPLogExporter({
+    new BatchLogRecordProcessor({
+      exporter: new OTLPLogExporter({
         url: logExporterUrl,
       }),
-    ),
+    }),
   ],
   metricReaders: [
     new PeriodicExportingMetricReader({
