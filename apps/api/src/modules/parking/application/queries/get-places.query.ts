@@ -23,13 +23,14 @@ export class GetPlacesQuery implements IQuery {
   @IsString()
   public readonly search?: string;
 
+  @IsOptional()
   @IsUUID()
-  public readonly placeTypeId: string;
+  public readonly placeTypeId?: string;
 
   constructor(
-    placeTypeId: string,
     page: number,
     limit: number,
+    placeTypeId?: string,
     search?: string,
   ) {
     this.page = page;

@@ -7,10 +7,11 @@ export class GetPlacesTotalQuery implements IQuery {
   @IsString()
   public readonly search?: string;
 
+  @IsOptional()
   @IsUUID()
-  public readonly placeTypeId: string;
+  public readonly placeTypeId?: string;
 
-  constructor(placeTypeId: string, search?: string) {
+  constructor(placeTypeId?: string, search?: string) {
     this.placeTypeId = placeTypeId;
     this.search = search;
     this.validate();

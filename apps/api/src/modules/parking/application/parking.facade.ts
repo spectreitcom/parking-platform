@@ -586,16 +586,16 @@ export class ParkingFacade {
   async getPlaces(
     page: number,
     limit: number,
-    placeTypeId: string,
+    placeTypeId?: string,
     search?: string,
   ) {
-    const query = new GetPlacesQuery(placeTypeId, page, limit, search);
+    const query = new GetPlacesQuery(page, limit, placeTypeId, search);
     return await this.queryBus.execute<GetPlacesQuery, PlaceReadReadModel[]>(
       query,
     );
   }
 
-  async getPlacesTotal(placeTypeId: string, search?: string) {
+  async getPlacesTotal(placeTypeId?: string, search?: string) {
     const query = new GetPlacesTotalQuery(placeTypeId, search);
     return await this.queryBus.execute<GetPlacesTotalQuery, number>(query);
   }

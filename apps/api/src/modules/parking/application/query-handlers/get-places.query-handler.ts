@@ -5,7 +5,7 @@ import { Prisma } from '@prisma/client';
 import { PrismaService } from 'src/shared/prisma/prisma.service';
 
 export const getPlacesQueryWhere = (
-  placeTypeId: string,
+  placeTypeId?: string,
   search?: string,
 ): Prisma.PlaceReadWhereInput => {
   const where: Prisma.PlaceReadWhereInput = {
