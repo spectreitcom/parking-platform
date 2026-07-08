@@ -31,6 +31,10 @@ import { ParkingsController } from './endpoints/parkings/parkings.controller';
 import { GetDetailsHandler } from './endpoints/parkings/handlers/get-details.handler';
 import { GetPublicAssetImageHandler } from './assets/handlers/get-public-asset-image.handler';
 import { AssetsController } from './assets/assets.controller';
+import { AssetModule } from 'src/modules/asset/application/asset.module';
+import { OrganizationModule } from 'src/modules/organization/application/organization.module';
+import { AvailabilityModule } from 'src/modules/availability/application/availability.module';
+import { FeaturesController } from './endpoints/features/features.controller';
 
 @Module({
   imports: [
@@ -40,6 +44,9 @@ import { AssetsController } from './assets/assets.controller';
     ParkingModule,
     CartModule,
     SearchModule,
+    AssetModule,
+    OrganizationModule,
+    AvailabilityModule,
   ],
   controllers: [
     AuthController,
@@ -50,6 +57,7 @@ import { AssetsController } from './assets/assets.controller';
     PlacesController,
     ParkingsController,
     AssetsController,
+    FeaturesController,
   ],
   providers: [
     RegisterUserHandler,

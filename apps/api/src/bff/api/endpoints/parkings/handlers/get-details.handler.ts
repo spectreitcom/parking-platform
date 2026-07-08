@@ -5,7 +5,9 @@ import { ParkingFacade } from 'src/modules/parking/application/parking.facade';
 import { AppError } from 'src/shared/errors';
 import { AvailabilityFacade } from 'src/modules/availability/application/availability.facade';
 import { OrganizationFacade } from 'src/modules/organization/application/organization.facade';
+import { Injectable } from '@nestjs/common';
 
+@Injectable()
 export class GetDetailsHandler implements IControllerHandler {
   constructor(
     private readonly parkingFacade: ParkingFacade,
@@ -17,14 +19,14 @@ export class GetDetailsHandler implements IControllerHandler {
     parkingId: string,
     queryParams: GetDetailsQueryParamsDto,
   ): Promise<GetDetailsResponseDto> {
-    if (queryParams.arrival < Date.now()) {
+    if (queryParams.arrival * 1000 < Date.now()) {
       throw new AppError(
         'VALIDATION_ERROR',
         'Arrival date cannot be in the past',
       );
     }
 
-    if (queryParams.departure <= queryParams.arrival) {
+    if (queryParams.departure * 1000 <= queryParams.arrival * 1000) {
       throw new AppError(
         'VALIDATION_ERROR',
         'Departure date must be after arrival date',
@@ -38,7 +40,7 @@ export class GetDetailsHandler implements IControllerHandler {
     }
 
     const days = Math.ceil(
-      (queryParams.departure - queryParams.arrival) / (1000 * 60 * 60 * 24),
+      (queryParams.departure - queryParams.arrival) / (60 * 60 * 24),
     );
 
     const parkingSpots = await this.parkingFacade.getParkingSpotsByParkingId(
@@ -119,8 +121,8 @@ export class GetDetailsHandler implements IControllerHandler {
     return {
       parkingId: parking.id,
       name: parking.name,
-      longitude: parking.longitude.toFixed(7),
-      latitude: parking.latitude.toFixed(7),
+      longitude: parseFloat(parking.longitude.toFixed(7)),
+      latitude: parseFloat(parking.latitude.toFixed(7)),
       address: parking.address,
       parkingSpots: _parkingSpots,
       parkingFeatures: _parkingFeatures,

@@ -6,8 +6,16 @@ import {
   IsPositive,
   IsUUID,
 } from 'class-validator';
-import { Type } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
+
+function isFeatureIdsString(value: unknown): value is string {
+  return typeof value === 'string';
+}
+
+function isFeatureIdsArray(value: unknown): value is string[] {
+  return Array.isArray(value) && value.every(isFeatureIdsString);
+}
 
 export class SearchQueryParamsDto {
   @ApiProperty({ description: 'Place ID' })
@@ -33,6 +41,15 @@ export class SearchQueryParamsDto {
   @IsOptional()
   @IsArray()
   @IsUUID('4', { each: true })
+  @Transform(({ value }) => {
+    if (isFeatureIdsArray(value)) {
+      return value;
+    }
+    if (isFeatureIdsString(value)) {
+      return [value];
+    }
+    return undefined;
+  })
   readonly featureIds?: string[];
 
   constructor(

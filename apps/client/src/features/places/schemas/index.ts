@@ -24,3 +24,7 @@ export const placesListSchema = z.object({
   total: z.number().int().nonnegative(),
   currentPage: z.number().int().positive(),
 });
+
+export const placeDetailsInputSchema = z.object({
+  placeId: z.uuid(),
+});
