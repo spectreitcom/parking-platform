@@ -136,7 +136,7 @@ export function PlaceSearchForm({ placeTypes }: PlaceSearchFormProps) {
 
     startTransition(() => {
       void navigate({
-        to: '/$placeId/',
+        to: '/$placeId',
         params: { placeId },
         search: {
           arrival: arrivalTimestamp,

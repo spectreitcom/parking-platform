@@ -83,11 +83,13 @@ function RouteComponent() {
       <div className="mx-auto flex w-full max-w-5xl flex-col gap-6 px-6 py-10 lg:px-8">
         <Alert variant="destructive">
           <AlertTitle>Parking details unavailable</AlertTitle>
-          <AlertDescription>{error}</AlertDescription>
+          <AlertDescription>
+            Failed to fetch data. Try again later
+          </AlertDescription>
         </Alert>
         <Button asChild variant="outline" className="w-fit">
           <Link
-            to="/$placeId/"
+            to="/$placeId"
             params={{ placeId: params.placeId }}
             search={{
               arrival: search.arrival,
@@ -112,7 +114,7 @@ function RouteComponent() {
       <header className="flex flex-col gap-5">
         <Button asChild variant="link" className="h-auto w-fit px-0">
           <Link
-            to="/$placeId/"
+            to="/$placeId"
             params={{ placeId: params.placeId }}
             search={{
               arrival: search.arrival,
