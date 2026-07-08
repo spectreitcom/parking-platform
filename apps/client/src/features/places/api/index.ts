@@ -1,6 +1,8 @@
 import { createServerFn } from '@tanstack/react-start';
 import {
+  placeDetailsInputSchema,
   placesListInputSchema,
+  placesListItemSchema,
   placesListSchema,
 } from '#/features/places/schemas';
 import { createSearchParams } from '@repo/frontend-utils';
@@ -35,6 +37,29 @@ export const getPlaces = createServerFn()
     const responseData = await response.json();
 
     const validationResult = placesListSchema.safeParse(responseData);
+
+    if (!validationResult.success) {
+      throw defaultServerError;
+    }
+
+    return validationResult.data;
+  });
+
+export const getPlaceDetails = createServerFn()
+  .validator(placeDetailsInputSchema)
+  .handler(async ({ data }) => {
+    const response = await fetch(`${env.SERVER_URL}/places/${data.placeId}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    await genericApiErrorHandler(response);
+
+    const responseData = await response.json();
+
+    const validationResult = placesListItemSchema.safeParse(responseData);
 
     if (!validationResult.success) {
       throw defaultServerError;

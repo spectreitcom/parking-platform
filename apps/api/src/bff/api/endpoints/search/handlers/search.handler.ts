@@ -16,14 +16,14 @@ export class SearchHandler implements IControllerHandler {
   async handle(
     queryParams: SearchQueryParamsDto,
   ): Promise<SearchResponseDto[]> {
-    if (queryParams.arrival < Date.now()) {
+    if (queryParams.arrival * 1000 < Date.now()) {
       throw new AppError(
         'VALIDATION_ERROR',
         'Arrival date cannot be in the past',
       );
     }
 
-    if (queryParams.departure <= queryParams.arrival) {
+    if (queryParams.departure * 1000 <= queryParams.arrival * 1000) {
       throw new AppError(
         'VALIDATION_ERROR',
         'Departure date must be after arrival date',
@@ -36,7 +36,7 @@ export class SearchHandler implements IControllerHandler {
     );
 
     const days = Math.ceil(
-      (queryParams.departure - queryParams.arrival) / (1000 * 60 * 60 * 24),
+      (queryParams.departure - queryParams.arrival) / (60 * 60 * 24),
     );
 
     return await Promise.all(

@@ -9,7 +9,7 @@ import {
   Min,
 } from 'class-validator';
 import { Type, Transform } from 'class-transformer';
-import { DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE } from 'src/shared/constants';
+import { DEFAULT_PAGE_SIZE } from 'src/shared/constants';
 
 function isLevelValueString(value: unknown): value is string {
   return typeof value === 'string';
@@ -40,7 +40,7 @@ export class GetParkingFeaturesListQueryParamsDto {
   @Type(() => Number)
   @IsInt()
   @Min(1)
-  @Max(MAX_PAGE_SIZE)
+  @Max(9999)
   readonly limit?: number;
 
   @ApiProperty({

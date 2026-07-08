@@ -12,6 +12,8 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as AuthRouteRouteImport } from './routes/auth/route'
 import { Route as ProtectedRouteRouteImport } from './routes/_protected/route'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as PlaceIdIndexRouteImport } from './routes/$placeId/index'
+import { Route as PlaceIdParkingIdRouteImport } from './routes/$placeId/$parkingId'
 import { Route as AuthSignUpIndexRouteImport } from './routes/auth/sign-up/index'
 import { Route as AuthSignInIndexRouteImport } from './routes/auth/sign-in/index'
 import { Route as AuthResetPasswordIndexRouteImport } from './routes/auth/reset-password/index'
@@ -29,6 +31,16 @@ const ProtectedRouteRoute = ProtectedRouteRouteImport.update({
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PlaceIdIndexRoute = PlaceIdIndexRouteImport.update({
+  id: '/$placeId/',
+  path: '/$placeId/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PlaceIdParkingIdRoute = PlaceIdParkingIdRouteImport.update({
+  id: '/$placeId/$parkingId',
+  path: '/$placeId/$parkingId',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthSignUpIndexRoute = AuthSignUpIndexRouteImport.update({
@@ -55,6 +67,8 @@ const ProtectedAppIndexRoute = ProtectedAppIndexRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRouteRouteWithChildren
+  '/$placeId/$parkingId': typeof PlaceIdParkingIdRoute
+  '/$placeId/': typeof PlaceIdIndexRoute
   '/app/': typeof ProtectedAppIndexRoute
   '/auth/reset-password/': typeof AuthResetPasswordIndexRoute
   '/auth/sign-in/': typeof AuthSignInIndexRoute
@@ -63,6 +77,8 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRouteRouteWithChildren
+  '/$placeId/$parkingId': typeof PlaceIdParkingIdRoute
+  '/$placeId': typeof PlaceIdIndexRoute
   '/app': typeof ProtectedAppIndexRoute
   '/auth/reset-password': typeof AuthResetPasswordIndexRoute
   '/auth/sign-in': typeof AuthSignInIndexRoute
@@ -73,6 +89,8 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_protected': typeof ProtectedRouteRouteWithChildren
   '/auth': typeof AuthRouteRouteWithChildren
+  '/$placeId/$parkingId': typeof PlaceIdParkingIdRoute
+  '/$placeId/': typeof PlaceIdIndexRoute
   '/_protected/app/': typeof ProtectedAppIndexRoute
   '/auth/reset-password/': typeof AuthResetPasswordIndexRoute
   '/auth/sign-in/': typeof AuthSignInIndexRoute
@@ -83,6 +101,8 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/auth'
+    | '/$placeId/$parkingId'
+    | '/$placeId/'
     | '/app/'
     | '/auth/reset-password/'
     | '/auth/sign-in/'
@@ -91,6 +111,8 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/auth'
+    | '/$placeId/$parkingId'
+    | '/$placeId'
     | '/app'
     | '/auth/reset-password'
     | '/auth/sign-in'
@@ -100,6 +122,8 @@ export interface FileRouteTypes {
     | '/'
     | '/_protected'
     | '/auth'
+    | '/$placeId/$parkingId'
+    | '/$placeId/'
     | '/_protected/app/'
     | '/auth/reset-password/'
     | '/auth/sign-in/'
@@ -110,6 +134,8 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ProtectedRouteRoute: typeof ProtectedRouteRouteWithChildren
   AuthRouteRoute: typeof AuthRouteRouteWithChildren
+  PlaceIdParkingIdRoute: typeof PlaceIdParkingIdRoute
+  PlaceIdIndexRoute: typeof PlaceIdIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -133,6 +159,20 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/$placeId/': {
+      id: '/$placeId/'
+      path: '/$placeId'
+      fullPath: '/$placeId/'
+      preLoaderRoute: typeof PlaceIdIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/$placeId/$parkingId': {
+      id: '/$placeId/$parkingId'
+      path: '/$placeId/$parkingId'
+      fullPath: '/$placeId/$parkingId'
+      preLoaderRoute: typeof PlaceIdParkingIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/auth/sign-up/': {
@@ -198,6 +238,8 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ProtectedRouteRoute: ProtectedRouteRouteWithChildren,
   AuthRouteRoute: AuthRouteRouteWithChildren,
+  PlaceIdParkingIdRoute: PlaceIdParkingIdRoute,
+  PlaceIdIndexRoute: PlaceIdIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

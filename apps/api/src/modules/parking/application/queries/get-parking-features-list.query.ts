@@ -12,7 +12,6 @@ import {
 } from 'class-validator';
 import { PARKING_LEVEL, PARKING_SPOT_LEVEL } from '../../domain/constants';
 import { AppError } from 'src/shared/errors';
-import { MAX_PAGE_SIZE } from 'src/shared/constants';
 
 export class GetParkingFeaturesListQuery implements IQuery {
   @IsString()
@@ -32,7 +31,7 @@ export class GetParkingFeaturesListQuery implements IQuery {
   @IsNumber()
   @IsInt()
   @Min(1)
-  @Max(MAX_PAGE_SIZE)
+  @Max(9999)
   readonly limit: number;
 
   constructor(page: number, limit: number, search?: string, levels?: string[]) {

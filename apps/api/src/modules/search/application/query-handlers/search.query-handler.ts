@@ -1,6 +1,6 @@
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { SearchQuery } from '../queries/search.query';
-import { SearchItemReadModel } from 'src/modules/search/application/query-handlers/read-models/search-item.read-model';
+import { SearchItemReadModel } from './read-models/search-item.read-model';
 import { PrismaService } from 'src/shared/prisma/prisma.service';
 import { z } from 'zod';
 
@@ -19,9 +19,12 @@ export class SearchQueryHandler implements IQueryHandler<
     const records = await this.prismaService.search.findMany({
       where: {
         placeId,
-        featureIds: {
-          hasSome: featureIds,
-        },
+
+        featureIds: featureIds.length
+          ? {
+              hasSome: featureIds,
+            }
+          : undefined,
       },
       take: 40,
       orderBy: { order: 'asc' },

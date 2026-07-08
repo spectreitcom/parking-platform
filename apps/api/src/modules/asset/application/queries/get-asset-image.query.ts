@@ -3,6 +3,7 @@ import {
   IsInt,
   IsOptional,
   IsPositive,
+  IsString,
   IsUUID,
   Max,
   validateSync,
@@ -25,7 +26,7 @@ export class GetAssetImageQuery implements IQuery {
   @Max(1080)
   readonly height?: number;
 
-  @IsUUID()
+  @IsString()
   readonly userId: string;
 
   constructor(id: string, userId: string, width?: number, height?: number) {
@@ -39,7 +40,7 @@ export class GetAssetImageQuery implements IQuery {
   private validate() {
     const errors = validateSync(this);
     if (errors.length > 0) {
-      throw new AppError('VALIDATION_ERROR', 'Invalid GetAssetQuery');
+      throw new AppError('VALIDATION_ERROR', 'Invalid GetAssetImageQuery');
     }
   }
 }

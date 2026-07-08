@@ -106,11 +106,11 @@ export class GetDetailsResponseDto {
   @ApiProperty()
   readonly name: string;
 
-  @ApiProperty()
-  readonly longitude: string;
+  @ApiProperty({ type: 'number' })
+  readonly longitude: number;
 
-  @ApiProperty()
-  readonly latitude: string;
+  @ApiProperty({ type: 'number' })
+  readonly latitude: number;
 
   @ApiProperty({ type: GetDetailsOrganizationResponseDto })
   readonly organization: GetDetailsOrganizationResponseDto;
@@ -133,8 +133,8 @@ export class GetDetailsResponseDto {
   constructor(
     parkingId: string,
     name: string,
-    longitude: string,
-    latitude: string,
+    longitude: number,
+    latitude: number,
     organization: GetDetailsOrganizationResponseDto,
     assetIds: string[],
     parkingFeatures: GetDetailsParkingFeatureResponseDto[],
