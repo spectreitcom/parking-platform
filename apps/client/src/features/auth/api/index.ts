@@ -70,6 +70,12 @@ export const getMe = createServerFn().handler(async () => {
   return validationResult.data;
 });
 
+export const isAuthenticated = createServerFn().handler(async () => {
+  const session = await useAppSession();
+
+  return Boolean(session.data.accessToken && session.data.refreshToken);
+});
+
 export const requestResetPassword = createServerFn()
   .validator(requestResetPasswordInputSchema)
   .handler(async ({ data }) => {

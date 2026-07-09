@@ -18,6 +18,7 @@ import { Route as AuthSignUpIndexRouteImport } from './routes/auth/sign-up/index
 import { Route as AuthSignInIndexRouteImport } from './routes/auth/sign-in/index'
 import { Route as AuthResetPasswordIndexRouteImport } from './routes/auth/reset-password/index'
 import { Route as ProtectedAppIndexRouteImport } from './routes/_protected/app/index'
+import { Route as ProtectedPlaceIdParkingIdParkingSpotIdCartIndexRouteImport } from './routes/_protected/$placeId/$parkingId/$parkingSpotId/cart/index'
 
 const AuthRouteRoute = AuthRouteRouteImport.update({
   id: '/auth',
@@ -63,6 +64,12 @@ const ProtectedAppIndexRoute = ProtectedAppIndexRouteImport.update({
   path: '/app/',
   getParentRoute: () => ProtectedRouteRoute,
 } as any)
+const ProtectedPlaceIdParkingIdParkingSpotIdCartIndexRoute =
+  ProtectedPlaceIdParkingIdParkingSpotIdCartIndexRouteImport.update({
+    id: '/$placeId/$parkingId/$parkingSpotId/cart/',
+    path: '/$placeId/$parkingId/$parkingSpotId/cart/',
+    getParentRoute: () => ProtectedRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -73,6 +80,7 @@ export interface FileRoutesByFullPath {
   '/auth/reset-password/': typeof AuthResetPasswordIndexRoute
   '/auth/sign-in/': typeof AuthSignInIndexRoute
   '/auth/sign-up/': typeof AuthSignUpIndexRoute
+  '/$placeId/$parkingId/$parkingSpotId/cart/': typeof ProtectedPlaceIdParkingIdParkingSpotIdCartIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -83,6 +91,7 @@ export interface FileRoutesByTo {
   '/auth/reset-password': typeof AuthResetPasswordIndexRoute
   '/auth/sign-in': typeof AuthSignInIndexRoute
   '/auth/sign-up': typeof AuthSignUpIndexRoute
+  '/$placeId/$parkingId/$parkingSpotId/cart': typeof ProtectedPlaceIdParkingIdParkingSpotIdCartIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -95,6 +104,7 @@ export interface FileRoutesById {
   '/auth/reset-password/': typeof AuthResetPasswordIndexRoute
   '/auth/sign-in/': typeof AuthSignInIndexRoute
   '/auth/sign-up/': typeof AuthSignUpIndexRoute
+  '/_protected/$placeId/$parkingId/$parkingSpotId/cart/': typeof ProtectedPlaceIdParkingIdParkingSpotIdCartIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -107,6 +117,7 @@ export interface FileRouteTypes {
     | '/auth/reset-password/'
     | '/auth/sign-in/'
     | '/auth/sign-up/'
+    | '/$placeId/$parkingId/$parkingSpotId/cart/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -117,6 +128,7 @@ export interface FileRouteTypes {
     | '/auth/reset-password'
     | '/auth/sign-in'
     | '/auth/sign-up'
+    | '/$placeId/$parkingId/$parkingSpotId/cart'
   id:
     | '__root__'
     | '/'
@@ -128,6 +140,7 @@ export interface FileRouteTypes {
     | '/auth/reset-password/'
     | '/auth/sign-in/'
     | '/auth/sign-up/'
+    | '/_protected/$placeId/$parkingId/$parkingSpotId/cart/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -203,15 +216,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProtectedAppIndexRouteImport
       parentRoute: typeof ProtectedRouteRoute
     }
+    '/_protected/$placeId/$parkingId/$parkingSpotId/cart/': {
+      id: '/_protected/$placeId/$parkingId/$parkingSpotId/cart/'
+      path: '/$placeId/$parkingId/$parkingSpotId/cart'
+      fullPath: '/$placeId/$parkingId/$parkingSpotId/cart/'
+      preLoaderRoute: typeof ProtectedPlaceIdParkingIdParkingSpotIdCartIndexRouteImport
+      parentRoute: typeof ProtectedRouteRoute
+    }
   }
 }
 
 interface ProtectedRouteRouteChildren {
   ProtectedAppIndexRoute: typeof ProtectedAppIndexRoute
+  ProtectedPlaceIdParkingIdParkingSpotIdCartIndexRoute: typeof ProtectedPlaceIdParkingIdParkingSpotIdCartIndexRoute
 }
 
 const ProtectedRouteRouteChildren: ProtectedRouteRouteChildren = {
   ProtectedAppIndexRoute: ProtectedAppIndexRoute,
+  ProtectedPlaceIdParkingIdParkingSpotIdCartIndexRoute:
+    ProtectedPlaceIdParkingIdParkingSpotIdCartIndexRoute,
 }
 
 const ProtectedRouteRouteWithChildren = ProtectedRouteRoute._addFileChildren(

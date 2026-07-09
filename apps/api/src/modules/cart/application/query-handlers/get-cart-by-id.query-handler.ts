@@ -1,9 +1,9 @@
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { GetCartByIdQuery } from '../queries/get-cart-by-id.query';
 import { CartReadModel } from './read-models/cart.read-model';
-import { PrismaService } from '../../../../shared/prisma/prisma.service';
-import { AppError } from '../../../../shared/errors';
-import { Money } from '../../../../shared/value-objects/money';
+import { PrismaService } from 'src/shared/prisma/prisma.service';
+import { AppError } from 'src/shared/errors';
+import { Money } from 'src/shared/value-objects/money';
 import { CartAddon } from '../../domain/entities/cart-addon';
 import { CartAddonId } from '../../domain/value-objects/cart-addon-id';
 import { CartAddonRaw } from '../types';

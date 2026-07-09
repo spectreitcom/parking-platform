@@ -24,7 +24,9 @@ import { getParkingDetails } from '#/features/parkings/api';
 import { getPlaceDetails } from '#/features/places/api';
 import { z } from 'zod';
 import { getFeatures } from '#/features/features/api';
+import { isAuthenticated } from '#/features/auth/api';
 
+// todo: refactor
 const validateSearchSchema = z.object({
   arrival: z.coerce.number().int(), // timestamp in seconds
   departure: z.coerce.number().int(), // timestamp in seconds
@@ -44,22 +46,25 @@ export const Route = createFileRoute('/$placeId/$parkingId')({
   }),
   loader: async ({ params, deps }) => {
     try {
-      const [parkingDetails, place, features] = await Promise.all([
-        getParkingDetails({
-          data: {
-            parkingId: params.parkingId,
-            arrival: deps.arrival,
-            departure: deps.departure,
-          },
-        }),
-        getPlaceDetails({ data: { placeId: params.placeId } }),
-        getFeatures(),
-      ]);
+      const [parkingDetails, place, features, authenticated] =
+        await Promise.all([
+          getParkingDetails({
+            data: {
+              parkingId: params.parkingId,
+              arrival: deps.arrival,
+              departure: deps.departure,
+            },
+          }),
+          getPlaceDetails({ data: { placeId: params.placeId } }),
+          getFeatures(),
+          isAuthenticated(),
+        ]);
 
       return {
         parkingDetails,
         place: place,
         features,
+        authenticated,
         error: null,
       };
     } catch (error) {
@@ -67,6 +72,7 @@ export const Route = createFileRoute('/$placeId/$parkingId')({
         parkingDetails: null,
         place: null,
         features: null,
+        authenticated: false,
         error: 'Failed to fetch data. Try again later',
       };
     }
@@ -74,7 +80,7 @@ export const Route = createFileRoute('/$placeId/$parkingId')({
 });
 
 function RouteComponent() {
-  const { parkingDetails, place, error } = Route.useLoaderData();
+  const { parkingDetails, place, authenticated, error } = Route.useLoaderData();
   const params = Route.useParams();
   const search = Route.useSearch();
 
@@ -268,6 +274,34 @@ function RouteComponent() {
                         label="Per day"
                         value={`${spot.pricePerDayPLN.toFixed(2)} PLN`}
                       />
+                      {authenticated ? (
+                        spot.available ? (
+                          <Button
+                            asChild
+                            className="sm:col-span-2"
+                            variant={'secondary'}
+                          >
+                            <Link
+                              to="/$placeId/$parkingId/$parkingSpotId/cart"
+                              params={{
+                                placeId: params.placeId,
+                                parkingId: params.parkingId,
+                                parkingSpotId: spot.id,
+                              }}
+                              search={{
+                                arrival: search.arrival,
+                                departure: search.departure,
+                              }}
+                            >
+                              Make reservation
+                            </Link>
+                          </Button>
+                        ) : (
+                          <Button disabled className="sm:col-span-2">
+                            Make reservation
+                          </Button>
+                        )
+                      ) : null}
                     </CardContent>
                   </Card>
                 ))}
