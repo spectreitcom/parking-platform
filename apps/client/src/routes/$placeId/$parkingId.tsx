@@ -26,7 +26,6 @@ import { z } from 'zod';
 import { getFeatures } from '#/features/features/api';
 import { isAuthenticated } from '#/features/auth/api';
 
-// todo: refactor
 const validateSearchSchema = z.object({
   arrival: z.coerce.number().int(), // timestamp in seconds
   departure: z.coerce.number().int(), // timestamp in seconds

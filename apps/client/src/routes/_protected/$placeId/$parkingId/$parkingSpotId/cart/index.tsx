@@ -31,7 +31,6 @@ import { z } from 'zod';
 
 type Cart = z.infer<typeof getCartResponseSchema>;
 
-// todo: refactor
 const validateSearchSchema = z.object({
   arrival: z.coerce.number().int(), // timestamp in seconds
   departure: z.coerce.number().int(), // timestamp in seconds
