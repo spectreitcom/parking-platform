@@ -6,7 +6,7 @@ export const Route = createFileRoute('/auth')({
 
 function Layout() {
   return (
-    <main className="min-h-screen">
+    <main className="min-h-[calc(100vh-4rem)]">
       <Outlet />
     </main>
   );

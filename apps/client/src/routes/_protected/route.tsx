@@ -1,20 +1,16 @@
-import { Outlet, createFileRoute } from '@tanstack/react-router';
-import { getMe } from '#/features/auth/api';
+import { Outlet, createFileRoute, redirect } from '@tanstack/react-router';
 
 export const Route = createFileRoute('/_protected')({
   component: ProtectedLayout,
-  beforeLoad: async () => {
-    const user = await getMe();
-    return { user };
+  beforeLoad: ({ context }) => {
+    if (!context.user) {
+      throw redirect({ to: '/auth/sign-in' });
+    }
+
+    return { user: context.user };
   },
 });
 
 function ProtectedLayout() {
-  // const { user } = Route.useRouteContext();
-
-  return (
-    <div>
-      <Outlet />
-    </div>
-  );
+  return <Outlet />;
 }

@@ -1,5 +1,6 @@
 import {
   HeadContent,
+  Outlet,
   Scripts,
   createRootRouteWithContext,
 } from '@tanstack/react-router';
@@ -13,12 +14,21 @@ import appCss from '../styles.css?url';
 import type { QueryClient } from '@tanstack/react-query';
 import { Toaster } from '#/components/ui/sonner.tsx';
 import type { ReactNode } from 'react';
+import { getMe, isAuthenticated } from '#/features/auth/api';
+import { UserTopbar } from '#/features/auth/components/user-topbar.tsx';
 
 interface MyRouterContext {
   queryClient: QueryClient;
 }
 
 export const Route = createRootRouteWithContext<MyRouterContext>()({
+  beforeLoad: async () => {
+    const authenticated = await isAuthenticated();
+    const user = authenticated ? await getMe() : null;
+
+    return { user };
+  },
+  component: RootLayout,
   head: () => ({
     meta: [
       {
@@ -41,6 +51,17 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
   }),
   shellComponent: RootDocument,
 });
+
+function RootLayout() {
+  const { user } = Route.useRouteContext();
+
+  return (
+    <div className="min-h-screen">
+      <UserTopbar user={user} />
+      <Outlet />
+    </div>
+  );
+}
 
 function RootDocument({ children }: { children: ReactNode }) {
   return (
