@@ -81,6 +81,7 @@ export const reservationDetailsSchema = z.object({
   registrationNumber: z.string(),
   version: z.int().positive(),
   canCancel: z.boolean().optional(),
+  canEdit: z.boolean().optional(),
   createdAt: z.coerce.date(),
   updatedAt: z.coerce.date(),
 });

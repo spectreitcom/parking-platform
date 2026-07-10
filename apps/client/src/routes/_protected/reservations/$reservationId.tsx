@@ -7,10 +7,13 @@ import {
   Clock3,
   CreditCard,
   Ban,
+  Pencil,
   MapPin,
   ReceiptText,
+  Save,
   ShieldCheck,
 } from 'lucide-react';
+import type { FormEvent } from 'react';
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { Alert, AlertDescription, AlertTitle } from '#/components/ui/alert.tsx';
@@ -23,10 +26,13 @@ import {
   CardHeader,
   CardTitle,
 } from '#/components/ui/card.tsx';
+import { Field, FieldError, FieldLabel } from '#/components/ui/field.tsx';
+import { Input } from '#/components/ui/input.tsx';
 import { Spinner } from '#/components/ui/spinner.tsx';
 import {
   cancelReservation,
   reservationDetails,
+  updateReservation,
 } from '#/features/reservations/api';
 
 export const Route = createFileRoute('/_protected/reservations/$reservationId')(
@@ -61,9 +67,16 @@ function RouteComponent() {
   const { reservation, error } = Route.useLoaderData();
   const router = useRouter();
   const cancelReservationFn = useServerFn(cancelReservation);
+  const updateReservationFn = useServerFn(updateReservation);
   const [isCancelDialogOpen, setIsCancelDialogOpen] = useState(false);
   const [isCancelling, setIsCancelling] = useState(false);
   const [cancelError, setCancelError] = useState<string | null>(null);
+  const [registrationNumber, setRegistrationNumber] = useState(
+    () => reservation?.registrationNumber ?? '',
+  );
+  const [isEditing, setIsEditing] = useState(false);
+  const [isUpdatingReservation, setIsUpdatingReservation] = useState(false);
+  const [updateError, setUpdateError] = useState<string | null>(null);
 
   if (error || !reservation) {
     return (
@@ -85,6 +98,60 @@ function RouteComponent() {
   const canCancel =
     reservation.canCancel ??
     !reservation.status.toLowerCase().includes('cancel');
+  const canEdit = reservation.canEdit ?? canCancel;
+
+  const handleStartEditing = () => {
+    setRegistrationNumber(reservation.registrationNumber);
+    setUpdateError(null);
+    setIsEditing(true);
+  };
+
+  const handleCancelEditing = () => {
+    setRegistrationNumber(reservation.registrationNumber);
+    setUpdateError(null);
+    setIsEditing(false);
+  };
+
+  const handleUpdateReservation = async (
+    event: FormEvent<HTMLFormElement>,
+  ) => {
+    event.preventDefault();
+
+    const normalizedRegistrationNumber = registrationNumber.trim();
+
+    if (!normalizedRegistrationNumber) {
+      setUpdateError('Enter the vehicle registration number.');
+      return;
+    }
+
+    setIsUpdatingReservation(true);
+    setUpdateError(null);
+
+    try {
+      await updateReservationFn({
+        data: {
+          reservationId: reservation.reservationId,
+          version: reservation.version,
+          registrationNumber: normalizedRegistrationNumber,
+        },
+      });
+
+      toast.success('Reservation updated');
+      setRegistrationNumber(normalizedRegistrationNumber);
+      setIsEditing(false);
+      await router.invalidate();
+    } catch (caughtError) {
+      const message =
+        caughtError instanceof Error
+          ? caughtError.message
+          : 'The reservation could not be updated. Please try again.';
+
+      setUpdateError(message);
+      toast.error(message);
+    } finally {
+      setIsUpdatingReservation(false);
+    }
+  };
 
   const handleCancelReservation = async () => {
     setIsCancelling(true);
@@ -223,28 +290,87 @@ function RouteComponent() {
           </CardContent>
         </Card>
 
-        {canCancel ? (
+        {canEdit || canCancel ? (
           <Card className="gap-5 py-5 lg:col-span-2">
             <CardHeader className="px-5">
               <CardTitle className="flex items-center gap-2 text-lg">
-                <Ban className="size-5 text-destructive" />
+                <Pencil className="size-5 text-primary" />
                 Reservation actions
               </CardTitle>
             </CardHeader>
-            <CardContent className="flex flex-col gap-3 px-5 sm:flex-row sm:items-center sm:justify-between">
-              <p className="text-sm text-muted-foreground">
-                Cancel this reservation if you no longer need the parking spot.
-              </p>
-              <Button
-                type="button"
-                variant="destructive"
-                onClick={() => setIsCancelDialogOpen(true)}
-                disabled={isCancelling}
-                className="w-full sm:w-fit"
-              >
-                <Ban />
-                Cancel reservation
-              </Button>
+            <CardContent className="grid gap-5 px-5">
+              {canEdit ? (
+                <form className="grid gap-4" onSubmit={handleUpdateReservation}>
+                  <div className="grid gap-4 md:grid-cols-[minmax(0,1fr)_auto] md:items-end">
+                    <Field>
+                      <FieldLabel htmlFor="reservation-registration-number">
+                        Registration number
+                      </FieldLabel>
+                      <Input
+                        id="reservation-registration-number"
+                        value={registrationNumber}
+                        onChange={(event) =>
+                          setRegistrationNumber(event.target.value)
+                        }
+                        placeholder="KR 12345"
+                        disabled={!isEditing || isUpdatingReservation}
+                        autoComplete="off"
+                      />
+                    </Field>
+                    {isEditing ? (
+                      <div className="flex flex-col gap-2 sm:flex-row">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={handleCancelEditing}
+                          disabled={isUpdatingReservation}
+                          className="w-full sm:w-fit"
+                        >
+                          Cancel
+                        </Button>
+                        <Button
+                          type="submit"
+                          disabled={isUpdatingReservation}
+                          className="w-full sm:w-fit"
+                        >
+                          {isUpdatingReservation ? <Spinner /> : <Save />}
+                          Save
+                        </Button>
+                      </div>
+                    ) : (
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={handleStartEditing}
+                        className="w-full sm:w-fit"
+                      >
+                        <Pencil />
+                        Edit
+                      </Button>
+                    )}
+                  </div>
+                  {updateError ? <FieldError>{updateError}</FieldError> : null}
+                </form>
+              ) : null}
+
+              {canCancel ? (
+                <div className="flex flex-col gap-3 border-t pt-5 sm:flex-row sm:items-center sm:justify-between">
+                  <p className="text-sm text-muted-foreground">
+                    Cancel this reservation if you no longer need the parking
+                    spot.
+                  </p>
+                  <Button
+                    type="button"
+                    variant="destructive"
+                    onClick={() => setIsCancelDialogOpen(true)}
+                    disabled={isCancelling}
+                    className="w-full sm:w-fit"
+                  >
+                    <Ban />
+                    Cancel reservation
+                  </Button>
+                </div>
+              ) : null}
             </CardContent>
           </Card>
         ) : null}
