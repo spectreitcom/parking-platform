@@ -5,6 +5,7 @@ import {
   HttpCode,
   HttpStatus,
   Param,
+  ParseUUIDPipe,
   Post,
   Put,
   Query,
@@ -29,6 +30,7 @@ import { CreateReservationHandler } from './handlers/create-reservation.handler'
 import { UpdateReservationHandler } from './handlers/update-reservation.handler';
 import { CancelReservationHandler } from './handlers/cancel-reservation.handler';
 import { GetReservationsListHandler } from './handlers/get-reservations-list.handler';
+import { GetReservationDetailsHandler } from './handlers/get-reservation-details.handler';
 
 @UseGuards(JwtAuthGuard)
 @ApiBearerAuth('auth')
@@ -40,7 +42,71 @@ export class ReservationsController {
     private readonly updateReservationHandler: UpdateReservationHandler,
     private readonly cancelReservationHandler: CancelReservationHandler,
     private readonly getReservationsListHandler: GetReservationsListHandler,
+    private readonly getReservationDetailsHandler: GetReservationDetailsHandler,
   ) {}
+
+  @ApiOperation({ summary: 'Get reservation details' })
+  @ApiOkResponse({
+    description: 'Returns reservation details',
+    schema: {
+      type: 'object',
+      properties: {
+        reservationId: { type: 'string', format: 'uuid' },
+        cartId: { type: 'string', format: 'uuid' },
+        total: { type: 'number' },
+        parkingSpot: {
+          type: 'object',
+          properties: {
+            id: { type: 'string', format: 'uuid' },
+            price: { type: 'number' },
+            pricePLN: { type: 'number' },
+          },
+        },
+        parking: {
+          type: 'object',
+          properties: {
+            id: { type: 'string', format: 'uuid' },
+            name: { type: 'string', example: 'Parking A' },
+            address: { type: 'string' },
+          },
+        },
+        userId: { type: 'string', format: 'uuid' },
+        arrival: { type: 'number' },
+        departure: { type: 'number' },
+        lines: {
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: {
+              title: { type: 'string' },
+              price: { type: 'number' },
+            },
+          },
+        },
+        status: { type: 'string' },
+        registrationNumber: { type: 'string', example: 'ABC123' },
+        version: { type: 'number', format: 'int32', example: 1 },
+        createdAt: { type: 'string', format: 'date-time' },
+        updatedAt: { type: 'string', format: 'date-time' },
+      },
+    },
+  })
+  @ApiBadRequestResponse({
+    description: 'Bad request',
+  })
+  @ApiUnauthorizedResponse({
+    description: 'Unauthorized',
+  })
+  @Get(':reservationId')
+  async getReservationDetails(
+    @Param('reservationId', new ParseUUIDPipe()) reservationId: string,
+    @CurrentUserId() userId: string,
+  ) {
+    return await this.getReservationDetailsHandler.handle(
+      reservationId,
+      userId,
+    );
+  }
 
   @ApiOperation({ summary: 'Create a new reservation' })
   @ApiCreatedResponse({

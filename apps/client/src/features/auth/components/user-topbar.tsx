@@ -1,8 +1,12 @@
 import { Link } from '@tanstack/react-router';
-import { CarFrontIcon } from 'lucide-react';
+import { useServerFn } from '@tanstack/react-start';
+import { CalendarCheckIcon, CarFrontIcon, LogOutIcon } from 'lucide-react';
+import { useState } from 'react';
 
 import { Avatar, AvatarFallback } from '#/components/ui/avatar.tsx';
 import { Button } from '#/components/ui/button.tsx';
+import { Spinner } from '#/components/ui/spinner.tsx';
+import { signOut } from '#/features/auth/api';
 
 type UserTopbarProps = {
   user: {
@@ -22,6 +26,14 @@ function getInitials(name: string) {
 }
 
 export function UserTopbar({ user }: UserTopbarProps) {
+  const [isSigningOut, setIsSigningOut] = useState(false);
+  const signOutFn = useServerFn(signOut);
+
+  const handleSignOut = async () => {
+    setIsSigningOut(true);
+    await signOutFn();
+  };
+
   return (
     <header className="sticky top-0 z-40 border-b border-[var(--line)] bg-[var(--header-bg)] backdrop-blur-xl">
       <div className="mx-auto flex h-16 w-full max-w-7xl items-center justify-between gap-4 px-6 lg:px-8">
@@ -40,6 +52,12 @@ export function UserTopbar({ user }: UserTopbarProps) {
 
         {user ? (
           <div className="flex min-w-0 items-center gap-3">
+            <Button asChild variant="ghost" size="sm">
+              <Link to="/reservations" aria-label="Rezerwacje">
+                <CalendarCheckIcon aria-hidden="true" />
+                <span className="hidden sm:inline">Rezerwacje</span>
+              </Link>
+            </Button>
             <div className="min-w-0 text-right leading-tight">
               <p className="truncate text-sm font-semibold text-[var(--sea-ink)]">
                 {user.name}
@@ -53,6 +71,21 @@ export function UserTopbar({ user }: UserTopbarProps) {
                 {getInitials(user.name) || user.email.toUpperCase()}
               </AvatarFallback>
             </Avatar>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={handleSignOut}
+              disabled={isSigningOut}
+              aria-label="Sign out"
+            >
+              {isSigningOut ? (
+                <Spinner aria-hidden="true" />
+              ) : (
+                <LogOutIcon aria-hidden="true" />
+              )}
+              <span className="hidden sm:inline">Sign out</span>
+            </Button>
           </div>
         ) : (
           <nav className="flex items-center gap-2" aria-label="Authentication">

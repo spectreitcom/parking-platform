@@ -35,6 +35,7 @@ import { AssetModule } from 'src/modules/asset/application/asset.module';
 import { OrganizationModule } from 'src/modules/organization/application/organization.module';
 import { AvailabilityModule } from 'src/modules/availability/application/availability.module';
 import { FeaturesController } from './endpoints/features/features.controller';
+import { GetReservationDetailsHandler } from './endpoints/reservations/handlers/get-reservation-details.handler';
 
 @Module({
   imports: [
@@ -78,6 +79,7 @@ import { FeaturesController } from './endpoints/features/features.controller';
     SearchHandler,
     GetDetailsHandler,
     GetPublicAssetImageHandler,
+    GetReservationDetailsHandler,
   ],
 })
 export class ApiModule {}

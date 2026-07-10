@@ -1,7 +1,7 @@
 import { Cart as CartModel } from '@prisma/client';
 import { Cart } from '../../domain/cart';
 import { CartId } from '../../domain/value-objects/cart-id';
-import { Money } from '../../../../shared/value-objects/money';
+import { Money } from 'src/shared/value-objects/money';
 import { CartParkingSpotId } from '../../domain/value-objects/cart-parking-spot-id';
 import { CartAddon } from '../../domain/entities/cart-addon';
 import { CartDateRange } from '../../domain/value-objects/cart-date-range';

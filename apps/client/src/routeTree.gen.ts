@@ -17,7 +17,8 @@ import { Route as PlaceIdParkingIdRouteImport } from './routes/$placeId/$parking
 import { Route as AuthSignUpIndexRouteImport } from './routes/auth/sign-up/index'
 import { Route as AuthSignInIndexRouteImport } from './routes/auth/sign-in/index'
 import { Route as AuthResetPasswordIndexRouteImport } from './routes/auth/reset-password/index'
-import { Route as ProtectedAppIndexRouteImport } from './routes/_protected/app/index'
+import { Route as ProtectedReservationsIndexRouteImport } from './routes/_protected/reservations/index'
+import { Route as ProtectedReservationsReservationIdRouteImport } from './routes/_protected/reservations/$reservationId'
 import { Route as ProtectedPlaceIdParkingIdParkingSpotIdCartIndexRouteImport } from './routes/_protected/$placeId/$parkingId/$parkingSpotId/cart/index'
 
 const AuthRouteRoute = AuthRouteRouteImport.update({
@@ -59,11 +60,18 @@ const AuthResetPasswordIndexRoute = AuthResetPasswordIndexRouteImport.update({
   path: '/reset-password/',
   getParentRoute: () => AuthRouteRoute,
 } as any)
-const ProtectedAppIndexRoute = ProtectedAppIndexRouteImport.update({
-  id: '/app/',
-  path: '/app/',
-  getParentRoute: () => ProtectedRouteRoute,
-} as any)
+const ProtectedReservationsIndexRoute =
+  ProtectedReservationsIndexRouteImport.update({
+    id: '/reservations/',
+    path: '/reservations/',
+    getParentRoute: () => ProtectedRouteRoute,
+  } as any)
+const ProtectedReservationsReservationIdRoute =
+  ProtectedReservationsReservationIdRouteImport.update({
+    id: '/reservations/$reservationId',
+    path: '/reservations/$reservationId',
+    getParentRoute: () => ProtectedRouteRoute,
+  } as any)
 const ProtectedPlaceIdParkingIdParkingSpotIdCartIndexRoute =
   ProtectedPlaceIdParkingIdParkingSpotIdCartIndexRouteImport.update({
     id: '/$placeId/$parkingId/$parkingSpotId/cart/',
@@ -76,7 +84,8 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRouteRouteWithChildren
   '/$placeId/$parkingId': typeof PlaceIdParkingIdRoute
   '/$placeId/': typeof PlaceIdIndexRoute
-  '/app/': typeof ProtectedAppIndexRoute
+  '/reservations/$reservationId': typeof ProtectedReservationsReservationIdRoute
+  '/reservations/': typeof ProtectedReservationsIndexRoute
   '/auth/reset-password/': typeof AuthResetPasswordIndexRoute
   '/auth/sign-in/': typeof AuthSignInIndexRoute
   '/auth/sign-up/': typeof AuthSignUpIndexRoute
@@ -87,7 +96,8 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRouteRouteWithChildren
   '/$placeId/$parkingId': typeof PlaceIdParkingIdRoute
   '/$placeId': typeof PlaceIdIndexRoute
-  '/app': typeof ProtectedAppIndexRoute
+  '/reservations/$reservationId': typeof ProtectedReservationsReservationIdRoute
+  '/reservations': typeof ProtectedReservationsIndexRoute
   '/auth/reset-password': typeof AuthResetPasswordIndexRoute
   '/auth/sign-in': typeof AuthSignInIndexRoute
   '/auth/sign-up': typeof AuthSignUpIndexRoute
@@ -100,7 +110,8 @@ export interface FileRoutesById {
   '/auth': typeof AuthRouteRouteWithChildren
   '/$placeId/$parkingId': typeof PlaceIdParkingIdRoute
   '/$placeId/': typeof PlaceIdIndexRoute
-  '/_protected/app/': typeof ProtectedAppIndexRoute
+  '/_protected/reservations/$reservationId': typeof ProtectedReservationsReservationIdRoute
+  '/_protected/reservations/': typeof ProtectedReservationsIndexRoute
   '/auth/reset-password/': typeof AuthResetPasswordIndexRoute
   '/auth/sign-in/': typeof AuthSignInIndexRoute
   '/auth/sign-up/': typeof AuthSignUpIndexRoute
@@ -113,7 +124,8 @@ export interface FileRouteTypes {
     | '/auth'
     | '/$placeId/$parkingId'
     | '/$placeId/'
-    | '/app/'
+    | '/reservations/$reservationId'
+    | '/reservations/'
     | '/auth/reset-password/'
     | '/auth/sign-in/'
     | '/auth/sign-up/'
@@ -124,7 +136,8 @@ export interface FileRouteTypes {
     | '/auth'
     | '/$placeId/$parkingId'
     | '/$placeId'
-    | '/app'
+    | '/reservations/$reservationId'
+    | '/reservations'
     | '/auth/reset-password'
     | '/auth/sign-in'
     | '/auth/sign-up'
@@ -136,7 +149,8 @@ export interface FileRouteTypes {
     | '/auth'
     | '/$placeId/$parkingId'
     | '/$placeId/'
-    | '/_protected/app/'
+    | '/_protected/reservations/$reservationId'
+    | '/_protected/reservations/'
     | '/auth/reset-password/'
     | '/auth/sign-in/'
     | '/auth/sign-up/'
@@ -209,11 +223,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthResetPasswordIndexRouteImport
       parentRoute: typeof AuthRouteRoute
     }
-    '/_protected/app/': {
-      id: '/_protected/app/'
-      path: '/app'
-      fullPath: '/app/'
-      preLoaderRoute: typeof ProtectedAppIndexRouteImport
+    '/_protected/reservations/': {
+      id: '/_protected/reservations/'
+      path: '/reservations'
+      fullPath: '/reservations/'
+      preLoaderRoute: typeof ProtectedReservationsIndexRouteImport
+      parentRoute: typeof ProtectedRouteRoute
+    }
+    '/_protected/reservations/$reservationId': {
+      id: '/_protected/reservations/$reservationId'
+      path: '/reservations/$reservationId'
+      fullPath: '/reservations/$reservationId'
+      preLoaderRoute: typeof ProtectedReservationsReservationIdRouteImport
       parentRoute: typeof ProtectedRouteRoute
     }
     '/_protected/$placeId/$parkingId/$parkingSpotId/cart/': {
@@ -227,12 +248,15 @@ declare module '@tanstack/react-router' {
 }
 
 interface ProtectedRouteRouteChildren {
-  ProtectedAppIndexRoute: typeof ProtectedAppIndexRoute
+  ProtectedReservationsReservationIdRoute: typeof ProtectedReservationsReservationIdRoute
+  ProtectedReservationsIndexRoute: typeof ProtectedReservationsIndexRoute
   ProtectedPlaceIdParkingIdParkingSpotIdCartIndexRoute: typeof ProtectedPlaceIdParkingIdParkingSpotIdCartIndexRoute
 }
 
 const ProtectedRouteRouteChildren: ProtectedRouteRouteChildren = {
-  ProtectedAppIndexRoute: ProtectedAppIndexRoute,
+  ProtectedReservationsReservationIdRoute:
+    ProtectedReservationsReservationIdRoute,
+  ProtectedReservationsIndexRoute: ProtectedReservationsIndexRoute,
   ProtectedPlaceIdParkingIdParkingSpotIdCartIndexRoute:
     ProtectedPlaceIdParkingIdParkingSpotIdCartIndexRoute,
 }

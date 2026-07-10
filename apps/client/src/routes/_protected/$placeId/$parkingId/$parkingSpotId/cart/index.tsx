@@ -1,5 +1,5 @@
 import { useServerFn } from '@tanstack/react-start';
-import { Link, createFileRoute } from '@tanstack/react-router';
+import { Link, createFileRoute, useNavigate } from '@tanstack/react-router';
 import {
   ArrowLeft,
   CalendarClock,
@@ -9,6 +9,7 @@ import {
   PackagePlus,
   ReceiptText,
   RefreshCw,
+  ShieldCheck,
 } from 'lucide-react';
 import type { FormEvent } from 'react';
 import { useState } from 'react';
@@ -27,6 +28,7 @@ import { Input } from '#/components/ui/input.tsx';
 import { Spinner } from '#/components/ui/spinner.tsx';
 import { createCart, getCart, updateCart } from '#/features/cart/api';
 import type { getCartResponseSchema } from '#/features/cart/schemas';
+import { createReservation } from '#/features/reservations/api';
 import { z } from 'zod';
 
 type Cart = z.infer<typeof getCartResponseSchema>;
@@ -77,8 +79,10 @@ export const Route = createFileRoute(
 function RouteComponent() {
   const { cart: initialCart, error } = Route.useLoaderData();
   const params = Route.useParams();
+  const navigate = useNavigate({ from: Route.fullPath });
   const updateCartFn = useServerFn(updateCart);
   const getCartFn = useServerFn(getCart);
+  const createReservationFn = useServerFn(createReservation);
   const [cart, setCart] = useState<Cart | null>(initialCart);
   const [arrival, setArrival] = useState(() =>
     initialCart ? timestampToDateTimeLocal(initialCart.arrival) : '',
@@ -86,8 +90,11 @@ function RouteComponent() {
   const [departure, setDeparture] = useState(() =>
     initialCart ? timestampToDateTimeLocal(initialCart.departure) : '',
   );
+  const [registrationNumber, setRegistrationNumber] = useState('');
   const [updateError, setUpdateError] = useState<string | null>(null);
+  const [reservationError, setReservationError] = useState<string | null>(null);
   const [isUpdating, setIsUpdating] = useState(false);
+  const [isCreatingReservation, setIsCreatingReservation] = useState(false);
   const parkingSearch = {
     arrival: cart?.arrival ?? initialCart?.arrival ?? 0,
     departure: cart?.departure ?? initialCart?.departure ?? 0,
@@ -162,6 +169,45 @@ function RouteComponent() {
       toast.error(message);
     } finally {
       setIsUpdating(false);
+    }
+  };
+
+  const handleMakeReservation = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    const normalizedRegistrationNumber = registrationNumber.trim();
+
+    if (!normalizedRegistrationNumber) {
+      setReservationError('Enter the vehicle registration number.');
+      return;
+    }
+
+    setIsCreatingReservation(true);
+    setReservationError(null);
+
+    try {
+      const reservation = await createReservationFn({
+        data: {
+          cartId: cart.id,
+          registrationNumber: normalizedRegistrationNumber,
+        },
+      });
+
+      toast.success('Reservation created');
+      await navigate({
+        to: '/reservations/$reservationId',
+        params: { reservationId: reservation.id },
+      });
+    } catch (caughtError) {
+      const message =
+        caughtError instanceof Error
+          ? caughtError.message
+          : 'The reservation could not be created. Please try again.';
+
+      setReservationError(message);
+      toast.error(message);
+    } finally {
+      setIsCreatingReservation(false);
     }
   };
 
@@ -267,6 +313,41 @@ function RouteComponent() {
                 ))}
               </div>
             )}
+          </CardContent>
+        </Card>
+
+        <Card className="gap-5 py-5 lg:col-start-2">
+          <CardHeader className="px-5">
+            <CardTitle className="flex items-center gap-2 text-lg">
+              <ShieldCheck className="size-5 text-primary" />
+              Confirm
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="px-5">
+            <form className="grid gap-4" onSubmit={handleMakeReservation}>
+              <Field>
+                <FieldLabel htmlFor="registration-number">
+                  Registration number
+                </FieldLabel>
+                <Input
+                  id="registration-number"
+                  value={registrationNumber}
+                  onChange={(event) =>
+                    setRegistrationNumber(event.target.value)
+                  }
+                  placeholder="KR 12345"
+                  disabled={isCreatingReservation}
+                  autoComplete="off"
+                />
+                {reservationError ? (
+                  <FieldError>{reservationError}</FieldError>
+                ) : null}
+              </Field>
+              <Button type="submit" disabled={isCreatingReservation}>
+                {isCreatingReservation ? <Spinner /> : <ShieldCheck />}
+                Make reservation
+              </Button>
+            </form>
           </CardContent>
         </Card>
 
