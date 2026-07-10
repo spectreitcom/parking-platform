@@ -435,6 +435,16 @@ function formatTimestamp(timestamp: number) {
 
 function formatAvailableSpots(count: number) {
   if (count === 1) return '1 wolne miejsce';
-  if (count > 1 && count < 5) return `${count} wolne miejsca`;
+  const lastDigit = count % 10;
+  const lastTwoDigits = count % 100;
+
+  if (
+    lastDigit >= 2 &&
+    lastDigit <= 4 &&
+    (lastTwoDigits < 12 || lastTwoDigits > 14)
+  ) {
+    return `${count} wolne miejsca`;
+  }
+
   return `${count} wolnych miejsc`;
 }
