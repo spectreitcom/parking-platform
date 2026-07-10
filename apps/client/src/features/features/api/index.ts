@@ -1,9 +1,7 @@
 import { createServerFn } from '@tanstack/react-start';
 import { env } from '#/env.ts';
-import {
-  defaultServerError,
-  genericApiErrorHandler,
-} from '#/lib/auth-fetch.ts';
+import { genericApiErrorHandler } from '#/lib/auth-fetch.ts';
+import { parseJsonResponse } from '#/lib/api-response.ts';
 import { featureListSchema } from '#/features/features/schemas';
 
 export const getFeatures = createServerFn().handler(async () => {
@@ -16,13 +14,5 @@ export const getFeatures = createServerFn().handler(async () => {
 
   await genericApiErrorHandler(response);
 
-  const responseData = await response.json();
-
-  const validationResult = featureListSchema.safeParse(responseData);
-
-  if (!validationResult.success) {
-    throw defaultServerError;
-  }
-
-  return validationResult.data;
+  return parseJsonResponse(response, featureListSchema);
 });

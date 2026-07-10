@@ -17,6 +17,7 @@ import { toast } from 'sonner';
 import { Alert, AlertDescription, AlertTitle } from '#/components/ui/alert.tsx';
 import { Badge } from '#/components/ui/badge.tsx';
 import { Button } from '#/components/ui/button.tsx';
+import { DetailItem } from '#/components/detail-item.tsx';
 import {
   Card,
   CardContent,
@@ -29,6 +30,7 @@ import { Spinner } from '#/components/ui/spinner.tsx';
 import { createCart, getCart, updateCart } from '#/features/cart/api';
 import type { getCartResponseSchema } from '#/features/cart/schemas';
 import { createReservation } from '#/features/reservations/api';
+import { formatPln, formatUnixDateTime, shortId } from '#/lib/formatters.ts';
 import { z } from 'zod';
 
 type Cart = z.infer<typeof getCartResponseSchema>;
@@ -251,32 +253,32 @@ function RouteComponent() {
             </CardTitle>
           </CardHeader>
           <CardContent className="grid gap-3 px-5 sm:grid-cols-2">
-            <Detail
+            <DetailItem
               label="Przyjazd"
-              value={formatTimestamp(cart.arrival)}
+              value={formatUnixDateTime(cart.arrival)}
               icon={<Clock3 />}
             />
-            <Detail
+            <DetailItem
               label="Wyjazd"
-              value={formatTimestamp(cart.departure)}
+              value={formatUnixDateTime(cart.departure)}
               icon={<Clock3 />}
             />
-            <Detail
+            <DetailItem
               label="Czas rezerwacji"
               value={formatDays(cart.days)}
               icon={<CalendarClock />}
             />
-            <Detail
+            <DetailItem
               label="Cena za dzień"
               value={formatMoney(cart.pricePerDay)}
               icon={<CreditCard />}
             />
-            <Detail
+            <DetailItem
               label="Miejsce parkingowe"
               value={shortId(cart.parkingSpotId)}
               icon={<Car />}
             />
-            <Detail
+            <DetailItem
               label="Numer koszyka"
               value={shortId(cart.id)}
               icon={<ReceiptText />}
@@ -396,29 +398,6 @@ function RouteComponent() {
   );
 }
 
-function Detail({
-  label,
-  value,
-  icon,
-}: Readonly<{ label: string; value: string; icon: React.ReactNode }>) {
-  return (
-    <div className="metric-tile flex items-start gap-3">
-      <span className="mt-0.5 text-primary [&_svg]:size-4">{icon}</span>
-      <div className="min-w-0">
-        <p className="text-xs font-medium text-muted-foreground">{label}</p>
-        <p className="break-words font-semibold">{value}</p>
-      </div>
-    </div>
-  );
-}
-
-function formatTimestamp(timestamp: number) {
-  return new Intl.DateTimeFormat('pl-PL', {
-    dateStyle: 'medium',
-    timeStyle: 'short',
-  }).format(new Date(timestamp * 1000));
-}
-
 function timestampToDateTimeLocal(timestamp: number) {
   const date = new Date(timestamp * 1000);
   const timezoneOffsetMs = date.getTimezoneOffset() * 60 * 1000;
@@ -438,17 +417,6 @@ function dateTimeLocalToTimestamp(value: string) {
 
 function formatMoney(valueInCents: number) {
   return formatPln(valueInCents / 100);
-}
-
-function formatPln(value: number) {
-  return new Intl.NumberFormat('pl-PL', {
-    style: 'currency',
-    currency: 'PLN',
-  }).format(value);
-}
-
-function shortId(id: string) {
-  return id.slice(0, 8).toUpperCase();
 }
 
 function formatDays(days: number) {

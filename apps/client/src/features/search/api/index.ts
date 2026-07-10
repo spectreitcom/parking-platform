@@ -5,10 +5,8 @@ import {
 } from '#/features/search/schemas';
 import { createSearchParams } from '@repo/frontend-utils';
 import { env } from '#/env.ts';
-import {
-  defaultServerError,
-  genericApiErrorHandler,
-} from '#/lib/auth-fetch.ts';
+import { genericApiErrorHandler } from '#/lib/auth-fetch.ts';
+import { parseJsonResponse } from '#/lib/api-response.ts';
 
 export const search = createServerFn()
   .validator(searchInputSchema)
@@ -29,13 +27,5 @@ export const search = createServerFn()
 
     await genericApiErrorHandler(response);
 
-    const responseData = await response.json();
-
-    const validationResult = searchResultsSchema.safeParse(responseData);
-
-    if (!validationResult.success) {
-      throw defaultServerError;
-    }
-
-    return validationResult.data;
+    return parseJsonResponse(response, searchResultsSchema);
   });

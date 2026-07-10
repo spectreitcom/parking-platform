@@ -7,12 +7,9 @@ import {
 import { env } from '#/env.ts';
 import { redirect } from '@tanstack/react-router';
 import { apiErrorSchema } from '#/lib/schemas.ts';
+import { parseJsonResponse } from '#/lib/api-response.ts';
 
 type FetchParameter = Parameters<typeof fetch>;
-
-export const defaultServerError = new Error(
-  'Coś poszło nie tak. Spróbuj ponownie później.',
-);
 
 const refreshToken = createServerFn()
   .validator(refreshTokenSchema)
@@ -32,19 +29,16 @@ const refreshToken = createServerFn()
       throw redirect({ to: '/auth/sign-in' });
     }
 
-    const responseData = await response.json();
-
-    const validationResult = signInResponseSchema.safeParse(responseData);
-
-    if (!validationResult.success) {
-      throw defaultServerError;
-    }
+    const responseData = await parseJsonResponse(
+      response,
+      signInResponseSchema,
+    );
 
     await session.update({
-      ...validationResult.data,
+      ...responseData,
     });
 
-    return validationResult.data;
+    return responseData;
   });
 
 export const authFetch = async (...args: FetchParameter) => {

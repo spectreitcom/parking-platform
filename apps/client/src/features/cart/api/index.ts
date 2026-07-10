@@ -6,11 +6,8 @@ import {
   getCartResponseSchema,
   updateCartInputSchema,
 } from '#/features/cart/schemas';
-import {
-  authFetch,
-  defaultServerError,
-  genericApiErrorHandler,
-} from '#/lib/auth-fetch.ts';
+import { authFetch, genericApiErrorHandler } from '#/lib/auth-fetch.ts';
+import { parseJsonResponse } from '#/lib/api-response.ts';
 import { env } from '#/env.ts';
 
 export const createCart = createServerFn()
@@ -27,15 +24,7 @@ export const createCart = createServerFn()
 
     await genericApiErrorHandler(response);
 
-    const responseData = await response.json();
-
-    const validationResult = genericCartResponseSchema.safeParse(responseData);
-
-    if (!validationResult.success) {
-      throw defaultServerError;
-    }
-
-    return validationResult.data;
+    return parseJsonResponse(response, genericCartResponseSchema);
   });
 
 export const updateCart = createServerFn()
@@ -52,15 +41,7 @@ export const updateCart = createServerFn()
 
     await genericApiErrorHandler(response);
 
-    const responseData = await response.json();
-
-    const validationResult = genericCartResponseSchema.safeParse(responseData);
-
-    if (!validationResult.success) {
-      throw defaultServerError;
-    }
-
-    return validationResult.data;
+    return parseJsonResponse(response, genericCartResponseSchema);
   });
 
 export const getCart = createServerFn()
@@ -72,13 +53,5 @@ export const getCart = createServerFn()
 
     await genericApiErrorHandler(response);
 
-    const responseData = await response.json();
-
-    const validationResult = getCartResponseSchema.safeParse(responseData);
-
-    if (!validationResult.success) {
-      throw defaultServerError;
-    }
-
-    return validationResult.data;
+    return parseJsonResponse(response, getCartResponseSchema);
   });

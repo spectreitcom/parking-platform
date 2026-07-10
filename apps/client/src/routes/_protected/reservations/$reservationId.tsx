@@ -1,5 +1,4 @@
-import { useServerFn } from '@tanstack/react-start';
-import { Link, createFileRoute, useRouter } from '@tanstack/react-router';
+import { Link, createFileRoute } from '@tanstack/react-router';
 import {
   ArrowLeft,
   CalendarClock,
@@ -13,13 +12,11 @@ import {
   Save,
   ShieldCheck,
 } from 'lucide-react';
-import type { FormEvent } from 'react';
-import { useState } from 'react';
-import { toast } from 'sonner';
 import { Alert, AlertDescription, AlertTitle } from '#/components/ui/alert.tsx';
 import { Badge } from '#/components/ui/badge.tsx';
 import { Button } from '#/components/ui/button.tsx';
 import { ConfirmDialog } from '#/components/confirm-dialog.tsx';
+import { DetailItem } from '#/components/detail-item.tsx';
 import {
   Card,
   CardContent,
@@ -29,11 +26,11 @@ import {
 import { Field, FieldError, FieldLabel } from '#/components/ui/field.tsx';
 import { Input } from '#/components/ui/input.tsx';
 import { Spinner } from '#/components/ui/spinner.tsx';
-import {
-  cancelReservation,
-  reservationDetails,
-  updateReservation,
-} from '#/features/reservations/api';
+import { reservationDetails } from '#/features/reservations/api';
+import { useReservationActions } from '#/features/reservations/hooks/use-reservation-actions.ts';
+import { getReservationStatusLabel } from '#/features/reservations/lib/reservation-status.ts';
+import type { ReservationDetails } from '#/features/reservations/schemas';
+import { formatPln, formatUnixDateTime, shortId } from '#/lib/formatters.ts';
 
 export const Route = createFileRoute('/_protected/reservations/$reservationId')(
   {
@@ -65,18 +62,6 @@ export const Route = createFileRoute('/_protected/reservations/$reservationId')(
 
 function RouteComponent() {
   const { reservation, error } = Route.useLoaderData();
-  const router = useRouter();
-  const cancelReservationFn = useServerFn(cancelReservation);
-  const updateReservationFn = useServerFn(updateReservation);
-  const [isCancelDialogOpen, setIsCancelDialogOpen] = useState(false);
-  const [isCancelling, setIsCancelling] = useState(false);
-  const [cancelError, setCancelError] = useState<string | null>(null);
-  const [registrationNumber, setRegistrationNumber] = useState(
-    () => reservation?.registrationNumber ?? '',
-  );
-  const [isEditing, setIsEditing] = useState(false);
-  const [isUpdatingReservation, setIsUpdatingReservation] = useState(false);
-  const [updateError, setUpdateError] = useState<string | null>(null);
 
   if (error || !reservation) {
     return (
@@ -95,89 +80,29 @@ function RouteComponent() {
     );
   }
 
-  const canCancel =
-    reservation.canCancel ??
-    !reservation.status.toLowerCase().includes('cancel');
-  const canEdit = reservation.canEdit ?? canCancel;
+  return <ReservationDetailsPage reservation={reservation} />;
+}
 
-  const handleStartEditing = () => {
-    setRegistrationNumber(reservation.registrationNumber);
-    setUpdateError(null);
-    setIsEditing(true);
-  };
-
-  const handleCancelEditing = () => {
-    setRegistrationNumber(reservation.registrationNumber);
-    setUpdateError(null);
-    setIsEditing(false);
-  };
-
-  const handleUpdateReservation = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-
-    const normalizedRegistrationNumber = registrationNumber.trim();
-
-    if (!normalizedRegistrationNumber) {
-      setUpdateError('Wpisz numer rejestracyjny pojazdu.');
-      return;
-    }
-
-    setIsUpdatingReservation(true);
-    setUpdateError(null);
-
-    try {
-      await updateReservationFn({
-        data: {
-          reservationId: reservation.reservationId,
-          version: reservation.version,
-          registrationNumber: normalizedRegistrationNumber,
-        },
-      });
-
-      toast.success('Rezerwacja została zaktualizowana');
-      setRegistrationNumber(normalizedRegistrationNumber);
-      setIsEditing(false);
-      await router.invalidate();
-    } catch (caughtError) {
-      const message =
-        caughtError instanceof Error
-          ? caughtError.message
-          : 'Nie udało się zaktualizować rezerwacji. Spróbuj ponownie.';
-
-      setUpdateError(message);
-      toast.error(message);
-    } finally {
-      setIsUpdatingReservation(false);
-    }
-  };
-
-  const handleCancelReservation = async () => {
-    setIsCancelling(true);
-    setCancelError(null);
-
-    try {
-      await cancelReservationFn({
-        data: {
-          reservationId: reservation.reservationId,
-          version: reservation.version,
-        },
-      });
-
-      toast.success('Rezerwacja została anulowana');
-      setIsCancelDialogOpen(false);
-      await router.invalidate();
-    } catch (caughtError) {
-      const message =
-        caughtError instanceof Error
-          ? caughtError.message
-          : 'Nie udało się anulować rezerwacji. Spróbuj ponownie.';
-
-      setCancelError(message);
-      toast.error(message);
-    } finally {
-      setIsCancelling(false);
-    }
-  };
+function ReservationDetailsPage({
+  reservation,
+}: Readonly<{ reservation: ReservationDetails }>) {
+  const {
+    canCancel,
+    canEdit,
+    cancel,
+    cancelError,
+    isCancelDialogOpen,
+    isCancelling,
+    isEditing,
+    isUpdating,
+    registrationNumber,
+    setIsCancelDialogOpen,
+    setRegistrationNumber,
+    startEditing,
+    stopEditing,
+    update,
+    updateError,
+  } = useReservationActions(reservation);
 
   return (
     <main className="app-page max-w-5xl">
@@ -192,7 +117,7 @@ function RouteComponent() {
         <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           <div className="flex flex-col gap-2">
             <Badge variant="secondary" className="w-fit">
-              {translateStatus(reservation.status)}
+              {getReservationStatusLabel(reservation.status)}
             </Badge>
             <h1 className="page-title">
               Rezerwacja {shortId(reservation.reservationId)}
@@ -225,32 +150,32 @@ function RouteComponent() {
             </CardTitle>
           </CardHeader>
           <CardContent className="grid gap-3 px-5 sm:grid-cols-2">
-            <Detail
+            <DetailItem
               label="Przyjazd"
-              value={formatTimestamp(reservation.arrival)}
+              value={formatUnixDateTime(reservation.arrival)}
               icon={<Clock3 />}
             />
-            <Detail
+            <DetailItem
               label="Wyjazd"
-              value={formatTimestamp(reservation.departure)}
+              value={formatUnixDateTime(reservation.departure)}
               icon={<Clock3 />}
             />
-            <Detail
+            <DetailItem
               label="Numer rejestracyjny"
               value={reservation.registrationNumber}
               icon={<Car />}
             />
-            <Detail
+            <DetailItem
               label="Miejsce parkingowe"
               value={shortId(reservation.parkingSpot.id)}
               icon={<MapPin />}
             />
-            <Detail
+            <DetailItem
               label="Cena za dzień"
               value={formatPln(reservation.parkingSpot.pricePLN)}
               icon={<CreditCard />}
             />
-            <Detail
+            <DetailItem
               label="Wersja"
               value={reservation.version.toString()}
               icon={<ShieldCheck />}
@@ -298,7 +223,7 @@ function RouteComponent() {
             </CardHeader>
             <CardContent className="grid gap-5 px-5">
               {canEdit ? (
-                <form className="grid gap-4" onSubmit={handleUpdateReservation}>
+                <form className="grid gap-4" onSubmit={update}>
                   <div className="grid gap-4 md:grid-cols-[minmax(0,1fr)_auto] md:items-end">
                     <Field>
                       <FieldLabel htmlFor="reservation-registration-number">
@@ -311,7 +236,7 @@ function RouteComponent() {
                           setRegistrationNumber(event.target.value)
                         }
                         placeholder="KR 12345"
-                        disabled={!isEditing || isUpdatingReservation}
+                        disabled={!isEditing || isUpdating}
                         autoComplete="off"
                       />
                     </Field>
@@ -320,18 +245,18 @@ function RouteComponent() {
                         <Button
                           type="button"
                           variant="outline"
-                          onClick={handleCancelEditing}
-                          disabled={isUpdatingReservation}
+                          onClick={stopEditing}
+                          disabled={isUpdating}
                           className="w-full sm:w-fit"
                         >
                           Anuluj
                         </Button>
                         <Button
                           type="submit"
-                          disabled={isUpdatingReservation}
+                          disabled={isUpdating}
                           className="w-full sm:w-fit"
                         >
-                          {isUpdatingReservation ? <Spinner /> : <Save />}
+                          {isUpdating ? <Spinner /> : <Save />}
                           Zapisz
                         </Button>
                       </div>
@@ -339,7 +264,7 @@ function RouteComponent() {
                       <Button
                         type="button"
                         variant="outline"
-                        onClick={handleStartEditing}
+                        onClick={startEditing}
                         className="w-full sm:w-fit"
                       >
                         <Pencil />
@@ -381,22 +306,22 @@ function RouteComponent() {
             </CardTitle>
           </CardHeader>
           <CardContent className="grid gap-3 px-5 sm:grid-cols-2 lg:grid-cols-4">
-            <Detail
+            <DetailItem
               label="Nazwa"
               value={reservation.parking.name}
               icon={<MapPin />}
             />
-            <Detail
+            <DetailItem
               label="Adres"
               value={reservation.parking.address}
               icon={<MapPin />}
             />
-            <Detail
+            <DetailItem
               label="Numer rezerwacji"
               value={shortId(reservation.reservationId)}
               icon={<ReceiptText />}
             />
-            <Detail
+            <DetailItem
               label="Numer koszyka"
               value={shortId(reservation.cartId)}
               icon={<ReceiptText />}
@@ -413,55 +338,8 @@ function RouteComponent() {
         confirmText="Anuluj rezerwację"
         variant="destructive"
         isLoading={isCancelling}
-        onConfirm={handleCancelReservation}
+        onConfirm={cancel}
       />
     </main>
   );
-}
-
-function Detail({
-  label,
-  value,
-  icon,
-}: Readonly<{ label: string; value: string; icon: React.ReactNode }>) {
-  return (
-    <div className="metric-tile flex items-start gap-3">
-      <span className="mt-0.5 text-primary [&_svg]:size-4">{icon}</span>
-      <div className="min-w-0">
-        <p className="text-xs font-medium text-muted-foreground">{label}</p>
-        <p className="break-words font-semibold">{value}</p>
-      </div>
-    </div>
-  );
-}
-
-function formatTimestamp(timestamp: number) {
-  return new Intl.DateTimeFormat('pl-PL', {
-    dateStyle: 'medium',
-    timeStyle: 'short',
-  }).format(new Date(timestamp * 1000));
-}
-
-function formatPln(value: number) {
-  return new Intl.NumberFormat('pl-PL', {
-    style: 'currency',
-    currency: 'PLN',
-  }).format(value);
-}
-
-function shortId(id: string) {
-  return id.slice(0, 8).toUpperCase();
-}
-
-function translateStatus(status: string) {
-  const normalized = status.toLowerCase();
-
-  if (normalized.includes('cancel')) return 'Anulowana';
-  if (normalized.includes('confirm') || normalized.includes('active'))
-    return 'Potwierdzona';
-  if (normalized.includes('complete') || normalized.includes('finish'))
-    return 'Zakończona';
-  if (normalized.includes('pending')) return 'Oczekująca';
-
-  return status;
 }

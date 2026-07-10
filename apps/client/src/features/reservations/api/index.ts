@@ -9,11 +9,8 @@ import {
   reservationsListResponseSchema,
   updateReservationInputSchema,
 } from '#/features/reservations/schemas';
-import {
-  authFetch,
-  defaultServerError,
-  genericApiErrorHandler,
-} from '#/lib/auth-fetch.ts';
+import { authFetch, genericApiErrorHandler } from '#/lib/auth-fetch.ts';
+import { parseJsonResponse } from '#/lib/api-response.ts';
 import { env } from '#/env.ts';
 import { createSearchParams } from '@repo/frontend-utils';
 
@@ -27,15 +24,7 @@ export const createReservation = createServerFn()
 
     await genericApiErrorHandler(response);
 
-    const responseData = await response.json();
-
-    const validationResult = reservationGenericResponse.safeParse(responseData);
-
-    if (!validationResult.success) {
-      throw defaultServerError;
-    }
-
-    return validationResult.data;
+    return parseJsonResponse(response, reservationGenericResponse);
   });
 
 export const cancelReservation = createServerFn()
@@ -51,15 +40,7 @@ export const cancelReservation = createServerFn()
 
     await genericApiErrorHandler(response);
 
-    const responseData = await response.json();
-
-    const validationResult = reservationGenericResponse.safeParse(responseData);
-
-    if (!validationResult.success) {
-      throw defaultServerError;
-    }
-
-    return validationResult.data;
+    return parseJsonResponse(response, reservationGenericResponse);
   });
 
 export const updateReservation = createServerFn()
@@ -78,15 +59,7 @@ export const updateReservation = createServerFn()
 
     await genericApiErrorHandler(response);
 
-    const responseData = await response.json();
-
-    const validationResult = reservationGenericResponse.safeParse(responseData);
-
-    if (!validationResult.success) {
-      throw defaultServerError;
-    }
-
-    return validationResult.data;
+    return parseJsonResponse(response, reservationGenericResponse);
   });
 
 export const getReservationsList = createServerFn()
@@ -104,16 +77,7 @@ export const getReservationsList = createServerFn()
 
     await genericApiErrorHandler(response);
 
-    const responseData = await response.json();
-
-    const validationResult =
-      reservationsListResponseSchema.safeParse(responseData);
-
-    if (!validationResult.success) {
-      throw defaultServerError;
-    }
-
-    return validationResult.data;
+    return parseJsonResponse(response, reservationsListResponseSchema);
   });
 
 export const reservationDetails = createServerFn()
@@ -125,13 +89,5 @@ export const reservationDetails = createServerFn()
 
     await genericApiErrorHandler(response);
 
-    const responseData = await response.json();
-
-    const validationResult = reservationDetailsSchema.safeParse(responseData);
-
-    if (!validationResult.success) {
-      throw defaultServerError;
-    }
-
-    return validationResult.data;
+    return parseJsonResponse(response, reservationDetailsSchema);
   });
