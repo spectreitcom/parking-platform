@@ -24,7 +24,7 @@ export class CartMapper {
 
     return Cart.reconstruct(
       CartId.fromString(raw.id),
-      CartDateRange.fromValues(raw.arrival, raw.departure),
+      CartDateRange.fromValues(raw.arrival * 1000, raw.departure * 1000),
       Money.fromNumber(raw.priceByDay),
       CartParkingSpotId.fromString(raw.parkingSpotId),
       _addons,
@@ -37,8 +37,8 @@ export class CartMapper {
     return {
       id: cart.getId().value,
       parkingSpotId: cart.getParkingSpotId().value,
-      arrival: cart.getDateRange().arrival,
-      departure: cart.getDateRange().departure,
+      arrival: Math.floor(cart.getDateRange().arrival / 1000),
+      departure: Math.floor(cart.getDateRange().departure / 1000),
       days: cart.getDateRange().diffDays,
       priceByDay: cart.getPricePerDay().value,
       createdAt: cart.getCreatedAt(),

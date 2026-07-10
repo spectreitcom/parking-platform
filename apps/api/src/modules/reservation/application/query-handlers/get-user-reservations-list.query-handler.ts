@@ -46,11 +46,14 @@ export class GetUserReservationsListQueryHandler implements IQueryHandler<
           record.status,
           record.createdAt,
           record.updatedAt,
-          new Date(record.arrival),
-          new Date(record.departure),
+          new Date(record.arrival * 1000),
+          new Date(record.departure * 1000),
           record.version,
           CancellationService.canCancel(
-            ReservationDateRange.fromValues(record.arrival, record.departure),
+            ReservationDateRange.fromValues(
+              record.arrival * 1000,
+              record.departure * 1000,
+            ),
             ReservationStatus.fromString(record.status),
             record.addons.map((addon) => ReservationAddon.fromString(addon)),
           ),

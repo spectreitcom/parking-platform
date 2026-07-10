@@ -20,8 +20,8 @@ export class UpdateCartHandler implements IControllerHandler {
 
     const id = await this.cartFacade.updateCart(
       cartId,
-      dto.arrival,
-      dto.departure,
+      dto.arrival * 1000,
+      dto.departure * 1000,
       addons.map((addon) => ({ id: addon.id, price: addon.price })),
       userId,
     );
