@@ -10,6 +10,7 @@ import {
 } from '#/features/auth/schemas';
 import { env } from '#/env.ts';
 import { authFetch, genericApiErrorHandler } from '#/lib/auth-fetch.ts';
+import { parseJsonResponse } from '#/lib/api-response.ts';
 import { useAppSession } from '#/lib/session.ts';
 import { redirect } from '@tanstack/react-router';
 
@@ -26,18 +27,15 @@ export const signIn = createServerFn()
 
     await genericApiErrorHandler(response);
 
-    const dataResponse = await response.json();
-
-    const validationResult = signInResponseSchema.safeParse(dataResponse);
-
-    if (!validationResult.success) {
-      throw new Error('Invalid response from server');
-    }
+    const responseData = await parseJsonResponse(
+      response,
+      signInResponseSchema,
+    );
 
     const session = await useAppSession();
 
     await session.update({
-      ...validationResult.data,
+      ...responseData,
     });
   });
 
@@ -59,15 +57,7 @@ export const getMe = createServerFn().handler(async () => {
 
   await genericApiErrorHandler(response);
 
-  const data = await response.json();
-
-  const validationResult = getMeResponseSchema.safeParse(data);
-
-  if (!validationResult.success) {
-    throw new Error('Invalid response from server');
-  }
-
-  return validationResult.data;
+  return parseJsonResponse(response, getMeResponseSchema);
 });
 
 export const isAuthenticated = createServerFn().handler(async () => {

@@ -1,14 +1,5 @@
 import { Link, createFileRoute, useNavigate } from '@tanstack/react-router';
-import {
-  CalendarClock,
-  Car,
-  Clock3,
-  Eye,
-  MapPin,
-  ReceiptText,
-  Search,
-  X,
-} from 'lucide-react';
+import { ReceiptText, Search, X } from 'lucide-react';
 import { useState, useTransition } from 'react';
 import type { FormEvent } from 'react';
 import { z } from 'zod';
@@ -25,6 +16,7 @@ import { Input } from '#/components/ui/input.tsx';
 import { Spinner } from '#/components/ui/spinner.tsx';
 import { Pagination } from '#/components/pagination.tsx';
 import { getReservationsList } from '#/features/reservations/api';
+import { ReservationsList } from '#/features/reservations/components/reservations-list.tsx';
 
 const PAGE_SIZE = 10;
 
@@ -36,7 +28,7 @@ const validateSearchSchema = z.object({
 export const Route = createFileRoute('/_protected/reservations/')({
   component: RouteComponent,
   pendingComponent: () => (
-    <div className="flex h-full w-full items-center justify-center">
+    <div className="flex min-h-[50vh] w-full items-center justify-center">
       <Spinner className="size-8" />
     </div>
   ),
@@ -62,7 +54,7 @@ export const Route = createFileRoute('/_protected/reservations/')({
         error:
           error instanceof Error
             ? error.message
-            : 'The reservations list could not be loaded.',
+            : 'Nie udało się wczytać listy rezerwacji.',
       };
     }
   },
@@ -114,25 +106,23 @@ function RouteComponent() {
   };
 
   return (
-    <div className="mx-auto flex w-full max-w-6xl flex-col gap-8 px-6 py-10 lg:px-8">
+    <main className="app-page max-w-6xl">
       <header className="flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
         <div className="flex max-w-2xl flex-col gap-2">
           <Badge variant="secondary" className="w-fit">
-            Reservations
+            Rezerwacje
           </Badge>
-          <h1 className="text-3xl font-semibold tracking-tight md:text-4xl">
-            Your reservations
-          </h1>
+          <h1 className="page-title">Twoje rezerwacje</h1>
           <p className="text-muted-foreground">
-            Review upcoming and past parking bookings, then open a reservation
-            for details or cancellation.
+            Przeglądaj nadchodzące i zakończone postoje. Otwórz rezerwację, aby
+            zobaczyć szczegóły lub ją anulować.
           </p>
         </div>
 
         <Button asChild variant="outline" className="w-full md:w-fit">
           <Link to="/">
             <Search />
-            Find parking
+            Znajdź parking
           </Link>
         </Button>
       </header>
@@ -141,7 +131,7 @@ function RouteComponent() {
         <CardHeader className="px-5">
           <CardTitle className="flex items-center gap-2 text-lg">
             <ReceiptText className="size-5 text-primary" />
-            Reservation list
+            Lista rezerwacji
           </CardTitle>
         </CardHeader>
         <CardContent className="flex flex-col gap-5 px-5">
@@ -154,7 +144,7 @@ function RouteComponent() {
               <Input
                 value={searchValue}
                 onChange={(event) => setSearchValue(event.target.value)}
-                placeholder="Search by parking or registration"
+                placeholder="Szukaj po parkingu lub rejestracji"
                 className="pr-10 pl-9"
                 maxLength={100}
               />
@@ -165,7 +155,7 @@ function RouteComponent() {
                   size="icon-sm"
                   className="absolute top-1/2 right-1 -translate-y-1/2"
                   onClick={handleClear}
-                  aria-label="Clear search"
+                  aria-label="Wyczyść wyszukiwanie"
                 >
                   <X />
                 </Button>
@@ -173,90 +163,36 @@ function RouteComponent() {
             </div>
             <Button type="submit" disabled={isPending}>
               {isPending ? <Spinner /> : <Search />}
-              Search
+              Szukaj
             </Button>
           </form>
 
           {error ? (
             <Alert variant="destructive">
-              <AlertTitle>Reservations unavailable</AlertTitle>
+              <AlertTitle>Rezerwacje są niedostępne</AlertTitle>
               <AlertDescription>{error}</AlertDescription>
             </Alert>
           ) : null}
 
           {!error && reservations && reservations.data.length === 0 ? (
             <Alert>
-              <AlertTitle>No reservations found</AlertTitle>
+              <AlertTitle>Nie znaleziono rezerwacji</AlertTitle>
               <AlertDescription>
                 {searchParams.search
-                  ? 'No reservations match your search.'
-                  : 'You do not have any reservations yet.'}
+                  ? 'Żadna rezerwacja nie pasuje do wyszukiwania.'
+                  : 'Nie masz jeszcze żadnych rezerwacji.'}
               </AlertDescription>
             </Alert>
           ) : null}
 
           {!error && reservations && reservations.data.length > 0 ? (
             <div className="flex flex-col gap-3">
-              <div className="hidden rounded-md border md:block">
-                <div className="grid grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)_minmax(0,1fr)_110px] gap-4 border-b bg-muted/40 px-4 py-3 text-xs font-medium text-muted-foreground">
-                  <span>Parking</span>
-                  <span>Reservation</span>
-                  <span>Time</span>
-                  <span className="text-right">Action</span>
-                </div>
-                {reservations.data.map((reservation) => (
-                  <div
-                    key={reservation.id}
-                    className="grid grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)_minmax(0,1fr)_110px] gap-4 border-b px-4 py-4 last:border-b-0"
-                  >
-                    <ReservationParking reservation={reservation} />
-                    <ReservationMeta reservation={reservation} />
-                    <ReservationTime reservation={reservation} />
-                    <div className="flex justify-end">
-                      <Button asChild variant="outline" size="sm">
-                        <Link
-                          to="/reservations/$reservationId"
-                          params={{ reservationId: reservation.id }}
-                        >
-                          <Eye />
-                          View
-                        </Link>
-                      </Button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              <div className="grid gap-3 md:hidden">
-                {reservations.data.map((reservation) => (
-                  <Card key={reservation.id} className="gap-4 py-4">
-                    <CardContent className="flex flex-col gap-4 px-4">
-                      <div className="flex items-start justify-between gap-3">
-                        <ReservationParking reservation={reservation} />
-                        <StatusBadge status={reservation.status} />
-                      </div>
-                      <div className="grid gap-3 text-sm">
-                        <ReservationMeta reservation={reservation} />
-                        <ReservationTime reservation={reservation} />
-                      </div>
-                      <Button asChild variant="outline" className="w-full">
-                        <Link
-                          to="/reservations/$reservationId"
-                          params={{ reservationId: reservation.id }}
-                        >
-                          <Eye />
-                          View reservation
-                        </Link>
-                      </Button>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
+              <ReservationsList reservations={reservations.data} />
 
               <div className="flex flex-col gap-3 border-t pt-4 sm:flex-row sm:items-center sm:justify-between">
                 <p className="text-sm text-muted-foreground">
-                  Showing {reservations.data.length} of {reservations.total}{' '}
-                  reservations
+                  Wyświetlono {reservations.data.length} z {reservations.total}{' '}
+                  rezerwacji
                 </p>
                 <Pagination
                   total={reservations.total}
@@ -269,80 +205,6 @@ function RouteComponent() {
           ) : null}
         </CardContent>
       </Card>
-    </div>
+    </main>
   );
-}
-
-type ReservationListItem = NonNullable<
-  Awaited<ReturnType<typeof getReservationsList>>
->['data'][number];
-
-function ReservationParking({
-  reservation,
-}: Readonly<{ reservation: ReservationListItem }>) {
-  return (
-    <div className="min-w-0">
-      <p className="truncate font-semibold">{reservation.parking.name}</p>
-      <p className="mt-1 flex items-center gap-1 text-sm text-muted-foreground">
-        <MapPin className="size-3.5 shrink-0" />
-        <span className="truncate">Spot {shortId(reservation.parkingSpotId)}</span>
-      </p>
-    </div>
-  );
-}
-
-function ReservationMeta({
-  reservation,
-}: Readonly<{ reservation: ReservationListItem }>) {
-  return (
-    <div className="flex min-w-0 flex-col gap-2">
-      <div className="flex items-center gap-2">
-        <StatusBadge status={reservation.status} />
-        {reservation.canEdit ? (
-          <Badge variant="outline" className="hidden lg:inline-flex">
-            Editable
-          </Badge>
-        ) : null}
-      </div>
-      <p className="flex items-center gap-1 text-sm text-muted-foreground">
-        <Car className="size-3.5 shrink-0" />
-        <span className="truncate">{reservation.registrationNumber}</span>
-      </p>
-    </div>
-  );
-}
-
-function ReservationTime({
-  reservation,
-}: Readonly<{ reservation: ReservationListItem }>) {
-  return (
-    <div className="grid gap-1 text-sm">
-      <p className="flex items-center gap-1 text-muted-foreground">
-        <Clock3 className="size-3.5 shrink-0" />
-        <span>{formatDateTime(reservation.arrivalDate)}</span>
-      </p>
-      <p className="flex items-center gap-1 text-muted-foreground">
-        <CalendarClock className="size-3.5 shrink-0" />
-        <span>{formatDateTime(reservation.departureDate)}</span>
-      </p>
-    </div>
-  );
-}
-
-function StatusBadge({ status }: Readonly<{ status: string }>) {
-  const normalizedStatus = status.toLowerCase();
-  const variant = normalizedStatus.includes('cancel') ? 'secondary' : 'default';
-
-  return <Badge variant={variant}>{status}</Badge>;
-}
-
-function formatDateTime(date: Date) {
-  return new Intl.DateTimeFormat(undefined, {
-    dateStyle: 'medium',
-    timeStyle: 'short',
-  }).format(date);
-}
-
-function shortId(id: string) {
-  return id.slice(0, 8).toUpperCase();
 }

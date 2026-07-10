@@ -15,26 +15,28 @@ export function Pagination({ total, page, pageSize, onPageChange }: Props) {
   if (totalPages <= 1) return null;
 
   return (
-    <div className="flex items-center gap-2">
+    <nav className="flex items-center gap-2" aria-label="Stronicowanie">
       <Button
         variant="outline"
         size="icon-sm"
         onClick={() => onPageChange(page - 1)}
         disabled={page <= 1}
+        aria-label="Poprzednia strona"
       >
         <ChevronLeft className="size-4" />
       </Button>
       <span className="min-w-20 text-center text-sm font-medium text-muted-foreground">
-        {page} of {totalPages}
+        {page} z {totalPages}
       </span>
       <Button
         variant="outline"
         size="icon-sm"
         onClick={() => onPageChange(page + 1)}
         disabled={page >= totalPages}
+        aria-label="Następna strona"
       >
         <ChevronRight className="size-4" />
       </Button>
-    </div>
+    </nav>
   );
 }

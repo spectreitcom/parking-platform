@@ -8,6 +8,12 @@ export class GetCartHandler implements IControllerHandler {
   constructor(private readonly cartFacade: CartFacade) {}
 
   async handle(cartId: string, userId: string): Promise<CartReadModel> {
-    return await this.cartFacade.getCartById(cartId, userId);
+    const cart = await this.cartFacade.getCartById(cartId, userId);
+
+    return {
+      ...cart,
+      arrival: cart.arrival / 1000,
+      departure: cart.departure / 1000,
+    };
   }
 }

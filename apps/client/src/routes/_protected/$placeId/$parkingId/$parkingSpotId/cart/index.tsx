@@ -17,6 +17,7 @@ import { toast } from 'sonner';
 import { Alert, AlertDescription, AlertTitle } from '#/components/ui/alert.tsx';
 import { Badge } from '#/components/ui/badge.tsx';
 import { Button } from '#/components/ui/button.tsx';
+import { DetailItem } from '#/components/detail-item.tsx';
 import {
   Card,
   CardContent,
@@ -29,6 +30,7 @@ import { Spinner } from '#/components/ui/spinner.tsx';
 import { createCart, getCart, updateCart } from '#/features/cart/api';
 import type { getCartResponseSchema } from '#/features/cart/schemas';
 import { createReservation } from '#/features/reservations/api';
+import { formatPln, formatUnixDateTime, shortId } from '#/lib/formatters.ts';
 import { z } from 'zod';
 
 type Cart = z.infer<typeof getCartResponseSchema>;
@@ -43,7 +45,7 @@ export const Route = createFileRoute(
 )({
   component: RouteComponent,
   pendingComponent: () => (
-    <div className={'flex h-full w-full items-center justify-center'}>
+    <div className="flex min-h-[50vh] w-full items-center justify-center">
       <Spinner className={'size-8'} />
     </div>
   ),
@@ -70,7 +72,7 @@ export const Route = createFileRoute(
         error:
           error instanceof Error
             ? error.message
-            : 'The cart could not be created. Please try again.',
+            : 'Nie udało się utworzyć koszyka. Spróbuj ponownie.',
       };
     }
   },
@@ -102,11 +104,11 @@ function RouteComponent() {
 
   if (error || !cart) {
     return (
-      <div className="mx-auto flex w-full max-w-4xl flex-col gap-6 px-6 py-10 lg:px-8">
+      <main className="app-page max-w-4xl">
         <Alert variant="destructive">
-          <AlertTitle>Cart unavailable</AlertTitle>
+          <AlertTitle>Koszyk jest niedostępny</AlertTitle>
           <AlertDescription>
-            The cart could not be created. Please try again.
+            Nie udało się utworzyć koszyka. Spróbuj ponownie.
           </AlertDescription>
         </Alert>
         <Button asChild variant="outline" className="w-fit">
@@ -116,10 +118,10 @@ function RouteComponent() {
             search={parkingSearch}
           >
             <ArrowLeft />
-            Back to parking
+            Wróć do parkingu
           </Link>
         </Button>
-      </div>
+      </main>
     );
   }
 
@@ -130,12 +132,12 @@ function RouteComponent() {
     const departureTimestamp = dateTimeLocalToTimestamp(departure);
 
     if (!arrivalTimestamp || !departureTimestamp) {
-      setUpdateError('Select both arrival and departure times.');
+      setUpdateError('Wybierz godzinę przyjazdu i wyjazdu.');
       return;
     }
 
     if (departureTimestamp <= arrivalTimestamp) {
-      setUpdateError('Departure must be after arrival.');
+      setUpdateError('Wyjazd musi być później niż przyjazd.');
       return;
     }
 
@@ -158,12 +160,12 @@ function RouteComponent() {
       setCart(refreshedCart);
       setArrival(timestampToDateTimeLocal(refreshedCart.arrival));
       setDeparture(timestampToDateTimeLocal(refreshedCart.departure));
-      toast.success('Cart updated');
+      toast.success('Termin został zaktualizowany');
     } catch (caughtError) {
       const message =
         caughtError instanceof Error
           ? caughtError.message
-          : 'The cart could not be updated. Please try again.';
+          : 'Nie udało się zaktualizować terminu. Spróbuj ponownie.';
 
       setUpdateError(message);
       toast.error(message);
@@ -178,7 +180,7 @@ function RouteComponent() {
     const normalizedRegistrationNumber = registrationNumber.trim();
 
     if (!normalizedRegistrationNumber) {
-      setReservationError('Enter the vehicle registration number.');
+      setReservationError('Wpisz numer rejestracyjny pojazdu.');
       return;
     }
 
@@ -193,7 +195,7 @@ function RouteComponent() {
         },
       });
 
-      toast.success('Reservation created');
+      toast.success('Rezerwacja została utworzona');
       await navigate({
         to: '/reservations/$reservationId',
         params: { reservationId: reservation.id },
@@ -202,7 +204,7 @@ function RouteComponent() {
       const message =
         caughtError instanceof Error
           ? caughtError.message
-          : 'The reservation could not be created. Please try again.';
+          : 'Nie udało się utworzyć rezerwacji. Spróbuj ponownie.';
 
       setReservationError(message);
       toast.error(message);
@@ -212,7 +214,7 @@ function RouteComponent() {
   };
 
   return (
-    <div className="mx-auto flex w-full max-w-5xl flex-col gap-8 px-6 py-10 lg:px-8">
+    <main className="app-page max-w-5xl">
       <header className="flex flex-col gap-5">
         <Button asChild variant="link" className="h-auto w-fit px-0">
           <Link
@@ -221,24 +223,22 @@ function RouteComponent() {
             search={parkingSearch}
           >
             <ArrowLeft />
-            Back to parking
+            Wróć do parkingu
           </Link>
         </Button>
 
         <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           <div className="flex flex-col gap-2">
             <Badge variant="secondary" className="w-fit">
-              Cart created
+              Podsumowanie
             </Badge>
-            <h1 className="text-3xl font-semibold tracking-tight md:text-4xl">
-              Your reservation
-            </h1>
+            <h1 className="page-title">Twoja rezerwacja</h1>
             <p className="text-muted-foreground">
-              Review the basic booking details before continuing.
+              Sprawdź szczegóły i podaj numer rejestracyjny pojazdu.
             </p>
           </div>
-          <div className="rounded-lg border bg-card px-5 py-4 shadow-sm">
-            <p className="text-sm font-medium text-muted-foreground">Total</p>
+          <div className="surface-panel px-5 py-4">
+            <p className="text-sm font-medium text-muted-foreground">Łącznie</p>
             <p className="text-3xl font-semibold">{formatMoney(cart.total)}</p>
           </div>
         </div>
@@ -249,37 +249,37 @@ function RouteComponent() {
           <CardHeader className="px-5">
             <CardTitle className="flex items-center gap-2 text-lg">
               <CalendarClock className="size-5 text-primary" />
-              Booking details
+              Szczegóły rezerwacji
             </CardTitle>
           </CardHeader>
           <CardContent className="grid gap-3 px-5 sm:grid-cols-2">
-            <Detail
-              label="Arrival"
-              value={formatTimestamp(cart.arrival)}
+            <DetailItem
+              label="Przyjazd"
+              value={formatUnixDateTime(cart.arrival)}
               icon={<Clock3 />}
             />
-            <Detail
-              label="Departure"
-              value={formatTimestamp(cart.departure)}
+            <DetailItem
+              label="Wyjazd"
+              value={formatUnixDateTime(cart.departure)}
               icon={<Clock3 />}
             />
-            <Detail
-              label="Duration"
-              value={`${cart.days} ${cart.days === 1 ? 'day' : 'days'}`}
+            <DetailItem
+              label="Czas rezerwacji"
+              value={formatDays(cart.days)}
               icon={<CalendarClock />}
             />
-            <Detail
-              label="Price per day"
+            <DetailItem
+              label="Cena za dzień"
               value={formatMoney(cart.pricePerDay)}
               icon={<CreditCard />}
             />
-            <Detail
-              label="Parking spot"
+            <DetailItem
+              label="Miejsce parkingowe"
               value={shortId(cart.parkingSpotId)}
               icon={<Car />}
             />
-            <Detail
-              label="Cart number"
+            <DetailItem
+              label="Numer koszyka"
               value={shortId(cart.id)}
               icon={<ReceiptText />}
             />
@@ -290,13 +290,13 @@ function RouteComponent() {
           <CardHeader className="px-5">
             <CardTitle className="flex items-center gap-2 text-lg">
               <PackagePlus className="size-5 text-primary" />
-              Add-ons
+              Usługi dodatkowe
             </CardTitle>
           </CardHeader>
           <CardContent className="px-5">
             {cart.addons.length === 0 ? (
               <p className="text-sm text-muted-foreground">
-                No additional services have been selected.
+                Nie wybrano żadnych usług dodatkowych.
               </p>
             ) : (
               <div className="grid gap-3">
@@ -305,7 +305,7 @@ function RouteComponent() {
                     key={addon.id}
                     className="flex items-center justify-between gap-3 rounded-md border px-3 py-2 text-sm"
                   >
-                    <span>Service {shortId(addon.id)}</span>
+                    <span>Usługa {shortId(addon.id)}</span>
                     <span className="font-semibold">
                       {formatPln(addon.price)}
                     </span>
@@ -320,14 +320,14 @@ function RouteComponent() {
           <CardHeader className="px-5">
             <CardTitle className="flex items-center gap-2 text-lg">
               <ShieldCheck className="size-5 text-primary" />
-              Confirm
+              Potwierdź
             </CardTitle>
           </CardHeader>
           <CardContent className="px-5">
             <form className="grid gap-4" onSubmit={handleMakeReservation}>
               <Field>
                 <FieldLabel htmlFor="registration-number">
-                  Registration number
+                  Numer rejestracyjny
                 </FieldLabel>
                 <Input
                   id="registration-number"
@@ -345,7 +345,7 @@ function RouteComponent() {
               </Field>
               <Button type="submit" disabled={isCreatingReservation}>
                 {isCreatingReservation ? <Spinner /> : <ShieldCheck />}
-                Make reservation
+                Zarezerwuj miejsce
               </Button>
             </form>
           </CardContent>
@@ -355,7 +355,7 @@ function RouteComponent() {
           <CardHeader className="px-5">
             <CardTitle className="flex items-center gap-2 text-lg">
               <RefreshCw className="size-5 text-primary" />
-              Update reservation
+              Zmień termin
             </CardTitle>
           </CardHeader>
           <CardContent className="px-5">
@@ -364,7 +364,7 @@ function RouteComponent() {
               onSubmit={handleUpdateCart}
             >
               <Field>
-                <FieldLabel htmlFor="cart-arrival">Arrival</FieldLabel>
+                <FieldLabel htmlFor="cart-arrival">Przyjazd</FieldLabel>
                 <Input
                   id="cart-arrival"
                   type="datetime-local"
@@ -374,7 +374,7 @@ function RouteComponent() {
                 />
               </Field>
               <Field>
-                <FieldLabel htmlFor="cart-departure">Departure</FieldLabel>
+                <FieldLabel htmlFor="cart-departure">Wyjazd</FieldLabel>
                 <Input
                   id="cart-departure"
                   type="datetime-local"
@@ -385,7 +385,7 @@ function RouteComponent() {
               </Field>
               <Button type="submit" disabled={isUpdating}>
                 {isUpdating ? <Spinner /> : <RefreshCw />}
-                Update cart
+                Aktualizuj termin
               </Button>
               {updateError ? (
                 <FieldError className="md:col-span-3">{updateError}</FieldError>
@@ -394,31 +394,8 @@ function RouteComponent() {
           </CardContent>
         </Card>
       </div>
-    </div>
+    </main>
   );
-}
-
-function Detail({
-  label,
-  value,
-  icon,
-}: Readonly<{ label: string; value: string; icon: React.ReactNode }>) {
-  return (
-    <div className="flex items-start gap-3 rounded-md border p-3">
-      <span className="mt-0.5 text-primary [&_svg]:size-4">{icon}</span>
-      <div className="min-w-0">
-        <p className="text-xs font-medium text-muted-foreground">{label}</p>
-        <p className="break-words font-semibold">{value}</p>
-      </div>
-    </div>
-  );
-}
-
-function formatTimestamp(timestamp: number) {
-  return new Intl.DateTimeFormat(undefined, {
-    dateStyle: 'medium',
-    timeStyle: 'short',
-  }).format(new Date(timestamp * 1000));
 }
 
 function timestampToDateTimeLocal(timestamp: number) {
@@ -442,13 +419,8 @@ function formatMoney(valueInCents: number) {
   return formatPln(valueInCents / 100);
 }
 
-function formatPln(value: number) {
-  return new Intl.NumberFormat(undefined, {
-    style: 'currency',
-    currency: 'PLN',
-  }).format(value);
-}
-
-function shortId(id: string) {
-  return id.slice(0, 8).toUpperCase();
+function formatDays(days: number) {
+  if (days === 1) return '1 dzień';
+  if (days > 1 && days < 5) return `${days} dni`;
+  return `${days} dni`;
 }

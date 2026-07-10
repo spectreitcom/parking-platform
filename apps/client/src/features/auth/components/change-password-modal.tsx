@@ -43,14 +43,14 @@ export function ChangePasswordModal({ open, onOpenChange }: Props) {
             newPassword: value.newPassword,
           },
         });
-        toast.success('Password changed successfully');
+        toast.success('Hasło zostało zmienione');
         form.reset();
         onOpenChange(false);
       } catch (error) {
         if (error instanceof Error) {
           toast.error(error.message);
         } else {
-          toast.error('Failed to change password');
+          toast.error('Nie udało się zmienić hasła');
         }
       }
     },
@@ -71,7 +71,7 @@ export function ChangePasswordModal({ open, onOpenChange }: Props) {
           <div className="mb-1 flex size-10 items-center justify-center rounded-md border bg-background text-primary shadow-xs">
             <KeyRound className="size-5" />
           </div>
-          <DialogTitle>Change Password</DialogTitle>
+          <DialogTitle>Zmień hasło</DialogTitle>
         </DialogHeader>
         <form
           className="space-y-4"
@@ -89,7 +89,7 @@ export function ChangePasswordModal({ open, onOpenChange }: Props) {
 
               return (
                 <Field data-invalid={isInvalid}>
-                  <FieldLabel htmlFor={field.name}>Current password</FieldLabel>
+                  <FieldLabel htmlFor={field.name}>Obecne hasło</FieldLabel>
                   <Input
                     id={field.name}
                     name={field.name}
@@ -114,7 +114,7 @@ export function ChangePasswordModal({ open, onOpenChange }: Props) {
 
               return (
                 <Field data-invalid={isInvalid}>
-                  <FieldLabel htmlFor={field.name}>New password</FieldLabel>
+                  <FieldLabel htmlFor={field.name}>Nowe hasło</FieldLabel>
                   <Input
                     id={field.name}
                     name={field.name}
@@ -140,7 +140,7 @@ export function ChangePasswordModal({ open, onOpenChange }: Props) {
               return (
                 <Field data-invalid={isInvalid}>
                   <FieldLabel htmlFor={field.name}>
-                    Confirm new password
+                    Powtórz nowe hasło
                   </FieldLabel>
                   <Input
                     id={field.name}
@@ -167,11 +167,11 @@ export function ChangePasswordModal({ open, onOpenChange }: Props) {
                 onOpenChange(false);
               }}
             >
-              Cancel
+              Anuluj
             </Button>
             <Button type="submit" disabled={form.state.isSubmitting}>
               {form.state.isSubmitting && <Spinner className="mr-2" />}
-              Change Password
+              Zmień hasło
             </Button>
           </DialogFooter>
         </form>

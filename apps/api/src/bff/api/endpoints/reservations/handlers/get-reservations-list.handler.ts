@@ -32,8 +32,11 @@ export class GetReservationsListHandler implements IControllerHandler {
 
     for (const reservation of reservations) {
       const parking = parkingMap.get(reservation.parkingId);
+      const { arrivalDate, departureDate, ...rest } = reservation;
       data.push({
-        ...reservation,
+        ...rest,
+        arrivalDate,
+        departureDate,
         parking: parking ? { id: parking.id, name: parking.name } : null,
       });
     }

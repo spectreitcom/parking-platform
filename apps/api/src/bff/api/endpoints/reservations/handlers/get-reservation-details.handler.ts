@@ -59,8 +59,8 @@ export class GetReservationDetailsHandler implements IControllerHandler {
     return {
       reservationId: reservationDetails.reservationId,
       userId: reservationDetails.userId,
-      arrival: reservationDetails.arrival,
-      departure: reservationDetails.departure,
+      arrival: reservationDetails.arrival / 1000,
+      departure: reservationDetails.departure / 1000,
       cartId: reservationDetails.cartId,
       version: reservationDetails.version,
       registrationNumber: reservationDetails.registrationNumber,

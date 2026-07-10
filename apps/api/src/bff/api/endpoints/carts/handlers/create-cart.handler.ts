@@ -23,8 +23,8 @@ export class CreateCartHandler implements IControllerHandler {
 
     const id = await this.cartFacade.createCart(
       dto.parkingSpotId,
-      dto.arrival,
-      dto.departure,
+      dto.arrival * 1000,
+      dto.departure * 1000,
       parkingSpot.price,
       userId,
     );

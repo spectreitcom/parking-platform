@@ -34,7 +34,7 @@ const validateSearchSchema = z.object({
 export const Route = createFileRoute('/$placeId/$parkingId')({
   component: RouteComponent,
   pendingComponent: () => (
-    <div className={'flex h-full w-full items-center justify-center'}>
+    <div className="flex min-h-[50vh] w-full items-center justify-center">
       <Spinner className={'size-8'} />
     </div>
   ),
@@ -72,7 +72,7 @@ export const Route = createFileRoute('/$placeId/$parkingId')({
         place: null,
         features: null,
         authenticated: false,
-        error: 'Failed to fetch data. Try again later',
+        error: 'Nie udało się pobrać danych. Spróbuj ponownie później.',
       };
     }
   },
@@ -85,11 +85,11 @@ function RouteComponent() {
 
   if (error || !parkingDetails) {
     return (
-      <div className="mx-auto flex w-full max-w-5xl flex-col gap-6 px-6 py-10 lg:px-8">
+      <main className="app-page max-w-5xl">
         <Alert variant="destructive">
-          <AlertTitle>Parking details unavailable</AlertTitle>
+          <AlertTitle>Szczegóły parkingu są niedostępne</AlertTitle>
           <AlertDescription>
-            Failed to fetch data. Try again later
+            Nie udało się pobrać danych. Spróbuj ponownie później.
           </AlertDescription>
         </Alert>
         <Button asChild variant="outline" className="w-fit">
@@ -102,10 +102,10 @@ function RouteComponent() {
             }}
           >
             <ArrowLeft />
-            Back to results
+            Wróć do wyników
           </Link>
         </Button>
-      </div>
+      </main>
     );
   }
 
@@ -115,7 +115,7 @@ function RouteComponent() {
   const lowestPrice = getLowestPrice(availableSpots);
 
   return (
-    <div className="mx-auto flex w-full max-w-7xl flex-col gap-8 px-6 py-10 lg:px-8">
+    <main className="app-page">
       <header className="flex flex-col gap-5">
         <Button asChild variant="link" className="h-auto w-fit px-0">
           <Link
@@ -127,7 +127,7 @@ function RouteComponent() {
             }}
           >
             <ArrowLeft />
-            Back to results
+            Wróć do wyników
           </Link>
         </Button>
 
@@ -135,16 +135,14 @@ function RouteComponent() {
           <div className="flex min-w-0 flex-col gap-3">
             <div className="flex flex-wrap items-center gap-2">
               <Badge variant="secondary">
-                {availableSpots.length} available
+                {formatAvailableSpots(availableSpots.length)}
               </Badge>
               <Badge variant="outline">
                 {parkingDetails.organization.name}
               </Badge>
             </div>
             <div className="flex flex-col gap-2">
-              <h1 className="text-3xl font-semibold tracking-tight md:text-4xl">
-                {parkingDetails.name}
-              </h1>
+              <h1 className="page-title">{parkingDetails.name}</h1>
               <p className="flex items-start gap-2 text-muted-foreground">
                 <MapPin className="mt-0.5 size-4 shrink-0" />
                 <span>{parkingDetails.address}</span>
@@ -152,20 +150,20 @@ function RouteComponent() {
             </div>
           </div>
 
-          <div className="grid gap-3 rounded-lg border bg-card/80 p-4 shadow-sm">
+          <div className="surface-panel grid gap-3 p-5">
             <div className="flex items-center justify-between gap-4">
               <span className="text-sm font-medium text-muted-foreground">
-                From
+                Od
               </span>
               <span className="text-2xl font-semibold">
                 {lowestPrice === null
-                  ? 'Unavailable'
+                  ? 'Niedostępne'
                   : `${lowestPrice.toFixed(2)} PLN`}
               </span>
             </div>
             <div className="grid grid-cols-2 gap-3 border-t pt-3 text-sm">
-              <ReservationTime label="Arrival" value={search.arrival} />
-              <ReservationTime label="Departure" value={search.departure} />
+              <ReservationTime label="Przyjazd" value={search.arrival} />
+              <ReservationTime label="Wyjazd" value={search.departure} />
             </div>
           </div>
         </div>
@@ -182,7 +180,7 @@ function RouteComponent() {
           />
         ) : (
           <div className="flex aspect-video items-center justify-center rounded-lg border bg-muted text-sm text-muted-foreground">
-            No image available
+            Brak zdjęcia
           </div>
         )}
 
@@ -201,12 +199,12 @@ function RouteComponent() {
             <div className="grid gap-3 rounded-lg border bg-card/80 p-4 text-sm">
               <SummaryRow
                 icon={<Navigation />}
-                label="Coordinates"
+                label="Współrzędne"
                 value={`${parkingDetails.latitude.toFixed(5)}, ${parkingDetails.longitude.toFixed(5)}`}
               />
               <SummaryRow
                 icon={<Building2 />}
-                label="Place"
+                label="Lokalizacja"
                 value={place.name}
               />
             </div>
@@ -220,16 +218,15 @@ function RouteComponent() {
             <div className="flex items-center gap-2">
               <Car className="size-5 text-primary" />
               <h2 className="text-xl font-semibold tracking-tight">
-                Parking spots
+                Miejsca parkingowe
               </h2>
             </div>
 
             {parkingDetails.parkingSpots.length === 0 ? (
               <Alert>
-                <AlertTitle>No spots listed</AlertTitle>
+                <AlertTitle>Brak wolnych miejsc</AlertTitle>
                 <AlertDescription>
-                  This parking does not have reservable spots for the selected
-                  time.
+                  Ten parking nie ma miejsc dostępnych w wybranym terminie.
                 </AlertDescription>
               </Alert>
             ) : (
@@ -240,7 +237,7 @@ function RouteComponent() {
                       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                         <div className="flex flex-col gap-2">
                           <CardTitle className="text-base">
-                            Spot {index + 1}
+                            Miejsce {index + 1}
                           </CardTitle>
                           <div className="flex flex-wrap gap-2">
                             {spot.parkingSpotFeatures.length > 0 ? (
@@ -251,7 +248,7 @@ function RouteComponent() {
                               ))
                             ) : (
                               <span className="text-sm text-muted-foreground">
-                                No listed spot features
+                                Brak opisanych udogodnień
                               </span>
                             )}
                           </div>
@@ -260,17 +257,17 @@ function RouteComponent() {
                           variant={spot.available ? 'default' : 'secondary'}
                         >
                           {spot.available ? <CheckCircle2 /> : <XCircle />}
-                          {spot.available ? 'Available' : 'Unavailable'}
+                          {spot.available ? 'Dostępne' : 'Niedostępne'}
                         </Badge>
                       </div>
                     </CardHeader>
                     <CardContent className="grid gap-3 px-5 sm:grid-cols-2">
                       <PriceMetric
-                        label="Total"
+                        label="Łącznie"
                         value={`${spot.priceTotalPLN.toFixed(2)} PLN`}
                       />
                       <PriceMetric
-                        label="Per day"
+                        label="Za dzień"
                         value={`${spot.pricePerDayPLN.toFixed(2)} PLN`}
                       />
                       {authenticated ? (
@@ -293,15 +290,25 @@ function RouteComponent() {
                                 departure: search.departure,
                               }}
                             >
-                              Make reservation
+                              Zarezerwuj miejsce
                             </Link>
                           </Button>
                         ) : (
                           <Button disabled className="sm:col-span-2">
-                            Make reservation
+                            Zarezerwuj miejsce
                           </Button>
                         )
-                      ) : null}
+                      ) : (
+                        <Button
+                          asChild
+                          variant="outline"
+                          className="sm:col-span-2"
+                        >
+                          <Link to="/auth/sign-in">
+                            Zaloguj się, aby zarezerwować
+                          </Link>
+                        </Button>
+                      )}
                     </CardContent>
                   </Card>
                 ))}
@@ -313,7 +320,7 @@ function RouteComponent() {
         <aside className="flex flex-col gap-4">
           <Card className="gap-4 py-5">
             <CardHeader className="px-5">
-              <CardTitle className="text-base">Parking details</CardTitle>
+              <CardTitle className="text-base">Szczegóły parkingu</CardTitle>
             </CardHeader>
             <CardContent className="grid gap-4 px-5 text-sm">
               <SummaryRow
@@ -321,15 +328,19 @@ function RouteComponent() {
                 label="Operator"
                 value={parkingDetails.organization.name}
               />
-              <SummaryRow icon={<MapPin />} label="Place" value={place.name} />
+              <SummaryRow
+                icon={<MapPin />}
+                label="Lokalizacja"
+                value={place.name}
+              />
               <SummaryRow
                 icon={<Navigation />}
-                label="Coordinates"
+                label="Współrzędne"
                 value={`${parkingDetails.latitude.toFixed(5)}, ${parkingDetails.longitude.toFixed(5)}`}
               />
               <SummaryRow
                 icon={<CalendarClock />}
-                label="Reservation"
+                label="Termin"
                 value={`${formatTimestamp(search.arrival)} - ${formatTimestamp(search.departure)}`}
               />
             </CardContent>
@@ -337,7 +348,7 @@ function RouteComponent() {
 
           <Card className="gap-4 py-5">
             <CardHeader className="px-5">
-              <CardTitle className="text-base">Features</CardTitle>
+              <CardTitle className="text-base">Udogodnienia</CardTitle>
             </CardHeader>
             <CardContent className="flex flex-wrap gap-2 px-5">
               {parkingDetails.parkingFeatures.length > 0 ? (
@@ -348,14 +359,14 @@ function RouteComponent() {
                 ))
               ) : (
                 <span className="text-sm text-muted-foreground">
-                  No listed parking features
+                  Brak opisanych udogodnień
                 </span>
               )}
             </CardContent>
           </Card>
         </aside>
       </div>
-    </div>
+    </main>
   );
 }
 
@@ -396,7 +407,7 @@ function PriceMetric({
   value,
 }: Readonly<{ label: string; value: string }>) {
   return (
-    <div className="rounded-md border px-3 py-2">
+    <div className="metric-tile">
       <p className="text-xs font-medium text-muted-foreground">{label}</p>
       <p className="text-lg font-semibold">{value}</p>
     </div>
@@ -414,10 +425,26 @@ function getLowestPrice(
 }
 
 function formatTimestamp(timestamp: number) {
-  return new Intl.DateTimeFormat(undefined, {
+  return new Intl.DateTimeFormat('pl-PL', {
     day: '2-digit',
     hour: '2-digit',
     minute: '2-digit',
     month: 'short',
   }).format(new Date(timestamp * 1000));
+}
+
+function formatAvailableSpots(count: number) {
+  if (count === 1) return '1 wolne miejsce';
+  const lastDigit = count % 10;
+  const lastTwoDigits = count % 100;
+
+  if (
+    lastDigit >= 2 &&
+    lastDigit <= 4 &&
+    (lastTwoDigits < 12 || lastTwoDigits > 14)
+  ) {
+    return `${count} wolne miejsca`;
+  }
+
+  return `${count} wolnych miejsc`;
 }

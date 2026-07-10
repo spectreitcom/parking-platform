@@ -20,7 +20,7 @@ export const getImage = createServerFn()
       method: 'GET',
     });
 
-    await genericApiErrorHandler(response, 'Failed to load image.');
+    await genericApiErrorHandler(response, 'Nie udało się wczytać zdjęcia.');
 
     const contentType = response.headers.get('content-type') ?? 'image/jpeg';
     const buffer = Buffer.from(await response.arrayBuffer());

@@ -45,8 +45,8 @@ export class ReservationCreatedEventHandler implements IEventHandler<Reservation
         updatedAt,
         addons,
         parkingId,
-        arrival: startDate,
-        departure: endDate,
+        arrival: Math.floor(startDate / 1000),
+        departure: Math.floor(endDate / 1000),
       },
     });
   }

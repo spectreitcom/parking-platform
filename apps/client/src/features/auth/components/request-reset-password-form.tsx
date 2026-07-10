@@ -51,6 +51,12 @@ export function RequestResetPasswordForm() {
         await form.handleSubmit();
       }}
     >
+      <div className="space-y-1 text-center">
+        <h2 className="text-xl font-bold tracking-tight">Zresetuj hasło</h2>
+        <p className="text-sm text-muted-foreground">
+          Wyślemy instrukcję na adres przypisany do konta.
+        </p>
+      </div>
       {hasError && (
         <Alert variant="destructive">
           <AlertTitle>Błąd podczas resetowania hasła</AlertTitle>
@@ -62,7 +68,7 @@ export function RequestResetPasswordForm() {
 
       {isSubmitted && (
         <Alert>
-          <AlertTitle>Sprawdź skrzynkę email</AlertTitle>
+          <AlertTitle>Sprawdź skrzynkę e-mail</AlertTitle>
           <AlertDescription>
             Jeśli konto istnieje, wyślemy link do zresetowania hasła.
           </AlertDescription>
@@ -77,7 +83,7 @@ export function RequestResetPasswordForm() {
 
           return (
             <Field data-invalid={isInvalid}>
-              <FieldLabel htmlFor={field.name}>Adres email</FieldLabel>
+              <FieldLabel htmlFor={field.name}>Adres e-mail</FieldLabel>
               <div className="relative">
                 <Mail className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
                 <Input

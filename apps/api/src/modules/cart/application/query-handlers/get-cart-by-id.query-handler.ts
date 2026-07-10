@@ -54,8 +54,8 @@ export class GetCartByIdQueryHandler implements IQueryHandler<
     return new CartReadModel(
       id,
       parkingSpotId,
-      arrival,
-      departure,
+      arrival * 1000,
+      departure * 1000,
       priceByDay,
       _addons.map((addon) => ({
         id: addon.id.value,

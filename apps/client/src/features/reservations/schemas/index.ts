@@ -85,3 +85,6 @@ export const reservationDetailsSchema = z.object({
   createdAt: z.coerce.date(),
   updatedAt: z.coerce.date(),
 });
+
+export type ReservationListItem = z.infer<typeof reservationsListItemSchema>;
+export type ReservationDetails = z.infer<typeof reservationDetailsSchema>;

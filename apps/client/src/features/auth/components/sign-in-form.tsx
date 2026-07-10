@@ -34,7 +34,7 @@ export function SignInForm() {
         await signInFn({
           data: { ...value },
         });
-        await router.navigate({ to: '/app' });
+        await router.navigate({ to: '/' });
       } catch (err) {
         if (!isRedirect(err)) {
           setHasError(true);
@@ -53,6 +53,12 @@ export function SignInForm() {
         await form.handleSubmit();
       }}
     >
+      <div className="space-y-1 text-center">
+        <h2 className="text-xl font-bold tracking-tight">Zaloguj się</h2>
+        <p className="text-sm text-muted-foreground">
+          Uzyskaj dostęp do swoich rezerwacji.
+        </p>
+      </div>
       {hasError && (
         <Alert variant={'destructive'}>
           <AlertTitle>Błąd podczas logowania</AlertTitle>
@@ -70,7 +76,7 @@ export function SignInForm() {
 
           return (
             <Field data-invalid={isInvalid}>
-              <FieldLabel htmlFor={field.name}>Adres email</FieldLabel>
+              <FieldLabel htmlFor={field.name}>Adres e-mail</FieldLabel>
               <div className="relative">
                 <Mail className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
                 <Input
@@ -131,7 +137,7 @@ export function SignInForm() {
         disabled={isFormSubmitting || form.state.isSubmitting}
       >
         {(isFormSubmitting || form.state.isSubmitting) && <Spinner />}
-        Zaloguj
+        Zaloguj się
       </Button>
 
       <p className="text-center text-sm text-muted-foreground">

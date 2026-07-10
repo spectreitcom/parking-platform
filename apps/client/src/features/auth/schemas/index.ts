@@ -2,7 +2,7 @@ import { z } from 'zod';
 
 export const signInSchema = z.object({
   email: z.email({
-    message: 'Niepoprawny adres email',
+    message: 'Niepoprawny adres e-mail',
   }),
   password: z.string().min(1, { message: 'Hasło jest wymagane' }),
 });
@@ -25,45 +25,43 @@ export const refreshTokenSchema = z.object({
 export const changePasswordInputSchema = z.object({
   existingPassword: z
     .string()
-    .min(1, { message: 'Current password is required' }),
+    .min(1, { message: 'Obecne hasło jest wymagane' }),
   newPassword: z
     .string()
-    .min(8, { message: 'New password must be at least 8 characters' }),
+    .min(8, { message: 'Nowe hasło musi mieć co najmniej 8 znaków' }),
 });
 
 export const changePasswordFormSchema = changePasswordInputSchema
   .extend({
-    confirmNewPassword: z
-      .string()
-      .min(1, { message: 'Please confirm the new password' }),
+    confirmNewPassword: z.string().min(1, { message: 'Powtórz nowe hasło' }),
   })
   .refine((data) => data.newPassword === data.confirmNewPassword, {
-    message: 'Passwords do not match',
+    message: 'Hasła nie są takie same',
     path: ['confirmNewPassword'],
   });
 
-export const requestResetPasswordInputSchema = z.object({ email: z.email() });
+export const requestResetPasswordInputSchema = z.object({
+  email: z.email({ message: 'Niepoprawny adres e-mail' }),
+});
 
 export const resetPasswordInputSchema = z.object({
   token: z.uuid(),
   password: z
     .string()
-    .min(8, { message: 'Password must be at least 8 characters' }),
+    .min(8, { message: 'Hasło musi mieć co najmniej 8 znaków' }),
 });
 
 export const resetPasswordFormSchema = resetPasswordInputSchema
   .extend({
-    confirmPassword: z
-      .string()
-      .min(1, { message: 'Please confirm the new password' }),
+    confirmPassword: z.string().min(1, { message: 'Powtórz nowe hasło' }),
   })
   .refine((data) => data.password === data.confirmPassword, {
-    message: 'Passwords do not match',
+    message: 'Hasła nie są takie same',
     path: ['confirmPassword'],
   });
 
 export const signUpInputSchema = z.object({
-  email: z.email({ message: 'Niepoprawny adres email' }),
+  email: z.email({ message: 'Niepoprawny adres e-mail' }),
   password: z
     .string()
     .min(8, { message: 'Hasło musi mieć co najmniej 8 znaków' }),
