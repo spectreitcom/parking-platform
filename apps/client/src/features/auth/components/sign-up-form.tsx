@@ -52,7 +52,7 @@ export function SignUpForm() {
     },
     {
       name: 'email' as const,
-      label: 'Adres email',
+      label: 'Adres e-mail',
       type: 'email',
       autoComplete: 'email',
       Icon: Mail,
@@ -81,6 +81,12 @@ export function SignUpForm() {
         await form.handleSubmit();
       }}
     >
+      <div className="space-y-1 text-center">
+        <h2 className="text-xl font-bold tracking-tight">Załóż konto</h2>
+        <p className="text-sm text-muted-foreground">
+          Rezerwuj parkingi i zarządzaj postojami.
+        </p>
+      </div>
       {hasError && (
         <Alert variant="destructive">
           <AlertTitle>Błąd podczas rejestracji</AlertTitle>

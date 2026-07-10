@@ -20,15 +20,15 @@ export class CancellationService {
     );
 
     const now = Date.now();
-    const arrival = dateRange.arrival;
+    const arrival = dateRange.arrival * 1000;
     const diff = arrival - now;
 
     if (canCancel15MinutesBefore) {
-      if (diff < 15 * 60 * 1000) {
+      if (diff > 15 * 60 * 1000) {
         return false;
       }
     } else {
-      if (diff < 24 * 60 * 60 * 1000) {
+      if (diff > 24 * 60 * 60 * 1000) {
         return false;
       }
     }

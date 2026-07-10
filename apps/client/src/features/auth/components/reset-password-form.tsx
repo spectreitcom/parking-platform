@@ -78,6 +78,12 @@ export function ResetPasswordForm({ token }: ResetPasswordFormProps) {
         await form.handleSubmit();
       }}
     >
+      <div className="space-y-1 text-center">
+        <h2 className="text-xl font-bold tracking-tight">Ustaw nowe hasło</h2>
+        <p className="text-sm text-muted-foreground">
+          Wybierz silne hasło, którego nie używasz w innych serwisach.
+        </p>
+      </div>
       {errorMessage && (
         <Alert variant="destructive">
           <AlertTitle>Błąd podczas zmiany hasła</AlertTitle>

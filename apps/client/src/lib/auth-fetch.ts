@@ -11,7 +11,7 @@ import { apiErrorSchema } from '#/lib/schemas.ts';
 type FetchParameter = Parameters<typeof fetch>;
 
 export const defaultServerError = new Error(
-  'Something went wrong. Please try again later.',
+  'Coś poszło nie tak. Spróbuj ponownie później.',
 );
 
 const refreshToken = createServerFn()
@@ -88,7 +88,7 @@ export const authFetch = async (...args: FetchParameter) => {
 
 export async function genericApiErrorHandler(
   response: Response,
-  fallbackMessage = 'Something went wrong. Please try again later.',
+  fallbackMessage = 'Coś poszło nie tak. Spróbuj ponownie później.',
 ) {
   if (!response.ok) {
     if (response.status === 401) {

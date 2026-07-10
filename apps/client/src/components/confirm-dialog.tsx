@@ -32,8 +32,8 @@ export function ConfirmDialog({
   description,
   onConfirm,
   onCancel,
-  confirmText = 'Confirm',
-  cancelText = 'Cancel',
+  confirmText = 'Potwierdź',
+  cancelText = 'Anuluj',
   variant = 'default',
   isLoading = false,
 }: ConfirmDialogProps) {

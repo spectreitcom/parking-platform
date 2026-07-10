@@ -85,7 +85,7 @@ export function PlaceSearchForm({ placeTypes }: PlaceSearchFormProps) {
       .catch(() => {
         if (isCurrent) {
           setPlaces([]);
-          setPlacesError('Could not load places for this place type.');
+          setPlacesError('Nie udało się wczytać lokalizacji tego typu.');
         }
       })
       .finally(() => {
@@ -119,18 +119,21 @@ export function PlaceSearchForm({ placeTypes }: PlaceSearchFormProps) {
     const arrivalTimestamp = toTimestampSeconds(arrival);
     const departureTimestamp = toTimestampSeconds(departure);
 
-    if (!Number.isFinite(arrivalTimestamp) || !Number.isFinite(departureTimestamp)) {
-      setFormError('Choose a valid arrival and departure date.');
+    if (
+      !Number.isFinite(arrivalTimestamp) ||
+      !Number.isFinite(departureTimestamp)
+    ) {
+      setFormError('Wybierz prawidłową datę przyjazdu i wyjazdu.');
       return;
     }
 
     if (departureTimestamp <= arrivalTimestamp) {
-      setFormError('Departure must be later than arrival.');
+      setFormError('Wyjazd musi być później niż przyjazd.');
       return;
     }
 
     if (!placeId) {
-      setFormError('Choose a place before searching.');
+      setFormError('Wybierz lokalizację przed rozpoczęciem wyszukiwania.');
       return;
     }
 
@@ -147,21 +150,21 @@ export function PlaceSearchForm({ placeTypes }: PlaceSearchFormProps) {
   }
 
   return (
-    <Card className="w-full max-w-4xl">
+    <Card className="island-shell w-full max-w-5xl self-center">
       <CardHeader>
-        <CardTitle>Search parking</CardTitle>
+        <CardTitle className="text-xl">Wyszukaj parking</CardTitle>
         <CardDescription>
-          Choose a place type, place, and reservation window.
+          Wybierz typ miejsca, lokalizację oraz termin rezerwacji.
         </CardDescription>
       </CardHeader>
       <CardContent>
         <form className="flex flex-col gap-6" onSubmit={handleSubmit}>
           <FieldGroup className="grid gap-5 md:grid-cols-2">
             <Field>
-              <FieldLabel htmlFor="place-type">Place type</FieldLabel>
+              <FieldLabel htmlFor="place-type">Typ miejsca</FieldLabel>
               <Select value={placeTypeId} onValueChange={setPlaceTypeId}>
                 <SelectTrigger id="place-type" className="w-full">
-                  <SelectValue placeholder="Select a place type" />
+                  <SelectValue placeholder="Wybierz typ miejsca" />
                 </SelectTrigger>
                 <SelectContent>
                   {placeTypes.map((placeType) => (
@@ -174,16 +177,20 @@ export function PlaceSearchForm({ placeTypes }: PlaceSearchFormProps) {
             </Field>
 
             <Field>
-              <FieldLabel htmlFor="place">Place</FieldLabel>
+              <FieldLabel htmlFor="place">Lokalizacja</FieldLabel>
               <Select
                 value={placeId}
                 onValueChange={setPlaceId}
-                disabled={!placeTypeId || isLoadingPlaces || places.length === 0}
+                disabled={
+                  !placeTypeId || isLoadingPlaces || places.length === 0
+                }
               >
                 <SelectTrigger id="place" className="w-full">
                   <SelectValue
                     placeholder={
-                      isLoadingPlaces ? 'Loading places...' : 'Select a place'
+                      isLoadingPlaces
+                        ? 'Wczytywanie lokalizacji…'
+                        : 'Wybierz lokalizację'
                     }
                   />
                 </SelectTrigger>
@@ -201,7 +208,7 @@ export function PlaceSearchForm({ placeTypes }: PlaceSearchFormProps) {
             </Field>
 
             <Field>
-              <FieldLabel htmlFor="arrival">Arrival</FieldLabel>
+              <FieldLabel htmlFor="arrival">Przyjazd</FieldLabel>
               <Input
                 id="arrival"
                 type="datetime-local"
@@ -211,7 +218,7 @@ export function PlaceSearchForm({ placeTypes }: PlaceSearchFormProps) {
             </Field>
 
             <Field>
-              <FieldLabel htmlFor="departure">Departure</FieldLabel>
+              <FieldLabel htmlFor="departure">Wyjazd</FieldLabel>
               <Input
                 id="departure"
                 type="datetime-local"
@@ -233,14 +240,15 @@ export function PlaceSearchForm({ placeTypes }: PlaceSearchFormProps) {
             </Alert>
           ) : null}
 
-          <div className="flex justify-end">
-            <Button type="submit" size="lg" disabled={!canSubmit}>
-              {isPending ? (
-                <Loader2 className="animate-spin" />
-              ) : (
-                <Search />
-              )}
-              Search
+          <div className="flex justify-stretch sm:justify-end">
+            <Button
+              type="submit"
+              size="lg"
+              disabled={!canSubmit}
+              className="w-full sm:w-auto"
+            >
+              {isPending ? <Loader2 className="animate-spin" /> : <Search />}
+              Szukaj parkingu
             </Button>
           </div>
         </form>
