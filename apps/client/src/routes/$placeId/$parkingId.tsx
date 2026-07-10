@@ -282,6 +282,7 @@ function RouteComponent() {
                           >
                             <Link
                               to="/$placeId/$parkingId/$parkingSpotId/cart"
+                              preload={false}
                               params={{
                                 placeId: params.placeId,
                                 parkingId: params.parkingId,

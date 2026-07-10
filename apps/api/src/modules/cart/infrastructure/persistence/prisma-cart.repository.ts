@@ -3,9 +3,9 @@ import { CartRepository } from '../../application/ports/cart.repository';
 import { PrismaTx } from 'src/shared/prisma/types';
 import { RepositorySaveOptions } from 'src/shared/types';
 import { Cart } from '../../domain/cart';
-import { PrismaService } from '../../../../shared/prisma/prisma.service';
+import { PrismaService } from 'src/shared/prisma/prisma.service';
 import { CartMapper } from './cart.mapper';
-import { ConcurrencyError } from '../../../../shared/errors';
+import { ConcurrencyError } from 'src/shared/errors';
 import { CartAddonRaw } from '../../application/types';
 
 @Injectable()

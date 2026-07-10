@@ -19,17 +19,15 @@ export class CancellationService {
       addon.equals(ReservationAddon.canCancel15MinutesBefore()),
     );
 
+    const now = Date.now();
+    const arrival = dateRange.arrival;
+    const diff = arrival - now;
+
     if (canCancel15MinutesBefore) {
-      const now = Date.now();
-      const arrival = dateRange.arrival;
-      const diff = arrival - now;
       if (diff < 15 * 60 * 1000) {
         return false;
       }
     } else {
-      const now = Date.now();
-      const arrival = dateRange.arrival;
-      const diff = arrival - now;
       if (diff < 24 * 60 * 60 * 1000) {
         return false;
       }
