@@ -112,7 +112,5 @@ Located in `apps/api/src/modules`, each context follows a strict structure:
 - **Outbox Pattern**: Reliable event delivery and integration between bounded contexts.
 - **API Facades**: Each module exposes a `Facade` class in the application layer as a clean entry point.
 
-For more details on architecture and design decisions, refer to the `info/` directory.
-
 ## 📝 License
 UNLICENSED
