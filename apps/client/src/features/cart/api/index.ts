@@ -74,8 +74,6 @@ export const getCart = createServerFn()
 
     const responseData = await response.json();
 
-    console.log(responseData); // todo;
-
     const validationResult = getCartResponseSchema.safeParse(responseData);
 
     if (!validationResult.success) {
