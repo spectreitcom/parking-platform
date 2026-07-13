@@ -57,6 +57,8 @@ export class CreateParkingCommandHandler implements ICommandHandler<
           active: parking.isActive(),
           name: parking.getName().value,
           distance,
+          addonIds: [],
+          addons: [],
         },
         'parking',
         'Parking',

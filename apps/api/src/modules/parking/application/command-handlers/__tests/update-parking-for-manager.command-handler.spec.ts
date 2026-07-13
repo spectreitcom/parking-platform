@@ -54,6 +54,9 @@ describe('UpdateParkingForManagerCommandHandler', () => {
                   parkingSpotRead: {
                     findMany: jest.fn().mockResolvedValue([]),
                   },
+                  parkingAddonRead: {
+                    findMany: jest.fn().mockResolvedValue([]),
+                  },
                 } as unknown as PrismaTx),
             ),
           },

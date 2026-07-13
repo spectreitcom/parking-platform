@@ -500,6 +500,8 @@ model Search {
   assetIds                 String[] @default([]) @db.Uuid
   featureIds               String[] @default([]) @db.Uuid
   features                 Json
+  addonIds                 String[] @default([]) @db.Uuid
+  addons                   Json
   order                    Int      @default(0)
   distance                 Float    @default(0)
 

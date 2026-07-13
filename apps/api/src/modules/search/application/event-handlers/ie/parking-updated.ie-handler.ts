@@ -36,6 +36,8 @@ export class ParkingUpdatedIeHandler implements IEventHandler<Event> {
       assetIds,
       featureIds,
       features,
+      addonIds,
+      addons,
     } = event.payload;
 
     await this.prismaService.search.upsert({
@@ -50,6 +52,8 @@ export class ParkingUpdatedIeHandler implements IEventHandler<Event> {
         assetIds,
         features,
         featureIds,
+        addonIds,
+        addons,
       },
       create: {
         parkingId,
@@ -62,6 +66,8 @@ export class ParkingUpdatedIeHandler implements IEventHandler<Event> {
         assetIds,
         features,
         featureIds,
+        addonIds,
+        addons,
       },
     });
   }

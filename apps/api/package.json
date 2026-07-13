@@ -21,7 +21,8 @@
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev --name migration",
-    "generate-super-admin": "ts-node -r tsconfig-paths/register src/cli.ts generate-super-admin"
+    "generate-super-admin": "ts-node -r tsconfig-paths/register src/cli.ts generate-super-admin",
+    "seed": "ts-node -r tsconfig-paths/register src/cli.ts seed"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1081.0",
@@ -66,6 +67,7 @@
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.5",
     "@eslint/js": "^10.0.1",
+    "@faker-js/faker": "^10.5.0",
     "@nestjs/cli": "^11.0.23",
     "@nestjs/schematics": "^11.1.0",
     "@nestjs/testing": "^11.1.28",

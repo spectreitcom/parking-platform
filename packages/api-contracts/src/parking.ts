@@ -16,6 +16,8 @@ export type ParkingCreatedV1Payload = {
   placeId: string;
   active: boolean;
   distance: number;
+  addonIds: string[];
+  addons: { name: string }[];
 };
 
 export type ParkingUpdatedV1Payload = {
@@ -29,6 +31,8 @@ export type ParkingUpdatedV1Payload = {
   assetIds: string[];
   featureIds: string[];
   features: { name: string }[];
+  addonIds: string[];
+  addons: { name: string }[];
 };
 
 export type ParkingActivatedV1Payload = {
