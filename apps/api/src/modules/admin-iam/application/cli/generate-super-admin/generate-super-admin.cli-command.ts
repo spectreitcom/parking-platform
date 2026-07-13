@@ -2,11 +2,11 @@ import { Command, CommandRunner, Option } from 'nest-commander';
 import { PasswordService } from '../../ports/password.service';
 import { AdminUserRepository } from '../../ports/admin-user.repository';
 import { AdminUser } from '../../../domain/admin-user';
-import { Email } from '../../../../../shared/value-objects/email';
+import { Email } from 'src/shared/value-objects/email';
 import { AdminDisplayName } from '../../../domain/value-objects/admin-display-name';
 import { Logger } from '@nestjs/common';
 import { EventPublisher } from '@nestjs/cqrs';
-import { sleep } from '../../../../../shared/utils';
+import { sleep } from 'src/shared/utils';
 
 interface Options {
   email: string;
