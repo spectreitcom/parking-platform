@@ -4,6 +4,8 @@ export class SearchItemReadModel {
     public readonly name: string,
     public readonly features: { name: string }[],
     public readonly featureIds: string[],
+    public readonly addons: { name: string }[],
+    public readonly addonIds: string[],
     public readonly order: number,
     public readonly hasAvailableParkingSpots: boolean,
     public readonly assetIds: string[],

@@ -11,6 +11,7 @@ import { SentryModule } from '@sentry/nestjs/setup';
 import { EmailNotificationModule } from './modules/email-notification/application/email-notification.module';
 import { ApiModule } from './bff/api/api.module';
 import { ManagerApiModule } from './bff/manager-api/manager-api.module';
+import { CliModule } from './shared/cli/cli.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { ManagerApiModule } from './bff/manager-api/manager-api.module';
     ManagerApiModule,
     ApiModule,
     EmailNotificationModule,
+    CliModule,
   ],
   providers: [
     {

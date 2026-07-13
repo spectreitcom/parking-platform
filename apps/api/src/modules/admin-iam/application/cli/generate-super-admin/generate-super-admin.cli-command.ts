@@ -56,6 +56,8 @@ export class GenerateSuperAdminCliCommand extends CommandRunner {
 
     await sleep(2000);
     this.logger.log(`Super admin ${email} generated successfully`);
+
+    process.exit(0);
   }
 
   @Option({

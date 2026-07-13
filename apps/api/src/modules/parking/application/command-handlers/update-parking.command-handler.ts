@@ -83,6 +83,9 @@ export class UpdateParkingCommandHandler implements ICommandHandler<
       const featureIdsSet = await this.getFeatureIds(parking, prisma);
       const features = await this.getFeatures(featureIdsSet, prisma);
 
+      const addonIds = parking.getParkingAddonIds().map((addon) => addon.value);
+      const addons = await this.getAddons(addonIds, prisma);
+
       const event = new IntegrationEvent<
         ParkingUpdatedV1Payload,
         ParkingIntegrationEventTypes
@@ -99,6 +102,8 @@ export class UpdateParkingCommandHandler implements ICommandHandler<
           distance,
           featureIds: Array.from(featureIdsSet),
           features,
+          addonIds,
+          addons,
         },
         'parking',
         'Parking',
@@ -144,6 +149,19 @@ export class UpdateParkingCommandHandler implements ICommandHandler<
 
     return featureReadRecord.map((feature) => ({
       name: feature.name,
+    }));
+  }
+
+  private async getAddons(
+    addonIds: string[],
+    prisma: PrismaTx,
+  ): Promise<{ name: string }[]> {
+    const addonReadRecord = await prisma.parkingAddonRead.findMany({
+      where: { parkingAddonId: { in: addonIds } },
+    });
+
+    return addonReadRecord.map((addon) => ({
+      name: addon.name,
     }));
   }
 

@@ -5,6 +5,7 @@ import { PrismaService } from 'src/shared/prisma/prisma.service';
 import { z } from 'zod';
 
 const featuresSchema = z.array(z.object({ name: z.string() }));
+const addonsSchema = z.array(z.object({ name: z.string() }));
 
 @QueryHandler(SearchQuery)
 export class SearchQueryHandler implements IQueryHandler<
@@ -32,11 +33,20 @@ export class SearchQueryHandler implements IQueryHandler<
 
     return records.map((record) => {
       let features: { name: string }[] = [];
+      let addons: { name: string }[] = [];
 
-      const validationResult = featuresSchema.safeParse(record.features);
+      const featuresValidationResult = featuresSchema.safeParse(
+        record.features,
+      );
 
-      if (validationResult.success) {
-        features = validationResult.data;
+      if (featuresValidationResult.success) {
+        features = featuresValidationResult.data;
+      }
+
+      const addonsValidationResult = addonsSchema.safeParse(record.addons);
+
+      if (addonsValidationResult.success) {
+        addons = addonsValidationResult.data;
       }
 
       return new SearchItemReadModel(
@@ -44,6 +54,8 @@ export class SearchQueryHandler implements IQueryHandler<
         record.name,
         features,
         record.featureIds,
+        addons,
+        record.addonIds,
         record.order,
         record.hasAvailableParkingSpots,
         record.assetIds,

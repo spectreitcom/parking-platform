@@ -25,8 +25,17 @@ export class ParkingCreatedIeHandler implements IEventHandler<Event> {
       `Received parking created event: ${JSON.stringify(event)}`,
     );
 
-    const { parkingId, name, distance, active, placeId, longitude, latitude } =
-      event.payload;
+    const {
+      parkingId,
+      name,
+      distance,
+      active,
+      placeId,
+      longitude,
+      latitude,
+      addonIds,
+      addons,
+    } = event.payload;
 
     await this.prismaService.search.upsert({
       where: { parkingId },
@@ -38,6 +47,8 @@ export class ParkingCreatedIeHandler implements IEventHandler<Event> {
         placeId,
         longitude,
         latitude,
+        addonIds,
+        addons,
       },
       create: {
         parkingId,
@@ -50,6 +61,8 @@ export class ParkingCreatedIeHandler implements IEventHandler<Event> {
         assetIds: [],
         features: [],
         featureIds: [],
+        addonIds,
+        addons,
       },
     });
   }
