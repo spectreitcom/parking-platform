@@ -5,6 +5,8 @@ import { fakerPL as faker } from '@faker-js/faker';
 import { Prisma } from '@prisma/client';
 import * as argon2 from 'argon2';
 
+const MAX_SEED_AMOUNT = 1000;
+
 interface Options {
   amount?: number;
 }
@@ -22,6 +24,18 @@ export class SeedDatabaseCliCommand extends CommandRunner {
 
   async run(passedParams: string[], options?: Options): Promise<void> {
     const amount = options?.amount ?? 100;
+
+    if (
+      !Number.isSafeInteger(amount) ||
+      amount <= 0 ||
+      amount > MAX_SEED_AMOUNT
+    ) {
+      this.logger.error(
+        `Invalid seed amount: ${amount}. Amount must be a positive safe integer between 1 and ${MAX_SEED_AMOUNT}.`,
+      );
+      process.exit(1);
+    }
+
     this.logger.log(
       `Rozpoczynam seedowanie bazy danych (ilość bazowa: ${amount})...`,
     );
@@ -54,7 +68,7 @@ export class SeedDatabaseCliCommand extends CommandRunner {
 
   @Option({
     flags: '-a, --amount <number>',
-    description: 'Podstawowa ilość danych do wygenerowania (domyślnie: 100)',
+    description: `Podstawowa ilość danych do wygenerowania (1-${MAX_SEED_AMOUNT}, domyślnie: 100)`,
   })
   parseAmount(val: string): number {
     return Number(val);
