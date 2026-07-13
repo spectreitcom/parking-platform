@@ -5,9 +5,10 @@ import { InfrastructureModule } from '../infrastructure/infrastructure.module';
 import { PrismaModule } from 'src/shared/prisma/prisma.module';
 import { eventHandlers } from './event-handlers';
 import { queryHandlers } from './query-handlers';
+import { OutboxModule } from 'src/shared/outbox/outbox.module';
 
 @Module({
-  imports: [InfrastructureModule, PrismaModule],
+  imports: [InfrastructureModule, PrismaModule, OutboxModule],
   providers: [
     ReservationFacade,
     ...commandHandlers,

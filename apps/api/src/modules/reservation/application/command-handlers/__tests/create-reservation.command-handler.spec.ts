@@ -5,6 +5,8 @@ import { CreateReservationCommandHandler } from '../create-reservation.command-h
 import { randomUUID } from 'node:crypto';
 import { CreateReservationCommand } from '../../commands/create-reservation.command';
 import { Reservation } from '../../../domain/reservation';
+import { TransactionRunner } from 'src/shared/prisma/transaction-runner';
+import { OutboxService } from 'src/shared/outbox/outbox.service';
 
 describe('CreateReservationCommandHandler', () => {
   let reservationRepository: jest.Mocked<ReservationRepository>;
@@ -24,7 +26,25 @@ describe('CreateReservationCommandHandler', () => {
         {
           provide: EventPublisher,
           useValue: {
-            mergeObjectContext: jest.fn(),
+            mergeObjectContext: jest
+              .fn()
+              .mockImplementation(<T>(obj: T): T => obj),
+          },
+        },
+        {
+          provide: TransactionRunner,
+          useValue: {
+            runInTransaction: jest
+              .fn()
+              .mockImplementation((cb: (tx: unknown) => unknown) =>
+                cb(undefined),
+              ),
+          },
+        },
+        {
+          provide: OutboxService,
+          useValue: {
+            enqueue: jest.fn(),
           },
         },
       ],
