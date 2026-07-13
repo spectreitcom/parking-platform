@@ -3,3 +3,4 @@ export * from "./organization-user-iam";
 export * from "./user-iam";
 export * from "./organization";
 export * from "./parking";
+export * from "./reservation";

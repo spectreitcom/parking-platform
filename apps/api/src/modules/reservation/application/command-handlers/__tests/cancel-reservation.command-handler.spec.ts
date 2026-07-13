@@ -6,6 +6,8 @@ import { ReservationRepository } from '../../ports/reservation.repository';
 import { CancelReservationCommand } from '../../commands/cancel-reservation.command';
 import { Reservation } from '../../../domain/reservation';
 import { AppError } from 'src/shared/errors';
+import { TransactionRunner } from 'src/shared/prisma/transaction-runner';
+import { OutboxService } from 'src/shared/outbox/outbox.service';
 
 describe('CancelReservationCommandHandler', () => {
   let reservationRepository: jest.Mocked<ReservationRepository>;
@@ -26,7 +28,25 @@ describe('CancelReservationCommandHandler', () => {
         {
           provide: EventPublisher,
           useValue: {
-            mergeObjectContext: jest.fn(<T>(obj: T): T => obj),
+            mergeObjectContext: jest
+              .fn()
+              .mockImplementation(<T>(obj: T): T => obj),
+          },
+        },
+        {
+          provide: TransactionRunner,
+          useValue: {
+            runInTransaction: jest
+              .fn()
+              .mockImplementation((cb: (tx: unknown) => unknown) =>
+                cb(undefined),
+              ),
+          },
+        },
+        {
+          provide: OutboxService,
+          useValue: {
+            enqueue: jest.fn(),
           },
         },
       ],
@@ -68,7 +88,9 @@ describe('CancelReservationCommandHandler', () => {
 
     expect(result).toBe(reservationId);
     expect(reservation.getStatus().value).toBe('CANCELLED');
-    expect(reservationRepository.save).toHaveBeenCalledWith(reservation);
+    expect(reservationRepository.save).toHaveBeenCalledWith(reservation, {
+      tx: undefined,
+    });
     expect(eventPublisher.mergeObjectContext).toHaveBeenCalledWith(reservation);
   });
 
