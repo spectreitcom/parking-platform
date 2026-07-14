@@ -52,11 +52,7 @@ export class CancelReservationCron {
           data: { shouldCancel: false },
         });
 
-        await this.outboxService.enqueue(
-          event,
-          { deduplicate: true },
-          this.prismaService,
-        );
+        await this.outboxService.enqueue(event, { deduplicate: true }, prisma);
       }
     });
   }
