@@ -12,7 +12,6 @@ import { TransactionRunner } from 'src/shared/prisma/transaction-runner';
 @Injectable()
 export class CancelReservationCron {
   constructor(
-    private readonly prismaService: PrismaService,
     private readonly outboxService: OutboxService,
     private readonly transactionRunner: TransactionRunner,
   ) {}
