@@ -63,6 +63,8 @@ export class CreateReservationCommandHandler implements ICommandHandler<
         {
           reservationId: reservation.getId().value,
           parkingSpotId: reservation.getParkingSpotId().value,
+          userId: reservation.getUserId().value,
+          amount: reservation.getTotal().value,
         },
         'reservation',
         'Reservation',

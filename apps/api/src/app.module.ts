@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { CqrsModule } from '@nestjs/cqrs';
 import { ScheduleModule } from '@nestjs/schedule';
 import { OutboxModule } from './shared/outbox/outbox.module';
@@ -12,6 +12,7 @@ import { EmailNotificationModule } from './modules/email-notification/applicatio
 import { ApiModule } from './bff/api/api.module';
 import { ManagerApiModule } from './bff/manager-api/manager-api.module';
 import { CliModule } from './shared/cli/cli.module';
+import { BullModule } from '@nestjs/bullmq';
 
 @Module({
   imports: [
@@ -19,6 +20,14 @@ import { CliModule } from './shared/cli/cli.module';
     ConfigModule.forRoot({
       isGlobal: true,
       validationSchema: envSchema,
+    }),
+    BullModule.forRootAsync({
+      useFactory: (configService: ConfigService) => ({
+        connection: {
+          url: configService.getOrThrow('REDIS_URL'),
+        },
+      }),
+      inject: [ConfigService],
     }),
     CqrsModule.forRoot(),
     ScheduleModule.forRoot(),
