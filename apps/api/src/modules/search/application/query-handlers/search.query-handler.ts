@@ -20,6 +20,7 @@ export class SearchQueryHandler implements IQueryHandler<
     const records = await this.prismaService.search.findMany({
       where: {
         placeId,
+        active: true,
 
         featureIds: featureIds.length
           ? {
