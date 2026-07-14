@@ -3,6 +3,7 @@ import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { DevMakePaymentCommand } from './commands/dev-make-payment.command';
 import { GetPaymentByIdQuery } from './queries/get-payment-by-id.query';
 import { GetPaymentByReservationIdQuery } from './queries/get-payment-by-reservation-id.query';
+import { GetPaymentsByReservationIdsQuery } from './queries/get-payments-by-reservation-ids.query';
 import { PaymentReadModel } from './query-handlers/read-models/payment.read-model';
 
 @Injectable()
@@ -28,5 +29,13 @@ export class PaymentFacade {
 
   async getPaymentById(paymentId: string): Promise<PaymentReadModel> {
     return this.queryBus.execute(new GetPaymentByIdQuery(paymentId));
+  }
+
+  async getPaymentsByReservationIds(
+    reservationIds: string[],
+  ): Promise<PaymentReadModel[]> {
+    return this.queryBus.execute(
+      new GetPaymentsByReservationIdsQuery(reservationIds),
+    );
   }
 }

@@ -58,7 +58,7 @@ export class ReservationsController {
                 description:
                   'The date and time when the reservation was last updated',
               },
-              userId: {
+              user: {
                 type: 'object',
                 description: 'The user object associated with the reservation',
                 properties: {
@@ -75,6 +75,21 @@ export class ReservationsController {
                   },
                   provider: {
                     type: 'string',
+                  },
+                },
+              },
+              payment: {
+                type: 'object',
+                properties: {
+                  id: { type: 'string', format: 'uuid' },
+                  reservationId: { type: 'string', format: 'uuid' },
+                  userId: { type: 'string', format: 'uuid' },
+                  amount: { type: 'number', format: 'int32' },
+                  createdAt: { type: 'string', format: 'date-time' },
+                  paidAt: {
+                    type: 'string',
+                    format: 'date-time',
+                    nullable: true,
                   },
                 },
               },
