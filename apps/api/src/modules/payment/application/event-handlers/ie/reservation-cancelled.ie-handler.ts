@@ -25,11 +25,17 @@ export class ReservationCancelledIeHandler implements IEventHandler<Event> {
 
     const { reservationId } = event.payload;
 
-    await this.prismaService.payment.update({
-      where: { reservationId, paidAt: null, shouldCancel: false },
-      data: {
-        shouldCancel: false,
-      },
+    const payment = await this.prismaService.payment.findUnique({
+      where: { reservationId, paidAt: null, shouldCancel: true },
     });
+
+    if (payment) {
+      await this.prismaService.payment.update({
+        where: { reservationId, paidAt: null, shouldCancel: true },
+        data: {
+          shouldCancel: false,
+        },
+      });
+    }
   }
 }

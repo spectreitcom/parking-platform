@@ -26,7 +26,7 @@ export class CancelReservationCommandHandler implements ICommandHandler<
 
   async execute(command: CancelReservationCommand): Promise<string> {
     return await this.transactionRunner.runInTransaction(async (prisma) => {
-      const { reservationId, version, userId } = command;
+      const { reservationId, version, userId, skipValidation } = command;
 
       const reservation = await this.reservationRepository.findByIdAndUserId(
         reservationId,
@@ -50,7 +50,7 @@ export class CancelReservationCommandHandler implements ICommandHandler<
       this.eventPublisher.mergeObjectContext(reservation);
 
       try {
-        reservation.cancel();
+        reservation.cancel(skipValidation);
         await this.reservationRepository.save(reservation, { tx: prisma });
 
         const event = new IntegrationEvent<

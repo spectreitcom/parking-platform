@@ -5,5 +5,6 @@ export class CancelReservationCommand implements ICommand {
     public readonly reservationId: string,
     public readonly userId: string,
     public readonly version: number,
+    public readonly skipValidation = false,
   ) {}
 }
