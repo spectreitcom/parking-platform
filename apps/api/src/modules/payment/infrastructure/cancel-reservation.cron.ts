@@ -22,7 +22,7 @@ export class CancelReservationCron {
         paidAt: null,
         shouldCancel: true,
         createdAt: {
-          gt: new Date(Date.now() - 1000 * 60 * 15),
+          lt: new Date(Date.now() - 1000 * 60 * 15),
         },
       },
       take: 100,
