@@ -184,15 +184,19 @@ export class Reservation extends AggregateRoot {
     return reservation;
   }
 
-  cancel() {
-    const canCancel = CancellationService.canCancel(
-      this.dateRange,
-      this.status,
-      [...this.addons],
-    );
+  cancel(skipValidation = false) {
+    if (!skipValidation) {
+      const canCancel = CancellationService.canCancel(
+        this.dateRange,
+        this.status,
+        [...this.addons],
+      );
 
-    if (!canCancel) {
-      throw new CancellingReservationError('Reservation cannot be cancelled.');
+      if (!canCancel) {
+        throw new CancellingReservationError(
+          'Reservation cannot be cancelled.',
+        );
+      }
     }
 
     this.status = ReservationStatus.cancelled();

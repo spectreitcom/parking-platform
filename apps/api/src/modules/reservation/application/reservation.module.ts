@@ -6,6 +6,7 @@ import { PrismaModule } from 'src/shared/prisma/prisma.module';
 import { eventHandlers } from './event-handlers';
 import { queryHandlers } from './query-handlers';
 import { OutboxModule } from 'src/shared/outbox/outbox.module';
+import { ieHandlers } from './event-handlers/ie-handlers';
 
 @Module({
   imports: [InfrastructureModule, PrismaModule, OutboxModule],
@@ -14,6 +15,7 @@ import { OutboxModule } from 'src/shared/outbox/outbox.module';
     ...commandHandlers,
     ...eventHandlers,
     ...queryHandlers,
+    ...ieHandlers,
   ],
   exports: [ReservationFacade],
 })

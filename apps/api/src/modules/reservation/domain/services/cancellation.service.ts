@@ -23,6 +23,8 @@ export class CancellationService {
     const arrival = dateRange.arrival;
     const diff = arrival - now;
 
+    console.log(now, arrival); // todo;
+
     if (canCancel15MinutesBefore) {
       if (diff < 15 * 60 * 1000) {
         return false;
