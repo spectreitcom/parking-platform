@@ -53,6 +53,7 @@ import { ActivateAdminUserHandler } from './endpoints/admins/handlers/activate-a
 import { ParkingSpotsController } from './endpoints/parking-spots/parking-spots.controller';
 import { GetParkingSpotsHandler } from './endpoints/parking-spots/handlers/get-parking-spots.handler';
 import { GetAssetImageHandler } from './endpoints/assets/handlers/get-asset-image.handler';
+import { PaymentModule } from 'src/modules/payment/application/payment.module';
 
 @Module({
   imports: [
@@ -65,6 +66,7 @@ import { GetAssetImageHandler } from './endpoints/assets/handlers/get-asset-imag
     AuthModule,
     ReservationModule,
     AssetModule,
+    PaymentModule,
   ],
   controllers: [
     AuthController,

@@ -14,6 +14,7 @@ import { signOut } from '#/features/auth/api';
 import {
   Building2,
   CarFront,
+  ClipboardList,
   KeyRound,
   LayoutDashboard,
   LogOut,
@@ -71,7 +72,11 @@ export function AppSidebar({ user }: Readonly<{ user: GetMeResponseSchema }>) {
           <SidebarGroup title="Reservations">
             <SidebarGroupLabel>Reservations</SidebarGroupLabel>
             <SidebarMenu>
-              <DisabledItem icon={<Sparkles />} label="Reservations" />
+              <NavItem
+                icon={<ClipboardList />}
+                label="Reservations"
+                to="/app/reservations"
+              />
             </SidebarMenu>
           </SidebarGroup>
           <SidebarGroup title="Parking">

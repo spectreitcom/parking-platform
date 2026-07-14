@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
-import { PrismaService } from 'src/shared/prisma/prisma.service';
 import { OutboxService } from 'src/shared/outbox/outbox.service';
 import { IntegrationEvent } from 'src/shared/outbox/outbox.types';
 import {
@@ -12,7 +11,6 @@ import { TransactionRunner } from 'src/shared/prisma/transaction-runner';
 @Injectable()
 export class CancelReservationCron {
   constructor(
-    private readonly prismaService: PrismaService,
     private readonly outboxService: OutboxService,
     private readonly transactionRunner: TransactionRunner,
   ) {}
@@ -52,11 +50,7 @@ export class CancelReservationCron {
           data: { shouldCancel: false },
         });
 
-        await this.outboxService.enqueue(
-          event,
-          { deduplicate: true },
-          this.prismaService,
-        );
+        await this.outboxService.enqueue(event, { deduplicate: true }, prisma);
       }
     });
   }
