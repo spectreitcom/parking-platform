@@ -8,7 +8,7 @@ import {
   Post,
   UseGuards,
 } from '@nestjs/common';
-import { JwtAuthGuard } from 'src/bff/api/auth/guards/jwt-auth.guard';
+import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import {
   ApiBadRequestResponse,
   ApiBearerAuth,
@@ -18,7 +18,7 @@ import {
   ApiTags,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
-import { CurrentUserId } from 'src/bff/api/auth/decorators/current-user-id.decorator';
+import { CurrentUserId } from '../../auth/decorators/current-user-id.decorator';
 import { CreateCartDto } from './dto/create-cart.dto';
 import { UpdateCartDto } from './dto/update-cart.dto';
 import { GetCartHandler } from './handlers/get-cart.handler';

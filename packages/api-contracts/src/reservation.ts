@@ -6,6 +6,8 @@ export type ReservationIntegrationEventTypes =
 export type ReservationCreatedV1Payload = {
   reservationId: string;
   parkingSpotId: string;
+  userId: string;
+  amount: number;
 };
 
 export type ReservationCancelledV1Payload = {

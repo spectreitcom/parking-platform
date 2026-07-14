@@ -36,6 +36,8 @@ import { OrganizationModule } from 'src/modules/organization/application/organiz
 import { AvailabilityModule } from 'src/modules/availability/application/availability.module';
 import { FeaturesController } from './endpoints/features/features.controller';
 import { GetReservationDetailsHandler } from './endpoints/reservations/handlers/get-reservation-details.handler';
+import { PaymentModule } from 'src/modules/payment/application/payment.module';
+import { PaymentsController } from './endpoints/payments/payments.controller';
 
 @Module({
   imports: [
@@ -48,6 +50,7 @@ import { GetReservationDetailsHandler } from './endpoints/reservations/handlers/
     AssetModule,
     OrganizationModule,
     AvailabilityModule,
+    PaymentModule,
   ],
   controllers: [
     AuthController,
@@ -59,6 +62,7 @@ import { GetReservationDetailsHandler } from './endpoints/reservations/handlers/
     ParkingsController,
     AssetsController,
     FeaturesController,
+    PaymentsController,
   ],
   providers: [
     RegisterUserHandler,
