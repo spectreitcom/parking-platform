@@ -14,10 +14,7 @@ export class GetReservationByIdQuery implements IQuery {
   private validate() {
     const errors = validateSync(this);
     if (errors.length) {
-      throw new AppError(
-        'VALIDATION_ERROR',
-        'Invalid GetReservationByIdQuery',
-      );
+      throw new AppError('VALIDATION_ERROR', 'Invalid GetReservationByIdQuery');
     }
   }
 }

@@ -3,7 +3,8 @@ import { ApiProperty } from '@nestjs/swagger';
 
 export class CompleteReservationDto {
   @ApiProperty({
-    description: 'Version of the reservation for optimistic concurrency control',
+    description:
+      'Version of the reservation for optimistic concurrency control',
     type: 'number',
     minimum: 1,
   })
