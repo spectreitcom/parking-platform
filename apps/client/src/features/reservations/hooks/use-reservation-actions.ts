@@ -3,6 +3,7 @@ import { useServerFn } from '@tanstack/react-start';
 import type { FormEvent } from 'react';
 import { useState } from 'react';
 import { toast } from 'sonner';
+import { markReservationAsPaid } from '#/features/payments/api';
 import {
   cancelReservation,
   updateReservation,
@@ -13,10 +14,13 @@ import type { ReservationDetails } from '#/features/reservations/schemas';
 export function useReservationActions(reservation: ReservationDetails) {
   const router = useRouter();
   const cancelReservationFn = useServerFn(cancelReservation);
+  const markReservationAsPaidFn = useServerFn(markReservationAsPaid);
   const updateReservationFn = useServerFn(updateReservation);
   const [isCancelDialogOpen, setIsCancelDialogOpen] = useState(false);
   const [isCancelling, setIsCancelling] = useState(false);
   const [cancelError, setCancelError] = useState<string | null>(null);
+  const [isMarkingAsPaid, setIsMarkingAsPaid] = useState(false);
+  const [markAsPaidError, setMarkAsPaidError] = useState<string | null>(null);
   const [registrationNumber, setRegistrationNumber] = useState(
     reservation.registrationNumber,
   );
@@ -27,6 +31,7 @@ export function useReservationActions(reservation: ReservationDetails) {
   const canCancel =
     reservation.canCancel ?? !isReservationCancelled(reservation.status);
   const canEdit = reservation.canEdit ?? canCancel;
+  const canMarkAsPaid = reservation.status.toUpperCase() === 'CREATED';
 
   const startEditing = () => {
     setRegistrationNumber(reservation.registrationNumber);
@@ -107,15 +112,43 @@ export function useReservationActions(reservation: ReservationDetails) {
     }
   };
 
+  const markAsPaid = async () => {
+    setIsMarkingAsPaid(true);
+    setMarkAsPaidError(null);
+
+    try {
+      await markReservationAsPaidFn({
+        data: { reservationId: reservation.reservationId },
+      });
+
+      toast.success('Rezerwacja została oznaczona jako opłacona');
+      await router.invalidate();
+    } catch (error) {
+      const message = getErrorMessage(
+        error,
+        'Nie udało się oznaczyć rezerwacji jako opłaconej. Spróbuj ponownie.',
+      );
+
+      setMarkAsPaidError(message);
+      toast.error(message);
+    } finally {
+      setIsMarkingAsPaid(false);
+    }
+  };
+
   return {
     canCancel,
     canEdit,
+    canMarkAsPaid,
     cancel,
     cancelError,
     isCancelDialogOpen,
     isCancelling,
     isEditing,
+    isMarkingAsPaid,
     isUpdating,
+    markAsPaid,
+    markAsPaidError,
     registrationNumber,
     setIsCancelDialogOpen,
     setRegistrationNumber,

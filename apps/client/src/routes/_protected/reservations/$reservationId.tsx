@@ -10,7 +10,6 @@ import {
   MapPin,
   ReceiptText,
   Save,
-  ShieldCheck,
 } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '#/components/ui/alert.tsx';
 import { Badge } from '#/components/ui/badge.tsx';
@@ -89,12 +88,16 @@ function ReservationDetailsPage({
   const {
     canCancel,
     canEdit,
+    canMarkAsPaid,
     cancel,
     cancelError,
     isCancelDialogOpen,
     isCancelling,
     isEditing,
+    isMarkingAsPaid,
     isUpdating,
+    markAsPaid,
+    markAsPaidError,
     registrationNumber,
     setIsCancelDialogOpen,
     setRegistrationNumber,
@@ -175,11 +178,6 @@ function ReservationDetailsPage({
               value={formatPln(reservation.parkingSpot.pricePLN)}
               icon={<CreditCard />}
             />
-            <DetailItem
-              label="Wersja"
-              value={reservation.version.toString()}
-              icon={<ShieldCheck />}
-            />
           </CardContent>
         </Card>
 
@@ -210,6 +208,22 @@ function ReservationDetailsPage({
                 ))}
               </div>
             )}
+            {canMarkAsPaid ? (
+              <div className="mt-5 grid gap-3 border-t pt-5">
+                <Button
+                  type="button"
+                  onClick={markAsPaid}
+                  disabled={isMarkingAsPaid}
+                  className="w-full"
+                >
+                  {isMarkingAsPaid ? <Spinner /> : <CreditCard />}
+                  Oznacz jako opłaconą
+                </Button>
+                {markAsPaidError ? (
+                  <p className="text-sm text-destructive">{markAsPaidError}</p>
+                ) : null}
+              </div>
+            ) : null}
           </CardContent>
         </Card>
 
