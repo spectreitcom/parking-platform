@@ -28,6 +28,10 @@ import { UploadAssetHandler } from './endpoints/assets/handlers/upload-asset.han
 import { ActivateParkingSpotHandler } from './endpoints/parking-spots/handlers/activate-parking-spot.handler';
 import { DeactivateParkingSpotHandler } from './endpoints/parking-spots/handlers/deactivate-parking-spot.handler';
 import { ActivateAndDeactivateParkingSpotService } from './endpoints/parking-spots/handlers/shared/activate-and-deactivate-parking-spot.service';
+import { ReservationsController } from './endpoints/reservations/reservations.controller';
+import { GetParkingReservationsHandler } from './endpoints/reservations/handlers/get-parking-reservations.handler';
+import { ReservationModule } from 'src/modules/reservation/application/reservation.module';
+import { UserIamModule } from 'src/modules/user-iam/application/user-iam.module';
 
 @Module({
   imports: [
@@ -36,6 +40,8 @@ import { ActivateAndDeactivateParkingSpotService } from './endpoints/parking-spo
     ParkingModule,
     OrganizationModule,
     AssetModule,
+    ReservationModule,
+    UserIamModule,
   ],
   controllers: [
     AuthController,
@@ -43,6 +49,7 @@ import { ActivateAndDeactivateParkingSpotService } from './endpoints/parking-spo
     ParkingSpotsController,
     ParkingFeaturesController,
     AssetsController,
+    ReservationsController,
   ],
   providers: [
     AddParkingSpotHandler,
@@ -64,6 +71,7 @@ import { ActivateAndDeactivateParkingSpotService } from './endpoints/parking-spo
     ActivateParkingSpotHandler,
     DeactivateParkingSpotHandler,
     ActivateAndDeactivateParkingSpotService,
+    GetParkingReservationsHandler,
   ],
 })
 export class ManagerApiModule {}
