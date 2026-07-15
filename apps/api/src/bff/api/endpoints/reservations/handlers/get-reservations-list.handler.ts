@@ -4,12 +4,14 @@ import { ReservationFacade } from 'src/modules/reservation/application/reservati
 import { ParkingFacade } from 'src/modules/parking/application/parking.facade';
 import { GetReservationsListQueryParamsDto } from '../dto/get-reservations-list-query-params.dto';
 import { DEFAULT_PAGE_SIZE } from 'src/shared/constants';
+import { PaymentFacade } from 'src/modules/payment/application/payment.facade';
 
 @Injectable()
 export class GetReservationsListHandler implements IControllerHandler {
   constructor(
     private readonly reservationFacade: ReservationFacade,
     private readonly parkingFacade: ParkingFacade,
+    private readonly paymentFacade: PaymentFacade,
   ) {}
 
   async handle(userId: string, queryParams: GetReservationsListQueryParamsDto) {
@@ -26,8 +28,15 @@ export class GetReservationsListHandler implements IControllerHandler {
 
     const parkingMap = new Map(parkings.map((p) => [p.id, p]));
 
+    const payments = await this.paymentFacade.getPaymentsByReservationIds(
+      reservations.map((r) => r.id),
+    );
+
+    const paymentsMap = new Map(payments.map((p) => [p.reservationId, p]));
+
     const data: ((typeof reservations)[0] & {
       parking: { id: string; name: string } | null;
+      payment: (typeof payments)[number] | null;
     })[] = [];
 
     for (const reservation of reservations) {
@@ -38,6 +47,7 @@ export class GetReservationsListHandler implements IControllerHandler {
         arrivalDate,
         departureDate,
         parking: parking ? { id: parking.id, name: parking.name } : null,
+        payment: paymentsMap.get(reservation.id) ?? null,
       });
     }
 

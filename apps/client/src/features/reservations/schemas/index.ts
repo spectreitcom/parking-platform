@@ -36,6 +36,16 @@ export const reservationsListItemSchema = z.object({
   version: z.int().positive(),
   canCancel: z.boolean(),
   canEdit: z.boolean(),
+  payment: z
+    .object({
+      id: z.uuid(),
+      reservationId: z.uuid(),
+      userId: z.uuid(),
+      amount: z.number(),
+      createdAt: z.coerce.date(),
+      paidAt: z.coerce.date().nullable(),
+    })
+    .nullable(),
 });
 
 export const reservationsListInputSchema = z.object({
@@ -84,6 +94,16 @@ export const reservationDetailsSchema = z.object({
   canEdit: z.boolean().optional(),
   createdAt: z.coerce.date(),
   updatedAt: z.coerce.date(),
+  payment: z
+    .object({
+      id: z.uuid(),
+      reservationId: z.uuid(),
+      userId: z.uuid(),
+      amount: z.number(),
+      createdAt: z.coerce.date(),
+      paidAt: z.coerce.date().nullable(),
+    })
+    .nullable(),
 });
 
 export type ReservationListItem = z.infer<typeof reservationsListItemSchema>;

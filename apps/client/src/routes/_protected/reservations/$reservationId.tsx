@@ -29,7 +29,12 @@ import { reservationDetails } from '#/features/reservations/api';
 import { useReservationActions } from '#/features/reservations/hooks/use-reservation-actions.ts';
 import { getReservationStatusLabel } from '#/features/reservations/lib/reservation-status.ts';
 import type { ReservationDetails } from '#/features/reservations/schemas';
-import { formatPln, formatUnixDateTime, shortId } from '#/lib/formatters.ts';
+import {
+  formatDateTime,
+  formatPln,
+  formatUnixDateTime,
+  shortId,
+} from '#/lib/formatters.ts';
 
 export const Route = createFileRoute('/_protected/reservations/$reservationId')(
   {
@@ -208,6 +213,7 @@ function ReservationDetailsPage({
                 ))}
               </div>
             )}
+            <PaymentDetails payment={reservation.payment} />
             {canMarkAsPaid ? (
               <div className="mt-5 grid gap-3 border-t pt-5">
                 <Button
@@ -355,5 +361,58 @@ function ReservationDetailsPage({
         onConfirm={cancel}
       />
     </main>
+  );
+}
+
+function PaymentDetails({
+  payment,
+}: Readonly<{ payment: ReservationDetails['payment'] }>) {
+  return (
+    <div className="mt-5 grid gap-3 border-t pt-5">
+      <div className="flex items-center justify-between gap-3">
+        <p className="font-medium">Płatność</p>
+        {payment ? (
+          <Badge variant={payment.paidAt ? 'default' : 'secondary'}>
+            {payment.paidAt ? 'Opłacona' : 'Oczekuje na płatność'}
+          </Badge>
+        ) : null}
+      </div>
+
+      {payment ? (
+        <dl className="grid gap-2 text-sm">
+          <PaymentDetail
+            label="Kwota"
+            value={formatPln(payment.amount / 100)}
+          />
+          <PaymentDetail
+            label="Utworzono"
+            value={formatDateTime(payment.createdAt)}
+          />
+          {payment.paidAt ? (
+            <PaymentDetail
+              label="Opłacono"
+              value={formatDateTime(payment.paidAt)}
+            />
+          ) : null}
+          <PaymentDetail label="Numer" value={shortId(payment.id)} />
+        </dl>
+      ) : (
+        <p className="text-sm text-muted-foreground">
+          Brak danych o płatności.
+        </p>
+      )}
+    </div>
+  );
+}
+
+function PaymentDetail({
+  label,
+  value,
+}: Readonly<{ label: string; value: string }>) {
+  return (
+    <div className="flex items-baseline justify-between gap-3">
+      <dt className="text-muted-foreground">{label}</dt>
+      <dd className="text-right font-medium">{value}</dd>
+    </div>
   );
 }
