@@ -32,6 +32,7 @@ import { ReservationsController } from './endpoints/reservations/reservations.co
 import { GetParkingReservationsHandler } from './endpoints/reservations/handlers/get-parking-reservations.handler';
 import { ReservationModule } from 'src/modules/reservation/application/reservation.module';
 import { UserIamModule } from 'src/modules/user-iam/application/user-iam.module';
+import { CompleteReservationHandler } from './endpoints/reservations/handlers/complete-reservation.handler';
 
 @Module({
   imports: [
@@ -72,6 +73,7 @@ import { UserIamModule } from 'src/modules/user-iam/application/user-iam.module'
     DeactivateParkingSpotHandler,
     ActivateAndDeactivateParkingSpotService,
     GetParkingReservationsHandler,
+    CompleteReservationHandler,
   ],
 })
 export class ManagerApiModule {}

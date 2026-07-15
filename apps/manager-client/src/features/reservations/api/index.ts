@@ -1,5 +1,6 @@
 import { createServerFn } from '@tanstack/react-start';
 import {
+  completeReservationInputSchema,
   reservationsListInputSchema,
   reservationsListSchema,
 } from '#/features/reservations/schemas';
@@ -36,4 +37,20 @@ export const reservationsList = createServerFn()
     }
 
     return validationResult.data;
+  });
+
+export const completeReservation = createServerFn()
+  .validator(completeReservationInputSchema)
+  .handler(async ({ data }) => {
+    const response = await authFetch(
+      `${env.SERVER_URL}/reservations/${data.reservationId}/complete`,
+      {
+        method: 'POST',
+        body: JSON.stringify({ version: data.version }),
+      },
+    );
+
+    await genericApiErrorHandler(response);
+
+    return (await response.json()) as { id: string };
   });

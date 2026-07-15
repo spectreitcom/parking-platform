@@ -26,6 +26,11 @@ export const reservationsListItemSchema = z.object({
   updatedAt: z.coerce.date(),
 });
 
+export const completeReservationInputSchema = z.object({
+  reservationId: z.uuid(),
+  version: z.int().positive(),
+});
+
 export const reservationsListInputSchema = z.object({
   parkingId: z.uuid(),
   page: z.coerce.number().int().positive().optional().default(1),

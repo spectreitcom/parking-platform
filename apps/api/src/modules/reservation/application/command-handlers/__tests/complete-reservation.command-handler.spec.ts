@@ -21,7 +21,7 @@ describe('CompleteReservationCommandHandler', () => {
         {
           provide: ReservationRepository,
           useValue: {
-            findByIdAndUserId: jest.fn(),
+            findById: jest.fn(),
             save: jest.fn(),
           },
         },
@@ -73,11 +73,10 @@ describe('CompleteReservationCommandHandler', () => {
       [],
     );
     const reservationId = reservation.getId().value;
-    reservationRepository.findByIdAndUserId.mockResolvedValue(reservation);
+    reservationRepository.findById.mockResolvedValue(reservation);
 
     const command = new CompleteReservationCommand(
       reservationId,
-      userId,
       reservation.getVersion().value,
     );
 
@@ -92,13 +91,9 @@ describe('CompleteReservationCommandHandler', () => {
   });
 
   it('should throw ENTITY_NOT_FOUND if reservation does not exist', async () => {
-    reservationRepository.findByIdAndUserId.mockResolvedValue(null);
+    reservationRepository.findById.mockResolvedValue(null);
 
-    const command = new CompleteReservationCommand(
-      randomUUID(),
-      randomUUID(),
-      1,
-    );
+    const command = new CompleteReservationCommand(randomUUID(), 1);
 
     await expect(handler.execute(command)).rejects.toThrow(
       new AppError('ENTITY_NOT_FOUND', 'Reservation not found'),
@@ -119,11 +114,10 @@ describe('CompleteReservationCommandHandler', () => {
       [],
     );
     const reservationId = reservation.getId().value;
-    reservationRepository.findByIdAndUserId.mockResolvedValue(reservation);
+    reservationRepository.findById.mockResolvedValue(reservation);
 
     const command = new CompleteReservationCommand(
       reservationId,
-      userId,
       reservation.getVersion().value + 1, // Wrong version
     );
 
@@ -153,11 +147,10 @@ describe('CompleteReservationCommandHandler', () => {
     // Set status to cancelled to trigger CompletingReservationError
     reservation.cancel();
 
-    reservationRepository.findByIdAndUserId.mockResolvedValue(reservation);
+    reservationRepository.findById.mockResolvedValue(reservation);
 
     const command = new CompleteReservationCommand(
       reservationId,
-      userId,
       reservation.getVersion().value,
     );
 
@@ -180,14 +173,13 @@ describe('CompleteReservationCommandHandler', () => {
       [],
     );
     const reservationId = reservation.getId().value;
-    reservationRepository.findByIdAndUserId.mockResolvedValue(reservation);
+    reservationRepository.findById.mockResolvedValue(reservation);
     reservationRepository.save.mockRejectedValue(
       new ConcurrencyError('Reservation', reservationId),
     );
 
     const command = new CompleteReservationCommand(
       reservationId,
-      userId,
       reservation.getVersion().value,
     );
 

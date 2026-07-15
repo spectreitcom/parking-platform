@@ -19,6 +19,7 @@ import { Button } from '#/components/ui/button.tsx';
 import { Card, CardContent } from '#/components/ui/card.tsx';
 import { Input } from '#/components/ui/input.tsx';
 import { Spinner } from '#/components/ui/spinner.tsx';
+import { CompleteReservationButton } from '#/features/reservations/components/complete-reservation-button.tsx';
 import { reservationsList } from '#/features/reservations/api';
 import type { reservationsListItemSchema } from '#/features/reservations/schemas';
 
@@ -234,17 +235,18 @@ function ReservationsTable({
 }: Readonly<{ reservations: Array<ReservationListItem> }>) {
   return (
     <div className="overflow-hidden rounded-lg border bg-card shadow-sm">
-      <div className="hidden grid-cols-[minmax(12rem,1.1fr)_minmax(12rem,1fr)_minmax(16rem,1.25fr)_minmax(7rem,0.55fr)] gap-5 border-b bg-muted/40 px-5 py-3 text-xs font-medium uppercase text-muted-foreground lg:grid">
+      <div className="hidden grid-cols-[minmax(12rem,1.1fr)_minmax(12rem,1fr)_minmax(16rem,1.25fr)_minmax(7rem,0.55fr)_minmax(8rem,0.6fr)] gap-5 border-b bg-muted/40 px-5 py-3 text-xs font-medium uppercase text-muted-foreground lg:grid">
         <span>Vehicle</span>
         <span>Customer</span>
         <span>Stay</span>
         <span className="text-right">Total</span>
+        <span className="text-right">Actions</span>
       </div>
       <div className="divide-y">
         {reservations.map((reservation) => (
           <article
             key={reservation.reservationId}
-            className="grid gap-5 px-5 py-5 transition-colors hover:bg-muted/30 lg:grid-cols-[minmax(12rem,1.1fr)_minmax(12rem,1fr)_minmax(16rem,1.25fr)_minmax(7rem,0.55fr)] lg:items-center"
+            className="grid gap-5 px-5 py-5 transition-colors hover:bg-muted/30 lg:grid-cols-[minmax(12rem,1.1fr)_minmax(12rem,1fr)_minmax(16rem,1.25fr)_minmax(7rem,0.55fr)_minmax(8rem,0.6fr)] lg:items-center"
           >
             <div className="flex min-w-0 items-start gap-3">
               <div className="flex size-10 shrink-0 items-center justify-center rounded-md border bg-muted">
@@ -296,6 +298,17 @@ function ReservationsTable({
               <span className="font-semibold">
                 {currencyFormatter.format(reservation.total / 100)}
               </span>
+            </div>
+
+            <div className="flex items-center lg:justify-end">
+              {['CREATED', 'PAID'].includes(
+                reservation.status.trim().toUpperCase(),
+              ) && (
+                <CompleteReservationButton
+                  reservationId={reservation.reservationId}
+                  version={reservation.version}
+                />
+              )}
             </div>
           </article>
         ))}
