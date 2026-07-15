@@ -16,7 +16,8 @@ import { Route as AuthSignInIndexRouteImport } from './routes/auth/sign-in/index
 import { Route as AuthResetPasswordIndexRouteImport } from './routes/auth/reset-password/index'
 import { Route as ProtectedAppIndexRouteImport } from './routes/_protected/app/index'
 import { Route as ProtectedAppOrganizationIdIndexRouteImport } from './routes/_protected/app/$organizationId/index'
-import { Route as ProtectedAppOrganizationIdParkingsParkingIdRouteImport } from './routes/_protected/app/$organizationId/parkings/$parkingId'
+import { Route as ProtectedAppOrganizationIdParkingsParkingIdIndexRouteImport } from './routes/_protected/app/$organizationId/parkings/$parkingId/index'
+import { Route as ProtectedAppOrganizationIdParkingsParkingIdReservationsIndexRouteImport } from './routes/_protected/app/$organizationId/parkings/$parkingId/reservations/index'
 
 const AuthRouteRoute = AuthRouteRouteImport.update({
   id: '/auth',
@@ -53,12 +54,20 @@ const ProtectedAppOrganizationIdIndexRoute =
     path: '/app/$organizationId/',
     getParentRoute: () => ProtectedRouteRoute,
   } as any)
-const ProtectedAppOrganizationIdParkingsParkingIdRoute =
-  ProtectedAppOrganizationIdParkingsParkingIdRouteImport.update({
-    id: '/app/$organizationId/parkings/$parkingId',
-    path: '/app/$organizationId/parkings/$parkingId',
+const ProtectedAppOrganizationIdParkingsParkingIdIndexRoute =
+  ProtectedAppOrganizationIdParkingsParkingIdIndexRouteImport.update({
+    id: '/app/$organizationId/parkings/$parkingId/',
+    path: '/app/$organizationId/parkings/$parkingId/',
     getParentRoute: () => ProtectedRouteRoute,
   } as any)
+const ProtectedAppOrganizationIdParkingsParkingIdReservationsIndexRoute =
+  ProtectedAppOrganizationIdParkingsParkingIdReservationsIndexRouteImport.update(
+    {
+      id: '/app/$organizationId/parkings/$parkingId/reservations/',
+      path: '/app/$organizationId/parkings/$parkingId/reservations/',
+      getParentRoute: () => ProtectedRouteRoute,
+    } as any,
+  )
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -67,7 +76,8 @@ export interface FileRoutesByFullPath {
   '/auth/reset-password/': typeof AuthResetPasswordIndexRoute
   '/auth/sign-in/': typeof AuthSignInIndexRoute
   '/app/$organizationId/': typeof ProtectedAppOrganizationIdIndexRoute
-  '/app/$organizationId/parkings/$parkingId': typeof ProtectedAppOrganizationIdParkingsParkingIdRoute
+  '/app/$organizationId/parkings/$parkingId/': typeof ProtectedAppOrganizationIdParkingsParkingIdIndexRoute
+  '/app/$organizationId/parkings/$parkingId/reservations/': typeof ProtectedAppOrganizationIdParkingsParkingIdReservationsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -76,7 +86,8 @@ export interface FileRoutesByTo {
   '/auth/reset-password': typeof AuthResetPasswordIndexRoute
   '/auth/sign-in': typeof AuthSignInIndexRoute
   '/app/$organizationId': typeof ProtectedAppOrganizationIdIndexRoute
-  '/app/$organizationId/parkings/$parkingId': typeof ProtectedAppOrganizationIdParkingsParkingIdRoute
+  '/app/$organizationId/parkings/$parkingId': typeof ProtectedAppOrganizationIdParkingsParkingIdIndexRoute
+  '/app/$organizationId/parkings/$parkingId/reservations': typeof ProtectedAppOrganizationIdParkingsParkingIdReservationsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -87,7 +98,8 @@ export interface FileRoutesById {
   '/auth/reset-password/': typeof AuthResetPasswordIndexRoute
   '/auth/sign-in/': typeof AuthSignInIndexRoute
   '/_protected/app/$organizationId/': typeof ProtectedAppOrganizationIdIndexRoute
-  '/_protected/app/$organizationId/parkings/$parkingId': typeof ProtectedAppOrganizationIdParkingsParkingIdRoute
+  '/_protected/app/$organizationId/parkings/$parkingId/': typeof ProtectedAppOrganizationIdParkingsParkingIdIndexRoute
+  '/_protected/app/$organizationId/parkings/$parkingId/reservations/': typeof ProtectedAppOrganizationIdParkingsParkingIdReservationsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -98,7 +110,8 @@ export interface FileRouteTypes {
     | '/auth/reset-password/'
     | '/auth/sign-in/'
     | '/app/$organizationId/'
-    | '/app/$organizationId/parkings/$parkingId'
+    | '/app/$organizationId/parkings/$parkingId/'
+    | '/app/$organizationId/parkings/$parkingId/reservations/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -108,6 +121,7 @@ export interface FileRouteTypes {
     | '/auth/sign-in'
     | '/app/$organizationId'
     | '/app/$organizationId/parkings/$parkingId'
+    | '/app/$organizationId/parkings/$parkingId/reservations'
   id:
     | '__root__'
     | '/'
@@ -117,7 +131,8 @@ export interface FileRouteTypes {
     | '/auth/reset-password/'
     | '/auth/sign-in/'
     | '/_protected/app/$organizationId/'
-    | '/_protected/app/$organizationId/parkings/$parkingId'
+    | '/_protected/app/$organizationId/parkings/$parkingId/'
+    | '/_protected/app/$organizationId/parkings/$parkingId/reservations/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -177,11 +192,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProtectedAppOrganizationIdIndexRouteImport
       parentRoute: typeof ProtectedRouteRoute
     }
-    '/_protected/app/$organizationId/parkings/$parkingId': {
-      id: '/_protected/app/$organizationId/parkings/$parkingId'
+    '/_protected/app/$organizationId/parkings/$parkingId/': {
+      id: '/_protected/app/$organizationId/parkings/$parkingId/'
       path: '/app/$organizationId/parkings/$parkingId'
-      fullPath: '/app/$organizationId/parkings/$parkingId'
-      preLoaderRoute: typeof ProtectedAppOrganizationIdParkingsParkingIdRouteImport
+      fullPath: '/app/$organizationId/parkings/$parkingId/'
+      preLoaderRoute: typeof ProtectedAppOrganizationIdParkingsParkingIdIndexRouteImport
+      parentRoute: typeof ProtectedRouteRoute
+    }
+    '/_protected/app/$organizationId/parkings/$parkingId/reservations/': {
+      id: '/_protected/app/$organizationId/parkings/$parkingId/reservations/'
+      path: '/app/$organizationId/parkings/$parkingId/reservations'
+      fullPath: '/app/$organizationId/parkings/$parkingId/reservations/'
+      preLoaderRoute: typeof ProtectedAppOrganizationIdParkingsParkingIdReservationsIndexRouteImport
       parentRoute: typeof ProtectedRouteRoute
     }
   }
@@ -190,14 +212,17 @@ declare module '@tanstack/react-router' {
 interface ProtectedRouteRouteChildren {
   ProtectedAppIndexRoute: typeof ProtectedAppIndexRoute
   ProtectedAppOrganizationIdIndexRoute: typeof ProtectedAppOrganizationIdIndexRoute
-  ProtectedAppOrganizationIdParkingsParkingIdRoute: typeof ProtectedAppOrganizationIdParkingsParkingIdRoute
+  ProtectedAppOrganizationIdParkingsParkingIdIndexRoute: typeof ProtectedAppOrganizationIdParkingsParkingIdIndexRoute
+  ProtectedAppOrganizationIdParkingsParkingIdReservationsIndexRoute: typeof ProtectedAppOrganizationIdParkingsParkingIdReservationsIndexRoute
 }
 
 const ProtectedRouteRouteChildren: ProtectedRouteRouteChildren = {
   ProtectedAppIndexRoute: ProtectedAppIndexRoute,
   ProtectedAppOrganizationIdIndexRoute: ProtectedAppOrganizationIdIndexRoute,
-  ProtectedAppOrganizationIdParkingsParkingIdRoute:
-    ProtectedAppOrganizationIdParkingsParkingIdRoute,
+  ProtectedAppOrganizationIdParkingsParkingIdIndexRoute:
+    ProtectedAppOrganizationIdParkingsParkingIdIndexRoute,
+  ProtectedAppOrganizationIdParkingsParkingIdReservationsIndexRoute:
+    ProtectedAppOrganizationIdParkingsParkingIdReservationsIndexRoute,
 }
 
 const ProtectedRouteRouteWithChildren = ProtectedRouteRoute._addFileChildren(

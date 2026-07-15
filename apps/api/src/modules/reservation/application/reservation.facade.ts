@@ -8,6 +8,8 @@ import { GetReservationsListTotalQuery } from './queries/get-reservations-list-t
 import { GetUserReservationsListQuery } from './queries/get-user-reservations-list.query';
 import { GetUserReservationsListTotalQuery } from './queries/get-user-reservations-list-total.query';
 import { GetReservationDetailsQuery } from './queries/get-reservation-details.query';
+import { GetReservationsByParkingIdQuery } from './queries/get-reservations-by-parking-id.query';
+import { GetReservationsByParkingIdTotalQuery } from './queries/get-reservations-by-parking-id-total.query';
 import { ReservationListItemReadModel } from './query-handlers/read-models/reservation-list-item.read-model';
 import { ReservationReadModel } from './query-handlers/read-models/reservation.read-model';
 import { CompleteReservationCommand } from './commands/complete-reservation.command';
@@ -97,6 +99,28 @@ export class ReservationFacade {
     return await this.queryBus.execute<GetReservationsListTotalQuery, number>(
       new GetReservationsListTotalQuery(search),
     );
+  }
+
+  async getReservationsByParkingId(
+    parkingId: string,
+    page: number,
+    limit: number,
+    search?: string,
+  ): Promise<ReservationReadModel[]> {
+    return await this.queryBus.execute<
+      GetReservationsByParkingIdQuery,
+      ReservationReadModel[]
+    >(new GetReservationsByParkingIdQuery(parkingId, page, limit, search));
+  }
+
+  async getReservationsByParkingIdTotal(
+    parkingId: string,
+    search?: string,
+  ): Promise<number> {
+    return await this.queryBus.execute<
+      GetReservationsByParkingIdTotalQuery,
+      number
+    >(new GetReservationsByParkingIdTotalQuery(parkingId, search));
   }
 
   async getUserReservationsList(

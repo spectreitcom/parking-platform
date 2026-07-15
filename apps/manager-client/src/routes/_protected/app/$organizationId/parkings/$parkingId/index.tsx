@@ -66,7 +66,7 @@ const parkingDetailsSearchSchema = z
   );
 
 export const Route = createFileRoute(
-  '/_protected/app/$organizationId/parkings/$parkingId',
+  '/_protected/app/$organizationId/parkings/$parkingId/',
 )({
   validateSearch: (search) => parkingDetailsSearchSchema.parse(search),
   loaderDeps: ({ search: { spotsPage } }) => ({ spotsPage: spotsPage ?? 1 }),
@@ -235,6 +235,15 @@ function RouteComponent() {
         </div>
 
         <div className="flex flex-wrap gap-2">
+          <Button asChild variant="outline" size="sm">
+            <Link
+              to="/app/$organizationId/parkings/$parkingId/reservations"
+              params={{ organizationId, parkingId: parking.id }}
+            >
+              <CalendarClockIcon aria-hidden="true" />
+              Reservations
+            </Link>
+          </Button>
           <ActionButton
             enabled={parking.actions.edit}
             icon={PencilIcon}
