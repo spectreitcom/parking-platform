@@ -3,6 +3,7 @@ import { IControllerHandler } from 'src/shared/controller-handler.interface';
 import { ReservationFacade } from 'src/modules/reservation/application/reservation.facade';
 import { ParkingFacade } from 'src/modules/parking/application/parking.facade';
 import { AppError } from 'src/shared/errors';
+import { PaymentFacade } from 'src/modules/payment/application/payment.facade';
 
 type Response = {
   reservationId: string;
@@ -27,6 +28,14 @@ type Response = {
   version: number;
   createdAt: Date;
   updatedAt: Date;
+  payment: {
+    id: string;
+    reservationId: string;
+    userId: string;
+    amount: number;
+    createdAt: Date;
+    paidAt: Date | null;
+  } | null;
 };
 
 @Injectable()
@@ -34,6 +43,7 @@ export class GetReservationDetailsHandler implements IControllerHandler {
   constructor(
     private readonly reservationFacade: ReservationFacade,
     private readonly parkingFacade: ParkingFacade,
+    private readonly paymentFacade: PaymentFacade,
   ) {}
 
   async handle(reservationId: string, userId: string) {
@@ -55,6 +65,9 @@ export class GetReservationDetailsHandler implements IControllerHandler {
     if (!parkingSpot) {
       throw new AppError('ENTITY_NOT_FOUND', `Parking spot not found`);
     }
+
+    const payment =
+      await this.paymentFacade.getPaymentByReservationId(reservationId);
 
     return {
       reservationId: reservationDetails.reservationId,
@@ -79,6 +92,7 @@ export class GetReservationDetailsHandler implements IControllerHandler {
       },
       status: reservationDetails.status,
       total: reservationDetails.total,
+      payment,
     } satisfies Response;
   }
 }

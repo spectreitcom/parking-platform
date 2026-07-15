@@ -31,7 +31,9 @@ export function useReservationActions(reservation: ReservationDetails) {
   const canCancel =
     reservation.canCancel ?? !isReservationCancelled(reservation.status);
   const canEdit = reservation.canEdit ?? canCancel;
-  const canMarkAsPaid = reservation.status.toUpperCase() === 'CREATED';
+  const canMarkAsPaid =
+    reservation.status.toUpperCase() === 'CREATED' &&
+    !reservation.payment?.paidAt;
 
   const startEditing = () => {
     setRegistrationNumber(reservation.registrationNumber);

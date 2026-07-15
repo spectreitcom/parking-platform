@@ -88,6 +88,17 @@ export class ReservationsController {
         version: { type: 'number', format: 'int32', example: 1 },
         createdAt: { type: 'string', format: 'date-time' },
         updatedAt: { type: 'string', format: 'date-time' },
+        payment: {
+          type: 'object',
+          properties: {
+            id: { type: 'string', format: 'uuid' },
+            reservationId: { type: 'string', format: 'uuid' },
+            userId: { type: 'string', format: 'uuid' },
+            amount: { type: 'number' },
+            createdAt: { type: 'string', format: 'date-time' },
+            paidAt: { type: 'string', format: 'date-time', nullable: true },
+          },
+        },
       },
     },
   })
@@ -225,6 +236,21 @@ export class ReservationsController {
               version: { type: 'number', format: 'int32', example: 1 },
               canCancel: { type: 'boolean', example: true },
               canEdit: { type: 'boolean', example: true },
+              payment: {
+                type: 'object',
+                properties: {
+                  id: { type: 'string', format: 'uuid' },
+                  reservationId: { type: 'string', format: 'uuid' },
+                  userId: { type: 'string', format: 'uuid' },
+                  amount: { type: 'number', format: 'float' },
+                  createdAt: { type: 'string', format: 'date-time' },
+                  paidAt: {
+                    type: 'string',
+                    format: 'date-time',
+                    nullable: true,
+                  },
+                },
+              },
             },
           },
         },
