@@ -90,6 +90,7 @@ export class ReservationsController {
         updatedAt: { type: 'string', format: 'date-time' },
         payment: {
           type: 'object',
+          nullable: true,
           properties: {
             id: { type: 'string', format: 'uuid' },
             reservationId: { type: 'string', format: 'uuid' },
@@ -238,6 +239,7 @@ export class ReservationsController {
               canEdit: { type: 'boolean', example: true },
               payment: {
                 type: 'object',
+                nullable: true,
                 properties: {
                   id: { type: 'string', format: 'uuid' },
                   reservationId: { type: 'string', format: 'uuid' },
