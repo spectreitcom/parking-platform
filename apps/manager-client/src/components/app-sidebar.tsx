@@ -1,5 +1,11 @@
 import { Link, useNavigate, useParams } from '@tanstack/react-router';
-import { Building2Icon, CarFrontIcon, LayoutDashboardIcon } from 'lucide-react';
+import { useServerFn } from '@tanstack/react-start';
+import {
+  Building2Icon,
+  CarFrontIcon,
+  LayoutDashboardIcon,
+  LogOutIcon,
+} from 'lucide-react';
 
 import {
   Select,
@@ -11,6 +17,7 @@ import {
 import {
   Sidebar,
   SidebarContent,
+  SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
   SidebarGroupLabel,
@@ -20,6 +27,7 @@ import {
   SidebarMenuItem,
   SidebarRail,
 } from '#/components/ui/sidebar.tsx';
+import { signOut } from '#/features/auth/api';
 
 type Organization = {
   id: string;
@@ -32,6 +40,8 @@ type AppSidebarProps = {
 };
 
 export function AppSidebar({ organizations }: AppSidebarProps) {
+  const signOutFn = useServerFn(signOut);
+
   return (
     <Sidebar collapsible="icon">
       <SidebarHeader>
@@ -65,6 +75,20 @@ export function AppSidebar({ organizations }: AppSidebarProps) {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
+      <SidebarFooter>
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton
+              type="button"
+              tooltip="Log out"
+              onClick={() => void signOutFn()}
+            >
+              <LogOutIcon aria-hidden="true" />
+              <span>Log out</span>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
+      </SidebarFooter>
       <SidebarRail />
     </Sidebar>
   );
