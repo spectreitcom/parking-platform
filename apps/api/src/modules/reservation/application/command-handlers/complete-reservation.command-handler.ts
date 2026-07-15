@@ -26,11 +26,10 @@ export class CompleteReservationCommandHandler implements ICommandHandler<
 
   async execute(command: CompleteReservationCommand): Promise<string> {
     return await this.transactionRunner.runInTransaction(async (prisma) => {
-      const { reservationId, version, userId } = command;
+      const { reservationId, version } = command;
 
-      const reservation = await this.reservationRepository.findByIdAndUserId(
+      const reservation = await this.reservationRepository.findById(
         reservationId,
-        userId,
         prisma,
       );
 
